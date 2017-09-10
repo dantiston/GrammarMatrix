@@ -88,11 +88,13 @@ def html_mark(mark, vm):
   Return a formatted validation note
   """
   msg = vm.message.replace('"', '&quot;')
-  sort = "name" if not vm.href and not error else "href"
+  info = mark == "#"
+  sort = "name" if not vm.href and not info else "href"
   marker = vm.href or vm.name
-  css_class = "info" if mark == "#" else "error"
+  css_class = "info" if info else "error"
   return '<a %s="%s" style="text-decoration:none"><span class="%s" title="%s">%s</span></a>' %\
          (sort, marker, css_class, msg, mark)
+
 
 def html_error_mark(vm):
   return html_mark('*', vm)
@@ -142,10 +144,8 @@ def html_input(vr, type, name, value, checked, before = '', after = '',
         mark = html_error_mark(vr.errors[name])
       elif name in vr.warnings:
         mark = html_warning_mark(vr.warnings[name])
-      if name in vr.infos:
+      elif name in vr.infos:
         mark = html_info_mark(vr.infos[name])
-    if name in vr.infos:
-      mark = html_info_mark(vr.infos[name])
 
   if type == 'textarea':
     value = value.replace('\\n','\n')

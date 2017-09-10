@@ -9,10 +9,17 @@ class HtmlInputTests(unittest.TestCase):
 
   class dummy(object):
 
-    def __init__(self, infos=set(), warnings=set(), errors=set()):
+    def __init__(self, infos={}, warnings={}, errors={}):
       self.infos = infos
       self.warnings = warnings
       self.errors = errors
+
+  class dummy_error(object):
+
+    def __init__(self, href="", name="", message=""):
+      self.href = href
+      self.name = name
+      self.message = message
 
 
   def testHtmlInput_radio_basic(self):
@@ -81,6 +88,36 @@ class HtmlInputTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
+  def testHtmlInput_checkbox_marked_error(self):
+    actual = deffile.html_input(self.dummy(errors={"hello":self.dummy_error(message="error")}), "checkbox", "hello", "test_value", False)
+    expected = '<label><a name="" style="text-decoration:none"><span class="error" title="error">*</span></a><input type="checkbox"  name="hello" value="test_value"></label>'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlInput_checkbox_marked_warning(self):
+    actual = deffile.html_input(self.dummy(warnings={"hello":self.dummy_error(message="warning")}), "checkbox", "hello", "test_value", False)
+    expected = '<label><a name="" style="text-decoration:none"><span class="error" title="warning">?</span></a><input type="checkbox"  name="hello" value="test_value"></label>'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlInput_checkbox_marked_info(self):
+    actual = deffile.html_input(self.dummy(infos={"hello":self.dummy_error(message="info")}), "checkbox", "hello", "test_value", False)
+    expected = '<label><a href="" style="text-decoration:none"><span class="info" title="info">#</span></a><input type="checkbox"  name="hello" value="test_value"></label>'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlInput_checkbox_marked_negative(self):
+    actual = deffile.html_input(self.dummy(infos={"world":self.dummy_error(message="info")}), "checkbox", "hello", "test_value", False)
+    expected = '<label><input type="checkbox"  name="hello" value="test_value"></label>'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlInput_checkbox_marked_double(self):
+    actual = deffile.html_input(self.dummy(errors={"hello":self.dummy_error(message="error")}, infos={"hello":self.dummy_error(message="info")}), "checkbox", "hello", "test_value", False)
+    expected = '<label><a name="" style="text-decoration:none"><span class="error" title="error">*</span></a><input type="checkbox"  name="hello" value="test_value"></label>'
+    self.assertEqual(actual, expected)
+
+
   def testHtmlInput_text_basic(self):
     actual = deffile.html_input(self.dummy(), "text", "hello", "test_value", False)
     expected = '<input type="text"  name="hello" value="test_value">'
@@ -140,30 +177,44 @@ class HtmlMarkTests(unittest.TestCase):
 
 
   def testHtmlMark_error(self):
-    vm = self.dummy("main", False, "hello")
+    vm = self.dummy("main", "", "hello")
     actual = deffile.html_mark("*", vm)
     expected = '<a href="main" style="text-decoration:none"><span class="error" title="hello">*</span></a>'
     self.assertEqual(actual, expected)
 
 
   def testHtmlMark_warning(self):
-    vm = self.dummy("main", False, "hello")
+    vm = self.dummy("main", "", "hello")
     actual = deffile.html_mark("?", vm)
     expected = '<a href="main" style="text-decoration:none"><span class="error" title="hello">?</span></a>'
     self.assertEqual(actual, expected)
 
 
   def testHtmlMark_info(self):
-    vm = self.dummy("main", False, "hello")
+    vm = self.dummy("main", "", "hello")
     actual = deffile.html_mark("#", vm)
     expected = '<a href="main" style="text-decoration:none"><span class="info" title="hello">#</span></a>'
     self.assertEqual(actual, expected)
 
 
   def testHtmlMark_other(self):
-    vm = self.dummy("main", False, "hello")
+    vm = self.dummy("main", "", "hello")
     actual = deffile.html_mark("X", vm)
     expected = '<a href="main" style="text-decoration:none"><span class="error" title="hello">X</span></a>'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlMark_name(self):
+    vm = self.dummy("", "main", "hello")
+    actual = deffile.html_mark("*", vm)
+    expected = '<a name="main" style="text-decoration:none"><span class="error" title="hello">*</span></a>'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlMark_name_with_href(self):
+    vm = self.dummy("href", "name", "hello")
+    actual = deffile.html_mark("*", vm)
+    expected = '<a href="href" style="text-decoration:none"><span class="error" title="hello">*</span></a>'
     self.assertEqual(actual, expected)
 
 
