@@ -106,7 +106,7 @@ def html_info_mark(vm):
   return html_mark('#', vm)
 
 
-def html_input(vr, type, name, value, checked, before = '', after = '',
+def html_input(vr, sort, name, value, checked, before = '', after = '',
                size = '', onclick = '', disabled = False, onchange = ''):
   """
   # Return an HTML <input> tag with the specified attributes and
@@ -117,9 +117,6 @@ def html_input(vr, type, name, value, checked, before = '', after = '',
 
   Known types: check, radio, text, textarea, file, button, submit, hidden
   """
-  chkd = ''
-  if checked:
-    chkd = ' checked="checked"'
 
   if size:
     if 'x' in size:
@@ -128,41 +125,36 @@ def html_input(vr, type, name, value, checked, before = '', after = '',
       size = ' size="' + size + '"'
 
   if onclick:
-    onclick = ' onclick="' + onclick + '"'
-
+    onclick = ' onclick="%s"' % onclick
   if onchange:
-    onchange = ' onchange="' + onchange + '"'
+    onchange = ' onchange="%s"' % onchange
 
-  dsabld = ''
-  if disabled:
-    dsabld = ' disabled="disabled"'
+  chkd = ' checked="checked"' if checked else ''
+  dsabld = ' disabled="disabled"' if disabled else ''
 
   mark = ''
-  if type != 'radio':
-    if vr:
-      if name in vr.errors:
-        mark = html_error_mark(vr.errors[name])
-      elif name in vr.warnings:
-        mark = html_warning_mark(vr.warnings[name])
-      elif name in vr.infos:
-        mark = html_info_mark(vr.infos[name])
+  if sort != 'radio':
+    mark = validation_mark(vr, name)
 
-  if type == 'textarea':
+  if sort == 'textarea':
     value = value.replace('\\n','\n')
     return '%s%s<TextArea name="%s"%s>%s</TextArea>%s' % \
          (before, mark, name, size, value, after)
 
   else:
     if value:
-      value = ' value="' + value + '"'
+      value = ' value="%s"' % value
     if name:
-      name = ' name="' + name + '"'
+      name = ' name="%s"' % name
+
     output = '%s%s<input type="%s" %s%s%s%s%s%s%s>%s' % \
-         (before, mark, type, name, value, chkd, size, dsabld,
+         (before, mark, sort, name, value, chkd, size, dsabld,
           onclick, onchange, after)
+
     # TJT 2014-09-05: If checkbox
-    if type in ('checkbox','radio'):
-      return "<label>%s</label>" % output
+    if sort in ('checkbox', 'radio'):
+      output = "<label>%s</label>" % output
+
     return output
 
 
@@ -171,31 +163,38 @@ def html_select(vr, name, multi=False, onfocus='', onchange=''):
   """
   Return an HTML <select> tag with the specified name
   """
-  mark = ''
-  if name in vr.errors:
-    mark = html_error_mark(vr.errors[name])
-  elif name in vr.warnings:
-    mark = html_warning_mark(vr.warnings[name])
-  if name in vr.infos:
-    mark = html_info_mark(vr.infos[name])
+  mark = validation_mark(vr, name)
 
-  multi_attr = ''
-  if multi:
-    multi_attr = ' class="multi"  multiple="multiple" '
+  multi_attr = ' class="multi"  multiple="multiple" ' if multi else ''
 
   if onfocus:
-    onfocus = ' onfocus="' + onfocus + '"'
-
+    onfocus = ' onfocus="%s"' % onfocus
   if onchange:
-    onchange = ' onchange="' + onchange + '"'
+    onchange = ' onchange="%s"' % onchange
 
   return '%s<select name="%s"%s%s%s>' % \
          (mark, name, multi_attr, onfocus, onchange)
 
 
-# Return an HTML <option> tag with the specified attributes and
-# surrounding text
+def validation_mark(vr, name):
+  """
+  Check if there's an error and generate the appropriate error mark
+  """
+  result = ''
+  if name in vr.errors:
+    result = html_error_mark(vr.errors[name])
+  elif name in vr.warnings:
+    result = html_warning_mark(vr.warnings[name])
+  elif name in vr.infos:
+    result = html_info_mark(vr.infos[name])
+  return result
+
+
 def html_option(vr, name, selected, html, temp=False, strike=False):
+  """
+  Return an HTML <option> tag with the specified attributes and
+  surrounding text
+  """
   if selected:
     selected = ' selected'
   else: selected = ''
