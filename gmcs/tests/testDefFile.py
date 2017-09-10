@@ -4,7 +4,7 @@ from gmcs import deffile
 
 class HtmlInputTests(unittest.TestCase):
   """
-  check, radio, textarea, hidden, file, button
+  check, radio, text, textarea, file, button, submit, hidden
   """
 
   class dummy(object):
@@ -81,15 +81,51 @@ class HtmlInputTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
+  def testHtmlInput_text_basic(self):
+    actual = deffile.html_input(self.dummy(), "text", "hello", "test_value", False)
+    expected = '<input type="text"  name="hello" value="test_value">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlInput_text_sized(self):
+    actual = deffile.html_input(self.dummy(), "text", "hello", "test_value", False, size="42")
+    expected = '<input type="text"  name="hello" value="test_value" size="42">'
+    self.assertEqual(actual, expected)
+
+
   def testHtmlInput_textarea_basic(self):
     actual = deffile.html_input(self.dummy(), "textarea", "hello", "test_value", False)
     expected = '<TextArea name="hello">test_value</TextArea>'
     self.assertEqual(actual, expected)
 
 
-  def testHtmlInput_textarea_size(self):
-    actual = deffile.html_input(self.dummy(), "textarea", "hello", "test_value", False, size="40x40")
-    expected = '<TextArea name="hello" cols="40" rows="40">test_value</TextArea>'
+  def testHtmlInput_textarea_sized(self):
+    actual = deffile.html_input(self.dummy(), "textarea", "hello", "test_value", False, size="42x42")
+    expected = '<TextArea name="hello" cols="42" rows="42">test_value</TextArea>'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlInput_button_basic(self):
+    actual = deffile.html_input(self.dummy(), "button", "hello", "test_value", False)
+    expected = '<input type="button"  name="hello" value="test_value">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlInput_file_basic(self):
+    actual = deffile.html_input(self.dummy(), "file", "hello", "test_value", False)
+    expected = '<input type="file"  name="hello" value="test_value">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlInput_submit_basic(self):
+    actual = deffile.html_input(self.dummy(), "submit", "hello", "test_value", False)
+    expected = '<input type="submit"  name="hello" value="test_value">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlInput_hidden_basic(self):
+    actual = deffile.html_input(self.dummy(), "hidden", "hello", "test_value", False)
+    expected = '<input type="hidden"  name="hello" value="test_value">'
     self.assertEqual(actual, expected)
 
 

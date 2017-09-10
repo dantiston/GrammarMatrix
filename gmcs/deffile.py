@@ -112,6 +112,8 @@ def html_input(vr, type, name, value, checked, before = '', after = '',
   # TJT 2014-05-07 Adding randid to html_input to pass random number
   # matching radio buttons to their labels along
   # TJT 2014-09-05 Getting rid of randid to wrap entire radio option in label
+
+  Known types: check, radio, text, textarea, file, button, submit, hidden
   """
   chkd = ''
   if checked:
