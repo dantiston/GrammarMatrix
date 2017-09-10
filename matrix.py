@@ -133,7 +133,7 @@ def main():
       print mrs_string
 
   elif args[0] in ('u', 'unit-test'):
-    run_unit_tests()
+    run_unit_tests(tests=args[1:])
 
   elif args[0] in ('hv', 'html-validate'):
     if len(args) > 1:
@@ -675,7 +675,7 @@ def customize_grammar(path, destination=None, flop=False, cheaphack=False):
     subprocess.call([cmd, pet_file], cwd=grammar_dir,
                     env=os.environ, stderr=devnull)
 
-def run_unit_tests():
+def run_unit_tests(tests=None):
   import unittest
 
   def print_line():
@@ -684,20 +684,29 @@ def run_unit_tests():
   loader = unittest.defaultTestLoader
   runner = unittest.TextTestRunner(verbosity=1)
 
-  print_line()
-  print 'Choices tests:'
-  import gmcs.tests.testChoices
-  runner.run(loader.loadTestsFromModule(gmcs.tests.testChoices))
+  if not tests or "choices" in tests:
+    print_line()
+    print 'Choices tests:'
+    import gmcs.tests.testChoices
+    runner.run(loader.loadTestsFromModule(gmcs.tests.testChoices))
 
-  print_line()
-  print 'Validate tests:'
-  import gmcs.tests.testValidate
-  runner.run(loader.loadTestsFromModule(gmcs.tests.testValidate))
+  if not tests or "validate" in tests:
+    print_line()
+    print 'Validate tests:'
+    import gmcs.tests.testValidate
+    runner.run(loader.loadTestsFromModule(gmcs.tests.testValidate))
 
-  print_line()
-  print 'Toolbox import tests:'
-  import gmcs.linglib.tests.testToolboxImport
-  runner.run(loader.loadTestsFromModule(gmcs.linglib.tests.testToolboxImport))
+  if not tests or "toolbox" in tests:
+    print_line()
+    print 'Toolbox import tests:'
+    import gmcs.linglib.tests.testToolboxImport
+    runner.run(loader.loadTestsFromModule(gmcs.linglib.tests.testToolboxImport))
+
+  if not tests or "deffile" in tests:
+    print_line()
+    print 'DefFile tests:'
+    import gmcs.tests.testDefFile
+    runner.run(loader.loadTestsFromModule(gmcs.tests.testDefFile))
 
 #   print_line()
 #   print 'Linglib/Morphotactics tests:'

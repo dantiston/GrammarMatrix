@@ -1,0 +1,50 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session={{cookie}}
+
+{#
+  This Jinja template acts as a base for the Grammar Matrix website
+
+  Note this defines (at least) the following blocks:
+    * head
+    * body
+    * onchange
+
+  Note this defines (at least) the following variables:
+    * title
+    * features
+    * verb_case_patterns
+    * numbers
+
+#}
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>{{title}}|default('the Matrix')</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form 'name:value|friendly value,...'
+      var features = [{{features}}];
+
+      var verb_case_patterns = [{{verb_case_patterns}}];
+
+      var numbers = [{{numbers}}];
+      -->
+    </script>
+
+    {% block head %}
+    {% endblock %}
+
+  </head>
+
+  <body onload="{% block onchange %}">
+  {% block body %}
+  {% endblock %}
+  </body>
+
+</html>

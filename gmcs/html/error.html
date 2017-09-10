@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{#
+  This Jinja template displays validations errors to users when trying to customize their grammar
+
+  Note this defines (at least) the following variables:
+    * errors
+
+#}
+
+{% block title %}Matrix Customization Errors{% endblock %}
+
+{% block body %}
+  {% if errors %}
+    <h2>Errors</h2>
+    <dl>
+    {% for error in errors %}
+      <dt><b>{{error}}:</b></dt>
+      <dd>{% errors[error].message %}</dd>
+    {% endfor %}
+    </dl>
+  {% endif %}
+{% endblock %}

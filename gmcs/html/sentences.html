@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{#
+  This Jinja template extends base.html to define the test by generation page.
+
+  Note this defines (at least) the following variables:
+    * sentences
+
+#}
+
+{% block onload %}animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();{{onload}}{% endblock %}
+
+{% block head %}
+  <script type="text/javascript">
+  <!--
+  function toggle_visibility(ids) {
+    for (i in ids) {
+      var e = document.getElementById(ids[i]);
+      if (e.style.display == 'none')
+        e.style.display = 'block';
+      else
+        e.style.display = 'none';
+    }
+  }
+  //-->
+  </script>
+{% endblock %}
+
+{% block body %}
+  <h3>Generated Sentences</h3>
+  Click on a sentence to view its parse tree and the mrs associated to that parse.  Capitalized lexical entries indicate that the lexical entry has undergone a spelling-changing lexical rule<br><br>
+
+  {{sentences}}
+
+  <hr>
+  <a href="matrix.cgi">Back to form</a><br>
+  <a href="http://www.delph-in.net/matrix/">Back to Matrix main page</a><br>
+  <a href="http://www.delph-in.net/lkb">To the LKB page</a>
+{% endblock %}

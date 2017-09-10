@@ -12,7 +12,6 @@
 ######################################################################
 # imports
 
-#import sys
 import os
 import cgitb
 import glob
@@ -20,7 +19,6 @@ import re
 import tarfile
 import gzip
 import zipfile
-#import gmcs.tdl
 
 from gmcs import choices
 from gmcs.choices import ChoicesFile
@@ -28,7 +26,6 @@ from gmcs.utils import tokenize_def, get_name
 from gmcs import generate
 from gmcs.validate import ValidationMessage
 
-#from random import randrange
 from collections import defaultdict
 
 ######################################################################
@@ -37,35 +34,6 @@ from collections import defaultdict
 def dummy():
   pass # let emacs know the indentation is 2 spaces
 
-
-HTTP_header = 'Content-type: text/html;charset=UTF-8'
-
-HTML_pretitle = '''<!doctype html>
-<html>
-<head><meta charset="utf-8"/>
-'''
-
-HTML_posttitle = '''<script type="text/javascript" src="web/matrix.js">
-</script>
-
-<script type="text/javascript">
-// An array of strings, each of the form 'name:value|friendly value,...'
-var features = [
-%s
-];
-
-var verb_case_patterns = [
-%s
-];
-
-var numbers = [
-%s
-];
-</script>
-
-<link rel="stylesheet" href="web/matrix.css">
-</head>
-'''
 
 HTML_jscache = '''<script type="text/javascript">
 // A cache of choices from other subpages
@@ -90,155 +58,6 @@ HTML_toggle_visible_js = '''<script type="text/javascript">
 </script>
 '''
 
-HTML_mainprebody = '''<body onload="animate()">
-<h1>LinGO Grammar Matrix</h1>
-<h1 style="display:inline">Matrix customization and download page</h1>
-<span class="tt">[<a href="http://moin.delph-in.net/MatrixDocTop" target="matrixdoc">help</a>]</span>
-<h2>Version of %s</h2>
-
-<p>The <a href="http://www.delph-in.net/matrix">LinGO Grammar
-Matrix</a> is developed at the University of Washington in the context
-of the <a href="http://www.delph-in.net/">DELPH-IN Consortium</a>,
-by <a  href="http://faculty.washington.edu/ebender">Emily M. Bender</a>
-and colleagues.  This material is based up work supported by
-the National Science Foundation under Grant No. BCS-0644097.
-Additional support for Grammar Matrix development came from a gift
-to the Turing Center from the Utilika Foundation.  Any opinions,
-findings, and conclusions or recommendations expressed in this
-material are those of the author(s) and do not necessarily
-reflect the views of the National Science Foundation.
-The Grammar Matrix customization system is hosted by the University
-of Washington.
-
-<p>[<a href="http://www.washington.edu/online/terms">University of
-Washington Website Terms and Conditions of Use</a>]<br>
-[<a href="http://www.washington.edu/online/privacy">University of
-Washington Online Privacy Statement</a>]
-
-
-<p>Publications reporting on work based on grammars derived from this
-system should cite <a
-href="http://faculty.washington.edu/ebender/papers/gee03.pdf">Bender,
-Flickinger and Oepen 2002</a> <a
-href="http://faculty.washington.edu/ebender/bibtex/BenFliOep02.bib.txt">[.bib]</a>
-and <a href="http://www.springerlink.com/content/767771152h331808/">Bender et al 2010</a> <a href="http://faculty.washington.edu/ebender/bibtex/BenDreFokPouSal10.bib.txt">[.bib]</a>.  Further publications from the project are available
-on the <a href="http://www.delph-in.net/matrix/index.html#pubs">project website</a>.
-
-<p>Filling out this form will produce a starter grammar for a natural
-language, consisting of a language-independent core and customized
-support for the phenomena you describe below.  Note that this grammar
-fragment will only treat matrix (main) clauses. Be advised that this
-system is highly experimental.  We are interested in your feedback.
-If you have questions or comments, please email Emily Bender at:
-<strong>ebender at u dot washington dot edu</strong>.
-
-<p>[<a href="http://www.delph-in.net/matrix/">Back to Matrix main
-page</a>]
-
-<p>NOTE: Throughout the questionnaire, questions or subpages that lack
-a required answer or contain an incorrect answer are marked with a red
-asterisk:
-
-<span class="error" title="This asterisk is an exception. It has a
-tooltip even though it does not mark an error.">*</span>.
-
-Questions or subpages that contain answers that might be problematic,
-but are not outright incorrect, are marked with a red question mark:
-
-<span class="error" title="This question mark is similarly
-exceptional. It has a tooltip even though it does not mark a
-warning.">?</span>.
-
-Hovering the mouse cursor over a red asterisk or question mark will
-show a tooltip describing the error. Clicking on a red asterisk or
-question mark that is on the main page will link to the error or warning
-on the appropriate subpage.</p>
-
-'''
-
-HTML_customprebody = '''<h3>Customized Matrix</h3>
-
-<p>A customized copy of the Matrix has been created for you.
-Please download it <a href="%s">here</a>.
-
-<p>This file will be removed from the system in 24 hours.
-
-<h3>Instructions</h3>
-
-<p>To unpack the archive, if your browser hasn't already done it for
-you, first try saving it on your desktop and double-clicking it.  If
-that doesn't work, and you're using Linux or Mac OS X, from a command
-prompt, type <tt>tar xzf matrix.tar.gz</tt> or <tt>unzip matrix.zip</tt>.
-
-<p>Once you've unpacked the archive you should find a directory called
-<tt>matrix</tt>.  Inside the directory are several files.  Here is
-an explanation of some:
-
-<ul>
-<li><tt>matrix.tdl</tt>: Language independent type and constraint
-definitions.  You should not need to modify this file.
-<li><tt>my_language.tdl</tt>: Types and constraints specific to your
-language.  (Actual file name depends on the name of your language.)
-<li><tt>lexicon.tdl</tt>: Lexical entries for your language.
-<li><tt>rules.tdl</tt>: Phrase structure rule instance entries for
-your language.
-<li><tt>irules.tdl</tt>: Spelling-changing lexical rule instance
-entries for your language.
-<li><tt>lrules.tdl</tt>: Non-spelling-changing lexical rule instance
-entries for your language.
-<li><tt>lkb/script</tt>: The script file for loading your grammar into
-the LKB.
-<li><tt>choices</tt>: A record of the information you
-provided in the matrix configuration form.
-</ul>
-
-<p>To run this grammar, start the LKB, and the load it by selected
-"Load > Complete grammar..." from the LKB menu.  You can then parse a
-sentence by selecting "Parse > Parse input..." from the LKB menu.  The
-dialog box that pops up should include the sentences you filled into
-the form.  When a sentence parses successfully, you can try generating
-from the resulting semantic representation by selecting "Generate" or
-"Generate from edge" from the pop-up menu.  For more on using the LKB,
-see the <a href="http://www.delph-in.net/lkb">LKB page</a> and/or
-Copestake 2002 <a
-href="http://cslipublications.stanford.edu/lkb.html"><i>Implementing
-Typed Feature Structure Grammars</i></a>.
-
-<hr>
-<a href="matrix.cgi">Back to form</a><br>
-<a href="http://www.delph-in.net/matrix/">Back to Matrix main page</a><br>
-<a href="http://www.delph-in.net/lkb">To the LKB page</a>
-'''
-
-HTML_sentencesprebody = '''
-<script type="text/javascript">
-<!--
-function toggle_visibility(ids) {
-  for(i in ids) {
-    var e = document.getElementById(ids[i]);
-    if(e.style.display == 'none')
-      e.style.display = 'block';
-    else
-  e.style.display = 'none';
-  }
-}
-//-->
-</script>
-
-<h3>Generated Sentences</h3>
-Click on a sentence to view its parse tree and the mrs associated to that parse.  Capitalized lexical entries indicate that the lexical entry has undergone a spelling-changing lexical rule<br><br>
-'''
-
-HTML_sentencespostbody = '''
-<hr>
-<a href="matrix.cgi">Back to form</a><br>
-<a href="http://www.delph-in.net/matrix/">Back to Matrix main page</a><br>
-<a href="http://www.delph-in.net/lkb">To the LKB page</a>
-'''
-
-HTML_prebody = '''<body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors();scalenav();">
-'''
-
 HTML_prebody_sn = '''<body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors();display_neg_form();scalenav();">'''
 
 HTML_method = 'post'
@@ -248,15 +67,10 @@ HTML_preform = '<form action="matrix.cgi" method="' + HTML_method + '" enctype="
 HTML_postform = '</form>'
 
 HTML_uploadpreform = '''
-<form action="matrix.cgi" method="post" enctype="multipart/form-data"
- name="choices_form">
+<form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
 '''
 
 HTML_uploadpostform = '</form>'
-
-HTML_postbody = '''</body>
-
-</html>'''
 
 
 ######################################################################
@@ -270,20 +84,15 @@ HTML_postbody = '''</body>
 # HTML creation functions
 
 def html_mark(mark, vm):
-  if vm.href:
-    if mark == '#':
-      return '<a href="%s" style="text-decoration:none"><span class="info" title="%s">%s</span></a>' %\
-           (vm.href, vm.message.replace('"', '&quot;'), mark)
-    else:
-      return '<a href="%s" style="text-decoration:none"><span class="error" title="%s">%s</span></a>' %\
-           (vm.href, vm.message.replace('"', '&quot;'), mark)
-  else:
-    if mark == '#':
-      return '<a href="%s" style="text-decoration:none"><span class="info" title="%s">%s</span></a>' %\
-           (vm.name, vm.message.replace('"', '&quot;'), mark)
-    else:
-      return '<a name="%s" style="text-decoration:none"><span class="error" title="%s">%s</span></a>' %\
-           (vm.name, vm.message.replace('"', '&quot;'), mark)
+  """
+  Return a formatted validation note
+  """
+  msg = vm.message.replace('"', '&quot;')
+  sort = "name" if not vm.href and not error else "href"
+  marker = vm.href or vm.name
+  css_class = "info" if mark == "#" else "error"
+  return '<a %s="%s" style="text-decoration:none"><span class="%s" title="%s">%s</span></a>' %\
+         (sort, marker, css_class, msg, mark)
 
 def html_error_mark(vm):
   return html_mark('*', vm)
@@ -294,13 +103,16 @@ def html_warning_mark(vm):
 def html_info_mark(vm):
   return html_mark('#', vm)
 
-# Return an HTML <input> tag with the specified attributes and
-# surrounding text
-# TJT 2014-05-07 Adding randid to html_input to pass random number
-# matching radio buttons to their labels along
-# TJT 2014-09-05 Getting rid of randid to wrap entire radio option in label
+
 def html_input(vr, type, name, value, checked, before = '', after = '',
                size = '', onclick = '', disabled = False, onchange = ''):
+  """
+  # Return an HTML <input> tag with the specified attributes and
+  # surrounding text
+  # TJT 2014-05-07 Adding randid to html_input to pass random number
+  # matching radio buttons to their labels along
+  # TJT 2014-09-05 Getting rid of randid to wrap entire radio option in label
+  """
   chkd = ''
   if checked:
     chkd = ' checked="checked"'
@@ -352,9 +164,11 @@ def html_input(vr, type, name, value, checked, before = '', after = '',
     return output
 
 
-# Return an HTML <select> tag with the specified name
 # TJT 2014-08-26: Adding onchange
 def html_select(vr, name, multi=False, onfocus='', onchange=''):
+  """
+  Return an HTML <select> tag with the specified name
+  """
   mark = ''
   if name in vr.errors:
     mark = html_error_mark(vr.errors[name])
@@ -404,28 +218,19 @@ def html_delbutton(id):
   return the HTML for an iterator delete button that will delete
   iterator "id"
   """
-  # Various Unicode exxes:
-  # xD7:   Multiplication Sign (old)
-  # x2169: Roman Numeral Ten
-  # x2179: Small Roman Numeral Ten (good)
-  # x2573: Box Drawings Light Diagonal Cross
-  # x2613: Saltire
-  # x2715: Multiplication X
-  # x2716: Heavy Multiplication X
-  # x2717: Ballot X
-  # x2718: Heavy Ballot X
+  # TJT 2014-5-27 Regular capital X looks the best + most compliant
   return '<input type="button" class="delbutton" ' + \
          'value="X" name="" title="Delete" ' + \
          'onclick="remove_element(\'' + id + '\')">\n'
-  # TJT 2014-5-27 Regular capital X looks the best + most compliant
-  #'value="&#x2169;" name="" title="Delete" ' + \
 
 
-# given a list of lines of text, some of which may contain
-# unterminated double-quoted strings, merge some lines as necessary so
-# that every quoted string is contained on a single line, and return
-# the merged list
 def merge_quoted_strings(line):
+  """
+  given a list of lines of text, some of which may contain
+  unterminated double-quoted strings, merge some lines as necessary so
+  that every quoted string is contained on a single line, and return
+  the merged list
+  """
   i = 0
   while i < len(line):
     j = 0
@@ -445,48 +250,43 @@ def merge_quoted_strings(line):
 
   return line
 
+
 ######################################################################
 # Archive helper functions
 #   make_tgz(dir) and make_zip(dir) create an archive called
 #   dir.(tar.gz|zip) that contains the contents of dir
 
-def make_tgz(dir):
-
+def make_tgz(directory):
   # ERB First get rid of existing file because gzip won't
   # overwrite existing .tgz meaning you can only customize
   # grammar once per session.
-
   if os.path.exists('matrix.tar.gz'):
     os.remove('matrix.tar.gz')
 
-  archive = dir + '.tar'
-  t = tarfile.open(archive, 'w')
-  t.add(dir)
-  t.close()
+  archive = directory + '.tar'
+  with tarfile.open(archive, 'w') as t:
+    t.add(directory)
 
-  g = gzip.open(archive + '.gz', 'wb')
-  f = open(archive, 'rb')
-  g.write(f.read())
-  f.close()
-  g.close()
+  with gzip.open(archive + '.gz', 'wb') as g:
+    with open(archive, 'rb') as f:
+      g.write(f.read())
 
   os.remove(archive)
 
 
-def add_zip_files(z, dir):
-  files = os.listdir(dir)
+def add_zip_files(z, directory):
+  files = os.listdir(directory)
   for f in files:
-    cur = os.path.join(dir, f)
+    cur = os.path.join(directory, f)
     if os.path.isdir(cur):
       add_zip_files(z, cur)
     else:
       z.write(cur, cur)
 
 
-def make_zip(dir):
-  z = zipfile.ZipFile(dir + '.zip', 'w')
-  add_zip_files(z, dir)
-  z.close()
+def make_zip(directory):
+  with zipfile.ZipFile(directory + '.zip', 'w') as z:
+    add_zip_files(z, directory)
 
 
 # Replace variables of the form {name} in word using the dict iter_vars
@@ -496,37 +296,47 @@ def replace_vars(word, iter_vars):
   return word
 
 
-# From a list of triples of strings [string1, string2, ...], return
-# a string containing a JavaScript-formatted list of strings of the
-# form 'string1:string2'.
-def js_array(list):
-  val = ''
-  for l in list:
-    val += '\'' + l[0] + ':' + l[1] + '\',\n'
-  val = val[:-2]  # trim off the last ,\n
-  return val
+def js_array(items, N=2):
+  """
+  # From a list of triples of strings [string1, string2, ...], return
+  # a string containing a JavaScript-formatted list of strings of the
+  # form 'string1:string2'.
+  """
+  return "\n".join(("'" + ":".join(item[:N]) + "'" for item in items))
+  # val = ''
+  # for l in list:
+  #   val += '\'' + l[0] + ':' + l[1] + '\',\n'
+  # val = val[:-2]  # trim off the last ,\n
+  # return val
 
-# From a list of triples of strings [string1, string2, ...], return
-# a string containing a JavaScript-formatted list of strings of the
-# form 'string1:string2:string3'. This is used to convey features,
-# values and category (category of feature).
-def js_array3(list):
-  val = ''
-  for l in list:
-    val += '\'' + l[0] + ':' + l[1] + ':' + l[3] + '\',\n'
-  val = val[:-2]  # trim off the last ,\n
-  return val
+def js_array3(items):
+  """
+  # From a list of triples of strings [string1, string2, ...], return
+  # a string containing a JavaScript-formatted list of strings of the
+  # form 'string1:string2:string3'. This is used to convey features,
+  # values and category (category of feature).
+  """
+  return js_array(items, N=3)
+  # val = ''
+  # for l in list:
+  #   val += '\'' + l[0] + ':' + l[1] + ':' + l[3] + '\',\n'
+  # val = val[:-2]  # trim off the last ,\n
+  # return val
 
-# From a list of triples of strings [string1, string2, ...], return
-# a string containing a JavaScript-formatted list of strings of the
-# form 'string1:string2:string3:string4'. This is used to convey features,
-# values, category (category of feature), a flag feature 'customized'.
-def js_array4(list):
-  val = ''
-  for l in list:
-    val += '\'' + l[0] + ':' + l[1] + ':' + l[3] + ':' + l[4] + '\',\n'
-  val = val[:-2]  # trim off the last ,\n
-  return val
+
+def js_array4(items):
+  """
+  # From a list of triples of strings [string1, string2, ...], return
+  # a string containing a JavaScript-formatted list of strings of the
+  # form 'string1:string2:string3:string4'. This is used to convey features,
+  # values, category (category of feature), a flag feature 'customized'.
+  """
+  return js_array(items, N=4)
+  # val = ''
+  # for l in list:
+  #   val += '\'' + l[0] + ':' + l[1] + ':' + l[3] + ':' + l[4] + '\',\n'
+  # val = val[:-2]  # trim off the last ,\n
+  # return val
 
 ######################################################################
 # MatrixDefFile class
@@ -535,77 +345,96 @@ def js_array4(list):
 # on the contents, to produce HTML pages and save choices files.
 
 class MatrixDefFile:
+
   # links between names and friendly names for
   # use in links on html navigation menu
   sections = { 'general':'General Information',
-  'word-order':'Word Order', 'number':'Number',
-  'person':'Person', 'gender':'Gender', 'case':'Case',
-  'direct-inverse':'Direct-inverse', 'tense-aspect-mood':'Tense, Aspect and Mood',
-  'other-features':'Other Features', 'sentential-negation':'Sentential Negation',
-  'coordination':'Coordination', 'matrix-yes-no':'Matrix Yes/No Questions',
-  'info-str':'Information Structure',
-  'arg-opt':'Argument Optionality', 'lexicon':'Lexicon',
-  'morphology':'Morphology','toolbox-import':'Toolbox Import',
-  'test-sentences':'Test Sentences','gen-options':'TbG Options',
-  'ToolboxLexicon':'Toolbox Lexicon'}
+    'word-order':'Word Order',
+    'number':'Number',
+    'person':'Person',
+    'gender':'Gender',
+    'case':'Case',
+    'direct-inverse':'Direct-inverse',
+    'tense-aspect-mood':'Tense, Aspect and Mood',
+    'other-features':'Other Features',
+    'sentential-negation':'Sentential Negation',
+    'coordination':'Coordination',
+    'matrix-yes-no':'Matrix Yes/No Questions',
+    'info-str':'Information Structure',
+    'arg-opt':'Argument Optionality',
+    'lexicon':'Lexicon',
+    'morphology':'Morphology',
+    'toolbox-import':'Toolbox Import',
+    'test-sentences':'Test Sentences',
+    'gen-options':'TbG Options',
+    'ToolboxLexicon':'Toolbox Lexicon'}
 
   # used to link section names to their documentation
   # page name in the delph-in wiki
   doclinks = { 'general':'GeneralInfo',
-  'word-order':'WordOrder', 'number':'Number',
-  'person':'Person', 'gender':'Gender', 'case':'Case',
-  'direct-inverse':'DirectInverse', 'tense-aspect-mood':'TenseAspectMood',
-  'other-features':'OtherFeatures', 'sentential-negation':'SententialNegation',
-  'coordination':'Coordination', 'matrix-yes-no':'YesNoQ',
-  'info-str':'InformationStructure',
-  'arg-opt':'ArgumentOptionality', 'lexicon':'Lexicon',
-  'morphology':'Morphology','toolbox-import':'ImportToolboxLexicon',
-  'test-sentences':'TestSentences','gen-options':'TestByGeneration',
-  'ToolboxLexicon':'ImportToolboxLexicon'}
+      'word-order':'WordOrder',
+      'number':'Number',
+      'person':'Person',
+      'gender':'Gender',
+      'case':'Case',
+      'direct-inverse':'DirectInverse',
+      'tense-aspect-mood':'TenseAspectMood',
+      'other-features':'OtherFeatures',
+      'sentential-negation':'SententialNegation',
+      'coordination':'Coordination',
+      'matrix-yes-no':'YesNoQ',
+      'info-str':'InformationStructure',
+      'arg-opt':'ArgumentOptionality',
+      'lexicon':'Lexicon',
+      'morphology':'Morphology',
+      'toolbox-import':'ImportToolboxLexicon',
+      'test-sentences':'TestSentences',
+      'gen-options':'TestByGeneration',
+      'ToolboxLexicon':'ImportToolboxLexicon'}
+
+
   def_file = ''
   v2f = {}
   f2v = {}
 
   def __init__(self, def_file):
     self.def_file = def_file
-    f = open(self.def_file)
-    self.def_lines = merge_quoted_strings(f.readlines())
-    f.close()
+    with open(self.def_file) as f:
+      self.def_lines = merge_quoted_strings(f.readlines())
+
     self.make_name_map()
 
   ######################################################################
   # Variable/friendly name mapping
 
-  # initialize the v2f and f2v dicts
   def make_name_map(self):
+    """
+    initialize the v2f and f2v dicts
+    """
     for l in self.def_lines:
       l = l.strip()
       if len(l):
         w = tokenize_def(l)
         if len(w) >= 3:
-          ty = w[0]
-          vn = w[1]
-          fn = w[2]
+          ty, vn, fn = w[0], w[1], w[2]
           if ty in ('Text', 'TextArea', 'Check', 'Radio',
                     'Select', 'MultiSelect', '.'):
             self.v2f[vn] = fn
             self.f2v[fn] = vn
 
-  # return the friendly name for a variable, or the variable if none
-  # is defined
-  def f(self, v):
-    if v in self.v2f:
-      return self.v2f[v]
-    else:
-      return v
 
-  # return the variable for a friendly name, or the friendly name if
-  # none is defined
+  def f(self, v):
+    """
+    return the friendly name for a variable, or the variable if none is defined
+    """
+    return self.v2f[v] if v in self.v2f else v
+
+
   def v(self, f):
-    if f in self.f2v:
-      return self.f2v[f]
-    else:
-      return f
+    """
+    return the variable for a friendly name, or the friendly name if none is defined
+    """
+    return self.f2v[v] if v in self.f2v else v
 
 
   ######################################################################
@@ -627,7 +456,7 @@ class MatrixDefFile:
     switches = switch.strip('"').split('|')
     # Switch contains choice name and value
     # split on the rightmost "=" just in case...
-    switches = [switch.rsplit('=',1) if "=" in switch else switch
+    switches = [switch.rsplit('=', 1) if "=" in switch else switch
                 for switch in switches]
     # Default to true
     #skip_it = {switch[0] if isinstance(switch, list) else switch: True
@@ -646,6 +475,7 @@ class MatrixDefFile:
       else:
         switch = instance
         values = False # set default
+
       results = choices.get_regex(switch)
       if results:
         # Found a match
@@ -668,6 +498,7 @@ class MatrixDefFile:
   # Create and print the main matrix page.  The argument is a cookie
   # that determines where to look for the choices file.
   def main_page(self, cookie, vr):
+    # TODO: MOVED #
     print HTTP_header
     print 'Set-cookie: session=' + cookie + '\n'
     print HTML_pretitle
@@ -675,25 +506,29 @@ class MatrixDefFile:
     print HTML_posttitle % ('', '', '')
 
     try:
-      f = open('datestamp', 'r')
-      datestamp = f.readlines()[0].strip()
-      f.close()
+      with open('datestamp', 'r') as f:
+        datestamp = f.readline().strip()
     except:
       datestamp = "[date unknown]"
 
     print HTML_mainprebody % (datestamp)
     print '<div class="indented">'
 
+    # TODO: END MOVED #
+
+
+    # TODO: DEFINED AS VARIABLE navigation #
     choices_file = 'sessions/' + cookie + '/choices'
 
     choice = []
     try:
-      f = open(choices_file, 'r')
-      choice = f.readlines()
-      f.close()
+      if os.path.exists(choices_file):
+        with open(choices_file, 'r') as f:
+          choice = f.readlines()
     except:
       pass
 
+    # TODO: Make this a function
     # pass through the definition file once, augmenting the list of validation
     # results with section names so that we can put red asterisks on the links
     # to the assocated sub-pages on the main page.
@@ -715,6 +550,7 @@ class MatrixDefFile:
         if prefix:
           pat += '_'
         pat += word[1] + '$'
+        # TODO: This seems ridiculously inefficient
         for k in vr.errors.keys():
           if re.search(pat, k):
             anchor = "matrix.cgi?subpage="+cur_sec+"#"+k
@@ -763,42 +599,37 @@ class MatrixDefFile:
         if not printed_something:
           print '&nbsp;'
         print '</div></div>'
+    # TODO: END DEFINED AS VARIABLE #
 
-    print HTML_preform
 
-    tgz_checked = True
-    zip_checked = False
-
+    # TODO: DEFINED AS VARIABLE download_grammar #
     # the buttons after the subpages
-    print "<p>" # TJT 2014-09-18: Converting these radios to new set up
+    # TJT 2014-09-18: Converting these radios to new set up
     print html_input(vr, 'hidden', 'customize', 'customize', False, '', '')
-    print html_input(vr, 'radio', 'delivery', 'tgz', tgz_checked,
+    print html_input(vr, 'radio', 'delivery', 'tgz', True,
                      'Archive type: ', ' .tar.gz')
-    print html_input(vr, 'radio', 'delivery', 'zip', zip_checked,
-                     ' ', ' .zip<br>')
+    print html_input(vr, 'radio', 'delivery', 'zip', False,
+                     ' ', ' .zip')
+    print "<br>"
     print html_input(vr, 'submit', 'create_grammar_submit', 'Create Grammar',
                      False, '', '', '', '', vr.has_errors())
-
     print html_input(vr, 'submit', 'sentences', 'Test by Generation', False,
                      '', '', '', '', vr.has_errors())
-    print "</p>"
+    # TODO: END DEFINED AS VARIABLE #
 
-    print '<hr>\n'
-
+    # TODO: DEFINED AS VARIABLE choices_file #
     # the button for downloading the choices file
-    print '<p><a href="' + choices_file + '">View Choices File</a> ',
-    print '(right-click to download)</p>'
-    print HTML_postform
+    # print '<p><a href="' + choices_file + '">View Choices File</a> ',
+    # print '(right-click to download)</p>'
+    # TODO: END DEFINED AS VARIABLE #
 
+    # TODO: DEFINED AS VARIABLE upload_choices #
     # the FORM for uploading a choices file
-    print HTML_uploadpreform
-    print html_input(vr, 'submit', '', 'Upload Choices File:', False,
-                     '<p>', '')
+    print html_input(vr, 'submit', '', 'Upload Choices File:', False, '<p>', '')
     print html_input(vr, 'file', 'choices', '', False, '', '</p>', '')
-    print HTML_uploadpostform
+    # TODO: END DEFINED AS VARIABLE #
 
-    print '<hr>\n'
-
+    # TODO: DEFINED AS VARIABLE sample_grammars #
     # the list of sample choices files
     if os.path.exists('web/sample-choices'):
       print '<h3>Sample Grammars:</h3>\n' + \
@@ -821,14 +652,32 @@ class MatrixDefFile:
               k + '</a><br>\n'
 
       print '</p>'
+    # TODO: END DEFINED AS VARIABLE #
 
     print '</div>'
     print HTML_postbody
 
 
-  # Turn a list of lines containing matrix definitions into a string
-  # containing HTML.
+  # TJT 2014-08-26: Moving this out of while loop for efficiency's sake
+  # TJT 2017-09-09: Defining this once for efficiency's sake
+  fillstrings = {'fillregex':'fill_regex(%(args)s)',
+                 'fillnames':'fill_feature_names(%(args)s)',
+                 'fillnames2':'fill_feature_names_only_customized(%(args)s)',
+                 'fillvalues':'fill_feature_values(%(args)s)',
+                 'fillverbpat':'fill_case_patterns(false)',
+                 'fillnumbers':'fill_numbers()',
+                 'fillcache':'fill_cache(%(args)s)'}
+
+
   def defs_to_html(self, lines, choices, vr, prefix, vars):
+    """
+    # Turn a list of lines containing matrix definitions into a string
+    # containing HTML.
+
+    TODO: Store this in a variable
+    TODO: This could be more testable, slightly faster, and more modular as
+          loading functions from a function dictionary
+    """
 
     html = ''
 
@@ -836,7 +685,7 @@ class MatrixDefFile:
 
     cookie = {}
     for c in http_cookie.split(';'):
-      (name, value) = c.split('=', 1)
+      name, value = c.split('=', 1)
       cookie[name.strip()] = value
 
     i = 0
@@ -947,14 +796,6 @@ class MatrixDefFile:
 
         fillers=[]
 
-        # TJT 2014-08-26: Moving this out of while loop for efficiency's sake
-        fillstrings = {'fillregex':'fill_regex(%(args)s)',
-                         'fillnames':'fill_feature_names(%(args)s)',
-                         'fillnames2':'fill_feature_names_only_customized(%(args)s)',
-                         'fillvalues':'fill_feature_values(%(args)s)',
-                         'fillverbpat':'fill_case_patterns(false)',
-                         'fillnumbers':'fill_numbers()',
-                         'fillcache':'fill_cache(%(args)s)'}
         # look ahead and see if we have an auto-filled drop-down
         i += 1
         while lines[i].strip().startswith('fill'):
@@ -1031,7 +872,7 @@ class MatrixDefFile:
         value = choices.get(vn)
         html += html_input(vr, word[0].lower(), vn, value, False,
                            bf, af, sz, onchange=oc) + '\n'
-      elif word[0] == ('Hidden'):
+      elif word[0] == 'Hidden':
         (vn, fn) = word[1:]
         value = choices.get(vn)
         html += html_input(vr, word[0].lower(), vn, value, False,
@@ -1045,7 +886,7 @@ class MatrixDefFile:
       elif word[0] == 'Button':
         (vn, bf, af, oc) = word[1:]
         html += html_input(vr, word[0].lower(), '', vn, False,
-                           bf, af, onclick=oc) + '\n';
+                           bf, af, onclick=oc) + '\n'
       elif word[0] == 'BeginIter':
         iter_orig = word[1]
         (iter_name, iter_var) = word[1].replace('}', '').split('{', 1)
@@ -1096,10 +937,10 @@ class MatrixDefFile:
           # the current choices file OR iter_min copies, whichever is
           # greater
           c = 0
-          iter_num = 0;
+          iter_num = 0
           chlist = [x for x in choices.get(prefix + iter_name) if x]
           while (chlist and c < len(chlist)) or c < iter_min:
-            show_name = "";
+            show_name = ""
             if c < len(chlist):
               iter_num = str(chlist[c].iter_num())
               show_name = chlist[c]["name"]
@@ -1108,17 +949,9 @@ class MatrixDefFile:
             new_prefix = prefix + iter_name + iter_num + '_'
             vars[iter_var] = iter_num
 
-            # new_prefix[:-1] trims the trailing '_'
-
             # the show/hide button gets placed before each iterator
             # as long as it's not a stem/feature/forbid/require/lri iterator
             if show_hide:
-  #          if new_prefix[:-1].find('feat')==-1 and \
-  #                  new_prefix[:-1].find('stem')==-1 and \
-  #                  new_prefix[:-1].find('require')==-1 and \
-  #                  new_prefix[:-1].find('forbid')==-1 and \
-  #                  new_prefix[:-1].find('lri')==-1:
-  #            html += ''
               if show_name:
                 name = show_name+" ("+new_prefix[:-1]+")"
               else:
@@ -1181,51 +1014,58 @@ class MatrixDefFile:
   # based on the arguments, which are the name of the section and
   # a cookie that determines where to look for the choices file
   def sub_page(self, section, cookie, vr):
+    # TODO: MOVED
     print HTTP_header + '\n'
     print HTML_pretitle
+    # TODO: END MOVED
     if section == 'lexicon':
       print "<script type='text/javascript' src='web/draw.js'></script>"
 
     choices_file = 'sessions/' + cookie + '/choices'
     choices = ChoicesFile(choices_file)
 
-
     section_begin = -1
     section_end = -1
     section_friendly = ''
 
-
+    # TODO: Do this once
     i = 0
     while i < len(self.def_lines):
-      word = tokenize_def(self.def_lines[i])
-      if len(word) == 0:
-        pass
-      elif word[0] == 'Section':
-        if section_begin != -1:
-          section_end = i
-          break
-        if word[1] == section:
-          section_begin = i + 1
-          section_friendly = word[2]
-        cur_sec = word[1]
-        cur_sec_friendly = word[2]
-        cur_sec_begin = i + 1
+      line = self.def_lines[i]
+      if line.startswith("Section"):
+          word = tokenize_def(self.def_lines[i])
+          if section_begin != -1:
+            section_end = i
+            break
+          if word[1] == section:
+            section_begin = i + 1
+            section_friendly = word[2]
+          cur_sec = word[1]
+          cur_sec_friendly = word[2]
+          cur_sec_begin = i + 1
       i += 1
 
     if section_begin != -1:
       if section_end == -1:
         section_end = i
+      # TODO: DEFINED AS VARIABLE title #
       print '<title>' + section_friendly + '</title>'
+      # TODO: END DEFINED AS VARIABLE #
+
+      # TODO: DEFINED AS VARIABLES features, verb_case_patterns, numbers #
       print HTML_posttitle % \
             (js_array4(choices.features()),
              js_array([c for c in choices.patterns() if not c[2]]),
              js_array([n for n in choices.numbers()]))
+      # TODO: DEFINED AS VARIABLES #
 
+      # TODO: Make sure this works
       if section == 'sentential-negation':
         print HTML_prebody_sn
       else:
         print HTML_prebody
 
+      # TODO: DEFINED AS VARIABLE section_name #
       print '<h2 style="display:inline">' + section_friendly + '</h2>'
       doclink = '<a href="http://moin.delph-in.net/MatrixDoc/' + \
                 self.doclinks[section] + '" target="matrixdoc">help</a>'
@@ -1233,9 +1073,10 @@ class MatrixDefFile:
 
 
       print '<div id="navmenu"><br />'
-    # pass through the definition file once, augmenting the list of validation
-    # results with section names so that we can put red asterisks on the links
-    # to the assocated sub-pages on the nav menu.
+      # TODO: Do this once
+      # pass through the definition file once, augmenting the list of validation
+      # results with section names so that we can put red asterisks on the links
+      # to the assocated sub-pages on the nav menu.
       prefix = ''
       sec_links = []
       n = -1
@@ -1281,6 +1122,7 @@ class MatrixDefFile:
                 printed = True
                 break
 
+      # TODO: Make this a method #
       print '<a href="." onclick="submit_main()" class="navleft">Main page</a><br />'
       print '<hr />'
       for l in sec_links:
@@ -1306,6 +1148,7 @@ class MatrixDefFile:
         print '<span class="navleft">Create grammar:</span><br />'
         print '<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>'
       print '</div>'
+      # TODO: End make this a method #
 
 
       print '<div id="form_holder">'
@@ -1315,12 +1158,6 @@ class MatrixDefFile:
       print self.defs_to_html(self.def_lines[section_begin:section_end],
                               choices, vr,
                               '', {})
-
-# these buttons are now in the navmenu
-#    print html_input(vr, 'button', '', 'Submit', False, '<p>', '', onclick='submit_main()')
-#    print html_input(vr, 'submit', '', 'Save', False)
-#    print html_input(vr, 'button', '', 'Clear', False, '', '</p>', '',
-#                     'clear_form()')
 
     print HTML_postform
     print '</div>'
@@ -1413,7 +1250,7 @@ class MatrixDefFile:
                                                              session)
     if len(sentences) > 0:
       if sentences[0] == "#EDGE-ERROR#":
-        print 'This grammar combined with this input semantics results in too large of a seach space<br>'
+        print 'This grammar combined with this input semantics results in too large of a search space<br>'
       if sentences[0] == "#NO-SENTENCES#":
         print 'This combination of verb, pattern, and feature specification did not result in any generated sentences.<br>'
       else:
@@ -1501,7 +1338,7 @@ class MatrixDefFile:
             f.write('  '*iter_level) # TJT 2014-09-01: Changing this to one write from loop
             f.write(prefix + vn + '=' + val + '\n')
       elif word[0] == 'BeginIter':
-        (iter_name, iter_var) = word[1].replace('}', '').split('{', 1)
+        iter_name, iter_var = word[1].replace('}', '').split('{', 1)
         i += 1
         beg = i
         while True:
@@ -1702,34 +1539,33 @@ class MatrixDefFile:
 
     # Now pass through the def file, writing out either the old choices
     # for each section or, for the section we're saving, the new choices
-    f = open(choices_file, 'w')
-    f.write('\n') # blank line in case an editor inserts a BOM
-    f.write('version=' + str(old_choices.current_version()) + '\n\n')
+    with open(choices_file, 'w') as f:
+      f.write('\n') # blank line in case an editor inserts a BOM
+      f.write('version=' + str(old_choices.current_version()) + '\n\n')
 
-    cur_sec = ''
-    cur_sec_begin = 0
-    i = 0
-    while i < len(self.def_lines):
-      word = tokenize_def(self.def_lines[i])
-      if len(word) == 0:
-        pass
-      elif word[0] == 'Section':
-        if cur_sec:
-          self.save_choices_section(self.def_lines[cur_sec_begin:i], f, choices)
-          f.write('\n')
-        cur_sec = word[1]
-        cur_sec_begin = i + 1
-        f.write('section=' + cur_sec + '\n')
-        if cur_sec == section:
-          choices = new_choices
-        else:
-          choices = old_choices
-      i += 1
-    # Make sure to save the last section
-    if cur_sec_begin:
-      self.save_choices_section(self.def_lines[cur_sec_begin:i], f, choices)
+      cur_sec = ''
+      cur_sec_begin = 0
+      i = 0
+      while i < len(self.def_lines):
+        word = tokenize_def(self.def_lines[i])
+        if len(word) == 0:
+          pass
+        elif word[0] == 'Section':
+          if cur_sec:
+            self.save_choices_section(self.def_lines[cur_sec_begin:i], f, choices)
+            f.write('\n')
+          cur_sec = word[1]
+          cur_sec_begin = i + 1
+          f.write('section=' + cur_sec + '\n')
+          if cur_sec == section:
+            choices = new_choices
+          else:
+            choices = old_choices
+        i += 1
+      # Make sure to save the last section
+      if cur_sec_begin:
+        self.save_choices_section(self.def_lines[cur_sec_begin:i], f, choices)
 
-    f.close()
 
   def create_neg_aux_choices(self, choices,form_data):
     '''this is a side effect of the existence of neg-aux
@@ -1758,6 +1594,7 @@ class MatrixDefFile:
     choices['has-aux'] = 'yes'
     return choices, next_n
 
+
   def create_infl_neg_choices(self, old_choices, new_choices):
     vpc = new_choices['vpc-0-neg']
     lrt = ''
@@ -1781,6 +1618,7 @@ class MatrixDefFile:
     lrt['feat1_head'] = 'verb'
     lrt['lri1_inflecting'] = 'no'
     return old_choices, new_choices
+
 
   def choices_error_page(self, choices_file, exc=None):
     print HTTP_header + '\n'

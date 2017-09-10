@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{#
+  This Jinja template extends base.html to define the welcome/splash page.
+
+  Note this defines (at least) the following variables:
+    * datestamp
+    * navigation
+    * download_grammar
+    * choices_file
+    * upload_choices
+    * sample_grammars
+
+  TODO:
+    Create a macro file for forms
+
+#}
+
+{% block onload %}animate(){% endblock %}
+
+{% block body %}
+  {# Intro #}
+  <h1>LinGO Grammar Matrix</h1>
+  <h1 style="display:inline">Matrix customization and download page</h1>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDocTop" target="matrixdoc">help</a>]</span>
+  <h2>Version of {{datestamp|default('[date unknown]')}}</h2>
+
+  <p>The <a href="http://www.delph-in.net/matrix">LinGO Grammar
+  Matrix</a> is developed at the University of Washington in the context
+  of the <a href="http://www.delph-in.net/">DELPH-IN Consortium</a>,
+  by <a href="http://faculty.washington.edu/ebender">Emily M. Bender</a>
+  and colleagues.  This material is based up work supported by
+  the National Science Foundation under Grant No. BCS-0644097.
+  Additional support for Grammar Matrix development came from a gift
+  to the Turing Center from the Utilika Foundation.  Any opinions,
+  findings, and conclusions or recommendations expressed in this
+  material are those of the author(s) and do not necessarily
+  reflect the views of the National Science Foundation.
+  The Grammar Matrix customization system is hosted by the University
+  of Washington.</p>
+
+  <p>[<a href="http://www.washington.edu/online/terms">University of
+  Washington Website Terms and Conditions of Use</a>]<br>
+  [<a href="http://www.washington.edu/online/privacy">University of
+  Washington Online Privacy Statement</a>]</p>
+
+  <p>Publications reporting on work based on grammars derived from this
+  system should cite <a href="http://faculty.washington.edu/ebender/papers/gee03.pdf">
+  Bender, Flickinger and Oepen 2002</a>
+  <a href="http://faculty.washington.edu/ebender/bibtex/BenFliOep02.bib.txt">[.bib]</a>
+  and <a href="http://www.springerlink.com/content/767771152h331808/">Bender et al 2010</a>
+  <a href="http://faculty.washington.edu/ebender/bibtex/BenDreFokPouSal10.bib.txt">[.bib]</a>.
+  Further publications from the project are available on the
+  <a href="http://www.delph-in.net/matrix/index.html#pubs">project website</a>.</p>
+
+  <p>Filling out this form will produce a starter grammar for a natural
+  language, consisting of a language-independent core and customized
+  support for the phenomena you describe below.  Note that this grammar
+  fragment will only treat matrix (main) clauses. Be advised that this
+  system is highly experimental.  We are interested in your feedback.
+  If you have questions or comments, please email Emily Bender at:
+  <strong>ebender at u dot washington dot edu</strong>.</p>
+
+  <p>[<a href="http://www.delph-in.net/matrix/">Back to Matrix main page</a>]</p>
+
+  <p>NOTE: Throughout the questionnaire, questions or subpages that lack
+  a required answer or contain an incorrect answer are marked with a red
+  asterisk:
+
+  <span class="error" title="This asterisk is an exception. It has a
+  tooltip even though it does not mark an error.">*</span>.
+
+  Questions or subpages that contain answers that might be problematic,
+  but are not outright incorrect, are marked with a red question mark:
+
+  <span class="error" title="This question mark is similarly
+  exceptional. It has a tooltip even though it does not mark a
+  warning.">?</span>.
+
+  Hovering the mouse cursor over a red asterisk or question mark will
+  show a tooltip describing the error. Clicking on a red asterisk or
+  question mark that is on the main page will link to the error or warning
+  on the appropriate subpage.</p>
+
+  {# Navigation and links #}
+  <div class="indented">
+
+    {{navigation}}
+
+    {# Downloading grammar #}
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <p>
+        {{download_grammar}}
+      </p>
+    </form>
+
+    <hr>
+
+    {# Downloading and uploading choices #}
+    <p><a href="{{choices_file}}">View Choices File</a> (right-click to download)</p>
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      {{upload_choices}}
+    </form>
+
+    <hr>
+
+    {{sample_grammars}}
+
+  </div> {# end indented #}
+{% endblock %}

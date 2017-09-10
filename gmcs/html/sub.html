@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{#
+  This Jinja template extends base.html to define a subpage.
+
+  Note this defines (at least) the following variables:
+    * onload
+    * section_name
+    * section_doc_link
+    * navigation
+    * form
+
+#}
+
+{% block onload %}animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();{{onload}}{% endblock %}
+
+{% block body %}
+  <h2 style="display:inline">{{section_name}}</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/{{section_doc_link}}" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    {{navigation}}
+  </div>
+
+  <div id="form_holder">
+    {# TODO: Make this a macro #}
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      {{form}}
+    </form>
+  </div>
+{% endblock %}

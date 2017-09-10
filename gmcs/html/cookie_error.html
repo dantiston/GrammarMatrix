@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Cookies Required{% endblock %}
+
+{% block body %}
+  <div style="position:absolute; top:45%; width:100%">
+    <p style="color:red; text-align:center; font-size:16pt">
+      Cookies must be enabled for this site in your browser in order
+      to fill out the questionnaire.
+    </p>
+    <p style="text-align:center; font-size:16pt">
+      If cookies are enabled, try reloading an
+      <a href="matrix.cgi?choices=empty">empty questionnaire</a>.
+      Note that any existing changes will be lost.
+    </p>
+  </div>
+{% endblock %}
