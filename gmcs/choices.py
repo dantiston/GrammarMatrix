@@ -2133,18 +2133,18 @@ class FormData:
       return self.data[key]
 
   def __setitem__(self, key, value):
-    self.data[key] = value;
+    self.data[key] = value
 
   def has_key(self, key):
     if key in self.data:
-      return True;
+      return True
     else:
-      return False;
+      return False
 
   def keys(self):
-    return self.data.keys();
+    return self.data.keys()
 
 class FormInfo:
   def __init__(self, key, value):
-    self.key = key;
-    self.value = value;
+    self.key = key
+    self.value = value

@@ -988,7 +988,7 @@ class MatrixDefFile:
         title=self.section_names[section],
         features=js_array4(choices.features()),
         verb_case_patterns=js_array([c for c in choices.patterns() if not c[2]]),
-        numbers=js_array([n for n in choices.numbers()]),
+        numbers=js_array(choices.numbers()),
         onload=onload,
         cookie=cookie,
         section_name=self.section_names[section],
@@ -1228,11 +1228,9 @@ class MatrixDefFile:
     #result.append('<a href="#clear" onclick="clear_form()" class="navleft">Clear form</a><br />')
 
     ## if there are errors, then we result.append (the links in red and unclickable)
-    if not vr.has_errors() == 0:
+    if vr.has_errors():
       result.append('<span class="navleft">Create grammar:')
-      result.append(html_info_mark(
-            ValidationMessage('', 'Resolve validation errors to enable ' + \
-            'grammar customization.', '')))
+      result.append(html_info_mark(ValidationMessage('', 'Resolve validation errors to enable grammar customization.', '')))
       result.append('</span><br />')
       result.append('<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>')
     else:

@@ -71,12 +71,12 @@ class DefsToHtmlTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go(\'test-basic\')">Test Basic</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
-<span class="navleft">Create grammar:<a href="" style="text-decoration:none"><span class="info" title="Resolve validation errors to enable grammar customization.">#</span></a></span><br />
-<a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+<span class="navleft">Create grammar:</span><br />
+<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>
 </div>"""
     self.assertEqual(actual, expected)
 
@@ -87,13 +87,14 @@ class DefsToHtmlTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go(\'test-basic\')">Test Basic</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
-<span class="navleft">Create grammar:<a href="" style="text-decoration:none"><span class="info" title="Resolve validation errors to enable grammar customization.">#</span></a></span><br />
-<a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
-</div>"""
+<span class="navleft">Create grammar:
+<a href="" style="text-decoration:none"><span class="info" title="Resolve validation errors to enable grammar customization.">#</span></a>
+</span><br />
+<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>"""
     self.assertEqual(actual, expected)
 
 
@@ -371,10 +372,10 @@ class mock_validation(object):
     self.errors = errors
 
   def has_errors(self):
-    return bool(self.infos)
+    return bool(self.errors)
 
   def has_warnings(self):
-    return bool(self.infos)
+    return bool(self.warnings)
 
   def has_infos(self):
     return bool(self.infos)
