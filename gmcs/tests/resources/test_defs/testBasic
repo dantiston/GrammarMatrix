@@ -1,0 +1,7 @@
+Section test-basic "Test Basic" TestBasic
+
+Label "<p>Test</p>"
+
+Separator
+
+Label "<p>Test</p>"

@@ -1,0 +1,3 @@
+Section test-area "Test TextArea" TestArea
+
+TextArea test "Test name" "<p>A test text area:</p>" "</p><br />" 42x42

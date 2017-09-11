@@ -1,6 +1,5 @@
 Content-type: text/html;charset=UTF-8
 Set-cookie: session={{cookie}}
-
 {#
   This Jinja template acts as a base for the Grammar Matrix website
 
@@ -10,22 +9,21 @@ Set-cookie: session={{cookie}}
     * onchange
 
   Note this defines (at least) the following variables:
-    * title
+    * section_name
     * features
     * verb_case_patterns
     * numbers
-
 #}
-
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>{{title}}|default('the Matrix')</title>
+    <title>{{section_name|default('the Matrix')}}</title>
 
     <link rel="stylesheet" href="web/matrix.css">
 
     <script type="text/javascript" src="web/matrix.js"></script>
+    <script type='text/javascript' src='web/draw.js'></script>
     <script type="text/javascript">
       <!--
       // An array of strings, each of the form 'name:value|friendly value,...'
@@ -36,15 +34,12 @@ Set-cookie: session={{cookie}}
       var numbers = [{{numbers}}];
       -->
     </script>
-
-    {% block head %}
-    {% endblock %}
-
+    {% block head %}{% endblock head %}
   </head>
 
-  <body onload="{% block onchange %}">
+  <body onload="{% block onchange %}{% endblock onchange %}">
   {% block body %}
-  {% endblock %}
+  {% endblock body %}
   </body>
 
 </html>

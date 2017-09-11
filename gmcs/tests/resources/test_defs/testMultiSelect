@@ -1,0 +1,4 @@
+Section test-multiselect "Test MultiSelect" MultiSelect
+
+MultiSelect test-multiselect "Test multiselect" "" "<br />"
+fillnumbers

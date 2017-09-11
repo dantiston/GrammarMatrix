@@ -1,10 +1,10 @@
 ### $Id: matrixdef,v 1.37 2008-09-30 23:50:02 lpoulson Exp $
 
-Section general "General Information"
+Section general "General Information" "GeneralInfo"
 
 Label "<h3>Language</h3>"
 
-Text language "Language name" "<p>Name of your language: " "<br>" 50
+Text language "Language name" "<p>Name of your language: " "</p><br>" 50
 Text iso-code "ISO code" "<a href=\"http://www.sil.org/iso639-3/codes.asp\">ISO code</a> for your language: " " (optional) </p>" 6
 
 Label "<h3>String-processing</h3><p>Your grammar will include a basic tokenizer file for string-level processing (<span class='tt'>vanilla.rpp</span>, see <a href='http://moin.delph-in.net/ReppTop/'>ReppTop</a> documentation).  We have three default options for this file.  If you do not answer, your grammar will include a tokenizer which will discard most ascii punctuation (except the hyphen, colon, and equals [-,:,=]).<br />"
@@ -53,7 +53,7 @@ Radio vcs "Version Control System" "<p>Version Control System.<br>" ""
 
 Label "<p>You may also wish to have your repository hosted through an open source hosting service (e.g., Google Code or GitHub).  This provides off-site back-up and facilitates sharing your grammar and collaborating with others.  The wiki (linked above) includes information on how to set that up.  Note that Google Code can host Mercurial or Subversion repositories, and GitHub hosts Git repositories. If you do host your grammar on one of these sites, please let us know that you have, by emailing matrix-dev -at- uw.edu.</p>"
 
-Section word-order "Word Order"
+Section word-order "Word Order" "WordOrder"
 
 Label "<p>"
 
@@ -118,7 +118,7 @@ complements have not been implemented yet.</span></p>"
 Label "</div>"
 
 
-Section number "Number"
+Section number "Number" "Number"
 
 Label "<p><span class=\"dfn\">Number</span> is a grammatical category
 that distinguishes between different numbers of real-world entities.
@@ -160,7 +160,7 @@ BeginIter number{i} "a Number" 1
 EndIter number
 
 
-Section person "Person"
+Section person "Person" "Person"
 
 Label "<p><span class=\"dfn\">Person</span> is a grammatical category
 that distinguishes between different discourse participants.  Natural
@@ -226,7 +226,7 @@ EndIter person-subtype
 Label "</div>"
 
 
-Section gender "Gender"
+Section gender "Gender" "Gender"
 
 Label "<p>Hockett (1958) defines grammatical <span
 class=\"dfn\">gender</span>s as \"classes of nouns reflected in the
@@ -276,7 +276,7 @@ Linguistics. New York: Macmillan.</p>"
 Label "</div>"
 
 
-Section case "Case"
+Section case "Case" "Case"
 
 Label "<p>Blake (2001) defines <span class=\"dfn\">case</span> as
 &quot;a system of marking dependent nouns for the type of relationship
@@ -423,7 +423,7 @@ Queensland. Ph.D. thesis, University of London.</p>"
 Label "</div>"
 
 
-Section direct-inverse "Direct-inverse"
+Section direct-inverse "Direct-inverse" "DirectInverse"
 
 Label "<p>In some languages, the pattern of marking of verbal
 arguments (or verbs themselves) is sensitive to a grammatical <span
@@ -470,7 +470,7 @@ Select scale-equal "Direction when equal" "<p>When the agent and patient have th
 . other "Some other form" "some other form"
 
 
-Section tense-aspect-mood "Tense, Aspect and Mood"
+Section tense-aspect-mood "Tense, Aspect, and Mood" "TenseAspectMood"
 
 Label "<p>You may define semantic features directly related to
 tense, aspect and mood on this page as well as a syntactic feature related
@@ -727,7 +727,7 @@ Label "</div>"
 
 
 
-Section other-features "Other Features"
+Section other-features "Other Features" "OtherFeatures"
 
 Label "<p>If your language has other features beyond those that can be
 defined elsewhere in this questionnaire, you can define those features
@@ -793,7 +793,7 @@ EndIter feature
 
 
 
-Section sentential-negation "Sentential Negation"
+Section sentential-negation "Sentential Negation" "SententialNegation" "display_neg_form();"
 
 Cache verbpcs verb-pc[0-9]+$ name
 
@@ -850,7 +850,7 @@ Label "</div>"
 
 Label "<div id='uni-neg' class='neg_exp_switch' style='display:none'><p> Negation can be indicated by the presence of a single negative morpheme.  Your negative morpheme might be bound (negation by inflection) or it might be free (one of the other choices). Your free negator might be a syntactic head (a verb), or it might be a dependent (a complement or a modifier).  Specify it's syntax below.</p>"
 
-Check infl-neg "Negation by inflection" "<p>" "Inflectional negation: Checking this box enables a feature called <span class=\"feat\">negation</span> with possible value <span class=\"tt\">plus</span> for use in defining morphemes on the morphology page.  Defining morphemes that specify [<span class=\"feat\">negation</span> <span class=\"tt\">plus</span>] will produce lexical rules that add the semantics of negation.</p>" 
+Check infl-neg "Negation by inflection" "<p>" "Inflectional negation: Checking this box enables a feature called <span class=\"feat\">negation</span> with possible value <span class=\"tt\">plus</span> for use in defining morphemes on the morphology page.  Defining morphemes that specify [<span class=\"feat\">negation</span> <span class=\"tt\">plus</span>] will produce lexical rules that add the semantics of negation.</p>"
 
 Check neg-aux "Negation by auxiliary verb" "<p>" "Negative auxiliary verb: Checking this box creates a neg-aux type which contributes a neg_rel that outscopes it's complement's handle.  This lexical type will show up on the lexicon page where you'll need to further specify its syntax.</p>"
 
@@ -908,7 +908,7 @@ Radio neg2-type "NEG2 type" "NEG2" ""
 
 
 Label "<div id=\"infl-infl-neg\" class='bineg_switch' style='display:none'><p>If both NEG1 and NEG2 are bound to the same root, you can set up the dendency using the morphotactics system on the morphology page. Only specify that one of your LRIs is 'negation plus' (you only need one <em>neg_rel</em>), and set up a requires relation between the two morphemes.</p><p>If NEG1 is bound to an auxiliary and NEG2 is bound to a lexical verb, check the box below.  This will enable several options for you as you define your lexical rules for NEG1 and NEG2 on the morphology page.  A value for FORM 'negform' will be added to your grammar (as a subtype of nonfinite).  Indicate the lexical rule corresponding to NEG1 by setting [NEGATION +] (this adds the negative semantics) and the requirement that the complement be [FORM negform].  For the second negator, you can create it in the normal way using the morphology page.  Be sure that the FORM value for your NEG2 morpheme is set to negform.   This will set up the NEG2 lexical rule to change the FORM value on its head to negform.  In this way, auxiliary verbs inflected by NEG1 will require their complement to be headed by a verb which has been inflected by NEG2.</p>"
-Check neg1b-neg2b "neg1 bound to aux requires neg2 bound to lexical verb" "neg1 bound to aux requires neg2 bound to lexical verb" "</div>" 
+Check neg1b-neg2b "neg1 bound to aux requires neg2 bound to lexical verb" "neg1 bound to aux requires neg2 bound to lexical verb" "</div>"
 
 Label "<div id='infl-head-neg' class='bineg_switch' style='display:none'><p>You have selected a negation construction with a negative auxiliary verb and an inflectional rule.  When you save this page, the negative auxiliary will be created for you on the lexicon page (where you can further define and constrain its syntax.  A subtype of nonfinite (part of the FORM value hierarchy) called 'negform' has also been created and your negative auxiliary should select for a complement which is [FORM negform].  Indicate your negation lexical rule by marking it as [negation plus] on the morphology subpage.  This rule will change the FORM of verbs to which it attaches to [FORM negform].</p></div>"
 
@@ -1062,7 +1062,7 @@ Label "<h5>References</h5>
 </ol>"
 
 
-Section coordination "Coordination"
+Section coordination "Coordination" "Coordination"
 
 Cache pats (fr|dconj)[0-9]+$ name
 
@@ -1137,9 +1137,9 @@ Label "<b>Feature Resolution</b>"
 Label "<p>In a <b>feature resolution</b> pattern, the feature value of a coordinated phrase is derived from the values of both the child nodes. <p>For example, in many languages, person values follow a hierarchy in which any coordinated phrase with a 1st person conjunct will have 1st person value in the top node, phrases with a 2nd person conjunct (but no 1st person conjunct) will be 2nd person, and phrases with only 3rd person conjuncts will be 3rd person. You may also define feature resolution patterns for features such as gender and number. <p> You'll have to specify the rules that apply to each feature you wish to model.</p>"
 
 BeginIter fr{i} "a feature resolution pattern" 1
-  
+
   Label "<p>(Optionally) give this pattern a name: "
-  
+
   Text name "Feature resolution agreement pattern {i}'s name: " "" "" 10
 
   Label "<p>This feature resolution pattern uses the following features: <br> "
@@ -1148,24 +1148,24 @@ BeginIter fr{i} "a feature resolution pattern" 1
 
     Select name "Feature resolution pattern {i} feature {j} name" "Feature: " " "
     fillnames c=noun
-    
+
     BeginIter rule{k} "a Rule"
 
       MultiSelect left "Feature resolution pattern {i} feature {j} value" "Child 1: " ""
-      fillvalues p=fr{i}_feat{j}_name 
-        . any "any" "any"  
-	. same "the same" "the same" 
+      fillvalues p=fr{i}_feat{j}_name
+        . any "any" "any"
+	. same "the same" "the same"
 
       Select right "Feature resolution pattern {i} feature {j} value" "Child 2:" ""
       fillvalues p=fr{i}_feat{j}_name
-        . any "any" "any" 
-	. same "the same" "the same"  
+        . any "any" "any"
+	. same "the same" "the same"
 	. nonmatching "any non-matching value in that list" "any non-matching value in that list"
 
       Select par "Feature resolution pattern {i} feature {j} value" "Parent: " ""
       fillvalues p=fr{i}_feat{j}_name
-        . any "any" "any" 
-	. same "the same" "the same"  
+        . any "any" "any"
+	. same "the same" "the same"
 
     EndIter rule
 
@@ -1178,7 +1178,7 @@ Label "<p><b>Distinguished Conjunct</b>"
 Label "<p>In a <b>distinguished conjunct</b> pattern, the feature value of a coordinated phrase is the same as the value of a particular conjunct. Typically, this conjunct is either the closest one to the verb (closest conjunct), or always in a particular position (first or last conjunct)."
 
 BeginIter dconj{i} "a distinguished conjunct pattern" 1
-  
+
   Label "<p>(Optionally) give this pattern a name: "
 
   Text name "Distinguished conjunct pattern {i}'s name: " "" "" 10
@@ -1193,7 +1193,7 @@ BeginIter dconj{i} "a distinguished conjunct pattern" 1
 EndIter dconj
 
 
-Section matrix-yes-no "Matrix Yes/No Questions"
+Section matrix-yes-no "Matrix Yes/No Questions" "YesNoQ"
 
 Label "<p>Please indicate which strategy your language uses to form
 matrix yes-no questions.  You may leave this section blank, in which
@@ -1219,7 +1219,7 @@ Radio q-inv-verb "Inverted verb in questions" "" ""
 
 
 
-Section info-str "Information Structure"
+Section info-str "Information Structure" "InformationStructure"
 
 Label "<p> Information structure, consisting of topic (what an
 utterance is about) and focus (the new information an utterance
@@ -1344,7 +1344,7 @@ Label "</font>"
 
 
 
-Section arg-opt "Argument Optionality"
+Section arg-opt "Argument Optionality" "ArgumentOptionality"
 
 Label "<p> Languages place different restrictions on argument
 optionality.  Some require that subjects (and objects of transitive
@@ -1500,7 +1500,7 @@ Label "<p> Vainikka, A and Levy, Y. 1999. \"Empty Subjects in Finnish
 and Hebrew.\" Natural Language and Linguistic Theory 17: 614-71.</p>"
 Label "</div>"
 
-Section lexicon "Lexicon"
+Section lexicon "Lexicon" "Lexicon"
 
 Cache nounlrs noun-pc[0-9]+(_lrt[0-9]+)?$ name
 Cache verbpcs verb-pc[0-9]+$ name
@@ -2021,7 +2021,7 @@ BeginIter adp{i} "an Adposition" 1
 
 EndIter adp
 
-Section morphology "Morphology"
+Section morphology "Morphology" "Morphology"
 
 Cache nouns noun[0-9]+$ name
 Cache verbs verb[0-9]+$ name
@@ -2292,13 +2292,13 @@ including changes to e.g. case frames or adding predicates. (<b>Experimental</b>
 
       Select argpos "Verb Position Class {i} Lexical Rule Type {j} Valence-changing Operation {k} Complement Position" "The added argument is at the: " " of the complements list.<br/>"
       . pre "front" "front"
-      . post "end" "end" 
+      . post "end" "end"
 
 
       Select argtype "Verb Position Class {i} Lexical Rule Type {j} Valence-changing Operation {k} Argument Type" "The added argument must be a(n): " ""
       . np "NP" "NP"
       . pp "PP" "PP"
-      
+
     EndIter valchg
 
     Label "<p>Morphotactic Constraints:</p>"
@@ -2661,7 +2661,7 @@ BeginIter det-pc{i} "a Position Class" 1
 
 EndIter det-pc
 
-Section toolbox-import "Import Toolbox Lexicon"
+Section toolbox-import "Import Toolbox Lexicon" "ImportToolboxLexicon"
 
 Label "<p><a href=\"http://www.sil.org/computing/toolbox\">Toolbox</a>
 is a tool provided by SIL and used by many field linguists. This page
@@ -2738,7 +2738,7 @@ EndIter toolboximportconfig
 
 Button "Import Toolbox Lexicon" "<br /><br />" "" "import_toolbox_lexicon()"
 
-Section test-sentences "Test Sentences"
+Section test-sentences "Test Sentences" "TestSentences"
 
 Label "<p>In this section, you can provide example sentences that will
 appear in the file <span class=\"tt\">test_sentences</span> in your grammar, as defaults
@@ -2754,7 +2754,7 @@ BeginIter sentence{i} "a Sentence"
 
 EndIter sentence
 
-Section gen-options "Test by Generation Options"
+Section gen-options "Test by Generation Options" "TestByGeneration"
 
 Label "<p>In this section, select the templates you wish to generate from,
 and the features you which to specify on those templates</p>"
@@ -2802,11 +2802,11 @@ BeginIter stv-feat{j} "a Feature"
 
 EndIter stv-feat
 
-Section ToolboxLexicon "Toolbox Lexicon" 0
+Section ToolboxLexicon "Toolbox Lexicon" "ImportToolboxLexicon"
 
 Label "<p> Imported Toolbox Lexical items are displayed here, if any of these are incorrect
 we recommend changing your import configurations and reimporting your files instead of
-directly correcing the entries.</p>"
+directly correcting the entries.</p>"
 
 Separator
 

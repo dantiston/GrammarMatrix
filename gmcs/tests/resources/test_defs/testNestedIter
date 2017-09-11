@@ -1,0 +1,11 @@
+Section test-nested-iter "Test Nested Iter" TestNestedIter
+
+BeginIter test-nested{i} "test-iter-nested"
+
+  BeginIter test-nested-inner{j} "test-iter-nested-inner"
+
+    Text name "Test variable: {i}; {j}" "" "" 20
+
+  EndIter test-nested-inner
+
+EndIter test-nested

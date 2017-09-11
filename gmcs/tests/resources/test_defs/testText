@@ -1,0 +1,3 @@
+Section test-text "Test Text" TestText
+
+Text test "Test name" "<p>Some test text: </p>" "<br />" 42

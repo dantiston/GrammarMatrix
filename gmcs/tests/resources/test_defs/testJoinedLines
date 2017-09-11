@@ -1,0 +1,4 @@
+Section test-joined-lines "Test Joined Lines" TestJoinedLines
+
+Label "<p>Test</p>
+<p>Test</p>"

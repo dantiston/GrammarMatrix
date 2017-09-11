@@ -9,6 +9,8 @@
 # probably be split out into a separate module/class.  Later.
 #   - sfd 3/5/2008
 
+# TODO: Move everything except for MatrixDefFile to a different module
+
 ######################################################################
 # imports
 
@@ -20,13 +22,15 @@ import tarfile
 import gzip
 import zipfile
 
+from collections import defaultdict
+
 from gmcs import choices
 from gmcs.choices import ChoicesFile
 from gmcs.utils import tokenize_def, get_name
 from gmcs import generate
 from gmcs.validate import ValidationMessage
 
-from collections import defaultdict
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 ######################################################################
 # HTML blocks, used to create web pages
@@ -42,35 +46,9 @@ var %s = [
 ];
 </script>'''
 
-# toggle_visible provided by
-#   http://blog.movalog.com/a/javascript-toggle-visibility/
-
-HTML_toggle_visible_js = '''<script type="text/javascript">
-<!--
-    function toggle_visible(id) {
-       var e = document.getElementById(id);
-       if(e.style.display == 'block')
-          e.style.display = 'none';
-       else
-          e.style.display = 'block';
-    }
-//-->
-</script>
-'''
-
-HTML_prebody_sn = '''<body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors();display_neg_form();scalenav();">'''
-
-HTML_method = 'post'
-
-HTML_preform = '<form action="matrix.cgi" method="' + HTML_method + '" enctype="multipart/form-data" name="choices_form">'
+HTML_preform = '<form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">'
 
 HTML_postform = '</form>'
-
-HTML_uploadpreform = '''
-<form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
-'''
-
-HTML_uploadpostform = '</form>'
 
 
 ######################################################################
@@ -81,6 +59,21 @@ HTML_uploadpostform = '</form>'
 
 
 ######################################################################
+# Constants
+ERROR = "*"
+WARNING = "?"
+INFO = "#"
+
+COMMENT_CHAR = "#"
+
+######################################################################
+# Jinja
+jinja = Environment(
+    loader=PackageLoader('gmcs', 'html'),
+    autoescape=False
+)
+
+######################################################################
 # HTML creation functions
 
 def html_mark(mark, vm):
@@ -88,7 +81,7 @@ def html_mark(mark, vm):
   Return a formatted validation note
   """
   msg = vm.message.replace('"', '&quot;')
-  info = mark == "#"
+  info = mark == INFO
   sort = "name" if not vm.href and not info else "href"
   marker = vm.href or vm.name
   css_class = "info" if info else "error"
@@ -97,13 +90,13 @@ def html_mark(mark, vm):
 
 
 def html_error_mark(vm):
-  return html_mark('*', vm)
+  return html_mark(ERROR, vm)
 
 def html_warning_mark(vm):
-  return html_mark('?', vm)
+  return html_mark(WARNING, vm)
 
 def html_info_mark(vm):
-  return html_mark('#', vm)
+  return html_mark(INFO, vm)
 
 
 def html_input(vr, sort, name, value, checked, before = '', after = '',
@@ -195,9 +188,6 @@ def html_option(vr, name, selected, html, temp=False, strike=False):
   Return an HTML <option> tag with the specified attributes and
   surrounding text
   """
-  if selected:
-    selected = ' selected'
-  else: selected = ''
 
   # TJT 2014-03-19: adding disabled option for always-disabled "future work"
   # TODO: javascript cuts this out, need to change javascript
@@ -206,23 +196,22 @@ def html_option(vr, name, selected, html, temp=False, strike=False):
     html = '<p style="display:inline;color:#ADADAD"> %s</p>' % html
   else: strike = ''
 
-  if temp:
-    temp = ' class="temp"'
-  else: temp = ''
+  temp = ' class="temp"' or ''
+  selected = ' selected' or ''
 
   return '<option value="%s"%s%s%s>%s</option>' % \
          (name, selected, temp, strike, html)
 
 
-def html_delbutton(id):
+def html_delbutton(code):
   """
   return the HTML for an iterator delete button that will delete
-  iterator "id"
+  iterator "code"
   """
   # TJT 2014-5-27 Regular capital X looks the best + most compliant
   return '<input type="button" class="delbutton" ' + \
          'value="X" name="" title="Delete" ' + \
-         'onclick="remove_element(\'' + id + '\')">\n'
+         'onclick="remove_element(\'%s\')">\n' % code
 
 
 def merge_quoted_strings(line):
@@ -290,8 +279,10 @@ def make_zip(directory):
     add_zip_files(z, directory)
 
 
-# Replace variables of the form {name} in word using the dict iter_vars
 def replace_vars(word, iter_vars):
+  """
+  Replace variables of the form {name} in word using the dict iter_vars
+  """
   for k in iter_vars.keys():
     word = re.sub('\\{' + k + '\\}', str(iter_vars[k]), word)
   return word
@@ -299,16 +290,12 @@ def replace_vars(word, iter_vars):
 
 def js_array(items, N=2):
   """
-  # From a list of triples of strings [string1, string2, ...], return
-  # a string containing a JavaScript-formatted list of strings of the
-  # form 'string1:string2'.
+  From a list of triples of strings [string1, string2, ...], return
+  a string containing a JavaScript-formatted list of strings of the
+  form 'string1:string2'.
   """
-  return "\n".join(("'" + ":".join(item[:N]) + "'" for item in items))
-  # val = ''
-  # for l in list:
-  #   val += '\'' + l[0] + ':' + l[1] + '\',\n'
-  # val = val[:-2]  # trim off the last ,\n
-  # return val
+  return ",\n".join(("'" + ":".join(item[:N]) + "'" for item in items))
+
 
 def js_array3(items):
   """
@@ -318,11 +305,6 @@ def js_array3(items):
   # values and category (category of feature).
   """
   return js_array(items, N=3)
-  # val = ''
-  # for l in list:
-  #   val += '\'' + l[0] + ':' + l[1] + ':' + l[3] + '\',\n'
-  # val = val[:-2]  # trim off the last ,\n
-  # return val
 
 
 def js_array4(items):
@@ -333,89 +315,76 @@ def js_array4(items):
   # values, category (category of feature), a flag feature 'customized'.
   """
   return js_array(items, N=4)
-  # val = ''
-  # for l in list:
-  #   val += '\'' + l[0] + ':' + l[1] + ':' + l[3] + ':' + l[4] + '\',\n'
-  # val = val[:-2]  # trim off the last ,\n
-  # return val
+
 
 ######################################################################
 # MatrixDefFile class
-# This class and its methods are used to parse Matrix definition
-# formatted files (currently just the file ./matrixdef), and based
-# on the contents, to produce HTML pages and save choices files.
 
 class MatrixDefFile:
+  """
+  This class and its methods are used to parse Matrix definition
+  formatted files (currently just the file ./matrixdef), and based
+  on the contents, to produce HTML pages and save choices files.
+  """
 
-  # links between names and friendly names for
-  # use in links on html navigation menu
-  sections = { 'general':'General Information',
-    'word-order':'Word Order',
-    'number':'Number',
-    'person':'Person',
-    'gender':'Gender',
-    'case':'Case',
-    'direct-inverse':'Direct-inverse',
-    'tense-aspect-mood':'Tense, Aspect and Mood',
-    'other-features':'Other Features',
-    'sentential-negation':'Sentential Negation',
-    'coordination':'Coordination',
-    'matrix-yes-no':'Matrix Yes/No Questions',
-    'info-str':'Information Structure',
-    'arg-opt':'Argument Optionality',
-    'lexicon':'Lexicon',
-    'morphology':'Morphology',
-    'toolbox-import':'Toolbox Import',
-    'test-sentences':'Test Sentences',
-    'gen-options':'TbG Options',
-    'ToolboxLexicon':'Toolbox Lexicon'}
-
-  # used to link section names to their documentation
-  # page name in the delph-in wiki
-  doclinks = { 'general':'GeneralInfo',
-      'word-order':'WordOrder',
-      'number':'Number',
-      'person':'Person',
-      'gender':'Gender',
-      'case':'Case',
-      'direct-inverse':'DirectInverse',
-      'tense-aspect-mood':'TenseAspectMood',
-      'other-features':'OtherFeatures',
-      'sentential-negation':'SententialNegation',
-      'coordination':'Coordination',
-      'matrix-yes-no':'YesNoQ',
-      'info-str':'InformationStructure',
-      'arg-opt':'ArgumentOptionality',
-      'lexicon':'Lexicon',
-      'morphology':'Morphology',
-      'toolbox-import':'ImportToolboxLexicon',
-      'test-sentences':'TestSentences',
-      'gen-options':'TestByGeneration',
-      'ToolboxLexicon':'ImportToolboxLexicon'}
-
-
-  def_file = ''
-  v2f = {}
-  f2v = {}
+  # TODO: Define valid commands
+  commands = {'Section', 'Text', 'TextArea', 'Check', 'Radio', 'Select', 'MultiSelect'}
 
   def __init__(self, def_file):
+    # Define members
+    self.section_names = {}
+    self.doc_links = {}
+
     self.def_file = def_file
     with open(self.def_file) as f:
       self.def_lines = merge_quoted_strings(f.readlines())
 
+    self.load_file()
     self.make_name_map()
+
+
+  def load_file(self):
+    """
+    Load the matrixdef file into memory
+    """
+    self.tokenized_lines = [tokenize_def(line.strip()) for line in self.def_lines if line.strip()]
+    self.sections = {}
+    last = -1
+    section_name = None
+    for i, line in enumerate(self.tokenized_lines):
+      if line[0] == "Section":
+        # Save previous
+        if last >= 0:
+          self.sections[section_name] = self.tokenized_lines[last:i]
+        last = i
+        # Prepare for the next
+        section_name = line[1]
+        # Support section definition syntax
+        if len(line) >= 3:
+          self.section_names[section_name] = line[2]
+          if len(line) >= 4:
+            self.doc_links[section_name] = line[3]
+    if last != len(self):
+      self.sections[section_name] = self.tokenized_lines[last:]
+
+
+  def __len__(self):
+    return len(self.def_lines)
 
   ######################################################################
   # Variable/friendly name mapping
 
   def make_name_map(self):
     """
-    initialize the v2f and f2v dicts
+    initialize the variable to friendly name (v2f) and
+    friendly name to variable (f2v) mappings
     """
+    self.v2f = {}
+    self.f2v = {}
     for l in self.def_lines:
       l = l.strip()
       if len(l):
-        w = tokenize_def(l)
+        w = tokenize_def(l) # TODO: Replace this
         if len(w) >= 3:
           ty, vn, fn = w[0], w[1], w[2]
           if ty in ('Text', 'TextArea', 'Check', 'Radio',
@@ -460,9 +429,6 @@ class MatrixDefFile:
     switches = [switch.rsplit('=', 1) if "=" in switch else switch
                 for switch in switches]
     # Default to true
-    #skip_it = {switch[0] if isinstance(switch, list) else switch: True
-    #           for switch in switches}
-    # TJT: 12-19-14 changing this to loop instead of comprehension
     skip_it = {}
     for switch in switches:
       if isinstance(switch, list):
@@ -496,9 +462,11 @@ class MatrixDefFile:
   ######################################################################
   # HTML output methods
 
-  # Create and print the main matrix page.  The argument is a cookie
-  # that determines where to look for the choices file.
   def main_page(self, cookie, vr):
+    """
+    # Create and print the main matrix page.  The argument is a cookie
+    # that determines where to look for the choices file.
+    """
     # TODO: MOVED #
     print HTTP_header
     print 'Set-cookie: session=' + cookie + '\n'
@@ -535,8 +503,8 @@ class MatrixDefFile:
     # to the assocated sub-pages on the main page.
     prefix = ''
     for l in self.def_lines:
-      word = tokenize_def(l)
-      if len(word) < 2 or word[0][0] == '#':
+      word = tokenize_def(l) # TODO: Replace this
+      if len(word) < 2 or word[0][0] == COMMENT_CHAR:
         pass
       elif word[0] == 'Section':
         cur_sec = word[1]
@@ -565,9 +533,10 @@ class MatrixDefFile:
 
     # now pass through again to actually emit the page
     for l in self.def_lines:
-      word = tokenize_def(l)
+      word = tokenize_def(l) # TODO: Replace this
       if len(word) == 0:
         pass
+      # TODO: This != '0' seems to be an undocumented feature of matrixdef... confirm
       elif word[0] == 'Section' and (len(word) != 4 or word[3] != '0'):
         print '<div class="section"><span id="' + word[1] + 'button" ' + \
               'onclick="toggle_display(\'' + \
@@ -638,10 +607,9 @@ class MatrixDefFile:
             'filled out automatically.</p>'
       print '<p>'
 
-      globlist = glob.glob('web/sample-choices/*')
       linklist = {}
 
-      for f in globlist:
+      for f in glob.iglob('web/sample-choices/*'):
         f = f.replace('\\', '/')
         lang = choices.get_choice('language',f) or '(empty questionnaire)'
         if lang == 'minimal-grammar':
@@ -691,7 +659,7 @@ class MatrixDefFile:
 
     i = 0
     while i < len(lines):
-      word = tokenize_def(replace_vars(lines[i], vars))
+      word = tokenize_def(replace_vars(lines[i], vars)) # TODO: Replace this
       if len(word) == 0:
         pass
       elif word[0] == 'Cache':
@@ -747,13 +715,7 @@ class MatrixDefFile:
         # it's nicer to put vrs for radio buttons on the entire
         # collection of inputs, rather than one for each button
         if not skip_this_radio:
-          mark =''
-          if vn in vr.errors:
-            mark = html_error_mark(vr.errors[vn])
-          elif vn in vr.warnings:
-            mark = html_warning_mark(vr.warnings[vn])
-          if vn in vr.infos:
-            mark = html_info_mark(vr.infos[vn])
+          mark = validation_mark(vr, vn)
 
           html += bf + mark + '\n'
           i += 1
@@ -762,7 +724,7 @@ class MatrixDefFile:
             # Reset flags on each item
             dis, js = '', ''
             checked = False
-            word = tokenize_def(replace_vars(lines[i], vars))
+            word = tokenize_def(replace_vars(lines[i], vars)) # TODO: Replace this
             # TJT 2014-05-07 Rearranged this logic (hoping for speed)
             rval, rfrn, rbef, raft = word[1:5]
             # Format choice name
@@ -785,7 +747,7 @@ class MatrixDefFile:
 
       elif word[0] in ('Select', 'MultiSelect'):
         multi = (word[0] == 'MultiSelect')
-        (vn, fn, bf, af) = word[1:5]
+        vn, fn, bf, af = word[1:5]
 
         onfocus, onchange = '', ''
         if len(word) > 5: onfocus = word[5]
@@ -800,7 +762,7 @@ class MatrixDefFile:
         # look ahead and see if we have an auto-filled drop-down
         i += 1
         while lines[i].strip().startswith('fill'):
-          word = tokenize_def(replace_vars(lines[i], vars))
+          word = tokenize_def(replace_vars(lines[i], vars)) # TODO: Replace this
           # arguments are labeled like p=pattern, l(literal_feature)=1,
           # n(nameOnly)=1, c=cat
           #note: possible cat values are "noun", "verb" or "both"
@@ -835,7 +797,7 @@ class MatrixDefFile:
         # Add individual items, if applicable
         while lines[i].strip().startswith('.'):
           sstrike = False # Reset variable
-          word = tokenize_def(replace_vars(lines[i], vars))
+          word = tokenize_def(replace_vars(lines[i], vars)) # TODO: Replace this
           # select/multiselect options
           oval, ofrn, ohtml = word[1:4]
           # TJT 2014-03-19: add disabled option to allow for always-disabled
@@ -910,7 +872,7 @@ class MatrixDefFile:
         # collect the lines that are between BeginIter and EndIter
         beg = i
         while True:
-          word = tokenize_def(lines[i])
+          word = tokenize_def(lines[i]) # TODO: Replace this
           if len(word) == 0:
             pass
           elif word[0] == 'EndIter' and word[1] == iter_name:
@@ -988,12 +950,8 @@ class MatrixDefFile:
           html += '<div class="anchor" id="' + \
                   prefix + iter_name + '_ANCHOR"></div>\n<p>'
           # add any iterator-nonspecific errors here
-          if prefix + iter_name in vr.errors:
-            html += html_error_mark(vr.errors[prefix + iter_name])
-          elif prefix + iter_name in vr.warnings:
-            html += html_warning_mark(vr.warnings[prefix + iter_name])
-          elif prefix + iter_name in vr.infos:
-            html += html_info_mark(vr.infos[prefix + iter_name])
+          html += validation_mark(vr, prefix + iter_name)
+
           # finally add the button
           html += '<input type="button" name="" ' + \
                   'value="Add ' + label + '" ' + \
@@ -1015,159 +973,280 @@ class MatrixDefFile:
   # based on the arguments, which are the name of the section and
   # a cookie that determines where to look for the choices file
   def sub_page(self, section, cookie, vr):
-    # TODO: MOVED
-    print HTTP_header + '\n'
-    print HTML_pretitle
-    # TODO: END MOVED
-    if section == 'lexicon':
-      print "<script type='text/javascript' src='web/draw.js'></script>"
 
+    section_def = self.sections[section]
+
+    # Get cookie
     choices_file = 'sessions/' + cookie + '/choices'
     choices = ChoicesFile(choices_file)
 
-    section_begin = -1
-    section_end = -1
-    section_friendly = ''
+    # Specifics
+    onload = section_def[0][3] if len(section_def[0]) > 2 else ""
 
-    # TODO: Do this once
-    i = 0
-    while i < len(self.def_lines):
-      line = self.def_lines[i]
-      if line.startswith("Section"):
-          word = tokenize_def(self.def_lines[i])
-          if section_begin != -1:
-            section_end = i
-            break
-          if word[1] == section:
-            section_begin = i + 1
-            section_friendly = word[2]
-          cur_sec = word[1]
-          cur_sec_friendly = word[2]
-          cur_sec_begin = i + 1
-      i += 1
-
-    if section_begin != -1:
-      if section_end == -1:
-        section_end = i
-      # TODO: DEFINED AS VARIABLE title #
-      print '<title>' + section_friendly + '</title>'
-      # TODO: END DEFINED AS VARIABLE #
-
-      # TODO: DEFINED AS VARIABLES features, verb_case_patterns, numbers #
-      print HTML_posttitle % \
-            (js_array4(choices.features()),
-             js_array([c for c in choices.patterns() if not c[2]]),
-             js_array([n for n in choices.numbers()]))
-      # TODO: DEFINED AS VARIABLES #
-
-      # TODO: Make sure this works
-      if section == 'sentential-negation':
-        print HTML_prebody_sn
-      else:
-        print HTML_prebody
-
-      # TODO: DEFINED AS VARIABLE section_name #
-      print '<h2 style="display:inline">' + section_friendly + '</h2>'
-      doclink = '<a href="http://moin.delph-in.net/MatrixDoc/' + \
-                self.doclinks[section] + '" target="matrixdoc">help</a>'
-      print '<span class="tt">['+doclink+']</span><br />'
+    template = jinja.get_template('sub.html')
+    return template.render(
+        title=self.section_names[section],
+        features=js_array4(choices.features()),
+        verb_case_patterns=js_array([c for c in choices.patterns() if not c[2]]),
+        numbers=js_array([n for n in choices.numbers()]),
+        onload=onload,
+        cookie=cookie,
+        section_name=self.section_names[section],
+        section_doc_link=self.doc_links[section],
+        navigation=self.navigation(vr, choices_file, section=section),
+        form=self.defs_to_html(section_def, choices, vr, '', {})
+    )
 
 
-      print '<div id="navmenu"><br />'
-      # TODO: Do this once
-      # pass through the definition file once, augmenting the list of validation
-      # results with section names so that we can put red asterisks on the links
-      # to the assocated sub-pages on the nav menu.
-      prefix = ''
-      sec_links = []
-      n = -1
-      printed = False
-      for l in self.def_lines:
-        word = tokenize_def(l)
-        cur_sec = ''
-        if len(word) < 2 or word[0][0] == '#':
-          pass
-        elif len(word) == 4 and word[3] == '0':
-          # don't print links to sections that are marked 0
-          pass
-        elif word[0] == 'Section':
-          printed = False
-          cur_sec = word[1]
-          # disable the link if this is the page we're on
-          if cur_sec == section:
-            sec_links.append('</span><span class="navlinks">'+self.sections[cur_sec]+'</span>')
-          else:
-            sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\''+cur_sec+'\')">'+self.sections[cur_sec]+'</a>')
-          n+=1
-        elif word[0] == 'BeginIter':
-          if prefix:
-            prefix += '_'
-          prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
-        elif word[0] == 'EndIter':
-          prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
-        elif not (word[0] == 'Label' and len(word) < 3):
-          pat = '^' + prefix
-          if prefix:
-            pat += '_'
-          pat += word[1] + '$'
-          if not printed:
-            for k in vr.errors.keys():
-              if re.search(pat, k):
-                sec_links[n] = '*'+sec_links[n]
-                printed = True
-                break
-          if not printed:
-            for k in vr.warnings.keys():
-              if re.search(pat, k):
-                sec_links[n] = '?'+sec_links[n]
-                printed = True
-                break
+    # # TODO: MOVED
+    # print HTTP_header + '\n'
+    # print HTML_pretitle
+    # # TODO: END MOVED
+    # if section == 'lexicon':
+    #   print "<script type='text/javascript' src='web/draw.js'></script>"
+    #
+    # choices_file = 'sessions/' + cookie + '/choices'
+    # choices = ChoicesFile(choices_file)
 
-      # TODO: Make this a method #
-      print '<a href="." onclick="submit_main()" class="navleft">Main page</a><br />'
-      print '<hr />'
-      for l in sec_links:
-        print '<span style="color:#ff0000;" class="navleft">'+l+'<br />'
+    # section_begin = -1
+    # section_end = -1
+    # section_friendly = ''
 
-      print '<hr />'
-      print '<a href="' + choices_file + '" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>'
-      print '<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />'
-      # TJT 2014-05-28: Not sure why the following doesn't work -- need to do more investigation
-      #print '<a href="?subpage=%s" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />' % section
-      print '<a href="#clear" onclick="clear_form()" class="navleft">Clear form</a><br />'
+    # # TODO: Do this once
+    # i = 0
+    # while i < len(self.def_lines):
+    #   line = self.def_lines[i]
+    #   if line.startswith("Section"):
+    #       word = tokenize_def(self.def_lines[i]) # TODO: Replace this
+    #       if section_begin != -1:
+    #         section_end = i
+    #         break
+    #       if word[1] == section:
+    #         section_begin = i + 1
+    #         section_friendly = word[2]
+    #       cur_sec = word[1]
+    #       cur_sec_friendly = word[2]
+    #       cur_sec_begin = i + 1
+    #   i += 1
 
-      ## if there are errors, then we print the links in red and
-      ## unclickable
-      if not vr.has_errors() == 0:
-        print '<span class="navleft">Create grammar:'
-        print html_info_mark(
-              ValidationMessage('','Resolve validation errors to enable '+
-              'grammar customization.',''))
-        print '</span><br />'
-        print '<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>'
-      else:
-        print '<span class="navleft">Create grammar:</span><br />'
-        print '<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>'
-      print '</div>'
-      # TODO: End make this a method #
+    # if section_begin != -1:
+    #   if section_end == -1:
+    #     section_end = i
+    #   # TODO: DEFINED AS VARIABLE title #
+    #   print '<title>' + section_friendly + '</title>'
+    #   # TODO: END DEFINED AS VARIABLE #
+    #
+    #   # TODO: DEFINED AS VARIABLES features, verb_case_patterns, numbers #
+    #   print HTML_posttitle % \
+    #         (js_array4(choices.features()),
+    #          js_array([c for c in choices.patterns() if not c[2]]),
+    #          js_array([n for n in choices.numbers()]))
+    #   # TODO: DEFINED AS VARIABLES #
+    #
+    #   # TODO: Make sure this works
+    #   if section == 'sentential-negation':
+    #     print HTML_prebody_sn
+    #   else:
+    #     print HTML_prebody
+    #
+    #   # TODO: DEFINED AS VARIABLE section_doc_link #
+    #   print '<h2 style="display:inline">' + section_friendly + '</h2>'
+    #   doclink = '<a href="http://moin.delph-in.net/MatrixDoc/' + \
+    #             self.doc_links[section] + '" target="matrixdoc">help</a>'
+    #   print '<span class="tt">['+doclink+']</span><br />'
+    #
+    #
+    #   # TODO: Do this once
+    #   # pass through the definition file once, augmenting the list of validation
+    #   # results with section names so that we can put red asterisks on the links
+    #   # to the assocated sub-pages on the nav menu.
+    #   prefix = ''
+    #   sec_links = []
+    #   n = -1
+    #   printed = False
+    #   for l in self.def_lines:
+    #     word = tokenize_def(l) # TODO: Replace this
+    #     cur_sec = ''
+    #     if len(word) < 2 or word[0][0] == COMMENT_CHAR:
+    #       pass
+    #     elif len(word) == 4 and word[3] == '0':
+    #       # TODO: This is an undocumented feature of matrixdef: consider
+    #       # don't print links to sections that are marked 0
+    #       pass
+    #     elif word[0] == 'Section':
+    #       printed = False
+    #       cur_sec = word[1]
+    #       # disable the link if this is the page we're on
+    #       if cur_sec == section:
+    #         sec_links.append('</span><span class="navlinks">'+self.section_names[cur_sec]+'</span>')
+    #       else:
+    #         sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\''+cur_sec+'\')">'+self.section_names[cur_sec]+'</a>')
+    #       n+=1
+    #     elif word[0] == 'BeginIter':
+    #       if prefix:
+    #         prefix += '_'
+    #       prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
+    #     elif word[0] == 'EndIter':
+    #       prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
+    #     elif not (word[0] == 'Label' and len(word) < 3):
+    #       pat = '^' + prefix
+    #       if prefix:
+    #         pat += '_'
+    #       pat += word[1] + '$'
+    #       if not printed:
+    #         for k in vr.errors.keys():
+    #           if re.search(pat, k):
+    #             sec_links[n] = ERROR+sec_links[n]
+    #             printed = True
+    #             break
+    #       if not printed:
+    #         for k in vr.warnings.keys():
+    #           if re.search(pat, k):
+    #             sec_links[n] = WARNING+sec_links[n]
+    #             printed = True
+    #             break
+    #
+    #   # TODO: Make this a method #
+    #   print '<div id="navmenu"><br />'
+    #   print '<a href="." onclick="submit_main()" class="navleft">Main page</a><br />'
+    #   print '<hr />'
+    #   for l in sec_links:
+    #     print '<span style="color:#ff0000;" class="navleft">'+l+'<br />'
+    #
+    #   print '<hr />'
+    #   print '<a href="' + choices_file + '" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>'
+    #   print '<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />'
+    #   # TJT 2014-05-28: Not sure why the following doesn't work -- need to do more investigation
+    #   #print '<a href="?subpage=%s" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />' % section
+    #   print '<a href="#clear" onclick="clear_form()" class="navleft">Clear form</a><br />'
+    #
+    #   ## if there are errors, then we print the links in red and
+    #   ## unclickable
+    #   if not vr.has_errors() == 0:
+    #     print '<span class="navleft">Create grammar:'
+    #     print html_info_mark(
+    #           ValidationMessage('','Resolve validation errors to enable '+
+    #           'grammar customization.',''))
+    #     print '</span><br />'
+    #     print '<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>'
+    #   else:
+    #     print '<span class="navleft">Create grammar:</span><br />'
+    #     print '<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>'
+    #   print '</div>'
+    #   # TODO: End make this a method #
+    #
+    #
+    #   # TODO: MOVED #
+    #   print '<div id="form_holder">'
+    #   print HTML_preform
+    #   # TODO: END MOVED #
+    #   # TODO: DEFINED AS VARIABLE form #
+    #   print html_input(vr, 'hidden', 'section', section, False, '', '\n')
+    #   print html_input(vr, 'hidden', 'subpage', section, False, '', '\n')
+    #   print self.defs_to_html(self.def_lines[section_begin:section_end],
+    #                           choices, vr,
+    #                           '', {})
+    #   # TODO: END DEFINED AS VARIABLE form #
+    #
+    # # TODO: MOVED #
+    # print HTML_postform
+    # print '</div>'
+    # print HTML_postbody
+    # # TODO: END MOVED #
 
 
-      print '<div id="form_holder">'
-      print HTML_preform
-      print html_input(vr, 'hidden', 'section', section, False, '', '\n')
-      print html_input(vr, 'hidden', 'subpage', section, False, '', '\n')
-      print self.defs_to_html(self.def_lines[section_begin:section_end],
-                              choices, vr,
-                              '', {})
+  def navigation(self, vr, choices_file, section=None):
+    """
+    Pass through the definition file once, augmenting the list of validation
+    results with section names so that we can put red asterisks on the links
+    to the assocated sub-pages on the nav menu.
 
-    print HTML_postform
-    print '</div>'
-    print HTML_postbody
+    TODO: Simplify this
+    """
+
+    # Get the validation
+    prefix = ''
+    sec_links = []
+    n = -1
+    printed = False
+    for word in self.tokenized_lines:
+      cur_sec = ''
+      if len(word) < 2 or word[0][0] == COMMENT_CHAR:
+        pass
+      elif len(word) == 5 and word[4] == '0':
+        # TODO: This is an undocumented feature of matrixdef: consider
+        # don't print links to sections that are marked 0
+        # TODO: Leaving this in is fine... just need to document it
+        pass
+      elif word[0] == 'Section':
+        printed = False
+        cur_sec = word[1]
+        # disable the link if this is the page we're on
+        if cur_sec == section:
+          sec_links.append('</span><span class="navlinks">%s</span>' % self.section_names[cur_sec])
+        else:
+          sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, self.section_names[cur_sec]))
+        n += 1
+      elif word[0] == 'BeginIter':
+        if prefix:
+          prefix += '_'
+        prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
+      elif word[0] == 'EndIter':
+        prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
+      elif not (word[0] == 'Label' and len(word) < 3):
+        pat = '^' + prefix
+        if prefix:
+          pat += '_'
+        pat += word[1] + '$'
+
+        # TODO: This is ridiculously inefficient
+        if not printed:
+          for k in vr.errors.keys():
+            if re.search(pat, k):
+              sec_links[n] = ERROR + sec_links[n]
+              printed = True
+              break
+        if not printed:
+          for k in vr.warnings.keys():
+            if re.search(pat, k):
+              sec_links[n] = WARNING + sec_links[n]
+              printed = True
+              break
+
+    result = []
+    result.append('<div id="navmenu"><br />')
+    result.append('<a href="." onclick="submit_main()" class="navleft">Main page</a><br />')
+    result.append('<hr />')
+    for l in sec_links:
+      result.append('<span style="color:#ff0000;" class="navleft">'+l+'<br />')
+
+    result.append('<hr />')
+    result.append('<a href="' + choices_file + '" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>')
+    result.append('<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />')
+    # TJT 2014-05-28: Not sure why the following doesn't work -- need to do more investigation
+    #result.append('<a href="?subpage=%s" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />' % section)
+    #result.append('<a href="#clear" onclick="clear_form()" class="navleft">Clear form</a><br />')
+
+    ## if there are errors, then we result.append (the links in red and unclickable)
+    if not vr.has_errors() == 0:
+      result.append('<span class="navleft">Create grammar:')
+      result.append(html_info_mark(
+            ValidationMessage('', 'Resolve validation errors to enable ' + \
+            'grammar customization.', '')))
+      result.append('</span><br />')
+      result.append('<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>')
+    else:
+      result.append('<span class="navleft">Create grammar:</span><br />')
+      result.append('<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>')
+      result.append('</div>')
+    return "\n".join(result)
 
 
-  # Create and print the "download your matrix here" page for the
-  # customized matrix in the directory specified by session_path
   def custom_page(self, session_path, grammar_path, arch_type):
+    """
+    Create and print the "download your matrix here" page for the
+    customized matrix in the directory specified by session_path
+    """
     print HTTP_header + '\n'
     print HTML_pretitle
     print '<title>Matrix Customized</title>'
@@ -1321,7 +1400,7 @@ class MatrixDefFile:
     already_saved = {}  # don't save a variable more than once
     i = 0
     while i < len(lines):
-      word = tokenize_def(lines[i])
+      word = tokenize_def(lines[i]) # TODO: Replace this
       if len(word) == 0:
         pass
       # TJT 2014-5-27: changing this from list to tuple
@@ -1343,7 +1422,7 @@ class MatrixDefFile:
         i += 1
         beg = i
         while True:
-          word = tokenize_def(lines[i])
+          word = tokenize_def(lines[i]) # TODO: Replace this
           if len(word) == 0:
             pass
           elif word[0] == 'EndIter' and word[1] == iter_name:
@@ -1548,7 +1627,7 @@ class MatrixDefFile:
       cur_sec_begin = 0
       i = 0
       while i < len(self.def_lines):
-        word = tokenize_def(self.def_lines[i])
+        word = tokenize_def(self.def_lines[i]) # TODO: Replace this
         if len(word) == 0:
           pass
         elif word[0] == 'Section':

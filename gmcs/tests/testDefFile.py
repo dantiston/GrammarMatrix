@@ -1,22 +1,117 @@
 import unittest
 
+import os
+
 from gmcs import deffile
 
 
-class mock_validation(object):
+def get_path(*path):
+  return os.path.abspath(os.path.join(os.path.dirname(__file__), *path))
 
-  def __init__(self, infos={}, warnings={}, errors={}):
-    self.infos = infos
-    self.warnings = warnings
-    self.errors = errors
+def load(file_name):
+  path = get_path("resources", "test_defs", file_name)
+  return deffile.MatrixDefFile(path)
+
+def load_expected(file_name):
+  path = get_path("resources", "test_html", file_name + ".html")
+  with open(path, 'r') as f:
+    return f.read()
 
 
-class mock_error(object):
+### TESTS
+class InitializerTests(unittest.TestCase):
 
-  def __init__(self, href="", name="", message=""):
-    self.href = href
-    self.name = name
-    self.message = message
+  def testInitializer_Basic(self):
+    definition = load("testBasic")
+
+    self.assertEqual(definition.tokenized_lines, [['Section', 'test-basic', 'Test Basic', 'TestBasic'], ['Label', '<p>Test</p>'], ['Separator'], ['Label', '<p>Test</p>']])
+    self.assertEqual(definition.sections, {'test-basic': [['Section', 'test-basic', 'Test Basic', 'TestBasic'], ['Label', '<p>Test</p>'], ['Separator'], ['Label', '<p>Test</p>']]})
+    self.assertEqual(definition.section_names, {'test-basic':'Test Basic'})
+    self.assertEqual(definition.doc_links, {'test-basic':'TestBasic'})
+
+
+  def testInitializer_MultipleSections(self):
+    definition = load("testMultipleSections")
+
+    self.assertEqual(definition.tokenized_lines, [['Section', 'test-basic', 'Test Basic', 'TestBasic'], ['Label', '<p>Test</p>'], ['Section', 'test-basic-2', 'Test Basic 2', 'TestBasic2'], ['Label', '<p>Test2</p>']])
+    self.assertEqual(definition.sections, {'test-basic': [['Section', 'test-basic', 'Test Basic', 'TestBasic'], ['Label', '<p>Test</p>']], 'test-basic-2': [['Section', 'test-basic-2', 'Test Basic 2', 'TestBasic2'], ['Label', '<p>Test2</p>']]})
+    self.assertEqual(definition.section_names, {'test-basic': 'Test Basic', 'test-basic-2': 'Test Basic 2'})
+    self.assertEqual(definition.doc_links, {'test-basic': 'TestBasic', 'test-basic-2': 'TestBasic2'})
+
+
+class DefsToHtmlTests(unittest.TestCase):
+
+  def testBasic(self):
+    os.environ['HTTP_COOKIE'] = 'session=7777'
+    definition = load("testBasic")
+    actual = definition.sub_page('test-basic', '7777', mock_validation())
+    expected = load_expected("testBasic")
+    self.assertEqual(actual, expected)
+
+
+  def testNavigation_Basic(self):
+    definition = load("testBasic")
+    actual = definition.navigation(mock_validation(), "dummy_choices")
+    expected = """<div id="navmenu"><br />
+<a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+<hr />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
+<hr />
+<a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+<span class="navleft">Create grammar:</span><br />
+<a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+</div>"""
+    self.assertEqual(actual, expected)
+
+
+  def testNavigation_Warnings(self):
+    definition = load("testBasic")
+    actual = definition.navigation(mock_validation(warnings={"test-basic":mock_error(message="warning")}), "dummy_choices")
+    expected = """<div id="navmenu"><br />
+<a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+<hr />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
+<hr />
+<a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+<span class="navleft">Create grammar:<a href="" style="text-decoration:none"><span class="info" title="Resolve validation errors to enable grammar customization.">#</span></a></span><br />
+<a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+</div>"""
+    self.assertEqual(actual, expected)
+
+
+  def testNavigation_Errors(self):
+    definition = load("testBasic")
+    actual = definition.navigation(mock_validation(errors={"test-basic":mock_error(message="errror")}), "dummy_choices")
+    expected = """<div id="navmenu"><br />
+<a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+<hr />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
+<hr />
+<a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+<span class="navleft">Create grammar:<a href="" style="text-decoration:none"><span class="info" title="Resolve validation errors to enable grammar customization.">#</span></a></span><br />
+<a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+</div>"""
+    self.assertEqual(actual, expected)
+
+
+  def testNavigation_MultipleSections(self):
+    definition = load("testMultipleSections")
+    actual = definition.navigation(mock_validation(), "dummy_choices")
+    expected = """<div id="navmenu"><br />
+<a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+<hr />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go(\'test-basic\')">Test Basic</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go(\'test-basic-2\')">Test Basic 2</a><br />
+<hr />
+<a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+<span class="navleft">Create grammar:</span><br />
+<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>
+</div>"""
+    self.assertEqual(actual, expected)
 
 
 class HtmlSelectTests(unittest.TestCase):
@@ -29,9 +124,9 @@ class HtmlSelectTests(unittest.TestCase):
 
 class HtmlInputTests(unittest.TestCase):
   """
+  Input types:
   check, radio, text, textarea, file, button, submit, hidden
   """
-
 
   def testHtmlInput_radio_basic(self):
     actual = deffile.html_input(mock_validation(), "radio", "hello", "test_value", False)
@@ -239,7 +334,7 @@ class JsArrayTests(unittest.TestCase):
 
   def testJsArrayMultiple(self):
     actual = deffile.js_array([["string1", "string2"], ["string3", "string4"]])
-    expected = "'string1:string2'\n'string3:string4'"
+    expected = "'string1:string2',\n'string3:string4'"
     self.assertEqual(actual, expected)
 
 
@@ -263,5 +358,31 @@ class JsArrayTests(unittest.TestCase):
 
   def testJsArrayN_2(self):
     actual = deffile.js_array([["string1", "string2", "string3"], ["string4", "string5", "string6"]], N=3)
-    expected = "'string1:string2:string3'\n'string4:string5:string6'"
+    expected = "'string1:string2:string3',\n'string4:string5:string6'"
     self.assertEqual(actual, expected)
+
+
+### MOCK OBJECTS
+class mock_validation(object):
+
+  def __init__(self, infos={}, warnings={}, errors={}):
+    self.infos = infos
+    self.warnings = warnings
+    self.errors = errors
+
+  def has_errors(self):
+    return bool(self.infos)
+
+  def has_warnings(self):
+    return bool(self.infos)
+
+  def has_infos(self):
+    return bool(self.infos)
+
+
+class mock_error(object):
+
+  def __init__(self, href="", name="", message=""):
+    self.href = href
+    self.name = name
+    self.message = message

@@ -32,13 +32,13 @@ from gmcs.deffile import HTTP_header
 # Uncomment this to see the output from print in the HTML page
 # print HTTP_header + '\n'
 
-
+# TODO: Can we store this in a server side session?
 matrixdef = MatrixDefFile('web/matrixdef')
 
 form_data = cgi.FieldStorage()
 
 # see if we are in debug mode
-debug = 'debug' in form_data and form_data['debug'].value in ('true','True')
+debug = 'debug' in form_data and form_data['debug'].value.lower == "true"
 
 # Get the cookie.  If there's not one, make one.
 http_cookie = os.getenv('HTTP_COOKIE')
@@ -46,7 +46,7 @@ browser_cookie = False
 cookie = ''
 if http_cookie:
   for c in http_cookie.split(';'):
-    (name, value) = c.split('=', 1)
+    name, value = c.split('=', 1)
     if name == 'session' and len(value) == 4 and value.isdigit():
       browser_cookie = True
       cookie = value
@@ -85,14 +85,13 @@ if form_data.has_key('choices'):
   if choices:
     data = ''
     if choices.startswith('web/sample-choices/'):
-      f = open(choices, 'r')
-      data = f.read()
-      f.close()
+      with open(choices, 'r') as f:
+        data = f.read()
     elif choices.startswith('collage/'):
       # Get choices files from CoLLAGE
       # should be 3 or 7 letter keys... doesn't work for other length keys
       if len(choices) in ((len('collage/') + 3), (len('collage/') + 7)):
-	import urllib2, tarfile, StringIO
+        import urllib2, tarfile, StringIO
         choices = 'http://www.delph-in.net/matrix/language-'+choices+'/choices-final.tgz'
         try:
           tar = urllib2.urlopen(choices)
@@ -105,14 +104,14 @@ if form_data.has_key('choices'):
               break # Found the choices file...
         except (urllib2.HTTPError, urllib2.URLError, tarfile.TarError):
           data = ''
-	finally:
- 	  tar.close()
+        finally:
+          tar.close()
     else: # Uploaded choices data
       data = choices
     if data or choices.endswith('/empty'):
-      f = open(os.path.join(session_path, 'choices'), 'w')
-      f.write(data)
-      f.close()
+      with open(os.path.join(session_path, 'choices'), 'w') as f:
+        f.write(data)
+
 
 # if the 'section' field is defined, we have submitted values to save
 if form_data.has_key('section'):

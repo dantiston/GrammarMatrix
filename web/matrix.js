@@ -103,7 +103,16 @@ function toggle_element(id, how, switchOn) {
     else if (how == "off") {
       element.style.display = 'none';
     }
-  } 
+  }
+}
+
+
+function toggle_visible(id) {
+   var e = document.getElementById(id);
+   if (e.style.display == 'block')
+      e.style.display = 'none';
+   else
+      e.style.display = 'block';
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -111,8 +120,7 @@ function toggle_element(id, how, switchOn) {
 
 // toggle_display()
 // Handle a click on a section arrow on the main page
-function toggle_display(para_id, button_id)
-{
+function toggle_display(para_id, button_id) {
   p = document.getElementById(para_id);
   b = document.getElementById(button_id);
   if (p.style.display == 'none') {
@@ -126,8 +134,7 @@ function toggle_display(para_id, button_id)
 
 // _display()
 // Display or hide an entity
-function _display(_id, display_or_not)
-{
+function _display(_id, display_or_not) {
  	var e = document.getElementById(_id);
 	if (e != null)
 	{
@@ -143,8 +150,7 @@ function _display(_id, display_or_not)
 
 // clear_form()
 // Set the values of all form fields to the empty string
-function clear_form()
-{
+function clear_form() {
   var elements = document.getElementsByTagName('input');
   for (var i = 0; elements.item(i); i++) {
     var elm = elements[i];
@@ -163,8 +169,7 @@ function clear_form()
 // save_form()
 // Save and Vivify the choices on the current subpage
 // Vivify --> Validate? --JDC 10feb2012
-function save_form(section)
-{
+function save_form(section) {
   var elm = document.getElementsByTagName('form')[0];
   var inp = document.createElement('input');
   inp.type = "hidden";
@@ -176,8 +181,7 @@ function save_form(section)
 
 // submit_main()
 // Submit the form and return to the main page
-function submit_main()
-{
+function submit_main() {
   var form = document.getElementsByTagName('form')[0];
   var elms = document.getElementsByTagName('input');
   for (var i = 0; i < elms.length; i++) {
@@ -189,7 +193,7 @@ function submit_main()
 }
 
 // submit_go(subpage)
-// Submit the form and go to another subpage 
+// Submit the form and go to another subpage
 function submit_go(subpage){
   var form = document.getElementsByTagName('form')[0];
   var elms = document.getElementsByTagName('input');
@@ -213,8 +217,7 @@ function submit_go(subpage){
 
 // toggle_display_lex()
 // Handle a click on a section show/hide button on the Lexicon Page
-function toggle_display_lex(element_id, button_id)
-{
+function toggle_display_lex(element_id, button_id) {
   p = document.getElementById(element_id);
   text_boxes = document.getElementsByName(element_id+'_name');
   errs = document.getElementById(element_id+"_errors");
@@ -252,8 +255,7 @@ function toggle_display_lex(element_id, button_id)
 
 // toggle_all_display_lex()
 // Handle a click on the show/hide all button on the lexicon page
-function toggle_all_display_lex(on)
-{
+function toggle_all_display_lex(on) {
   iters = document.getElementsByClassName('iterator');
   all_button = document.getElementById('toggle_all_lex_button');
   if (on==1)
@@ -285,8 +287,7 @@ function toggle_all_display_lex(on)
 // fill_display_name()
 // Used to fill the name of the show/hide label after editing the
 // name text field.
-function fill_display_name(id)
-{
+function fill_display_name(id) {
   var elm = document.getElementById(id+'button');
   var name = document.getElementsByName(id+'_name')[0].value;
   if (name != "") {
@@ -300,8 +301,7 @@ function fill_display_name(id)
 // Pass through the document once, giving the focus to every form
 // field.  This allows all the auto-resizing items a chance to
 // calculate their size.
-function focus_all_fields()
-{
+function focus_all_fields() {
   // Surrounded by try...catch because IE doesn't like to give focus to
   // undisplayed form elements.
   try {
@@ -328,25 +328,7 @@ function focus_all_fields()
 var animations = [];
 var an_max = 0;
 var blink_count = 0;
-function animate()
-{
-/*
-  blink_count++;
-  var r = get_css_rule('.error');
-  if (r) {
-
-    var bcm = blink_count % 100;
-    var br = 20;
-    if (bcm < br) {
-      r.style.opacity = (br - bcm) / br;
-    } else if (bcm < 2 * br) {
-      r.style.opacity = (bcm - br) / br;
-    } else {
-      r.style.opacity = 1;
-    }
-  }
-*/
-
+function animate() {
   for (var i = an_max - 1; i >= 0; i--) {
     var a = animations[i];
     var n = document.getElementById(a.id);
@@ -373,8 +355,7 @@ function animate()
 
 // expand_region()
 // Begin an animation that expands an HTML element gracefully
-function expand_region(id)
-{
+function expand_region(id) {
   var n = document.getElementById(id);
 
   n.style.overflow = 'hidden';
@@ -391,8 +372,7 @@ function expand_region(id)
 // prev_div()
 // Find and return the DIV immediately before a tag, if there is one and
 // it's not a template or anchor DIV from an iterator.
-function prev_div(n, name)
-{
+function prev_div(n, name) {
   var p = n.previousSibling;
   while (p && p.tagName != 'DIV') {
     p = p.previousSibling;
@@ -408,13 +388,12 @@ function prev_div(n, name)
 // Worker function that clones the invisible tempate of an iterator,
 // replaces any iterator variables with the proper values, and inserts
 // the copy into the page.
-function do_clone_region(id, iter_var, bAnim, bShow)
-{
+function do_clone_region(id, iter_var, bAnim, bShow) {
 
   var d = document.getElementById(id + '_TEMPLATE');
   var a = document.getElementById(id + '_ANCHOR');
   var p = prev_div(a, id);
-  
+
   // Show/hide options based on previous choices
   //if (check) {
   //  toShow = d.getElementById(check);
@@ -465,31 +444,14 @@ function do_clone_region(id, iter_var, bAnim, bShow)
 
 // clone_region()
 // Clone a region and expand using animation
-function clone_region(id, iter_var, bShow)
-{
-  //original
+function clone_region(id, iter_var, bShow) {
   do_clone_region(id, iter_var, true, bShow);
-  //if (check) {
-  //  do_clone_region(id, iter_var, check, true, bShow);
-  //}
-  //else {
-  //  do_clone_region(id, iter_var, false, true, bShow);
-  //}
 }
 
 // clone_region()
 // Clone a region and expand *without* animation
-function clone_region_noanim(id, iter_var)
-//function clone_region_noanim(id, iter_var, check)
-{
-  //original
+function clone_region_noanim(id, iter_var) {
   do_clone_region(id, iter_var, false);
-  //if (check) {
-  //  do_clone_region(id, iter_var, check, false);
-  //}
-  //else {
-  //  do_clone_region(id, iter_var, false, false);
-  //}
 }
 
 // remove_region()
@@ -498,7 +460,7 @@ function remove_region(id)
 {
   var a = document.getElementById(id + '_ANCHOR');
   var p = prev_div(a, id);
-  
+
   if (p && p.id) {
     if (p.id.indexOf(id) == 0) {
       p.parentNode.removeChild(p);
@@ -543,12 +505,12 @@ function remove_element_all(id, suffix)
 // Type can be left out, "yes", "no", "last", or a number
 // If left out, _type will default to "yes"
 function check_radio_button(name, mode, switchOn) {
-        
+
 	mode = mode || 'yes';
 	switchOn = switchOn || null;
 	switchActive = true;
 	var radio = document.getElementsByName(name);
-	
+
 	// TJT 2014-09-03: Adding switch to only execute on particular selection
 	if (switchOn) {
 	  switchActive = false; // If switchOn, do nothing by default
@@ -563,7 +525,7 @@ function check_radio_button(name, mode, switchOn) {
 	    }
 	  }
 	}
-	
+
 	if (switchActive) {
 	  if(mode == 'no') {
 	      radio[0].checked = true;
@@ -608,14 +570,11 @@ function empty_value(_name, _i)
 }
 
 
-
-
 //////////////////////////////////////////////////////////////////////
 // SELECT filler functions
 
 // Remove the auto-filled OPTIONs of a SELECT
-function remove_temp_options(select)
-{
+function remove_temp_options(select) {
   for (var i = select.options.length - 1; i >= 0; i--) {
     var o = select.options[i];
     if (o.className == 'temp') {
@@ -625,8 +584,7 @@ function remove_temp_options(select)
 }
 
 // Set the value of a SELECT, adding a temporary OPTION if necessary
-function set_select_value(select, value, text)
-{
+function set_select_value(select, value, text) {
   // Check to see if the SELECT already has an OPTION for value
   var ops = select.options;
   for (var i = 0; i < ops.length; i++) {
@@ -648,8 +606,7 @@ function set_select_value(select, value, text)
 // fill()
 // there is one function to fill a SELECT, and it takes an array of options
 // to insert, and manages the re-selecting of previously selected items
-function fill(name, items)
-{
+function fill(name, items) {
   var select = document.getElementsByName(name)[0];
   var old_val = select.value;  // store the previously selected option
   var old_text = old_val;
@@ -666,7 +623,7 @@ function fill(name, items)
     o.innerHTML = items[i][0];
     select.appendChild(o);
   }
-  
+
   set_select_value(select, old_val, old_text);
   force_layout(select.parentNode);
 }
@@ -674,8 +631,7 @@ function fill(name, items)
 // fill_regex() Return the values of any form fields on the page whose NAME
 // matches the pattern.  If the nameOnly flag is true, make the OPTION's VALUE
 // attribute equal to its contents.
-function fill_regex(pattern, nameOnly)
-{
+function fill_regex(pattern, nameOnly) {
   pattern = '^' + pattern + '$';
   var items = new Array();
 
@@ -691,7 +647,7 @@ function fill_regex(pattern, nameOnly)
       if (f && f[0] && f[0].value) {
         if (nameOnly) {
           val = desc = f[0].value;
-        } 
+        }
 	else {
           desc = f[0].value + ' (' + desc + ')';
         }
@@ -705,12 +661,11 @@ function fill_regex(pattern, nameOnly)
 // fill_feature_names()
 // Return items from the array features[], where every OPTION is a feature name.
 // The cat(egory) argument allows you to restrict the features by category
-function fill_feature_names(cat)
-{
+function fill_feature_names(cat) {
   var items = new Array()
   for (var i = 0; i < features.length; i++) {
     var f = features[i].split(':');
-    
+
     if (typeof(cat) == "undefined" ||
         f[2] == cat || f[2] == 'both' || cat == 'both') {
       items.push([f[0], f[0]]);
@@ -723,8 +678,7 @@ function fill_feature_names(cat)
 // This is used on the other features.
 // Only feature(s) that users specify on the customization system can
 // show up as an existing value type with bool and luk.
-function fill_feature_names_only_customized(cat)
-{
+function fill_feature_names_only_customized(cat) {
   var items = new Array()
   for (var i = 0; i < features.length; i++) {
     var f = features[i].split(':');
@@ -741,10 +695,9 @@ function fill_feature_names_only_customized(cat)
 // fill_feature_values()
 // Return items from the array features[], where every OPTION is a feature
 // value for the feature named by the form element named other_name.
-function fill_feature_values(other_name, literal_feature)
-{
+function fill_feature_values(other_name, literal_feature) {
   var items = new Array()
-  if (literal_feature == 1) { var other_val = other_name; }  
+  if (literal_feature == 1) { var other_val = other_name; }
   else { var other_val = document.getElementsByName(other_name)[0].value; }
 
   for (var i = 0; i < features.length; i++) {
@@ -765,8 +718,7 @@ function fill_feature_values(other_name, literal_feature)
 // fill_case_patterns()
 // Return items from either array morph_case_patterns or verb_case_patterns, as
 // determined by the morph argument.
-function fill_case_patterns(morph)
-{
+function fill_case_patterns(morph) {
   var items = new Array();
   var pats = (morph) ? morph_case_patterns : verb_case_patterns;
   for (var i = 0; i < pats.length; i++) {
@@ -779,8 +731,7 @@ function fill_case_patterns(morph)
 // fill_numbers()
 // Return items from the array numbers[], where every OPTION is a value of the
 // number feature.
-function fill_numbers(select_name)
-{
+function fill_numbers(select_name) {
   var items = new Array();
   for (var i = 0; i < numbers.length; i++) {
     var n = numbers[i].split(':');
@@ -791,8 +742,7 @@ function fill_numbers(select_name)
 
 // fill_cache()
 // Return items from the given cache.
-function fill_cache(cache_name)
-{
+function fill_cache(cache_name) {
   var cache = window[cache_name];
   var items = new Array();
   for (var i = 0; i < cache.length; i++) {
@@ -822,8 +772,7 @@ function fill_cache(cache_name)
 // multi_init()
 // Pass through the page, and for each SELECT that has CLASS=multi,
 // create a multi-SELECT.
-function multi_init()
-{
+function multi_init() {
   var selects = document.getElementsByTagName('select');
   for (var i = 0; i < selects.length; i++) {
     var s = selects[i];
@@ -836,8 +785,7 @@ function multi_init()
 // multi_create()
 // Take the SELECT control passed in, make it display:none, and insert
 // the text field and button that will replace it.
-function multi_create(select)
-{
+function multi_create(select) {
   select.style.display = 'none';
   select.onfocus();
 
@@ -872,8 +820,7 @@ function multi_create(select)
 // multi_box()
 // Find and return the box associated with a multi-SELECT control.  The
 // box should only exist if the multi-SELECT is in the open state.
-function multi_box(select_name)
-{
+function multi_box(select_name) {
   return document.getElementById(select_name + '_multibox');
 }
 
@@ -881,15 +828,13 @@ function multi_box(select_name)
 // Find and return the background associated with a multi-SELECT
 // control.  The background should only exist if the multi-SELECT is
 // in the open state.
-function multi_back(select_name)
-{
+function multi_back(select_name) {
   return document.getElementById(select_name + '_multiback');
 }
 
 // multi_open()
 // Create and fill the drop-down box for a multi-SELECT control.
-function multi_open(select_name)
-{
+function multi_open(select_name) {
   var select = document.getElementsByName(select_name)[0];
   var text = document.getElementById(select_name + '_multitext');
 
@@ -917,7 +862,7 @@ function multi_open(select_name)
       if (span.firstChild) {
         span.appendChild(document.createElement('br'));
       }
-      
+
       // TJT 2014-09-05: Making text node into label for checkbox so that clicking on
       // text makes the checkbox checked
       // output: <label><input type="checkbox" id="id">text</label>
@@ -966,8 +911,7 @@ function multi_open(select_name)
 // multi_close()
 // Copy the state of the drop-down box into the SELECT control, then
 // delete the box.
-function multi_close(select_name)
-{
+function multi_close(select_name) {
   var box = multi_box(select_name);
   var back = multi_back(select_name);
   var select = document.getElementsByName(select_name)[0];
@@ -985,16 +929,16 @@ function multi_close(select_name)
 	  ivalue += ', ';
 	  fvalue += ', ';
 	}
-  
+
 	var v = check.id.replace(/.*__/, '');
 	ivalue += v;
-  
+
 	for (var i = 0; i < ops.length; i++) {
 	  if (v == ops[i].value) {
 	    v = ops[i].innerHTML;
 	  }
 	}
-  
+
 	fvalue += v;
       }
     }
@@ -1012,8 +956,7 @@ function multi_close(select_name)
 
 // multi_click()
 // Handle a click on the multi-SELECT button.
-function multi_click(select_name)
-{
+function multi_click(select_name) {
   var box = multi_box(select_name);
   if (box) {
     multi_close(select_name);
@@ -1024,8 +967,7 @@ function multi_click(select_name)
 
 // multi_keypress()
 // Handle the ENTER key by swallowing it and closing the box
-function multi_keypress(e, select_name)
-{
+function multi_keypress(e, select_name) {
   var keynum;
   if (!e) {
     keynum = window.event.keyCode;
@@ -1046,8 +988,7 @@ function multi_keypress(e, select_name)
 ////////////////////////////////////////////////////////////
 
 // Fill pred elements with values based on the orth element
-function fill_pred(name,pos)
-{
+function fill_pred(name, pos) {
   var elms = document.getElementsByName(name+'_orth');
   var word = '';
   for (var i = 0; i < elms.length; i++) {
@@ -1065,7 +1006,7 @@ function fill_pred(name,pos)
       for (var j = 0; j < text_elms.length; j++) {
         if (text_elms[j].type == "text" && text_elms[j].value.match(new RegExp("^_"+word+"_"+pos+"_?[0-9]*_rel$",""))){
           match_inds.push(j);
-        }  
+        }
       }
       if (match_inds.length > 1){
         for (var j = 0; j < match_inds.length; j++) {
@@ -1076,8 +1017,7 @@ function fill_pred(name,pos)
   }
 }
 
-function aux_fill_pred(name, stem, pos)
-{
+function aux_fill_pred(name, stem, pos) {
   var elms = document.getElementsByName(name+"_sem");
   for (var i = 0; i < elms.length; i++) {
     if (elms[i].value == "add-pred" && elms[i].checked) {
@@ -1089,8 +1029,7 @@ function aux_fill_pred(name, stem, pos)
 // fill_hidden_errors()
 // This moves errors which are not displayed to the outside of
 // show/hide button. It should be called onload and no where else.
-function fill_hidden_errors()
-{
+function fill_hidden_errors() {
   var hash = window.location.hash;
   var elms = document.getElementsByTagName("div");
   for (var i = 0; i < elms.length; i++) {
@@ -1104,12 +1043,10 @@ function fill_hidden_errors()
 }
 
 // fill_errors(id)
-// Moves the errors for a interator div to the associated error 
+// Moves the errors for a interator div to the associated error
 // span outside of the show hide (if such a span exists.
 // This should only be called by the fill_hidden_errors function.
-function fill_errors(element_id)
-{
-  
+function fill_errors(element_id) {
   var s = document.getElementById(element_id+'_errors');
   var p = document.getElementById(element_id);
   var anchors = p.getElementsByTagName('a');
@@ -1121,8 +1058,7 @@ function fill_errors(element_id)
 }
 
 //import_toolbox_lexicon
-function import_toolbox_lexicon()
-{
+function import_toolbox_lexicon() {
   var elm = document.getElementsByTagName('form')[0];
   var inp = document.createElement('input');
   inp.type = "hidden";
@@ -1131,6 +1067,7 @@ function import_toolbox_lexicon()
   elm.appendChild(inp);
   submit_main();
 }
+
 ////////////////////////////////////////////////////////////
 // Special functions for Subpages
 ////////////////////////////////////////////////////////////
@@ -1140,9 +1077,7 @@ function import_toolbox_lexicon()
 ////////
 
 // set_negexp(n) automatically hide and show section based on radio choice
-//
-function set_negexp(n)
-{
+function set_negexp(n) {
   var value = n;
   var divs = document.getElementsByClassName("neg_exp_switch");
 	for(var i=0; i<divs.length;i++){
@@ -1167,7 +1102,7 @@ function set_negexp(n)
       var d = document.getElementById('x-neg');
       break;
     default:
-      var d = null; 
+      var d = null;
   }
   if (d != null)
   {
@@ -1175,54 +1110,54 @@ function set_negexp(n)
   }
 }
 
-function set_negmorph(t1,t2){
+function set_negmorph(t1, t2) {
   // now calculate the bipartite negation type
   var t;
   if (t1=='b'){
     if (t2=='b'){
-      t = 'infl-infl'; 
+      t = 'infl-infl';
     } else if (t2 == 'fh') {
-      t = 'infl-head'; 
+      t = 'infl-head';
     } else if (t2 == 'fc') {
-      t = 'infl-comp'; 
+      t = 'infl-comp';
     } else if (t2 == 'fm') {
-      t = 'infl-mod'; 
+      t = 'infl-mod';
     } else {
       t = 'default';
     }
   } else if (t1 == 'fh'){
     if (t2=='b'){
-      t = 'infl-head'; 
+      t = 'infl-head';
     } else if (t2 == 'fh') {
-      t = 'head-head'; 
+      t = 'head-head';
     } else if (t2 == 'fc') {
-      t = 'head-comp'; 
+      t = 'head-comp';
     } else if (t2 == 'fm') {
-      t = 'head-mod'; 
+      t = 'head-mod';
     } else {
       t = 'default';
     }
   } else if (t1 == 'fc'){
     if (t2=='b'){
-      t = 'infl-comp'; 
+      t = 'infl-comp';
     } else if (t2 == 'fh') {
-      t = 'head-comp'; 
+      t = 'head-comp';
     } else if (t2 == 'fc') {
-      t = 'comp-comp'; 
+      t = 'comp-comp';
     } else if (t2 == 'fm') {
-      t = 'comp-mod'; 
+      t = 'comp-mod';
     } else {
       t = 'default';
     }
   } else if (t1 == 'fm'){
     if (t2=='b'){
-      t = 'infl-mod'; 
+      t = 'infl-mod';
     } else if (t2 == 'fh') {
-      t = 'head-mod'; 
+      t = 'head-mod';
     } else if (t2 == 'fc') {
-      t = 'comp-mod'; 
+      t = 'comp-mod';
     } else if (t2 == 'fm') {
-      t = 'mod-mod'; 
+      t = 'mod-mod';
     } else {
       t = 'default';
     }
@@ -1235,20 +1170,20 @@ function set_negmorph(t1,t2){
   //  this choice is useful at customize time
   //
   //  also, set subchoices to interface with
-  //  deffile side-effects (neg-aux), and 
+  //  deffile side-effects (neg-aux), and
   //  neg library dependencies
   if (t.search(/head/) > -1) {
-    document.forms['choices_form']['neg-aux'].checked= true; 
+    document.forms['choices_form']['neg-aux'].checked= true;
   } else {
     document.forms['choices_form']['neg-aux'].checked = false;
   }
   if (t.search(/comp|mod/) > -1) {
-    document.forms['choices_form']['adv-neg'].checked= true; 
+    document.forms['choices_form']['adv-neg'].checked= true;
   } else {
     document.forms['choices_form']['adv-neg'].checked = false;
   }
   if (t.search(/infl/) > -1) {
-    document.forms['choices_form']['infl-neg'].checked= true; 
+    document.forms['choices_form']['infl-neg'].checked= true;
   } else {
     document.forms['choices_form']['infl-neg'].checked = false;
   }
@@ -1264,14 +1199,13 @@ function set_negmorph(t1,t2){
   }
 }
 
-function display_neg_form()
-{
+function display_neg_form() {
   // this function constrols the logical constraints on the form
   // choices.  it's a little like a pre-validation step.
   // there are a lot of possible combinations of choices on the
-  // negation page, but most of the combinations won't lead to successful 
-  // grammars.  thus the need to prevent users from going down 
-  // dead ends we know about. 
+  // negation page, but most of the combinations won't lead to successful
+  // grammars.  thus the need to prevent users from going down
+  // dead ends we know about.
 
   // here we display only the exponence section the user has
   // asked for
@@ -1279,13 +1213,13 @@ function display_neg_form()
   for (var i=0; i<neg_exp.length;i++)
   {
     if(neg_exp[i].checked){
-      set_negexp(neg_exp[i].value); 
+      set_negexp(neg_exp[i].value);
     }
   }
 
   // for simple negation, the selected complements analysis has
   // some dead ends we know about
-  if (neg_exp[1].checked) { 
+  if (neg_exp[1].checked) {
     neg_comp();
   }
 
@@ -1294,8 +1228,8 @@ function display_neg_form()
   // page.
 
   if (neg_exp[2].checked) {
-    var ntype1 = document.forms["choices_form"]["neg"+1+"-type"]; 
-    var ntype2 = document.forms["choices_form"]["neg"+2+"-type"]; 
+    var ntype1 = document.forms["choices_form"]["neg"+1+"-type"];
+    var ntype2 = document.forms["choices_form"]["neg"+2+"-type"];
     var t1,t2;
     for (var j=0;j<ntype1.length;j++){
       if(ntype1[j].checked){
@@ -1337,6 +1271,7 @@ window.onresize=scalenav;
 function scalenav() {
   // make smaller nav is below threshold
   var d = document.getElementById("navmenu");
+  // TODO: Load this from serverside!!!
   var map = { "General Information":"Gen Info",
               "Tense, Aspect and Mood":"TAM",
               "Direct-inverse":"Dir-inv",
@@ -1374,7 +1309,7 @@ function scalenav() {
 
 // call customize grammar from a subpage
 function nav_customize(type) {
-  var f = document.forms['choices_form']; 
+  var f = document.forms['choices_form'];
   var elms = document.getElementsByTagName('input');
   for (var i = 0; i < elms.length; i++) {
     if (elms[i].name=="subpage" || elms[i].name=="delivery" || elms[i].name=="customize") {
@@ -1403,5 +1338,3 @@ function nav_customize(type) {
   f.removeChild(t);
   f.removeChild(i);
 }
-
-
