@@ -51,6 +51,19 @@ class DefsToHtmlTests(unittest.TestCase):
     pass
 
 
+class ReplaceVarsTests(unittest.TestCase):
+  """
+  TODO: Make sure to test defs_to_html() directly
+  """
+
+  def testReplaceVars(self):
+    pass
+
+
+  def testReplaceVarsTokenized(self):
+    pass
+
+
 class SubPageTests(unittest.TestCase):
 
   def __print_both(self, actual, expected):

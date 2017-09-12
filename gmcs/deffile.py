@@ -281,14 +281,25 @@ def make_zip(directory):
     add_zip_files(z, directory)
 
 
-def replace_vars(word, iter_vars):
+def replace_vars(line, iter_vars):
   """
-  Replace variables of the form {name} in word using the dict iter_vars
+  Replace variables of the form "{name}" in line using the dict iter_vars
   TODO: Make this work on tokenized lines?
   """
-  for k in iter_vars.keys():
-    word = re.sub('\\{' + k + '\\}', str(iter_vars[k]), word)
-  return word
+  for k in iter_vars:
+    line = re.sub('\\{' + k + '\\}', str(iter_vars[k]), line)
+  return line
+
+
+def replace_vars_tokenized(tokens, iter_vars):
+  """
+  Replace variables of the form "{name}" in line using the dict iter_vars
+  """
+  regexes = {k: re.compile(k) for k in iter_vars}
+  for i, token in enumerate(tokens):
+    for k in iter_vars:
+      tokens[i] = regexes[k].sub(str(iter_vars[k]), tokens[i])
+  return tokens
 
 
 def js_array(items, N=2):
@@ -351,9 +362,10 @@ class MatrixDefFile:
     Load the matrixdef file into memory
     """
     self.def_lines = [line.strip() for line in self.def_lines if line.strip()] # Remove unimportant whitespace
-    self.tokenized_lines = [tokenize_def(line) for line in self.def_lines]
+    self.tokenized_lines = [tokenize_def(line) for line in self.def_lines] # Tokenize ONCE
     self.sections = {}
     self.lines = {} # TODO: Remove this
+    self.section_starts = {} # TODO: Remove this
     last = -1
     section_name = None
     for i, line in enumerate(self.tokenized_lines):
@@ -362,6 +374,7 @@ class MatrixDefFile:
         if last >= 0:
           self.sections[section_name] = self.tokenized_lines[last:i]
           self.lines[section_name] = self.def_lines[last:i]
+          self.section_starts[section_name] = last
         last = i
         # Prepare for the next
         section_name = line[1]
@@ -373,6 +386,7 @@ class MatrixDefFile:
     if last != len(self):
       self.sections[section_name] = self.tokenized_lines[last:]
       self.lines[section_name] = self.def_lines[last:]
+      self.section_starts[section_name] = last
 
 
   def __len__(self):
@@ -643,7 +657,7 @@ class MatrixDefFile:
                  'fillcache':'fill_cache(%(args)s)'}
 
 
-  def defs_to_html(self, lines, tokenized_lines, choices, vr, prefix, vars):
+  def defs_to_html(self, lines, tokenized_lines, choices, vr, prefix, vars, offset=0):
     """
     # Turn a list of lines containing matrix definitions into a string
     # containing HTML.
@@ -651,6 +665,7 @@ class MatrixDefFile:
     TODO: Store this in a variable
     TODO: This could be more testable, slightly faster, and more modular as
           loading functions from a function dictionary
+    TODO: Change the name of vars
     """
 
     html = ''
@@ -666,19 +681,21 @@ class MatrixDefFile:
 
     i = 0
     while i < num_lines:
-      word = tokenize_def(replace_vars(lines[i], vars)) # TODO: Replace this
-      if len(word) == 0: # TODO: Simplify this
+      #word = tokenize_def(replace_vars(lines[i], vars))
+      word = replace_vars_tokenized(self.tokenized_lines[i+offset], vars)
+      word_length = len(word)
+      if word_length == 0: # TODO: Simplify this
         pass
       elif word[0] == 'Cache':
         cache_name = word[1]
         items = choices.get_regex(word[2])
-        if len(word) > 3:
+        if word_length > 3:
           items = [(k, v.get(word[3])) for (k, v) in items]
         html += HTML_jscache % (cache_name,
                                 '\n'.join(["'" + ':'.join((v, k)) + "',"
                                            for (k, v) in items]))
       elif word[0] == 'Label':
-        if len(word) > 2:
+        if word_length > 2:
           key = prefix + word[1]
           if key in vr.errors:
             html += html_error_mark(vr.errors[key])
@@ -688,16 +705,16 @@ class MatrixDefFile:
       elif word[0] == 'Separator':
         html += '<hr>'
       elif word[0] == 'Check':
-        if len(word) < 5: continue # TJT 2014-08-28: Syntax error!
+        if word_length < 5: continue # TJT 2014-08-28: Syntax error!
         js = ''
-        if len(word) >= 5:
-          (vn, fn, bf, af) = word[1:5]
-        if len(word) >= 6:
+        if word_length >= 5:
+          vn, fn, bf, af = word[1:5]
+        if word_length >= 6:
           js = word[5]
         # TJT 2014-08-28: Adding switch here to ignore entire check definition
         # based on some other choice
         skip_this_check = False
-        if len(word) >= 7:
+        if word_length >= 7:
           # matrixdef contains name of choice to switch on
           switch = word[6]
           skip_this_check = self.check_choice_switch(switch, choices)
@@ -709,14 +726,14 @@ class MatrixDefFile:
       elif word[0] == 'Radio':
         # TJT 2014-03-19: Removed disabled flag that was on the entire radio
         # definition instead of on individual choices. See below
-        if len(word) >= 5:
+        if word_length >= 5:
           (vn, fn, bf, af) = word[1:5]
         else: continue # TJT 2014-08-28: Syntax error
         vn = prefix + vn
         # TJT 2014-08-28: Adding switch here to ignore entire radio definition
         # based on some other choice
         skip_this_radio = False
-        if len(word) >= 6:
+        if word_length >= 6:
           # matrixdef contains name of choice to switch on
           switch = word[5]
           skip_this_radio = self.check_choice_switch(switch, choices)
@@ -732,15 +749,16 @@ class MatrixDefFile:
             # Reset flags on each item
             dis, js = '', ''
             checked = False
-            word = tokenize_def(replace_vars(lines[i], vars)) # TODO: Replace this
+            #word = tokenize_def(replace_vars(lines[i], vars))
+            word = replace_vars_tokenized(self.tokenized_lines[i+offset], vars)
             # TJT 2014-05-07 Rearranged this logic (hoping for speed)
             rval, rfrn, rbef, raft = word[1:5]
             # Format choice name
             if choices.get(vn) == rval: # If previously marked, mark as checked again
               checked = True
-            if len(word) >= 6:
+            if word_length >= 6:
               js = word[5]
-            if len(word) >= 7: # TJT 2014-03-19: option for disabled radio buttons
+            if word_length >= 7: # TJT 2014-03-19: option for disabled radio buttons
               if word[6]: # If anything here...
                 dis = True
             html += html_input(vr, 'radio', vn, rval, checked, rbef, raft,
@@ -758,8 +776,8 @@ class MatrixDefFile:
         vn, fn, bf, af = word[1:5]
 
         onfocus, onchange = '', ''
-        if len(word) > 5: onfocus = word[5]
-        if len(word) > 6: onchange = word[6]
+        if word_length > 5: onfocus = word[5]
+        if word_length > 6: onchange = word[6]
 
         vn = prefix + vn
 
@@ -770,7 +788,9 @@ class MatrixDefFile:
         # look ahead and see if we have an auto-filled drop-down
         i += 1
         while i < num_lines and len(lines[i]) > 0 and lines[i].strip().startswith('fill'):
-          word = tokenize_def(replace_vars(lines[i], vars)) # TODO: Replace this
+          #word = tokenize_def(replace_vars(lines[i], vars))
+          word = replace_vars_tokenized(self.tokenized_lines[i+offset], vars)
+          word_length = len(word)
           # arguments are labeled like p=pattern, l(literal_feature)=1,
           # n(nameOnly)=1, c=cat
           argstring = ','.join(['true' if a in ('n', 'l') else "'%s'" % x
@@ -804,12 +824,14 @@ class MatrixDefFile:
         # Add individual items, if applicable
         while i < num_lines and lines[i].strip().startswith('.'):
           sstrike = False # Reset variable
-          word = tokenize_def(replace_vars(lines[i], vars)) # TODO: Replace this
+          #word = tokenize_def(replace_vars(lines[i], vars))
+          word = replace_vars_tokenized(self.tokenized_lines[i+offset], vars)
+          word_length = len(word)
           # select/multiselect options
           oval, ofrn, ohtml = word[1:4]
           # TJT 2014-03-19: add disabled option to allow for always-disabled
           # If there's anything in this slot, disable option
-          if len(word) >= 5: sstrike = True
+          if word_length >= 5: sstrike = True
           # Add option and mark "selected" if previously selected
           html += html_option(vr, oval, (sval == oval), ofrn, strike=sstrike) + '\n'
           i += 1
@@ -819,10 +841,10 @@ class MatrixDefFile:
         html += af + '\n'
 
       elif word[0] in ('Text', 'TextArea'):
-        if len(word) > 6:
-          (vn, fn, bf, af, sz, oc) = word[1:]
+        if word_length > 6:
+          vn, fn, bf, af, sz, oc = word[1:]
         else:
-          (vn, fn, bf, af, sz) = word[1:]
+          vn, fn, bf, af, sz = word[1:]
           oc = ''
         # TJT 2014-08-27: Prepend auto onchange events (instead of assinging)
         if vn == "name":
@@ -843,18 +865,18 @@ class MatrixDefFile:
         html += html_input(vr, word[0].lower(), vn, value, False,
                            bf, af, sz, onchange=oc) + '\n'
       elif word[0] == 'Hidden':
-        (vn, fn) = word[1:]
+        vn, fn = word[1:]
         value = choices.get(vn)
         html += html_input(vr, word[0].lower(), vn, value, False,
                            '', '', 0) + '\n'
       elif word[0] == 'File':
-        (vn, fn, bf, af) = word[1:]
+        vn, fn, bf, af = word[1:]
         vn = prefix + vn
         value = choices.get(vn)
         html += html_input(vr, word[0].lower(), vn, value, False,
                            bf, af) + '\n'
       elif word[0] == 'Button':
-        (vn, bf, af, oc) = word[1:]
+        vn, bf, af, oc = word[1:]
         html += html_input(vr, word[0].lower(), '', vn, False,
                            bf, af, onclick=oc) + '\n'
       elif word[0] == 'BeginIter':
@@ -862,14 +884,14 @@ class MatrixDefFile:
         iter_name, iter_var = word[1].replace('}', '').split('{', 1)
         label = word[2]
         show_hide = 0
-        if len(word) > 3:
+        if word_length > 3:
           show_hide = int(word[3])
         iter_min = 0
-        if len(word) > 4:
+        if word_length > 4:
           iter_min = int(word[4])
 	    # TJT 2014-08-20: adding option to only do iter based on other choice
         skip_this_iter = False
-        if len(word) > 5:
+        if word_length > 5:
           # matrixdef contains name of choice to switch on
           switch = word[5]
           skip_this_iter = self.check_choice_switch(switch, choices)
@@ -881,9 +903,10 @@ class MatrixDefFile:
         while True:
           if i >= num_lines:
             raise Exception("Missing EndIter statement for Iter \"%s\"" % iter_orig)
-          #word = tokenize_def(lines[i]) # TODO: Replace this
-          word = self.tokenized_lines[i]
-          if len(word) == 0:
+          #word = tokenize_def(lines[i])
+          word = self.tokenized_lines[i+offset]
+          word_length = len(word)
+          if word_length == 0:
             pass
           elif word[0] == 'EndIter' and word[1] == iter_name:
             break
@@ -903,9 +926,10 @@ class MatrixDefFile:
           html += self.defs_to_html(lines[beg:end],
                                     tokenized_lines[beg:end],
                                     choices, vr,
-                                    prefix + iter_orig + '_', vars)
-          html += '</div>\n'
-          html += '</div>\n\n'
+                                    prefix + iter_orig + '_',
+                                    vars,
+                                    offset=beg)
+          html += '</div>\n</div>\n\n'
 
           # write out as many copies of the iterator as called for by
           # the current choices file OR iter_min copies, whichever is
@@ -913,9 +937,10 @@ class MatrixDefFile:
           c = 0
           iter_num = 0
           chlist = [x for x in choices.get(prefix + iter_name) if x]
-          while (chlist and c < len(chlist)) or c < iter_min:
+          chlist_length = len(chlist)
+          while (chlist and c < chlist_length) or c < iter_min:
             show_name = ""
-            if c < len(chlist):
+            if c < chlist_length:
               iter_num = str(chlist[c].iter_num())
               show_name = chlist[c]["name"]
             else:
@@ -950,9 +975,10 @@ class MatrixDefFile:
             html += self.defs_to_html(lines[beg:end],
                                       tokenized_lines[beg:end],
                                       choices, vr,
-                                      new_prefix, vars)
-            html += '</div>\n'
-            html += '</div>\n'
+                                      new_prefix,
+                                      vars,
+                                      offset=beg)
+            html += '</div>\n</div>\n'
 
             del vars[iter_var]
             c += 1
@@ -988,6 +1014,7 @@ class MatrixDefFile:
 
     section_def = self.lines[section]
     tokenized_section_def = self.sections[section]
+    section_start = self.section_starts[section]
 
     # Get cookie
     choices_file = 'sessions/' + cookie + '/choices'
@@ -1004,165 +1031,8 @@ class MatrixDefFile:
         section_name=self.section_names[section],
         section_doc_link=self.doc_links[section],
         navigation=self.navigation(vr, choices_file, section=section),
-        form=self.defs_to_html(section_def, tokenized_section_def, choices, vr, '', {})
+        form=self.defs_to_html(section_def, tokenized_section_def, choices, vr, '', {}, offset=section_start)
     )
-
-
-    # # TODO: MOVED
-    # print HTTP_header + '\n'
-    # print HTML_pretitle
-    # # TODO: END MOVED
-    # if section == 'lexicon':
-    #   print "<script type='text/javascript' src='web/draw.js'></script>"
-    #
-    # choices_file = 'sessions/' + cookie + '/choices'
-    # choices = ChoicesFile(choices_file)
-
-    # section_begin = -1
-    # section_end = -1
-    # section_friendly = ''
-
-    # # TODO: Do this once
-    # i = 0
-    # while i < len(self.def_lines):
-    #   line = self.def_lines[i]
-    #   if line.startswith("Section"):
-    #       word = tokenize_def(self.def_lines[i]) # TODO: Replace this
-    #       if section_begin != -1:
-    #         section_end = i
-    #         break
-    #       if word[1] == section:
-    #         section_begin = i + 1
-    #         section_friendly = word[2]
-    #       cur_sec = word[1]
-    #       cur_sec_friendly = word[2]
-    #       cur_sec_begin = i + 1
-    #   i += 1
-
-    # if section_begin != -1:
-    #   if section_end == -1:
-    #     section_end = i
-    #   # TODO: DEFINED AS VARIABLE title #
-    #   print '<title>' + section_friendly + '</title>'
-    #   # TODO: END DEFINED AS VARIABLE #
-    #
-    #   # TODO: DEFINED AS VARIABLES features, verb_case_patterns, numbers #
-    #   print HTML_posttitle % \
-    #         (js_array4(choices.features()),
-    #          js_array([c for c in choices.patterns() if not c[2]]),
-    #          js_array([n for n in choices.numbers()]))
-    #   # TODO: DEFINED AS VARIABLES #
-    #
-    #   # TODO: Make sure this works
-    #   if section == 'sentential-negation':
-    #     print HTML_prebody_sn
-    #   else:
-    #     print HTML_prebody
-    #
-    #   # TODO: DEFINED AS VARIABLE section_doc_link #
-    #   print '<h2 style="display:inline">' + section_friendly + '</h2>'
-    #   doclink = '<a href="http://moin.delph-in.net/MatrixDoc/' + \
-    #             self.doc_links[section] + '" target="matrixdoc">help</a>'
-    #   print '<span class="tt">['+doclink+']</span><br />'
-    #
-    #
-    #   # TODO: Do this once
-    #   # pass through the definition file once, augmenting the list of validation
-    #   # results with section names so that we can put red asterisks on the links
-    #   # to the assocated sub-pages on the nav menu.
-    #   prefix = ''
-    #   sec_links = []
-    #   n = -1
-    #   printed = False
-    #   for l in self.def_lines:
-    #     word = tokenize_def(l) # TODO: Replace this
-    #     cur_sec = ''
-    #     if len(word) < 2 or word[0][0] == COMMENT_CHAR:
-    #       pass
-    #     elif len(word) == 4 and word[3] == '0':
-    #       # TODO: This is an undocumented feature of matrixdef: consider
-    #       # don't print links to sections that are marked 0
-    #       pass
-    #     elif word[0] == 'Section':
-    #       printed = False
-    #       cur_sec = word[1]
-    #       # disable the link if this is the page we're on
-    #       if cur_sec == section:
-    #         sec_links.append('</span><span class="navlinks">'+self.section_names[cur_sec]+'</span>')
-    #       else:
-    #         sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\''+cur_sec+'\')">'+self.section_names[cur_sec]+'</a>')
-    #       n+=1
-    #     elif word[0] == 'BeginIter':
-    #       if prefix:
-    #         prefix += '_'
-    #       prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
-    #     elif word[0] == 'EndIter':
-    #       prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
-    #     elif not (word[0] == 'Label' and len(word) < 3):
-    #       pat = '^' + prefix
-    #       if prefix:
-    #         pat += '_'
-    #       pat += word[1] + '$'
-    #       if not printed:
-    #         for k in vr.errors.keys():
-    #           if re.search(pat, k):
-    #             sec_links[n] = ERROR+sec_links[n]
-    #             printed = True
-    #             break
-    #       if not printed:
-    #         for k in vr.warnings.keys():
-    #           if re.search(pat, k):
-    #             sec_links[n] = WARNING+sec_links[n]
-    #             printed = True
-    #             break
-    #
-    #   # TODO: Make this a method #
-    #   print '<div id="navmenu"><br />'
-    #   print '<a href="." onclick="submit_main()" class="navleft">Main page</a><br />'
-    #   print '<hr />'
-    #   for l in sec_links:
-    #     print '<span style="color:#ff0000;" class="navleft">'+l+'<br />'
-    #
-    #   print '<hr />'
-    #   print '<a href="' + choices_file + '" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>'
-    #   print '<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />'
-    #   # TJT 2014-05-28: Not sure why the following doesn't work -- need to do more investigation
-    #   #print '<a href="?subpage=%s" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />' % section
-    #   print '<a href="#clear" onclick="clear_form()" class="navleft">Clear form</a><br />'
-    #
-    #   ## if there are errors, then we print the links in red and
-    #   ## unclickable
-    #   if not vr.has_errors() == 0:
-    #     print '<span class="navleft">Create grammar:'
-    #     print html_info_mark(
-    #           ValidationMessage('','Resolve validation errors to enable '+
-    #           'grammar customization.',''))
-    #     print '</span><br />'
-    #     print '<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>'
-    #   else:
-    #     print '<span class="navleft">Create grammar:</span><br />'
-    #     print '<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>'
-    #   print '</div>'
-    #   # TODO: End make this a method #
-    #
-    #
-    #   # TODO: MOVED #
-    #   print '<div id="form_holder">'
-    #   print HTML_preform
-    #   # TODO: END MOVED #
-    #   # TODO: DEFINED AS VARIABLE form #
-    #   print html_input(vr, 'hidden', 'section', section, False, '', '\n')
-    #   print html_input(vr, 'hidden', 'subpage', section, False, '', '\n')
-    #   print self.defs_to_html(self.def_lines[section_begin:section_end],
-    #                           choices, vr,
-    #                           '', {})
-    #   # TODO: END DEFINED AS VARIABLE form #
-    #
-    # # TODO: MOVED #
-    # print HTML_postform
-    # print '</div>'
-    # print HTML_postbody
-    # # TODO: END MOVED #
 
 
   def navigation(self, vr, choices_file, section=None):
@@ -1212,6 +1082,7 @@ class MatrixDefFile:
         # TODO: This is ridiculously inefficient
         if not printed:
           for k in vr.errors.keys():
+            # TODO: Try removing the pattern values and doing a normal hash?
             if re.search(pat, k):
               sec_links[n] = ERROR + sec_links[n]
               printed = True
