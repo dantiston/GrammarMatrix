@@ -19,14 +19,12 @@
   <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/{{section_doc_link}}" target="matrixdoc">help</a>]</span>
   <br />
 
-  <div id="navmenu"><br />
-    {{navigation}}
-  </div>
+  {{navigation|indent}}
 
   <div id="form_holder">
     {# TODO: Make this a macro #}
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
-      {{form}}
+      {{form|indent}}
     </form>
   </div>
 {% endblock %}

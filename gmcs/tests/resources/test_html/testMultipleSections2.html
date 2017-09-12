@@ -5,7 +5,7 @@ Set-cookie: session=7777
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Test Basic</title>
+    <title>Test Basic 2</title>
 
     <link rel="stylesheet" href="web/matrix.css">
 
@@ -29,14 +29,15 @@ Set-cookie: session=7777
 
   <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
 
-  <h2 style="display:inline">Test Basic</h2>
-  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/TestBasic" target="matrixdoc">help</a>]</span>
+  <h2 style="display:inline">Test Basic 2</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/TestBasic2" target="matrixdoc">help</a>]</span>
   <br />
 
   <div id="navmenu"><br />
     <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
     <hr />
-    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Test Basic</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Test Basic 2</span><br />
     <hr />
     <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
     <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
@@ -47,8 +48,7 @@ Set-cookie: session=7777
   <div id="form_holder">
 
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
-      <p>Test</p>
-    <hr><p>Test</p>
+      <p>Test2</p>
     </form>
   </div>
 

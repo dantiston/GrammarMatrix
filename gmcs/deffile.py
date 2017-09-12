@@ -10,6 +10,8 @@
 #   - sfd 3/5/2008
 
 # TODO: Move everything except for MatrixDefFile to a different module
+# TODO: Think about either making constants for accessing indices of MatrixDefFile
+#       or make the data of the deffile object oriented (and have accessors)
 
 ######################################################################
 # imports
@@ -70,7 +72,7 @@ COMMENT_CHAR = "#"
 # Jinja
 jinja = Environment(
     loader=PackageLoader('gmcs', 'html'),
-    autoescape=False
+    #autoescape=False
 )
 
 ######################################################################
@@ -282,6 +284,7 @@ def make_zip(directory):
 def replace_vars(word, iter_vars):
   """
   Replace variables of the form {name} in word using the dict iter_vars
+  TODO: Make this work on tokenized lines?
   """
   for k in iter_vars.keys():
     word = re.sub('\\{' + k + '\\}', str(iter_vars[k]), word)
@@ -294,7 +297,7 @@ def js_array(items, N=2):
   a string containing a JavaScript-formatted list of strings of the
   form 'string1:string2'.
   """
-  return ",\n".join(("'" + ":".join(item[:N]) + "'" for item in items))
+  return ",\n".join(('"' + ":".join(item[:N]) + '"' for item in items))
 
 
 def js_array3(items):
@@ -328,7 +331,7 @@ class MatrixDefFile:
   """
 
   # TODO: Define valid commands
-  commands = {'Section', 'Text', 'TextArea', 'Check', 'Radio', 'Select', 'MultiSelect'}
+  commands = set(['Section', 'Text', 'TextArea', 'Check', 'Radio', 'Select', 'MultiSelect', 'BeginIter', 'EndIter'])
 
   def __init__(self, def_file):
     # Define members
@@ -347,8 +350,10 @@ class MatrixDefFile:
     """
     Load the matrixdef file into memory
     """
-    self.tokenized_lines = [tokenize_def(line.strip()) for line in self.def_lines if line.strip()]
+    self.def_lines = [line.strip() for line in self.def_lines if line.strip()] # Remove unimportant whitespace
+    self.tokenized_lines = [tokenize_def(line) for line in self.def_lines]
     self.sections = {}
+    self.lines = {} # TODO: Remove this
     last = -1
     section_name = None
     for i, line in enumerate(self.tokenized_lines):
@@ -356,6 +361,7 @@ class MatrixDefFile:
         # Save previous
         if last >= 0:
           self.sections[section_name] = self.tokenized_lines[last:i]
+          self.lines[section_name] = self.def_lines[last:i]
         last = i
         # Prepare for the next
         section_name = line[1]
@@ -366,10 +372,12 @@ class MatrixDefFile:
             self.doc_links[section_name] = line[3]
     if last != len(self):
       self.sections[section_name] = self.tokenized_lines[last:]
+      self.lines[section_name] = self.def_lines[last:]
 
 
   def __len__(self):
     return len(self.def_lines)
+
 
   ######################################################################
   # Variable/friendly name mapping
@@ -381,16 +389,13 @@ class MatrixDefFile:
     """
     self.v2f = {}
     self.f2v = {}
-    for l in self.def_lines:
-      l = l.strip()
-      if len(l):
-        w = tokenize_def(l) # TODO: Replace this
-        if len(w) >= 3:
-          ty, vn, fn = w[0], w[1], w[2]
-          if ty in ('Text', 'TextArea', 'Check', 'Radio',
-                    'Select', 'MultiSelect', '.'):
-            self.v2f[vn] = fn
-            self.f2v[fn] = vn
+    for w in self.tokenized_lines:
+      if len(w) >= 3:
+        ty, vn, fn = w[0:3]
+        if ty in ('Text', 'TextArea', 'Check', 'Radio',
+                  'Select', 'MultiSelect', '.'):
+          self.v2f[vn] = fn
+          self.f2v[fn] = vn
 
 
   def f(self, v):
@@ -638,7 +643,7 @@ class MatrixDefFile:
                  'fillcache':'fill_cache(%(args)s)'}
 
 
-  def defs_to_html(self, lines, choices, vr, prefix, vars):
+  def defs_to_html(self, lines, tokenized_lines, choices, vr, prefix, vars):
     """
     # Turn a list of lines containing matrix definitions into a string
     # containing HTML.
@@ -657,10 +662,12 @@ class MatrixDefFile:
       name, value = c.split('=', 1)
       cookie[name.strip()] = value
 
+    num_lines = len(lines)
+
     i = 0
-    while i < len(lines):
+    while i < num_lines:
       word = tokenize_def(replace_vars(lines[i], vars)) # TODO: Replace this
-      if len(word) == 0:
+      if len(word) == 0: # TODO: Simplify this
         pass
       elif word[0] == 'Cache':
         cache_name = word[1]
@@ -672,10 +679,11 @@ class MatrixDefFile:
                                            for (k, v) in items]))
       elif word[0] == 'Label':
         if len(word) > 2:
-          if prefix + word[1] in vr.errors:
-            html += html_error_mark(vr.errors[prefix + word[1]])
-          elif prefix + word[1] in vr.warnings:
-            html += html_warning_mark(vr.warnings[prefix + word[1]])
+          key = prefix + word[1]
+          if key in vr.errors:
+            html += html_error_mark(vr.errors[key])
+          elif key in vr.warnings:
+            html += html_warning_mark(vr.warnings[key])
         html += word[-1] + '\n'
       elif word[0] == 'Separator':
         html += '<hr>'
@@ -720,7 +728,7 @@ class MatrixDefFile:
           html += bf + mark + '\n'
           i += 1
           # TJT 2014-08-28: changing this to "startswith" to enforce syntax
-          while lines[i].strip().startswith('.'):
+          while lines[i].lstrip().startswith('.'):
             # Reset flags on each item
             dis, js = '', ''
             checked = False
@@ -761,14 +769,13 @@ class MatrixDefFile:
 
         # look ahead and see if we have an auto-filled drop-down
         i += 1
-        while lines[i].strip().startswith('fill'):
+        while i < num_lines and len(lines[i]) > 0 and lines[i].strip().startswith('fill'):
           word = tokenize_def(replace_vars(lines[i], vars)) # TODO: Replace this
           # arguments are labeled like p=pattern, l(literal_feature)=1,
           # n(nameOnly)=1, c=cat
-          #note: possible cat values are "noun", "verb" or "both"
           argstring = ','.join(['true' if a in ('n', 'l') else "'%s'" % x
-                                for (a, x) in [w.split('=') for w in word[1:]]])
-          fillers += [fillstrings[word[0]] % {'args':argstring}]
+                                for a, x in [w.split('=') for w in word[1:]]])
+          fillers.append(self.fillstrings[word[0]] % {'args':argstring})
           i += 1
 
         # Section variables:
@@ -795,7 +802,7 @@ class MatrixDefFile:
           # will be marked during option processing below
           html += html_select(vr, vn, multi, onchange=onchange) + '\n'
         # Add individual items, if applicable
-        while lines[i].strip().startswith('.'):
+        while i < num_lines and lines[i].strip().startswith('.'):
           sstrike = False # Reset variable
           word = tokenize_def(replace_vars(lines[i], vars)) # TODO: Replace this
           # select/multiselect options
@@ -852,7 +859,7 @@ class MatrixDefFile:
                            bf, af, onclick=oc) + '\n'
       elif word[0] == 'BeginIter':
         iter_orig = word[1]
-        (iter_name, iter_var) = word[1].replace('}', '').split('{', 1)
+        iter_name, iter_var = word[1].replace('}', '').split('{', 1)
         label = word[2]
         show_hide = 0
         if len(word) > 3:
@@ -872,7 +879,10 @@ class MatrixDefFile:
         # collect the lines that are between BeginIter and EndIter
         beg = i
         while True:
-          word = tokenize_def(lines[i]) # TODO: Replace this
+          if i >= num_lines:
+            raise Exception("Missing EndIter statement for Iter \"%s\"" % iter_orig)
+          #word = tokenize_def(lines[i]) # TODO: Replace this
+          word = self.tokenized_lines[i]
           if len(word) == 0:
             pass
           elif word[0] == 'EndIter' and word[1] == iter_name:
@@ -891,6 +901,7 @@ class MatrixDefFile:
           html += html_delbutton(prefix + iter_name + '{' + iter_var + '}')
           html += '<div class="iterframe">'
           html += self.defs_to_html(lines[beg:end],
+                                    tokenized_lines[beg:end],
                                     choices, vr,
                                     prefix + iter_orig + '_', vars)
           html += '</div>\n'
@@ -937,6 +948,7 @@ class MatrixDefFile:
             html += html_delbutton(new_prefix[:-1])
             html += '<div class="iterframe">'
             html += self.defs_to_html(lines[beg:end],
+                                      tokenized_lines[beg:end],
                                       choices, vr,
                                       new_prefix, vars)
             html += '</div>\n'
@@ -974,14 +986,12 @@ class MatrixDefFile:
   # a cookie that determines where to look for the choices file
   def sub_page(self, section, cookie, vr):
 
-    section_def = self.sections[section]
+    section_def = self.lines[section]
+    tokenized_section_def = self.sections[section]
 
     # Get cookie
     choices_file = 'sessions/' + cookie + '/choices'
     choices = ChoicesFile(choices_file)
-
-    # Specifics
-    onload = section_def[0][3] if len(section_def[0]) > 2 else ""
 
     template = jinja.get_template('sub.html')
     return template.render(
@@ -989,12 +999,12 @@ class MatrixDefFile:
         features=js_array4(choices.features()),
         verb_case_patterns=js_array([c for c in choices.patterns() if not c[2]]),
         numbers=js_array(choices.numbers()),
-        onload=onload,
+        onload=tokenized_section_def[0][4] if len(tokenized_section_def[0]) > 4 else "",
         cookie=cookie,
         section_name=self.section_names[section],
         section_doc_link=self.doc_links[section],
         navigation=self.navigation(vr, choices_file, section=section),
-        form=self.defs_to_html(section_def, choices, vr, '', {})
+        form=self.defs_to_html(section_def, tokenized_section_def, choices, vr, '', {})
     )
 
 

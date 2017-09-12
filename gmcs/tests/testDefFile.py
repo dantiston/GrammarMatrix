@@ -17,6 +17,9 @@ def load_expected(file_name):
   with open(path, 'r') as f:
     return f.read()
 
+def remove_empty_lines(string):
+  return "\n".join((line for line in string.split("\n") if line.strip()))
+
 
 ### TESTS
 class InitializerTests(unittest.TestCase):
@@ -40,14 +43,80 @@ class InitializerTests(unittest.TestCase):
 
 
 class DefsToHtmlTests(unittest.TestCase):
+  """
+  TODO: Make sure to test defs_to_html() directly
+  """
+
+  def testDefsToHtml(self):
+    pass
+
+
+class SubPageTests(unittest.TestCase):
+
+  def __print_both(self, actual, expected):
+    print("#"*50 + " ACTUAL " + "#"*50)
+    print(actual)
+    print
+    print("#"*50 + " EXPECTED " + "#"*50)
+    print(expected)
+
 
   def testBasic(self):
-    os.environ['HTTP_COOKIE'] = 'session=7777'
-    definition = load("testBasic")
-    actual = definition.sub_page('test-basic', '7777', mock_validation())
-    expected = load_expected("testBasic")
-    self.assertEqual(actual, expected)
+    with os_environ(HTTP_COOKIE="session=7777"):
 
+      definition = load("testBasic")
+      actual = definition.sub_page('test-basic', '7777', mock_validation())
+      expected = load_expected("testBasic")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testIter(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+
+      definition = load("testIter")
+      actual = definition.sub_page('test-iter', '7777', mock_validation())
+      expected = load_expected("testIter")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testIterBroken(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      self.assertRaises(Exception, load("testIterBroken"))
+
+
+  def testMultiSelect(self):
+    """ TODO: Verify this test """
+    with os_environ(HTTP_COOKIE="session=7777"):
+
+      definition = load("testMultiSelect")
+      actual = definition.sub_page('test-multiselect', '7777', mock_validation())
+      expected = load_expected("testMultiSelect")
+      self.__print_both(actual, expected)
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testJoinedLines(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+
+      definition = load("testJoinedLines")
+      actual = definition.sub_page('test-joined-lines', '7777', mock_validation())
+      expected = load_expected("testJoinedLines")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testMultipleSections(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+
+      definition = load("testMultipleSections")
+      actual1 = definition.sub_page('test-basic', '7777', mock_validation())
+      actual2 = definition.sub_page('test-basic-2', '7777', mock_validation())
+      expected1 = load_expected("testMultipleSections1")
+      expected2 = load_expected("testMultipleSections2")
+      self.assertEqual(remove_empty_lines(actual1), remove_empty_lines(expected1))
+      self.assertEqual(remove_empty_lines(actual2), remove_empty_lines(expected2))
+
+
+class NavigationTests(unittest.TestCase):
 
   def testNavigation_Basic(self):
     definition = load("testBasic")
@@ -323,43 +392,43 @@ class JsArrayTests(unittest.TestCase):
 
   def testJsArray(self):
     actual = deffile.js_array([["string1", "string2"]])
-    expected = "'string1:string2'"
+    expected = '"string1:string2"'
     self.assertEqual(actual, expected)
 
 
   def testJsArrayOverfull(self):
     actual = deffile.js_array([["string1", "string2", "string3"]])
-    expected = "'string1:string2'"
+    expected = '"string1:string2"'
     self.assertEqual(actual, expected)
 
 
   def testJsArrayMultiple(self):
     actual = deffile.js_array([["string1", "string2"], ["string3", "string4"]])
-    expected = "'string1:string2',\n'string3:string4'"
+    expected = '"string1:string2",\n"string3:string4"'
     self.assertEqual(actual, expected)
 
 
   def testJsArray3(self):
     actual = deffile.js_array3([["string1", "string2", "string3"]])
-    expected = "'string1:string2:string3'"
+    expected = '"string1:string2:string3"'
     self.assertEqual(actual, expected)
 
 
   def testJsArray4(self):
     actual = deffile.js_array4([["string1", "string2", "string3", "string4"]])
-    expected = "'string1:string2:string3:string4'"
+    expected = '"string1:string2:string3:string4"'
     self.assertEqual(actual, expected)
 
 
   def testJsArrayN(self):
     actual = deffile.js_array([["string1", "string2", "string3", "string4", "string5"]], N=5)
-    expected = "'string1:string2:string3:string4:string5'"
+    expected = '"string1:string2:string3:string4:string5"'
     self.assertEqual(actual, expected)
 
 
   def testJsArrayN_2(self):
     actual = deffile.js_array([["string1", "string2", "string3"], ["string4", "string5", "string6"]], N=3)
-    expected = "'string1:string2:string3',\n'string4:string5:string6'"
+    expected = '"string1:string2:string3",\n"string4:string5:string6"'
     self.assertEqual(actual, expected)
 
 
@@ -387,3 +456,20 @@ class mock_error(object):
     self.href = href
     self.name = name
     self.message = message
+
+
+class os_environ(object):
+
+  def __init__(self, *args, **kwargs):
+    self.variables = kwargs
+
+  def __enter__(self):
+    self.old = os.environ.copy()
+    for key, value in self.variables.items():
+        os.environ[key] = value
+
+  def __exit__(self, exc_type, exc_value, exc_traceback):
+    os.environ = self.old
+    if exc_value != None:
+      return False
+    return True

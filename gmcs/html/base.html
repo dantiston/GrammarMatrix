@@ -6,7 +6,7 @@ Set-cookie: session={{cookie}}
   Note this defines (at least) the following blocks:
     * head
     * body
-    * onchange
+    * onload
 
   Note this defines (at least) the following variables:
     * section_name
@@ -18,26 +18,26 @@ Set-cookie: session={{cookie}}
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>{{section_name|default('the Matrix')}}</title>
+    <title>{{section_name|default("the Matrix")}}</title>
 
     <link rel="stylesheet" href="web/matrix.css">
 
     <script type="text/javascript" src="web/matrix.js"></script>
-    <script type='text/javascript' src='web/draw.js'></script>
+    <script type="text/javascript" src="web/draw.js"></script>
     <script type="text/javascript">
       <!--
-      // An array of strings, each of the form 'name:value|friendly value,...'
-      var features = [{{features}}];
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = [{{features|safe}}];
 
-      var verb_case_patterns = [{{verb_case_patterns}}];
+      var verb_case_patterns = [{{verb_case_patterns|safe}}];
 
-      var numbers = [{{numbers}}];
+      var numbers = [{{numbers|safe}}];
       -->
     </script>
     {% block head %}{% endblock head %}
   </head>
 
-  <body onload="{% block onchange %}{% endblock onchange %}">
+  <body{% if self.onload() %} onload="{% block onload %}{% endblock onload %}"{% endif %}>
   {% block body %}
   {% endblock body %}
   </body>

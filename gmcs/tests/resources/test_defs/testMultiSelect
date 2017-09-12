@@ -1,4 +1,4 @@
-Section test-multiselect "Test MultiSelect" MultiSelect
+Section test-multiselect "Test MultiSelect" TestMultiSelect
 
 MultiSelect test-multiselect "Test multiselect" "" "<br />"
-fillnumbers
+fillverbpat
