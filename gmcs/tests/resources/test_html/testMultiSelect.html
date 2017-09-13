@@ -48,7 +48,7 @@ Set-cookie: session=7777
 
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
 
-    <select name="test-multiselect" class="multi"  multiple="multiple" >
+    <select name="test-multiselect" class="multi"  multiple="multiple"  onfocus="fill('test-multiselect', [].concat(fill_case_patterns(false)));">
     <option value="" selected class="temp"></option>
     </select><br />
     </form>

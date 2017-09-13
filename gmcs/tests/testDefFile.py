@@ -20,6 +20,13 @@ def load_expected(file_name):
 def remove_empty_lines(string):
   return "\n".join((line for line in string.split("\n") if line.strip()))
 
+def __print_both(self, actual, expected):
+  print("#"*50 + " ACTUAL " + "#"*50)
+  print(actual)
+  print
+  print("#"*50 + " EXPECTED " + "#"*50)
+  print(expected)
+
 
 ### TESTS
 class InitializerTests(unittest.TestCase):
@@ -66,14 +73,6 @@ class ReplaceVarsTests(unittest.TestCase):
 
 class SubPageTests(unittest.TestCase):
 
-  def __print_both(self, actual, expected):
-    print("#"*50 + " ACTUAL " + "#"*50)
-    print(actual)
-    print
-    print("#"*50 + " EXPECTED " + "#"*50)
-    print(expected)
-
-
   def testBasic(self):
     with os_environ(HTTP_COOKIE="session=7777"):
 
@@ -104,7 +103,6 @@ class SubPageTests(unittest.TestCase):
       definition = load("testMultiSelect")
       actual = definition.sub_page('test-multiselect', '7777', mock_validation())
       expected = load_expected("testMultiSelect")
-      self.__print_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -202,6 +200,84 @@ class HtmlSelectTests(unittest.TestCase):
   def testHtmlSelect_basic(self):
     actual = deffile.html_select(mock_validation(), "hello")
     expected = '<select name="hello">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_onfocus(self):
+    actual = deffile.html_select(mock_validation(), "hello", onfocus="test();")
+    expected = '<select name="hello" onfocus="test();">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_onchange(self):
+    actual = deffile.html_select(mock_validation(), "hello", onchange="test();")
+    expected = '<select name="hello" onchange="test();">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_onfocus_onchange(self):
+    actual = deffile.html_select(mock_validation(), "hello", onfocus="test1();", onchange="test2();")
+    expected = '<select name="hello" onfocus="test1();" onchange="test2();">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_warning(self):
+    actual = deffile.html_select(mock_validation(warnings={"hello":mock_error(message="warning")}), "hello")
+    expected = '<a name="" style="text-decoration:none"><span class="error" title="warning">?</span></a><select name="hello">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_error(self):
+    actual = deffile.html_select(mock_validation(errors={"hello":mock_error(message="error")}), "hello")
+    expected = '<a name="" style="text-decoration:none"><span class="error" title="error">*</span></a><select name="hello">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_info(self):
+    actual = deffile.html_select(mock_validation(infos={"hello":mock_error(message="info")}), "hello")
+    expected = '<a href="" style="text-decoration:none"><span class="info" title="info">#</span></a><select name="hello">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_multi_basic(self):
+    actual = deffile.html_select(mock_validation(), "hello", multi=True)
+    expected = '<select name="hello" class="multi"  multiple="multiple" >'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_multi_onfocus(self):
+    actual = deffile.html_select(mock_validation(), "hello", onfocus="test();", multi=True)
+    expected = '<select name="hello" class="multi"  multiple="multiple"  onfocus="test();">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_multi_onchange(self):
+    actual = deffile.html_select(mock_validation(), "hello", onchange="test();", multi=True)
+    expected = '<select name="hello" class="multi"  multiple="multiple"  onchange="test();">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_multi_onfocus_onchange(self):
+    actual = deffile.html_select(mock_validation(), "hello", onfocus="test1();", onchange="test2();", multi=True)
+    expected = '<select name="hello" class="multi"  multiple="multiple"  onfocus="test1();" onchange="test2();">'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_multi_warning(self):
+    actual = deffile.html_select(mock_validation(warnings={"hello":mock_error(message="warning")}), "hello", multi=True)
+    expected = '<a name="" style="text-decoration:none"><span class="error" title="warning">?</span></a><select name="hello" class="multi"  multiple="multiple" >'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_multi_error(self):
+    actual = deffile.html_select(mock_validation(errors={"hello":mock_error(message="error")}), "hello", multi=True)
+    expected = '<a name="" style="text-decoration:none"><span class="error" title="error">*</span></a><select name="hello" class="multi"  multiple="multiple" >'
+    self.assertEqual(actual, expected)
+
+
+  def testHtmlSelect_multi_info(self):
+    actual = deffile.html_select(mock_validation(infos={"hello":mock_error(message="info")}), "hello", multi=True)
+    expected = '<a href="" style="text-decoration:none"><span class="info" title="info">#</span></a><select name="hello" class="multi"  multiple="multiple" >'
     self.assertEqual(actual, expected)
 
 

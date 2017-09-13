@@ -727,8 +727,10 @@ class MatrixDefFile:
         # TJT 2014-03-19: Removed disabled flag that was on the entire radio
         # definition instead of on individual choices. See below
         if word_length >= 5:
-          (vn, fn, bf, af) = word[1:5]
-        else: continue # TJT 2014-08-28: Syntax error
+          vn, fn, bf, af = word[1:5]
+        else:
+          # TJT 2014-08-28: Syntax error
+          raise Exception("Radio button improperly defined: %s; expected at least 5 tokens, got %s" % word, word_length)
         vn = prefix + vn
         # TJT 2014-08-28: Adding switch here to ignore entire radio definition
         # based on some other choice
@@ -1007,10 +1009,12 @@ class MatrixDefFile:
     return html
 
 
-  # Create and print the matrix subpage for the specified section
-  # based on the arguments, which are the name of the section and
-  # a cookie that determines where to look for the choices file
   def sub_page(self, section, cookie, vr):
+    """
+    Create and print the matrix subpage for the specified section
+    based on the arguments, which are the name of the section and
+    a cookie that determines where to look for the choices file
+    """
 
     section_def = self.lines[section]
     tokenized_section_def = self.sections[section]
@@ -1051,9 +1055,10 @@ class MatrixDefFile:
     printed = False
     for word in self.tokenized_lines:
       cur_sec = ''
-      if len(word) < 2 or word[0][0] == COMMENT_CHAR:
+      word_length = len(word)
+      if word_length < 2 or word[0][0] == COMMENT_CHAR:
         pass
-      elif len(word) == 5 and word[4] == '0':
+      elif word_length == 5 and word[4] == '0':
         # TODO: This is an undocumented feature of matrixdef: consider
         # don't print links to sections that are marked 0
         # TODO: Leaving this in is fine... just need to document it
@@ -1080,15 +1085,16 @@ class MatrixDefFile:
         pat += word[1] + '$'
 
         # TODO: This is ridiculously inefficient
+        if vr.errors or vr.warnings: import pdb; pdb.set_trace()
         if not printed:
-          for k in vr.errors.keys():
+          for k in vr.errors:
             # TODO: Try removing the pattern values and doing a normal hash?
             if re.search(pat, k):
               sec_links[n] = ERROR + sec_links[n]
               printed = True
               break
         if not printed:
-          for k in vr.warnings.keys():
+          for k in vr.warnings:
             if re.search(pat, k):
               sec_links[n] = WARNING + sec_links[n]
               printed = True
