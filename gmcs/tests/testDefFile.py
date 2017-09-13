@@ -3,6 +3,7 @@ import unittest
 import os
 
 from gmcs import deffile
+from gmcs.choices import ChoicesFile
 
 
 def get_path(*path):
@@ -52,11 +53,22 @@ class InitializerTests(unittest.TestCase):
 
 class DefsToHtmlTests(unittest.TestCase):
   """
+  NOTE: defs_to_html() expects input lines to be stripped
   TODO: Make sure to test defs_to_html() directly
   """
 
-  def testDefsToHtml(self):
-    pass
+  @classmethod
+  def setUpClass(cls):
+    DefsToHtmlTests.__def = load("testBasic")
+
+
+  def testDefsToHtml_radio(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      lines = ["Radio test-radio \"test radio\" \"\" \"\"", ". test-bullet1 \"hello\" \"\" \"\" \"\"", ". test-bullet2 \"world\" \"\" \"\" \"\""]
+      tokenized_lines = [['Radio', 'test-radio', 'test radio', '', ''], ['.', 'test-bullet1', 'hello', '', '', ''], ['.', 'test-bullet2', 'world', '', '', '']]
+      actual = DefsToHtmlTests.__def.defs_to_html(lines, tokenized_lines, {}, mock_validation(), "", {})
+      expected = '\n<label><input type="radio"  name="test-radio" value="test-bullet1"></label>\n<label><input type="radio"  name="test-radio" value="test-bullet2"></label>\n\n'
+      self.assertEqual(actual, expected)
 
 
 class ReplaceVarsTests(unittest.TestCase):

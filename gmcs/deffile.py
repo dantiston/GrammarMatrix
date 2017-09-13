@@ -734,7 +734,7 @@ class MatrixDefFile:
         # TJT 2014-08-28: Syntax error!
         if word_length < 5:
           # TODO: Confirm raising exceptions here is okay
-          raise Exception("Check improperly defined: %s; expected at least 5 tokens, got %s" % word, word_length)
+          raise Exception("Check improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
         js = ''
         if word_length >= 5:
           vn, fn, bf, af = word[1:5]
@@ -759,7 +759,7 @@ class MatrixDefFile:
           vn, fn, bf, af = word[1:5]
         else:
           # TJT 2014-08-28: Syntax error
-          raise Exception("Radio button improperly defined: %s; expected at least 5 tokens, got %s" % word, word_length)
+          raise Exception("Radio button improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
         vn = prefix + vn
         # TJT 2014-08-28: Adding switch here to ignore entire radio definition
         # based on some other choice
@@ -801,7 +801,8 @@ class MatrixDefFile:
           # TJT 2014-08-28: skipping radio buttons,
           # so skip the button definitions
           # TODO: Check if lines[i]... can be replaced with element
-          while lines[i].strip().startswith('.'):
+          #while lines[i].strip().startswith('.'):
+          while tokenized_lines[i][0] == Bullet:
             i += 1
 
       elif element in (Select, MultiSelect):
@@ -931,7 +932,7 @@ class MatrixDefFile:
         if word_length > 5:
           # matrixdef contains name of choice to switch on
           switch = word[5]
-          skip_this_iter = self.check_choice_switch(switch, choices)
+          skip_this_iter = check_choice_switch(switch, choices)
 
         # collect the lines that are between BeginIter and EndIter
         i += 1
