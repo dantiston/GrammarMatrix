@@ -20,7 +20,8 @@ def load_expected(file_name):
 def remove_empty_lines(string):
   return "\n".join((line for line in string.split("\n") if line.strip()))
 
-def __print_both(self, actual, expected):
+
+def __print_both(actual, expected):
   print("#"*50 + " ACTUAL " + "#"*50)
   print(actual)
   print
@@ -63,19 +64,46 @@ class ReplaceVarsTests(unittest.TestCase):
   TODO: Make sure to test defs_to_html() directly
   """
 
-  def testReplaceVars(self):
-    pass
+  def testReplaceVars_Multiple(self):
+    actual = deffile.replace_vars("BeginIter test-iter-{i} \"hello\" \"\"", {"i":1})
+    expected = "BeginIter test-iter-1 \"hello\" \"\""
+    self.assertEqual(actual, expected)
 
 
   def testReplaceVarsTokenized(self):
-    pass
+    actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}", '"hello"', ""], {"i":1})
+    expected = ["BeginIter", "test-iter-1", '"hello"', ""]
+    self.assertEqual(actual, expected)
+
+
+  def testReplaceVarsTokenized_Multiple(self):
+    actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}-{j}", '"hello"', ""], {"i":1, "j":2})
+    expected = ["BeginIter", "test-iter-1-2", '"hello"', ""]
+    self.assertEqual(actual, expected)
+
+
+  def testReplaceVarsTokenized_Missing(self):
+    actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}-{j}", '"hello"', ""], {"i":1, "k":2})
+    expected = ["BeginIter", "test-iter-1-{j}", '"hello"', ""]
+    self.assertEqual(actual, expected)
 
 
 class SubPageTests(unittest.TestCase):
+  """
+  TODO: Tests for conditional skipping
+  TODO: Tests for striking options from select and multiselect
+  """
+
+  def __print_both(self, actual, expected):
+    print("#"*50 + " ACTUAL " + "#"*50)
+    print(actual)
+    print
+    print("#"*50 + " EXPECTED " + "#"*50)
+    print(expected)
+
 
   def testBasic(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-
       definition = load("testBasic")
       actual = definition.sub_page('test-basic', '7777', mock_validation())
       expected = load_expected("testBasic")
@@ -84,10 +112,17 @@ class SubPageTests(unittest.TestCase):
 
   def testIter(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-
       definition = load("testIter")
       actual = definition.sub_page('test-iter', '7777', mock_validation())
       expected = load_expected("testIter")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testNestedIter(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testNestedIter")
+      actual = definition.sub_page('test-nested-iter', '7777', mock_validation())
+      expected = load_expected("testNestedIter")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -99,16 +134,22 @@ class SubPageTests(unittest.TestCase):
   def testMultiSelect(self):
     """ TODO: Verify this test """
     with os_environ(HTTP_COOKIE="session=7777"):
-
       definition = load("testMultiSelect")
       actual = definition.sub_page('test-multiselect', '7777', mock_validation())
       expected = load_expected("testMultiSelect")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
+  def testRadios(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testRadios")
+      actual = definition.sub_page('test-radios', '7777', mock_validation())
+      expected = load_expected("testRadios")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
   def testJoinedLines(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-
       definition = load("testJoinedLines")
       actual = definition.sub_page('test-joined-lines', '7777', mock_validation())
       expected = load_expected("testJoinedLines")
@@ -117,7 +158,6 @@ class SubPageTests(unittest.TestCase):
 
   def testMultipleSections(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-
       definition = load("testMultipleSections")
       actual1 = definition.sub_page('test-basic', '7777', mock_validation())
       actual2 = definition.sub_page('test-basic-2', '7777', mock_validation())
