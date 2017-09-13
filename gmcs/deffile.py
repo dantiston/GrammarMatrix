@@ -70,10 +70,7 @@ COMMENT_CHAR = "#"
 
 ######################################################################
 # Jinja
-jinja = Environment(
-    loader=PackageLoader('gmcs', 'html'),
-    #autoescape=False
-)
+jinja = Environment(loader=PackageLoader('gmcs', 'html'))
 
 ######################################################################
 # HTML creation functions
@@ -216,7 +213,7 @@ def html_delbutton(code):
          'onclick="remove_element(\'%s\')">\n' % code
 
 
-def merge_quoted_strings(line):
+def merge_quoted_strings(document):
   """
   given a list of lines of text, some of which may contain
   unterminated double-quoted strings, merge some lines as necessary so
@@ -224,23 +221,23 @@ def merge_quoted_strings(line):
   the merged list
   """
   i = 0
-  while i < len(line):
+  while i < len(document):
     j = 0
     in_quotes = False
-    while j < len(line[i]):
-      if line[i][j] == '"' and (j == 0 or line[i][j-1] != '\\'):
+    while j < len(document[i]):
+      if document[i][j] == '"' and (j == 0 or document[i][j-1] != '\\'):
         in_quotes = not in_quotes
       j += 1
 
     # if we reach the end of a line inside a quoted string, merge with
     # the next line and reprocess the newly-merged line
     if in_quotes:
-      line[i] += line[i+1] # crash here implies an unbalanced '"'
-      del line[i+1]
+      document[i] += document[i+1] # crash here implies an unbalanced '"'
+      del document[i+1]
     else:
       i += 1
 
-  return line
+  return document
 
 
 ######################################################################
@@ -334,11 +331,13 @@ def js_array4(items):
 # Valid commands
 
 # TODO: Define valid commands
+# TODO: Make these constants UPPERCASE
 Section = 'Section'
 Text = 'Text'
 TextArea = 'TextArea'
 Check = 'Check'
 Radio = 'Radio'
+Bullet = '.'
 Button = 'Button'
 File = 'File'
 
@@ -367,7 +366,6 @@ class MatrixDefFile:
   on the contents, to produce HTML pages and save choices files.
   """
 
-
   def __init__(self, def_file):
     # Define members
     self.section_names = {}
@@ -375,21 +373,22 @@ class MatrixDefFile:
 
     self.def_file = def_file
     with open(self.def_file) as f:
-      self.def_lines = merge_quoted_strings(f.readlines())
+      self.load_file(f)
 
-    self.load_file()
     self.make_name_map()
 
 
-  def load_file(self):
+  def load_file(self, f):
     """
     Load the matrixdef file into memory
     """
-    self.def_lines = [line.strip() for line in self.def_lines if line.strip()] # Remove unimportant whitespace
+    def_lines = merge_quoted_strings(f.readlines())
+    def_lines = map(str.strip, def_lines) # Remove unimportant whitespace
+    self.def_lines = [line for line in def_lines if line]
     self.tokenized_lines = [tokenize_def(line) for line in self.def_lines] # Tokenize ONCE
+
     self.sections = {}
     self.lines = {} # TODO: Remove this
-    self.section_starts = {} # TODO: Remove this
     last = -1
     section_name = None
     for i, line in enumerate(self.tokenized_lines):
@@ -398,7 +397,6 @@ class MatrixDefFile:
         if last >= 0:
           self.sections[section_name] = self.tokenized_lines[last:i]
           self.lines[section_name] = self.def_lines[last:i]
-          self.section_starts[section_name] = last
         last = i
         # Prepare for the next
         section_name = line[1]
@@ -410,7 +408,6 @@ class MatrixDefFile:
     if last != len(self):
       self.sections[section_name] = self.tokenized_lines[last:]
       self.lines[section_name] = self.def_lines[last:]
-      self.section_starts[section_name] = last
 
 
   def __len__(self):
@@ -502,6 +499,7 @@ class MatrixDefFile:
     # if all false, don't skip it
     # else, skip it
     return any(skip_it.values())
+
 
   ######################################################################
   # HTML output methods
@@ -706,7 +704,7 @@ class MatrixDefFile:
       name, value = c.split('=', 1)
       cookie[name.strip()] = value
 
-    num_lines = len(lines)
+    num_lines = len(tokenized_lines)
 
     i = 0
     while i < num_lines:
@@ -776,26 +774,27 @@ class MatrixDefFile:
           mark = validation_mark(vr, vn)
           html += bf + mark + '\n'
           i += 1
-          # TJT 2014-08-28: changing this to "startswith" to enforce syntax
-          # TODO: Check if lines[i]... can be replaced with element
-          while i < num_lines and lines[i].lstrip().startswith('.'):
-            # Reset flags on each item
-            disabled, js = '', ''
-            checked = False
+          if i < num_lines:
             word, word_length, element = self.__get_word(tokenized_lines, i)
-            # TJT 2014-05-07 Rearranged this logic (hoping for speed)
-            rval, rfrn, rbef, raft = word[1:5]
-            # Format choice name
-            if choices.get(vn) == rval: # If previously marked, mark as checked again
-              checked = True
-            if word_length >= 6:
-              js = word[5]
-            if word_length >= 7: # TJT 2014-03-19: option for disabled radio buttons
-              if word[6]: # If anything here...
-                disabled = True
-            html += html_input(vr, 'radio', vn, rval, checked, rbef, raft,
+            while i < num_lines and element == Bullet:
+              # Reset flags on each item
+              disabled, js = '', ''
+              checked = False
+              # TJT 2014-05-07 Rearranged this logic (hoping for speed)
+              rval, rfrn, rbef, raft = word[1:5]
+              # Format choice name
+              if choices.get(vn) == rval: # If previously marked, mark as checked again
+                checked = True
+              if word_length >= 6:
+                js = word[5]
+              if word_length >= 7: # TJT 2014-03-19: option for disabled radio buttons
+                if word[6]: # If anything here...
+                  disabled = True
+              html += html_input(vr, 'radio', vn, rval, checked, rbef, raft,
                                onclick=js, disabled=disabled) + '\n'
-            i += 1
+              i += 1
+              if i < num_lines:
+                word, word_length, element = self.__get_word(tokenized_lines, i)
           html += af + '\n'
 
         else:
@@ -1060,7 +1059,7 @@ class MatrixDefFile:
 
     section_def = self.lines[section]
     tokenized_section_def = self.sections[section]
-    section_start = self.section_starts[section]
+
 
     # Get cookie
     choices_file = 'sessions/' + cookie + '/choices'
@@ -1378,11 +1377,16 @@ class MatrixDefFile:
       i += 1
 
 
-  # Read the choices_file, stripping out the section associated with
-  # the 'section' member of form_data, and replacing it with all the
-  # values in form_data.  Use self.def_file to keep the choices file
-  # in order.
   def save_choices(self, form_data, choices_file):
+    """
+    Read the choices_file, stripping out the section associated with
+    the 'section' member of form_data, and replacing it with all the
+    values in form_data.  Use self.def_file to keep the choices file
+    in order.
+
+    TODO: MOVE THIS SOMEWHERE ELSE
+    TODO: Modularize this
+    """
     # The section isn't really a form field, but save it for later
     # section is page user is leaving (or clicking "save and stay" on)
     section = form_data['section'].value
@@ -1415,6 +1419,7 @@ class MatrixDefFile:
     # TJT: 2014-08-26: If optionally copula complement,
     # add zero rules to choices
     if section == 'lexicon':
+      # TODO: make this a function
       for adj in new_choices.get('adj', []): # check NEW values
         if adj.get('predcop') == "opt":
           atype = get_name(adj)
@@ -1422,7 +1427,6 @@ class MatrixDefFile:
           # Skip if already added
           if not any(pc.get('name','') == pc_name
                      for pc in old_choices['adj-pc']):
-            # TODO: make this a function
             switching_pc = "adj-pc%d" % (old_choices['adj-pc'].next_iter_num()
                                          if old_choices['adj-pc'] else 1)
             # Set up position class
@@ -1468,6 +1472,7 @@ class MatrixDefFile:
               # Skip if already added
               if not any(pc.get('name','') == pc_name for pc in old_choices['adj-pc']):
                 feats_to_add[apc].append(feat)
+
 
     if section in ('lexicon', 'morphology'):
       # With features collected, add them to choices dict
@@ -1563,12 +1568,12 @@ class MatrixDefFile:
 
       cur_sec = ''
       cur_sec_begin = 0
-      i = 0
-      while i < len(self.def_lines):
-        word = tokenize_def(self.def_lines[i]) # TODO: Replace this
-        if len(word) == 0:
-          pass
-        elif word[0] == 'Section':
+      # TODO: Verify these changes
+      #while i < len(self.def_lines):
+      for i, word in enumerate(self.tokenized_lines):
+        #word = tokenize_def(self.def_lines[i]) # TODO: Replace this
+        # TODO: Simplify this logic
+        if word and word[0] == 'Section':
           if cur_sec:
             self.save_choices_section(self.def_lines[cur_sec_begin:i], f, choices)
             f.write('\n')
@@ -1585,12 +1590,15 @@ class MatrixDefFile:
         self.save_choices_section(self.def_lines[cur_sec_begin:i], f, choices)
 
 
-  def create_neg_aux_choices(self, choices,form_data):
-    '''this is a side effect of the existence of neg-aux
+  def create_neg_aux_choices(self, choices, form_data):
+    """
+    this is a side effect of the existence of neg-aux
     in the form data, it puts some lines pertaining to a neg-aux
     lexical item into the choices file object unless they are
     already there. returns a ChoicesFile instance, and an int
-    which is the index number of the created neg-aux'''
+    which is the index number of the created neg-aux
+    TODO: Move this elsewhere
+    """
 
     # get the next aux number
     next_n = choices['aux'].next_iter_num() if 'aux' in choices else 1
@@ -1614,6 +1622,9 @@ class MatrixDefFile:
 
 
   def create_infl_neg_choices(self, old_choices, new_choices):
+    """
+    TODO: Move this elsewhere
+    """
     vpc = new_choices['vpc-0-neg']
     lrt = ''
     if vpc == 'create':
@@ -1666,6 +1677,7 @@ class MatrixDefFile:
     exception_html(exc)
     print HTML_postbody
 
+
   def customize_error_page(self, choices_file, exc=None):
     print HTTP_header + '\n'
     print HTML_pretitle
@@ -1692,6 +1704,7 @@ class MatrixDefFile:
           'save your choices (above) first).'
     exception_html(exc)
     print HTML_postbody
+
 
 def exception_html(exc):
   if exc and exc != (None, None, None):
