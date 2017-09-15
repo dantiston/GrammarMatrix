@@ -23,7 +23,6 @@ import re
 import tarfile
 import gzip
 import zipfile
-#import shlex
 
 from collections import defaultdict
 
@@ -75,6 +74,20 @@ jinja = Environment(loader=PackageLoader('gmcs', 'html'))
 
 ######################################################################
 # HTML creation functions
+
+def validation_mark(vr, name):
+  """
+  Check if there's an error and generate the appropriate error mark
+  """
+  result = ''
+  if name in vr.errors:
+    result = html_error_mark(vr.errors[name])
+  elif name in vr.warnings:
+    result = html_warning_mark(vr.warnings[name])
+  elif name in vr.infos:
+    result = html_info_mark(vr.infos[name])
+  return result
+
 
 def html_mark(mark, vm):
   """
@@ -167,20 +180,6 @@ def html_select(vr, name, multi=False, onfocus='', onchange=''):
 
   return '%s<select name="%s"%s%s%s>' % \
          (mark, name, multi_attr, onfocus, onchange)
-
-
-def validation_mark(vr, name):
-  """
-  Check if there's an error and generate the appropriate error mark
-  """
-  result = ''
-  if name in vr.errors:
-    result = html_error_mark(vr.errors[name])
-  elif name in vr.warnings:
-    result = html_warning_mark(vr.warnings[name])
-  elif name in vr.infos:
-    result = html_info_mark(vr.infos[name])
-  return result
 
 
 def html_option(vr, name, selected, html, temp=False, strike=False):
@@ -378,6 +377,25 @@ class MatrixDefFile:
 
     self.make_name_map()
 
+    self.html_gens = {
+      # Section: self.section_to_html,
+      # BeginIter: self.beginIter_to_html,
+      # EndIter: self.endIter_to_html,
+      # Cache: self.cache_to_html,
+      # Label: self.label_to_html,
+      # Separator: self.separator_to_html,
+      # Check: self.check_to_html,
+      Radio: self.radio_to_html,
+      # Hidden: self. hidden_to_html,
+      # File: self. file_to_html,
+      # Button: self. button_to_html,
+      # BeginIter: self. beginIter_to_html,
+      # Select: self. select_to_html,
+      # MultiSelect: self. multiSelect_to_html,
+      # Text: self. text_to_html,
+      # TextArea: self. textArea_to_html
+    }
+
 
   def load_file(self, f):
     """
@@ -385,12 +403,10 @@ class MatrixDefFile:
     """
     def_lines = merge_quoted_strings(f.readlines())
     def_lines = map(str.strip, def_lines) # Remove unimportant whitespace
-    self.def_lines = [line for line in def_lines if line]
+    self.def_lines = [line for line in def_lines if line] # Remove empty lines
     self.tokenized_lines = [tokenize_def(line) for line in self.def_lines] # Tokenize ONCE
-    #self.tokenized_lines = [shlex.split(line) for line in self.def_lines] # Tokenize ONCE
 
     self.sections = {}
-    self.lines = {} # TODO: Remove this
     last = -1
     section_name = None
     for i, line in enumerate(self.tokenized_lines):
@@ -398,7 +414,6 @@ class MatrixDefFile:
         # Save previous
         if last >= 0:
           self.sections[section_name] = self.tokenized_lines[last:i]
-          self.lines[section_name] = self.def_lines[last:i]
         last = i
         # Prepare for the next
         section_name = line[1]
@@ -409,7 +424,6 @@ class MatrixDefFile:
             self.doc_links[section_name] = line[3]
     if last != len(self):
       self.sections[section_name] = self.tokenized_lines[last:]
-      self.lines[section_name] = self.def_lines[last:]
 
 
   def __len__(self):
@@ -684,20 +698,21 @@ class MatrixDefFile:
                  'fillcache':'fill_cache(%(args)s)'}
 
 
-  def defs_to_html(self, lines, tokenized_lines, choices, vr, prefix, variables):
+  def defs_to_html(self, tokenized_lines, choices, vr, prefix, variables):
     """
     # Turn a list of lines containing matrix definitions into a string
-    # containing HTML.
+    # containing HTML
+
+    # NOTE: html variable is a list which is joined together at the end
+    # This is generally much more efficient than string concatenation
 
     TODO: Store this in a variable
     TODO: This could be more testable, slightly faster, and more modular as
           loading functions from a function dictionary
-    TODO: Remove the lines parameter
     TODO: Write a syntax checker... maybe make this a syntax checker?
-    TODO: Change this from string concatenation to list concatenation with a join at the end
     """
 
-    html = ''
+    html = ""
 
     http_cookie = os.getenv('HTTP_COOKIE')
 
@@ -711,8 +726,11 @@ class MatrixDefFile:
     i = 0
     while i < num_lines:
       word, word_length, element = self.__get_word(tokenized_lines, i)
-      if word_length == 0: # TODO: Simplify this
+      if not word_length:
         pass
+      elif element in self.html_gens:
+        word, word_length, element, i, result = self.html_gens[element](tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i)
+        html += result
       elif element == Cache:
         cache_name = word[1]
         items = choices.get_regex(word[2])
@@ -724,14 +742,12 @@ class MatrixDefFile:
       elif element == Label:
         if word_length > 2:
           key = prefix + word[1]
-          # TODO: use html_mark
-          if key in vr.errors:
-            html += html_error_mark(vr.errors[key])
-          elif key in vr.warnings:
-            html += html_warning_mark(vr.warnings[key])
+          html += validation_mark(vr, key)
         html += word[-1] + '\n'
+
       elif element == Separator:
         html += '<hr>\n'
+
       elif element == Check:
         # TJT 2014-08-28: Syntax error!
         if word_length < 5:
@@ -754,58 +770,10 @@ class MatrixDefFile:
           checked = choices.get(vn)
           html += html_input(vr, 'checkbox', vn, '', checked,
                              bf, af, onclick=js) + '\n'
-      elif element == Radio:
-        # TJT 2014-03-19: Removed disabled flag that was on the entire radio
-        # definition instead of on individual choices. See below
-        if word_length >= 5:
-          vn, fn, bf, af = word[1:5]
-        else:
-          # TJT 2014-08-28: Syntax error
-          raise Exception("Radio button improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
-        vn = prefix + vn
-        # TJT 2014-08-28: Adding switch here to ignore entire radio definition
-        # based on some other choice
-        skip_this_radio = False
-        if word_length >= 6:
-          # matrixdef contains name of choice to switch on
-          switch = word[5]
-          skip_this_radio = self.check_choice_switch(switch, choices)
-        # it's nicer to put vrs for radio buttons on the entire
-        # collection of inputs, rather than one for each button
-        if not skip_this_radio:
-          mark = validation_mark(vr, vn)
-          html += bf + mark + '\n'
-          i += 1
-          if i < num_lines:
-            word, word_length, element = self.__get_word(tokenized_lines, i)
-            while i < num_lines and element == Bullet:
-              # Reset flags on each item
-              disabled, js = '', ''
-              checked = False
-              # TJT 2014-05-07 Rearranged this logic (hoping for speed)
-              rval, rfrn, rbef, raft = word[1:5]
-              # Format choice name
-              if choices.get(vn) == rval: # If previously marked, mark as checked again
-                checked = True
-              if word_length >= 6:
-                js = word[5]
-              if word_length >= 7: # TJT 2014-03-19: option for disabled radio buttons
-                if word[6]: # If anything here...
-                  disabled = True
-              html += html_input(vr, 'radio', vn, rval, checked, rbef, raft,
-                               onclick=js, disabled=disabled) + '\n'
-              i += 1
-              if i < num_lines:
-                word, word_length, element = self.__get_word(tokenized_lines, i)
-          html += af + '\n'
 
-        else:
-          # TJT 2014-08-28: skipping radio buttons,
-          # so skip the button definitions
-          # TODO: Check if lines[i]... can be replaced with element
-          #while lines[i].strip().startswith('.'):
-          while tokenized_lines[i][0] == Bullet:
-            i += 1
+    #   elif element == Radio:
+    #     word, word_length, element, i, result = self.radio_to_html(tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i)
+    #     html += result
 
       elif element in (Select, MultiSelect):
         multi = element == MultiSelect
@@ -823,16 +791,18 @@ class MatrixDefFile:
 
         # look ahead and see if we have an auto-filled drop-down
         i += 1
-        # TODO: Check if lines[i]... can be replaced with element
-        # TODO: Also, consider if the fill commands could go anywhere in the list...
-        while i < num_lines and len(lines[i]) > 0 and lines[i].strip().startswith('fill'):
+        if i < num_lines:
           word, word_length, element = self.__get_word(tokenized_lines, i)
-          # arguments are labeled like p=pattern, l(literal_feature)=1,
-          # n(nameOnly)=1, c=cat
-          argstring = ','.join(['true' if a in ('n', 'l') else "'%s'" % x
-                                for a, x in [w.split('=') for w in word[1:]]])
-          fillers.append(self.fillstrings[element] % {'args':argstring})
-          i += 1
+          # TODO: Also, consider if the fill commands could go anywhere in the list...
+          while i < num_lines and element.startswith('fill'):
+            word, word_length, element = self.__get_word(tokenized_lines, i)
+            # arguments are labeled like p=pattern, l(literal_feature)=1,
+            # n(nameOnly)=1, c=cat
+            argstring = ','.join(['true' if a in ('n', 'l') else "'%s'" % x
+                                  for a, x in [w.split('=') for w in word[1:]]])
+            fillers.append(self.fillstrings[element] % {'args':argstring})
+            i += 1
+
 
         # Section variables:
         # SVAL: selected option variable name, e.g. "verb", "subj",
@@ -859,17 +829,19 @@ class MatrixDefFile:
           html += html_select(vr, vn, multi, onchange=onchange) + '\n'
 
         # Add individual items, if applicable
-        while i < num_lines and lines[i].strip().startswith('.'):
-          sstrike = False # Reset variable
+        if i < num_lines:
           word, word_length, element = self.__get_word(tokenized_lines, i)
-          # select/multiselect options
-          oval, ofrn, ohtml = word[1:4]
-          # TJT 2014-03-19: add disabled option to allow for always-disabled
-          # If there's anything in this slot, disable option
-          if word_length >= 5: sstrike = True
-          # Add option and mark "selected" if previously selected
-          html += html_option(vr, oval, sval == oval, ofrn, strike=sstrike) + '\n'
-          i += 1
+          while i < num_lines and element == Bullet:
+            word, word_length, element = self.__get_word(tokenized_lines, i)
+            sstrike = False # Reset variable
+            # select/multiselect options
+            oval, ofrn, ohtml = word[1:4]
+            # TJT 2014-03-19: add disabled option to allow for always-disabled
+            # If there's anything in this slot, disable option
+            if word_length >= 5: sstrike = True
+            # Add option and mark "selected" if previously selected
+            html += html_option(vr, oval, sval == oval, ofrn, strike=sstrike) + '\n'
+            i += 1
         # add empty option
         html += html_option(vr, '', False, '') + '\n'
         html += '</select>'
@@ -889,12 +861,14 @@ class MatrixDefFile:
         elif vn == "orth":
           # TODO: Simplify this
           # Previous line usually empty; find previous non-empty line
-          checker = i - 1
-          while not lines[checker].strip():
-            checker -= 1
+        #   checker = i - 1
+        #   while not lines[checker].strip():
+        #     checker -= 1
           # If previous non-empty line a radio definition, add check radio
           # button function to onChange
-          if lines[checker].strip().startswith("."):
+        #   if lines[checker].strip().startswith("."):
+          # TODO: Verify this; should work because now the new lines have been stripped
+          if tokenized_lines[i-1][0] == Bullet:
             oc = "check_radio_button('"+prefix[:-1]+"_inflecting', 'yes'); " + oc
         vn = prefix + vn
         value = choices.get(vn, '') # If no choice existing, return ''
@@ -956,8 +930,7 @@ class MatrixDefFile:
                   prefix + iter_name + '_TEMPLATE">\n'
           html += html_delbutton(prefix + iter_name + '{' + iter_var + '}')
           html += '<div class="iterframe">'
-          html += self.defs_to_html(lines[beg:end],
-                                    tokenized_lines[beg:end],
+          html += self.defs_to_html(tokenized_lines[beg:end],
                                     choices,
                                     vr,
                                     prefix + iter_orig + '_',
@@ -1007,10 +980,10 @@ class MatrixDefFile:
 
             html += html_delbutton(new_prefix[:-1])
             html += '<div class="iterframe">'
-            # TODO: Consider not doing this? Can the previous result simply be replaced???
+            # TODO: Consider not doing this? Can the previous result simply be modified???
             # It looks like each iteration changes "variables"... think more about this
-            html += self.defs_to_html(lines[beg:end],
-                                      tokenized_lines[beg:end],
+            # Additionally, some choices are loaded into the block via their prefix
+            html += self.defs_to_html(tokenized_lines[beg:end],
                                       choices,
                                       vr,
                                       new_prefix,
@@ -1045,6 +1018,63 @@ class MatrixDefFile:
     return html
 
 
+  def radio_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+    html = ""
+    # TJT 2014-03-19: Removed disabled flag that was on the entire radio
+    # definition instead of on individual choices. See below
+    if word_length >= 5:
+      vn, fn, bf, af = word[1:5]
+    else:
+      # TJT 2014-08-28: Syntax error
+      raise Exception("Radio button improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
+    vn = prefix + vn
+    # TJT 2014-08-28: Adding switch here to ignore entire radio definition
+    # based on some other choice
+    skip_this_radio = False
+    if word_length >= 6:
+      # matrixdef contains name of choice to switch on
+      switch = word[5]
+      skip_this_radio = self.check_choice_switch(switch, choices)
+    # it's nicer to put vrs for radio buttons on the entire
+    # collection of inputs, rather than one for each button
+    if not skip_this_radio:
+      mark = validation_mark(vr, vn)
+      html += bf + mark + '\n'
+      i += 1
+      if i < num_lines:
+        word, word_length, element = self.__get_word(tokenized_lines, i)
+        while i < num_lines and element == Bullet:
+          # Reset flags on each item
+          disabled, js = '', ''
+          checked = False
+          # TJT 2014-05-07 Rearranged this logic (hoping for speed)
+          rval, rfrn, rbef, raft = word[1:5]
+          # Format choice name
+          if choices.get(vn) == rval: # If previously marked, mark as checked again
+            checked = True
+          if word_length >= 6:
+            js = word[5]
+          if word_length >= 7: # TJT 2014-03-19: option for disabled radio buttons
+            if word[6]: # If anything here...
+              disabled = True
+          html += html_input(vr, 'radio', vn, rval, checked, rbef, raft,
+                           onclick=js, disabled=disabled) + '\n'
+          i += 1
+          if i < num_lines:
+            word, word_length, element = self.__get_word(tokenized_lines, i)
+      html += af + '\n'
+
+    else:
+      # TJT 2014-08-28: skipping radio buttons,
+      # so skip the button definitions
+      # TODO: Check if lines[i]... can be replaced with element
+      #while lines[i].strip().startswith('.'):
+      while tokenized_lines[i][0] == Bullet:
+        i += 1
+
+    return word, word_length, element, i, html
+
+
   def __get_word(self, tokenized_lines, i):
     word = tokenized_lines[i]
     return word, len(word), word[0]
@@ -1057,7 +1087,6 @@ class MatrixDefFile:
     a cookie that determines where to look for the choices file
     """
 
-    section_def = self.lines[section]
     tokenized_section_def = self.sections[section]
 
 
@@ -1076,7 +1105,7 @@ class MatrixDefFile:
         section_name=self.section_names[section],
         section_doc_link=self.doc_links[section],
         navigation=self.navigation(vr, choices_file, section=section),
-        form=self.defs_to_html(section_def, tokenized_section_def, choices, vr, '', {})#, offset=section_start)
+        form=self.defs_to_html(tokenized_section_def, choices, vr, '', {})
     )
 
 

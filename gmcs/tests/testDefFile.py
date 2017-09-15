@@ -63,36 +63,36 @@ class DefsToHtmlTests(unittest.TestCase):
 
   def testDefsToHtml_radio(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      lines = ["Radio test-radio \"test radio\" \"\" \"\"", ". test-bullet1 \"hello\" \"\" \"\" \"\"", ". test-bullet2 \"world\" \"\" \"\" \"\""]
+      # "Radio test-radio \"test radio\" \"\" \"\"", ". test-bullet1 \"hello\" \"\" \"\" \"\"", ". test-bullet2 \"world\" \"\" \"\" \"\""
       tokenized_lines = [['Radio', 'test-radio', 'test radio', '', ''], ['.', 'test-bullet1', 'hello', '', '', ''], ['.', 'test-bullet2', 'world', '', '', '']]
-      actual = DefsToHtmlTests.__def.defs_to_html(lines, tokenized_lines, {}, mock_validation(), "", {})
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '\n<label><input type="radio"  name="test-radio" value="test-bullet1"></label>\n<label><input type="radio"  name="test-radio" value="test-bullet2"></label>\n\n'
       self.assertEqual(actual, expected)
 
 
   def testDefsToHtml_select(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      lines = ["Select test-select \"test select\" \"\" \"<br />\""]
+      # "Select test-select \"test select\" \"\" \"<br />\""
       tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
-      actual = DefsToHtmlTests.__def.defs_to_html(lines, tokenized_lines, {}, mock_validation(), "", {})
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '\n<select name="test-select">\n<option value="" selected class="temp"></option>\n</select><br />\n'
       self.assertEqual(actual, expected)
 
 
   def testDefsToHtml_text(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      lines = ["Text test \"Test name\" \"<p>Some test text: </p>\" \"<br />\" 42"]
+      # "Text test \"Test name\" \"<p>Some test text: </p>\" \"<br />\" 42"
       tokenized_lines = [["Text", "test", "Test name", "<p>Some test text: </p>", "<br />", "42"]]
-      actual = DefsToHtmlTests.__def.defs_to_html(lines, tokenized_lines, {}, mock_validation(), "", {})
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>Some test text: </p><input type="text"  name="test" size="42"><br />\n'
       self.assertEqual(actual, expected)
 
 
   def testDefsToHtml_textarea(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      lines = ['TextArea test "Test name" "<p>A test text area:</p>" "<br />" 42x42']
+      #lines = ['TextArea test "Test name" "<p>A test text area:</p>" "<br />" 42x42']
       tokenized_lines = [["TextArea", "test", "Test name", "<p>A test text area:</p>", "<br />", "42x42"]]
-      actual = DefsToHtmlTests.__def.defs_to_html(lines, tokenized_lines, {}, mock_validation(), "", {})
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>A test text area:</p><TextArea name="test" cols="42" rows="42"></TextArea><br />\n'
       self.assertEqual(actual, expected)
 
