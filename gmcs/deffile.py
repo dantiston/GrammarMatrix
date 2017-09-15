@@ -382,18 +382,18 @@ class MatrixDefFile:
       # BeginIter: self.beginIter_to_html,
       # EndIter: self.endIter_to_html,
       Cache: self.cache_to_html,
-      # Label: self.label_to_html,
-      # Separator: self.separator_to_html,
+      Label: self.label_to_html,
+      Separator: self.separator_to_html,
       # Check: self.check_to_html,
       Radio: self.radio_to_html,
       # Hidden: self. hidden_to_html,
       # File: self. file_to_html,
       # Button: self. button_to_html,
       # BeginIter: self. beginIter_to_html,
-      # Select: self. select_to_html,
-      # MultiSelect: self. select_to_html,
-      # Text: self. text_to_html,
-      # TextArea: self. text_to_html
+      Select: self. select_to_html,
+      MultiSelect: self. select_to_html,
+      Text: self.text_to_html,
+      TextArea: self.text_to_html
     }
 
 
@@ -700,8 +700,12 @@ class MatrixDefFile:
 
   def defs_to_html(self, tokenized_lines, choices, vr, prefix, variables):
     """
-    # Turn a list of lines containing matrix definitions into a string
-    # containing HTML
+    Turn a list of lines containing matrix definitions into a string
+    containing HTML
+
+    This method calls out to the various *_to_html methods via
+    the function pointer dictionary at self.html_gens, popualted
+    in self.__init__()
 
     TODO: Store this in a variable
     TODO: This could be more testable, slightly faster, and more modular as
@@ -724,30 +728,12 @@ class MatrixDefFile:
     while i < num_lines:
       word, word_length, element = self.__get_word(tokenized_lines, i)
       if not word_length:
-        pass
+        pass # TODO: Change this
       elif element in self.html_gens:
         word, word_length, element, i, result = self.html_gens[element](
             tokenized_lines, choices, vr, prefix, variables,
             num_lines, word, word_length, element, i)
         html += result
-
-    #   elif element == Cache:
-    #     cache_name = word[1]
-    #     items = choices.get_regex(word[2])
-    #     if word_length > 3:
-    #       items = [(k, v.get(word[3])) for k, v in items]
-    #     html += HTML_jscache % (cache_name,
-    #                             '\n'.join(["'" + ':'.join((v, k)) + "',"
-    #                                        for (k, v) in items]))
-
-      elif element == Label:
-        if word_length > 2:
-          key = prefix + word[1]
-          html += validation_mark(vr, key)
-        html += word[-1] + '\n'
-
-      elif element == Separator:
-        html += '<hr>\n'
 
       elif element == Check:
         # TJT 2014-08-28: Syntax error!
@@ -771,110 +757,6 @@ class MatrixDefFile:
           checked = choices.get(vn)
           html += html_input(vr, 'checkbox', vn, '', checked,
                              bf, af, onclick=js) + '\n'
-
-    #   elif element == Radio:
-    #     word, word_length, element, i, result = self.radio_to_html(tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i)
-    #     html += result
-
-      elif element in (Select, MultiSelect):
-        multi = element == MultiSelect
-        vn, fn, bf, af = word[1:5]
-
-        onfocus, onchange = '', ''
-        if word_length > 5: onfocus = word[5]
-        if word_length > 6: onchange = word[6]
-
-        vn = prefix + vn
-
-        html += bf + '\n'
-
-        fillers = []
-
-        # look ahead and see if we have an auto-filled drop-down
-        i += 1
-        if i < num_lines:
-          word, word_length, element = self.__get_word(tokenized_lines, i)
-          # TODO: Also, consider if the fill commands could go anywhere in the list...
-          while i < num_lines and element.startswith('fill'):
-            word, word_length, element = self.__get_word(tokenized_lines, i)
-            # arguments are labeled like p=pattern, l(literal_feature)=1,
-            # n(nameOnly)=1, c=cat
-            argstring = ','.join(['true' if a in ('n', 'l') else "'%s'" % x
-                                  for a, x in [w.split('=') for w in word[1:]]])
-            fillers.append(self.fillstrings[element] % {'args':argstring})
-            i += 1
-
-
-        # Section variables:
-        # SVAL: selected option variable name, e.g. "verb", "subj",
-        #     i.e. the variable name of value previously selected
-        # VN: variable name, e.g. "verb1_feat1_head"
-        # self.f(VN): friendly name, e.g. "The verb", "The subject"
-        # OFRN: option friendly name, e.g. "The verb", "The subject"
-        # OVAL: option variable name, e.g. "verb", "subj"
-        # OHTML: option HTML after, e.g. "the verb", some javascript, etc.
-
-        # Get previously selected item
-        # TJT 2014-05-08 always get selected value, even if not using fillers
-        sval = choices.get(vn)
-        if fillers:
-          fillcmd = "fill('%s', [].concat(%s));" % (vn, ','.join(fillers))
-          html += html_select(vr, vn, multi, fillcmd+onfocus, onchange=onchange) + '\n'
-          # Mark previously selected filled item as selected
-          # This is necessary because the value is not in the deffile
-          if sval:
-              html += html_option(vr, sval, True, self.f(sval), True) + '\n'
-        else:
-          # If not using fillers, previously selected value
-          # will be marked during option processing below
-          html += html_select(vr, vn, multi, onchange=onchange) + '\n'
-
-        # Add individual items, if applicable
-        if i < num_lines:
-          word, word_length, element = self.__get_word(tokenized_lines, i)
-          while i < num_lines and element == Bullet:
-            word, word_length, element = self.__get_word(tokenized_lines, i)
-            sstrike = False # Reset variable
-            # select/multiselect options
-            oval, ofrn, ohtml = word[1:4]
-            # TJT 2014-03-19: add disabled option to allow for always-disabled
-            # If there's anything in this slot, disable option
-            if word_length >= 5: sstrike = True
-            # Add option and mark "selected" if previously selected
-            html += html_option(vr, oval, sval == oval, ofrn, strike=sstrike) + '\n'
-            i += 1
-        # add empty option
-        html += html_option(vr, '', False, '') + '\n'
-        html += '</select>'
-        html += af + '\n'
-
-      elif element in (Text, TextArea):
-        if word_length > 6:
-          vn, fn, bf, af, sz, oc = word[1:]
-        else:
-          vn, fn, bf, af, sz = word[1:]
-          oc = ''
-        # TJT 2014-08-27: Prepend auto onchange events (instead of assinging)
-        if vn == "name":
-          oc = "fill_display_name('"+prefix[:-1]+"');" + oc
-        # TJT 2014-08-26: Adding auto check radio button
-        # on morphology page affixes
-        elif vn == "orth":
-          # TODO: Simplify this
-          # Previous line usually empty; find previous non-empty line
-        #   checker = i - 1
-        #   while not lines[checker].strip():
-        #     checker -= 1
-          # If previous non-empty line a radio definition, add check radio
-          # button function to onChange
-        #   if lines[checker].strip().startswith("."):
-          # TODO: Verify this; should work because now the new lines have been stripped
-          if tokenized_lines[i-1][0] == Bullet:
-            oc = "check_radio_button('"+prefix[:-1]+"_inflecting', 'yes'); " + oc
-        vn = prefix + vn
-        value = choices.get(vn, '') # If no choice existing, return ''
-        html += html_input(vr, element.lower(), vn, value, False,
-                           bf, af, sz, onchange=oc) + '\n'
 
       elif element == Hidden:
         vn, fn = word[1:]
@@ -1019,6 +901,14 @@ class MatrixDefFile:
     return html
 
 
+  def button_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+    """
+    TODO: This
+    """
+    html = ""
+    return word, word_length, element, i, html
+
+
   def cache_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
     cache_name = word[1]
     items = choices.get_regex(word[2])
@@ -1027,6 +917,23 @@ class MatrixDefFile:
     html = HTML_jscache % (cache_name,
                            '\n'.join(["'" + ':'.join((v, k)) + "',"
                                       for k, v in items]))
+    return word, word_length, element, i, html
+
+
+  def check_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+    """
+    TODO: This
+    """
+    html = ""
+    return word, word_length, element, i, html
+
+
+  def label_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+    html = ""
+    if word_length > 2:
+      key = prefix + word[1]
+      html += validation_mark(vr, key)
+    html += word[-1] + '\n'
     return word, word_length, element, i, html
 
 
@@ -1083,6 +990,113 @@ class MatrixDefFile:
       #while lines[i].strip().startswith('.'):
       while tokenized_lines[i][0] == Bullet:
         i += 1
+
+    return word, word_length, element, i, html
+
+
+  def select_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+    """
+    TODO: This
+    """
+    html = ""
+    multi = element == MultiSelect
+    vn, fn, bf, af = word[1:5]
+
+    onfocus, onchange = '', ''
+    if word_length > 5: onfocus = word[5]
+    if word_length > 6: onchange = word[6]
+
+    vn = prefix + vn
+
+    html += bf + '\n'
+
+    fillers = []
+
+    # look ahead and see if we have an auto-filled drop-down
+    i += 1
+    if i < num_lines:
+      word, word_length, element = self.__get_word(tokenized_lines, i)
+      # TODO: Also, consider if the fill commands could go anywhere in the list...
+      while i < num_lines and element.startswith('fill'):
+        word, word_length, element = self.__get_word(tokenized_lines, i)
+        # arguments are labeled like p=pattern, l(literal_feature)=1,
+        # n(nameOnly)=1, c=cat
+        argstring = ','.join(['true' if a in ('n', 'l') else "'%s'" % x
+                              for a, x in [w.split('=') for w in word[1:]]])
+        fillers.append(self.fillstrings[element] % {'args':argstring})
+        i += 1
+
+
+    # Section variables:
+    # SVAL: selected option variable name, e.g. "verb", "subj",
+    #     i.e. the variable name of value previously selected
+    # VN: variable name, e.g. "verb1_feat1_head"
+    # self.f(VN): friendly name, e.g. "The verb", "The subject"
+    # OFRN: option friendly name, e.g. "The verb", "The subject"
+    # OVAL: option variable name, e.g. "verb", "subj"
+    # OHTML: option HTML after, e.g. "the verb", some javascript, etc.
+
+    # Get previously selected item
+    # TJT 2014-05-08 always get selected value, even if not using fillers
+    sval = choices.get(vn)
+    if fillers:
+      fillcmd = "fill('%s', [].concat(%s));" % (vn, ','.join(fillers))
+      html += html_select(vr, vn, multi, fillcmd+onfocus, onchange=onchange) + '\n'
+      # Mark previously selected filled item as selected
+      # This is necessary because the value is not in the deffile
+      if sval:
+          html += html_option(vr, sval, True, self.f(sval), True) + '\n'
+    else:
+      # If not using fillers, previously selected value
+      # will be marked during option processing below
+      html += html_select(vr, vn, multi, onchange=onchange) + '\n'
+
+    # Add individual items, if applicable
+    if i < num_lines:
+      word, word_length, element = self.__get_word(tokenized_lines, i)
+      while i < num_lines and element == Bullet:
+        word, word_length, element = self.__get_word(tokenized_lines, i)
+        sstrike = False # Reset variable
+        # select/multiselect options
+        oval, ofrn, ohtml = word[1:4]
+        # TJT 2014-03-19: add disabled option to allow for always-disabled
+        # If there's anything in this slot, disable option
+        if word_length >= 5: sstrike = True
+        # Add option and mark "selected" if previously selected
+        html += html_option(vr, oval, sval == oval, ofrn, strike=sstrike) + '\n'
+        i += 1
+    # add empty option
+    html += html_option(vr, '', False, '') + '\n'
+    html += '</select>'
+    html += af + '\n'
+    return word, word_length, element, i, html
+
+
+  def separator_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+    return word, word_length, element, i, "<hr>\n"
+
+
+  def text_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+    html = ""
+    if word_length > 6:
+      vn, fn, bf, af, sz, oc = word[1:]
+    else:
+      vn, fn, bf, af, sz = word[1:]
+      oc = ''
+    # TJT 2014-08-27: Prepend auto onchange events (instead of assinging)
+    if vn == "name":
+      oc = "fill_display_name('"+prefix[:-1]+"');" + oc
+    # TJT 2014-08-26: Adding auto check radio button
+    # on morphology page affixes
+    elif vn == "orth":
+      # If previous non-empty line a radio definition, add check radio
+      # button function to onChange
+      if tokenized_lines[i-1][0] == Bullet:
+        oc = "check_radio_button('"+prefix[:-1]+"_inflecting', 'yes'); " + oc
+    vn = prefix + vn
+    value = choices.get(vn, '') # If no choice existing, return ''
+    html += html_input(vr, element.lower(), vn, value, False,
+                       bf, af, sz, onchange=oc) + '\n'
 
     return word, word_length, element, i, html
 
