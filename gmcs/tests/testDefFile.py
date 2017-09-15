@@ -1,6 +1,7 @@
 import unittest
 
 import os
+import re
 
 from gmcs import deffile
 from gmcs.choices import ChoicesFile
@@ -20,14 +21,6 @@ def load_expected(file_name):
 
 def remove_empty_lines(string):
   return "\n".join((line for line in string.split("\n") if line.strip()))
-
-
-def __print_both(actual, expected):
-  print("#"*50 + " ACTUAL " + "#"*50)
-  print(actual)
-  print
-  print("#"*50 + " EXPECTED " + "#"*50)
-  print(expected)
 
 
 ### TESTS
@@ -59,6 +52,15 @@ class DefsToHtmlTests(unittest.TestCase):
   @classmethod
   def setUpClass(cls):
     DefsToHtmlTests.__def = load("testBasic")
+
+
+  def testDefsToHtml_cache(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # "Cache nouns noun[0-9]+$ name"
+      tokenized_lines = [['Cache', 'nouns', 'noun[0-9]+$', 'name']]
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}}), mock_validation(), "", {})
+      expected = '<script type="text/javascript">\n// A cache of choices from other subpages\nvar nouns = [\n\'test-noun:noun1\',\n];\n</script>'
+      self.assertEqual(actual, expected)
 
 
   def testDefsToHtml_radio(self):
@@ -116,6 +118,14 @@ class SubPageTests(unittest.TestCase):
       definition = load("testBasic")
       actual = definition.sub_page('test-basic', '7777', mock_validation())
       expected = load_expected("testBasic")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testCache(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testCache")
+      actual = definition.sub_page('test-cache', '7777', mock_validation(), choices=mock_choices({"noun1":{"name":"test-noun"}, "verb1":{"name":"test-verb"}}))
+      expected = load_expected("testCache")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -645,6 +655,41 @@ class mock_error(object):
     self.href = href
     self.name = name
     self.message = message
+
+
+class mock_choices(object):
+
+  def __init__(self, choices):
+    self.choices = choices
+
+
+  def get_regex(self, regex):
+    result = []
+    for key, value in self.choices.items():
+      if re.match(regex, key):
+        result.append((key, value))
+    return result
+
+
+  def features(self):
+    """
+    TODO: This
+    """
+    return {}
+
+
+  def patterns(self):
+    """
+    TODO: This
+    """
+    return [['test', 'test', False]]
+
+
+  def numbers(self):
+    """
+    TODO: This
+    """
+    return []
 
 
 class os_environ(object):

@@ -381,7 +381,7 @@ class MatrixDefFile:
       # Section: self.section_to_html,
       # BeginIter: self.beginIter_to_html,
       # EndIter: self.endIter_to_html,
-      # Cache: self.cache_to_html,
+      Cache: self.cache_to_html,
       # Label: self.label_to_html,
       # Separator: self.separator_to_html,
       # Check: self.check_to_html,
@@ -391,9 +391,9 @@ class MatrixDefFile:
       # Button: self. button_to_html,
       # BeginIter: self. beginIter_to_html,
       # Select: self. select_to_html,
-      # MultiSelect: self. multiSelect_to_html,
+      # MultiSelect: self. select_to_html,
       # Text: self. text_to_html,
-      # TextArea: self. textArea_to_html
+      # TextArea: self. text_to_html
     }
 
 
@@ -703,9 +703,6 @@ class MatrixDefFile:
     # Turn a list of lines containing matrix definitions into a string
     # containing HTML
 
-    # NOTE: html variable is a list which is joined together at the end
-    # This is generally much more efficient than string concatenation
-
     TODO: Store this in a variable
     TODO: This could be more testable, slightly faster, and more modular as
           loading functions from a function dictionary
@@ -729,16 +726,20 @@ class MatrixDefFile:
       if not word_length:
         pass
       elif element in self.html_gens:
-        word, word_length, element, i, result = self.html_gens[element](tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i)
+        word, word_length, element, i, result = self.html_gens[element](
+            tokenized_lines, choices, vr, prefix, variables,
+            num_lines, word, word_length, element, i)
         html += result
-      elif element == Cache:
-        cache_name = word[1]
-        items = choices.get_regex(word[2])
-        if word_length > 3:
-          items = [(k, v.get(word[3])) for k, v in items]
-        html += HTML_jscache % (cache_name,
-                                '\n'.join(["'" + ':'.join((v, k)) + "',"
-                                           for (k, v) in items]))
+
+    #   elif element == Cache:
+    #     cache_name = word[1]
+    #     items = choices.get_regex(word[2])
+    #     if word_length > 3:
+    #       items = [(k, v.get(word[3])) for k, v in items]
+    #     html += HTML_jscache % (cache_name,
+    #                             '\n'.join(["'" + ':'.join((v, k)) + "',"
+    #                                        for (k, v) in items]))
+
       elif element == Label:
         if word_length > 2:
           key = prefix + word[1]
@@ -1018,6 +1019,17 @@ class MatrixDefFile:
     return html
 
 
+  def cache_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+    cache_name = word[1]
+    items = choices.get_regex(word[2])
+    if word_length > 3:
+      items = [(k, v.get(word[3])) for k, v in items]
+    html = HTML_jscache % (cache_name,
+                           '\n'.join(["'" + ':'.join((v, k)) + "',"
+                                      for k, v in items]))
+    return word, word_length, element, i, html
+
+
   def radio_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
     html = ""
     # TJT 2014-03-19: Removed disabled flag that was on the entire radio
@@ -1080,7 +1092,7 @@ class MatrixDefFile:
     return word, len(word), word[0]
 
 
-  def sub_page(self, section, cookie, vr):
+  def sub_page(self, section, cookie, vr, choices=None):
     """
     Create and print the matrix subpage for the specified section
     based on the arguments, which are the name of the section and
@@ -1091,8 +1103,12 @@ class MatrixDefFile:
 
 
     # Get cookie
-    choices_file = 'sessions/' + cookie + '/choices'
-    choices = ChoicesFile(choices_file)
+    if not choices:
+      choices_file = 'sessions/' + cookie + '/choices'
+      choices = ChoicesFile(choices_file)
+    else:
+      # In test mode
+      choices_file = ''
 
     template = jinja.get_template('sub.html')
     return template.render(

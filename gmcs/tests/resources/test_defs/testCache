@@ -1,0 +1,3 @@
+Section test-cache "Test Cache" TestCache
+
+Cache nouns noun[0-9]+$ name
