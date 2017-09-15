@@ -54,7 +54,6 @@ class InitializerTests(unittest.TestCase):
 class DefsToHtmlTests(unittest.TestCase):
   """
   NOTE: defs_to_html() expects input lines to be stripped
-  TODO: Make sure to test defs_to_html() directly
   """
 
   @classmethod
@@ -71,33 +70,31 @@ class DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
-class ReplaceVarsTests(unittest.TestCase):
-  """
-  TODO: Make sure to test defs_to_html() directly
-  """
-
-  def testReplaceVars_Multiple(self):
-    actual = deffile.replace_vars("BeginIter test-iter-{i} \"hello\" \"\"", {"i":1})
-    expected = "BeginIter test-iter-1 \"hello\" \"\""
-    self.assertEqual(actual, expected)
+  def testDefsToHtml_select(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      lines = ["Select test-select \"test select\" \"\" \"<br />\""]
+      tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
+      actual = DefsToHtmlTests.__def.defs_to_html(lines, tokenized_lines, {}, mock_validation(), "", {})
+      expected = '\n<select name="test-select">\n<option value="" selected class="temp"></option>\n</select><br />\n'
+      self.assertEqual(actual, expected)
 
 
-  def testReplaceVarsTokenized(self):
-    actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}", '"hello"', ""], {"i":1})
-    expected = ["BeginIter", "test-iter-1", '"hello"', ""]
-    self.assertEqual(actual, expected)
+  def testDefsToHtml_text(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      lines = ["Text test \"Test name\" \"<p>Some test text: </p>\" \"<br />\" 42"]
+      tokenized_lines = [["Text", "test", "Test name", "<p>Some test text: </p>", "<br />", "42"]]
+      actual = DefsToHtmlTests.__def.defs_to_html(lines, tokenized_lines, {}, mock_validation(), "", {})
+      expected = '<p>Some test text: </p><input type="text"  name="test" size="42"><br />\n'
+      self.assertEqual(actual, expected)
 
 
-  def testReplaceVarsTokenized_Multiple(self):
-    actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}-{j}", '"hello"', ""], {"i":1, "j":2})
-    expected = ["BeginIter", "test-iter-1-2", '"hello"', ""]
-    self.assertEqual(actual, expected)
-
-
-  def testReplaceVarsTokenized_Missing(self):
-    actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}-{j}", '"hello"', ""], {"i":1, "k":2})
-    expected = ["BeginIter", "test-iter-1-{j}", '"hello"', ""]
-    self.assertEqual(actual, expected)
+  def testDefsToHtml_textarea(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      lines = ['TextArea test "Test name" "<p>A test text area:</p>" "<br />" 42x42']
+      tokenized_lines = [["TextArea", "test", "Test name", "<p>A test text area:</p>", "<br />", "42x42"]]
+      actual = DefsToHtmlTests.__def.defs_to_html(lines, tokenized_lines, {}, mock_validation(), "", {})
+      expected = '<p>A test text area:</p><TextArea name="test" cols="42" rows="42"></TextArea><br />\n'
+      self.assertEqual(actual, expected)
 
 
 class SubPageTests(unittest.TestCase):
@@ -143,6 +140,14 @@ class SubPageTests(unittest.TestCase):
       self.assertRaises(Exception, load("testIterBroken"))
 
 
+  def testSelect(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testSelect")
+      actual = definition.sub_page('test-select', '7777', mock_validation())
+      expected = load_expected("testSelect")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
   def testMultiSelect(self):
     """ TODO: Verify this test """
     with os_environ(HTTP_COOKIE="session=7777"):
@@ -157,6 +162,22 @@ class SubPageTests(unittest.TestCase):
       definition = load("testRadios")
       actual = definition.sub_page('test-radios', '7777', mock_validation())
       expected = load_expected("testRadios")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testText(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testText")
+      actual = definition.sub_page('test-text', '7777', mock_validation())
+      expected = load_expected("testText")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testTextArea(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testTextArea")
+      actual = definition.sub_page('test-textarea', '7777', mock_validation())
+      expected = load_expected("testTextArea")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -480,6 +501,33 @@ class HtmlInputTests(unittest.TestCase):
   def testHtmlInput_hidden_basic(self):
     actual = deffile.html_input(mock_validation(), "hidden", "hello", "test_value", False)
     expected = '<input type="hidden"  name="hello" value="test_value">'
+    self.assertEqual(actual, expected)
+
+
+class ReplaceVarsTests(unittest.TestCase):
+
+
+  def testReplaceVars_Multiple(self):
+    actual = deffile.replace_vars("BeginIter test-iter-{i} \"hello\" \"\"", {"i":1})
+    expected = "BeginIter test-iter-1 \"hello\" \"\""
+    self.assertEqual(actual, expected)
+
+
+  def testReplaceVarsTokenized(self):
+    actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}", '"hello"', ""], {"i":1})
+    expected = ["BeginIter", "test-iter-1", '"hello"', ""]
+    self.assertEqual(actual, expected)
+
+
+  def testReplaceVarsTokenized_Multiple(self):
+    actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}-{j}", '"hello"', ""], {"i":1, "j":2})
+    expected = ["BeginIter", "test-iter-1-2", '"hello"', ""]
+    self.assertEqual(actual, expected)
+
+
+  def testReplaceVarsTokenized_Missing(self):
+    actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}-{j}", '"hello"', ""], {"i":1, "k":2})
+    expected = ["BeginIter", "test-iter-1-{j}", '"hello"', ""]
     self.assertEqual(actual, expected)
 
 

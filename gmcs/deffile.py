@@ -23,6 +23,7 @@ import re
 import tarfile
 import gzip
 import zipfile
+#import shlex
 
 from collections import defaultdict
 
@@ -386,6 +387,7 @@ class MatrixDefFile:
     def_lines = map(str.strip, def_lines) # Remove unimportant whitespace
     self.def_lines = [line for line in def_lines if line]
     self.tokenized_lines = [tokenize_def(line) for line in self.def_lines] # Tokenize ONCE
+    #self.tokenized_lines = [shlex.split(line) for line in self.def_lines] # Tokenize ONCE
 
     self.sections = {}
     self.lines = {} # TODO: Remove this
@@ -577,7 +579,6 @@ class MatrixDefFile:
 
     # now pass through again to actually emit the page
     for word in self.tokenized_lines:
-      #word = tokenize_def(l) # TODO: Replace this
       word_length = len(word)
       if word_length == 0:
         pass
@@ -693,6 +694,7 @@ class MatrixDefFile:
           loading functions from a function dictionary
     TODO: Remove the lines parameter
     TODO: Write a syntax checker... maybe make this a syntax checker?
+    TODO: Change this from string concatenation to list concatenation with a join at the end
     """
 
     html = ''
@@ -895,27 +897,24 @@ class MatrixDefFile:
           if lines[checker].strip().startswith("."):
             oc = "check_radio_button('"+prefix[:-1]+"_inflecting', 'yes'); " + oc
         vn = prefix + vn
-        value = choices.get(vn)
+        value = choices.get(vn, '') # If no choice existing, return ''
         html += html_input(vr, element.lower(), vn, value, False,
                            bf, af, sz, onchange=oc) + '\n'
 
       elif element == Hidden:
         vn, fn = word[1:]
-        value = choices.get(vn)
-        html += html_input(vr, element.lower(), vn, value, False,
-                           '', '', 0) + '\n'
+        value = choices.get(vn, '') # If no choice existing, return ''
+        html += html_input(vr, element.lower(), vn, value, False, '', '', 0) + '\n'
 
       elif element == File:
         vn, fn, bf, af = word[1:]
         vn = prefix + vn
-        value = choices.get(vn)
-        html += html_input(vr, element.lower(), vn, value, False,
-                           bf, af) + '\n'
+        value = choices.get(vn, '') # If no choice existing, return ''
+        html += html_input(vr, element.lower(), vn, value, False, bf, af) + '\n'
 
       elif element == Button:
         vn, bf, af, oc = word[1:]
-        html += html_input(vr, element.lower(), '', vn, False,
-                           bf, af, onclick=oc) + '\n'
+        html += html_input(vr, element.lower(), '', vn, False, bf, af, onclick=oc) + '\n'
 
       elif element == BeginIter:
         iter_orig = word[1]
@@ -1572,7 +1571,6 @@ class MatrixDefFile:
       # TODO: Verify these changes
       #while i < len(self.def_lines):
       for i, word in enumerate(self.tokenized_lines):
-        #word = tokenize_def(self.def_lines[i]) # TODO: Replace this
         # TODO: Simplify this logic
         if word and word[0] == 'Section':
           if cur_sec:

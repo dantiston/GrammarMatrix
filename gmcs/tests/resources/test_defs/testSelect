@@ -1,4 +1,4 @@
-Section test-select "Test Select" Select
+Section test-select "Test Select" TestSelect
 
 Select test-select "Test select" "" "<br />"
 fillverbpat
