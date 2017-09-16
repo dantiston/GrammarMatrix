@@ -340,29 +340,28 @@ def js_array4(items):
 ######################################################################
 # Valid commands
 
-# TODO: Make these constants UPPERCASE
 SECTION = 'Section'
 TEXT = 'Text'
 TEXT_AREA = 'TextArea'
 CHECK = 'Check'
-Radio = 'Radio'
-Bullet = '.'
-Button = 'Button'
-File = 'File'
+RADIO = 'Radio'
+BULLET = '.'
+BUTTON = 'Button'
+FILE = 'File'
 
-Label = 'Label'
-Hidden = 'Hidden'
-Separator = 'Separator'
+LABEL = 'Label'
+HIDDEN = 'Hidden'
+SEPARATOR = 'Separator'
 
-Cache = 'Cache'
+CACHE = 'Cache'
 
-Select = 'Select'
-MultiSelect = 'MultiSelect'
-BeginIter = 'BeginIter'
-EndIter = 'EndIter'
+SELECT = 'Select'
+MULTI_SELECT = 'MultiSelect'
+BEGIN_ITER = 'BeginIter'
+END_ITER = 'EndIter'
 
-commands = set([SECTION, TEXT, TEXT_AREA, CHECK, Radio, Button, File, Label,
-                Hidden, Separator, Cache, Select, MultiSelect, BeginIter, EndIter])
+commands = set([SECTION, TEXT, TEXT_AREA, CHECK, RADIO, BUTTON, FILE, LABEL,
+                HIDDEN, SEPARATOR, CACHE, SELECT, MULTI_SELECT, BEGIN_ITER, END_ITER])
 
 
 ######################################################################
@@ -387,17 +386,17 @@ class MatrixDefFile:
     self.make_name_map()
 
     self.html_gens = {
-      BeginIter: self.iter_to_html,
-      Cache: self.cache_to_html,
-      Label: self.label_to_html,
-      Separator: self.separator_to_html,
+      BEGIN_ITER: self.iter_to_html,
+      CACHE: self.cache_to_html,
+      LABEL: self.label_to_html,
+      SEPARATOR: self.separator_to_html,
       CHECK: self.check_to_html,
-      Radio: self.radio_to_html,
-      Hidden: self.hidden_to_html,
-      File: self.file_to_html,
-      Button: self.button_to_html,
-      Select: self.select_to_html,
-      MultiSelect: self.select_to_html,
+      RADIO: self.radio_to_html,
+      HIDDEN: self.hidden_to_html,
+      FILE: self.file_to_html,
+      BUTTON: self.button_to_html,
+      SELECT: self.select_to_html,
+      MULTI_SELECT: self.select_to_html,
       TEXT: self.text_to_html,
       TEXT_AREA: self.text_to_html
     }
@@ -449,8 +448,8 @@ class MatrixDefFile:
     for w in self.tokenized_lines:
       if len(w) >= 3:
         ty, vn, fn = w[0:3]
-        if ty in (TEXT, TEXT_AREA, CHECK, 'Radio',
-                  'Select', 'MultiSelect', '.'):
+        if ty in (TEXT, TEXT_AREA, CHECK, RADIO,
+                  SELECT, MULTI_SELECT, BULLET):
           self.v2f[vn] = fn
           self.f2v[fn] = vn
 
@@ -776,15 +775,15 @@ class MatrixDefFile:
       elif element == SECTION:
         cur_sec = word[1]
 
-      elif element == BeginIter:
+      elif element == BEGIN_ITER:
         if prefix:
           prefix += '_'
         prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
 
-      elif element == EndIter:
+      elif element == END_ITER:
         prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
 
-      elif not (element == 'Label' and word_length < 3):
+      elif not (element == LABEL and word_length < 3):
         pat = '^' + prefix
         if prefix:
           pat += '_'
@@ -928,13 +927,13 @@ class MatrixDefFile:
         else:
           sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, self.section_names[cur_sec]))
         n += 1
-      elif word[0] == BeginIter:
+      elif word[0] == BEGIN_ITER:
         if prefix:
           prefix += '_'
         prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
-      elif word[0] == EndIter:
+      elif word[0] == END_ITER:
         prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
-      elif not (word[0] == Label and len(word) < 3):
+      elif not (word[0] == LABEL and len(word) < 3):
         pat = '^' + prefix
         if prefix:
           pat += '_'
@@ -1148,7 +1147,7 @@ class MatrixDefFile:
       word, word_length, element = self.__get_word(tokenized_lines, i)
       if not word_length:
         pass
-      elif element == EndIter and word[1] == iter_name:
+      elif element == END_ITER and word[1] == iter_name:
         break
       i += 1
     end = i
@@ -1275,7 +1274,7 @@ class MatrixDefFile:
       i += 1
       if i < num_lines:
         word, word_length, element = self.__get_word(tokenized_lines, i)
-        while i < num_lines and element == Bullet:
+        while i < num_lines and element == BULLET:
           # Reset flags on each item
           disabled, js = '', ''
           checked = False
@@ -1299,7 +1298,7 @@ class MatrixDefFile:
     else:
       # TJT 2014-08-28: skipping radio buttons,
       # so skip the button definitions
-      while tokenized_lines[i][0] == Bullet:
+      while tokenized_lines[i][0] == BULLET:
         i += 1
 
     return word, word_length, element, i, html
@@ -1307,7 +1306,7 @@ class MatrixDefFile:
 
   def select_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
     html = ""
-    multi = element == MultiSelect
+    multi = element == MULTI_SELECT
     vn, fn, bf, af = word[1:5]
 
     onfocus, onchange = '', ''
@@ -1362,7 +1361,7 @@ class MatrixDefFile:
     # Add individual items, if applicable
     if i < num_lines:
       word, word_length, element = self.__get_word(tokenized_lines, i)
-      while i < num_lines and element == Bullet:
+      while i < num_lines and element == BULLET:
         word, word_length, element = self.__get_word(tokenized_lines, i)
         sstrike = False # Reset variable
         # select/multiselect options
@@ -1399,7 +1398,7 @@ class MatrixDefFile:
     elif vn == "orth":
       # If previous non-empty line a radio definition, add check radio
       # button function to onChange
-      if tokenized_lines[i-1][0] == Bullet:
+      if tokenized_lines[i-1][0] == BULLET:
         oc = "check_radio_button('"+prefix[:-1]+"_inflecting', 'yes'); " + oc
     vn = prefix + vn
     value = choices.get(vn, '') # If no choice existing, return ''
@@ -1433,9 +1432,8 @@ class MatrixDefFile:
       word = tokenize_def(lines[i]) # TODO: Replace this
       if len(word) == 0:
         pass
-      # TJT 2014-5-27: changing this from list to tuple
       elif word[0] in (CHECK, TEXT, TEXT_AREA,
-                       'Radio', 'Select', 'MultiSelect', 'File','Hidden'):
+                       RADIO, SELECT, MULTI_SELECT, FILE, HIDDEN):
         vn = word[1]
         if prefix + vn not in already_saved:
           already_saved[prefix + vn] = True
@@ -1447,7 +1445,7 @@ class MatrixDefFile:
           if vn and val:
             f.write('  '*iter_level) # TJT 2014-09-01: Changing this to one write from loop
             f.write(prefix + vn + '=' + val + '\n')
-      elif word[0] == 'BeginIter':
+      elif word[0] == BEGIN_ITER:
         iter_name, iter_var = word[1].replace('}', '').split('{', 1)
         i += 1
         beg = i
@@ -1455,7 +1453,7 @@ class MatrixDefFile:
           word = tokenize_def(lines[i]) # TODO: Replace this
           if len(word) == 0:
             pass
-          elif word[0] == 'EndIter' and word[1] == iter_name:
+          elif word[0] == END_ITER and word[1] == iter_name:
             break
           i += 1
         end = i
