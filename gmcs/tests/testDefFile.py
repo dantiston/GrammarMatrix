@@ -21,7 +21,15 @@ def load_expected(file_name):
     return f.read()
 
 def remove_empty_lines(string):
-  return "\n".join((line for line in string.split("\n") if line.strip()))
+  return "\n".join((line.strip() for line in string.split("\n") if line.strip()))
+
+
+def print_both(actual, expected):
+  print("#"*50 + " ACTUAL " + "#"*50)
+  print(actual)
+  print
+  print("#"*50 + " EXPECTED " + "#"*50)
+  print(expected)
 
 
 ### TESTS
@@ -51,6 +59,7 @@ class DefsToHtmlTests(unittest.TestCase):
   TODO: Tests for conditional skipping
   TODO: Tests for striking options from select and multiselect
 
+  TODO: These still need tests
   BeginIter: self.iter_to_html,
   Label: self.label_to_html,
   Separator: self.separator_to_html,
@@ -125,14 +134,6 @@ class SubPageTests(unittest.TestCase):
   TODO: Tests for conditional skipping
   TODO: Tests for striking options from select and multiselect
   """
-
-  def __print_both(self, actual, expected):
-    print("#"*50 + " ACTUAL " + "#"*50)
-    print(actual)
-    print
-    print("#"*50 + " EXPECTED " + "#"*50)
-    print(expected)
-
 
   def testBasic(self):
     with os_environ(HTTP_COOKIE="session=7777"):
@@ -264,10 +265,15 @@ class SubPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual2), remove_empty_lines(expected2))
 
 
+
 class MainPageTests(unittest.TestCase):
 
   def testMainPage(self):
-    pass
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testBasic")
+      actual = definition.main_page('7777', mock_validation())
+      expected = load_expected("testMainPage")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
 class NavigationTests(unittest.TestCase):

@@ -41,7 +41,6 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 def dummy():
   pass # let emacs know the indentation is 2 spaces
 
-
 HTML_jscache = '''<script type="text/javascript">
 // A cache of choices from other subpages
 var %s = [
@@ -295,11 +294,18 @@ def replace_vars_tokenized(tokens, iter_vars):
   """
   Replace variables of the form "{name}" in line using the dict iter_vars
   """
-  regexes = {k: re.compile("\\{%s\\}" % k) for k in iter_vars}
+  regexes = compile_string_keys(iter_vars)
   for i, token in enumerate(tokens):
     for k in iter_vars:
       tokens[i] = regexes[k].sub(str(iter_vars[k]), tokens[i])
   return tokens
+
+
+def compile_string_keys(regexes):
+  result = {}
+  for regex in regexes:
+    result[regex] = re.compile("\\{%s\\}" % regex)
+  return result
 
 
 def js_array(items, N=2):
@@ -520,176 +526,30 @@ class MatrixDefFile:
   #############################################################################
   # Page methods
 
-  def main_page(self, cookie, vr):
+  def main_page(self, cookie, vr, choices=None):
     """
     Create and print the main matrix page.  The argument is a cookie
     that determines where to look for the choices file.
-
-    TODO: Make this return a string
     """
-    result = []
-    # TODO: MOVED #
-    print HTTP_header
-    print 'Set-cookie: session=' + cookie + '\n'
-    print HTML_pretitle
-    print '<title>The Matrix</title>'
-    print HTML_posttitle % ('', '', '')
 
-    try:
-      with open('datestamp', 'r') as f:
-        datestamp = f.readline().strip()
-    except:
-      datestamp = "[date unknown]"
+    # Get cookie
+    if not choices:
+      choices_file = 'sessions/' + cookie + '/choices'
+      choices = ChoicesFile(choices_file)
+    else:
+      # In test mode
+      choices_file = ''
 
-    print HTML_mainprebody % (datestamp)
-    print '<div class="indented">'
-
-    # TODO: END MOVED #
-
-
-    # TODO: DEFINED AS VARIABLE navigation #
-    choices_file = 'sessions/' + cookie + '/choices'
-
-    choice = []
-    try:
-      if os.path.exists(choices_file):
-        with open(choices_file, 'r') as f:
-          choice = f.readlines()
-    except:
-      pass
-
-    # TODO: Make this a function
-    # TODO: This is very similar to what happens in navigation()... break it out?
-    # pass through the definition file once, augmenting the list of validation
-    # results with section names so that we can put red asterisks on the links
-    # to the assocated sub-pages on the main page.
-    prefix = ''
-    for word in self.tokenized_lines:
-      word_length = len(word)
-      element = word[0]
-      if word_length < 2 or word[0][0] == COMMENT_CHAR:
-        pass
-
-      elif element == SECTION:
-        cur_sec = word[1]
-
-      elif element == BeginIter:
-        if prefix:
-          prefix += '_'
-        prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
-      elif element == EndIter:
-        prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
-      elif not (element == 'Label' and word_length < 3):
-        pat = '^' + prefix
-        if prefix:
-          pat += '_'
-        pat += word[1] + '$'
-        # TODO: This seems ridiculously inefficient
-        for k in vr.errors.keys():
-          if re.search(pat, k):
-            anchor = "matrix.cgi?subpage="+cur_sec+"#"+k
-            vr.err(cur_sec, "This section contains one or more errors. \nClicking this error will link to the error on the subpage.", anchor+"_error", False)
-            break
-        for k in vr.warnings.keys():
-          if re.search(pat, k):
-            anchor = "matrix.cgi?subpage="+cur_sec+"#"+k
-            vr.warn(cur_sec, "This section contains one or more warnings. \nClicking this warning will link to the warning on the subpage.", anchor+"_warning", False)
-            break
-
-    # now pass through again to actually emit the page
-    for word in self.tokenized_lines:
-      word_length = len(word)
-      if word_length == 0:
-        pass
-      # TODO: This != '0' seems to be an undocumented feature of matrixdef... confirm
-      elif word[0] == SECTION and (word_length != 4 or word[3] != '0'):
-        print '<div class="section"><span id="' + word[1] + 'button" ' + \
-              'onclick="toggle_display(\'' + \
-              word[1] + '\',\'' + word[1] + 'button\')"' + \
-              '>&#9658;</span> '
-        if word[1] in vr.errors:
-          print html_error_mark(vr.errors[word[1]])
-        elif word[1] in vr.warnings:
-          print html_warning_mark(vr.warnings[word[1]])
-        print '<a href="matrix.cgi?subpage=' + word[1] + '">' + \
-              word[2] + '</a>'
-        print '<div class="values" id="' + word[1] + '" style="display:none">'
-        cur_sec = ''
-        printed_something = False
-        for c in choice:
-          try:
-            c = c.strip()
-            if c:
-              a, v = c.split('=', 1)
-              if a == 'section':
-                cur_sec = v.strip()
-              elif cur_sec == word[1]:
-                print self.f(a) + ' = ' + self.f(v) + '<br>'
-                printed_something = True
-          except ValueError:
-            if cur_sec == word[1]:
-              print '(<i>Bad line in choices file: </i>"<tt>' +\
-                      c + '</tt>")<br>'
-              printed_something = True
-        if not printed_something:
-          print '&nbsp;'
-        print '</div></div>'
-    # TODO: END DEFINED AS VARIABLE #
-
-
-    # TODO: DEFINED AS VARIABLE download_grammar #
-    # the buttons after the subpages
-    # TJT 2014-09-18: Converting these radios to new set up
-    print html_input(vr, 'hidden', 'customize', 'customize', False, '', '')
-    print html_input(vr, 'radio', 'delivery', 'tgz', True,
-                     'Archive type: ', ' .tar.gz')
-    print html_input(vr, 'radio', 'delivery', 'zip', False,
-                     ' ', ' .zip')
-    print "<br>"
-    print html_input(vr, 'submit', 'create_grammar_submit', 'Create Grammar',
-                     False, '', '', '', '', vr.has_errors())
-    print html_input(vr, 'submit', 'sentences', 'Test by Generation', False,
-                     '', '', '', '', vr.has_errors())
-    # TODO: END DEFINED AS VARIABLE #
-
-    # TODO: DEFINED AS VARIABLE choices_file #
-    # the button for downloading the choices file
-    print '<p><a href="' + choices_file + '">View Choices File</a> ',
-    print '(right-click to download)</p>'
-    # TODO: END DEFINED AS VARIABLE #
-
-    # TODO: DEFINED AS VARIABLE upload_choices #
-    # the FORM for uploading a choices file
-    print html_input(vr, 'submit', '', 'Upload Choices File:', False, '<p>', '')
-    print html_input(vr, 'file', 'choices', '', False, '', '</p>', '')
-    # TODO: END DEFINED AS VARIABLE #
-
-    # TODO: DEFINED AS VARIABLE sample_grammars #
-    # the list of sample choices files
-    if os.path.exists('web/sample-choices'):
-      print '<h3>Sample Grammars:</h3>\n' + \
-            '<p>Click a link below to have the questionnaire ' + \
-            'filled out automatically.</p>'
-      print '<p>'
-
-      linklist = {}
-
-      for f in glob.iglob('web/sample-choices/*'):
-        f = f.replace('\\', '/')
-        lang = choices.get_choice('language',f) or '(empty questionnaire)'
-        if lang == 'minimal-grammar':
-          lang = '(minimal grammar)'
-        linklist[lang] = f
-
-      for k in sorted(linklist.keys(), lambda x, y: cmp(x.lower(), y.lower())):
-        print '<a href="matrix.cgi?choices=' + linklist[k] + '">' + \
-              k + '</a><br>\n'
-
-      print '</p>'
-    # TODO: END DEFINED AS VARIABLE #
-
-    print '</div>'
-    print HTML_postbody
+    template = jinja.get_template('main.html')
+    return template.render(
+        cookie=cookie,
+        datestamp=self.get_datestamp(),
+        navigation=self.page_links(vr, choices_file, choices),
+        download_grammar=self.download_links(vr),
+        choices_file=choices_file,
+        upload_choices=self.upload_links(vr),
+        sample_grammars=self.sample_grammars()
+    )
 
 
   def sub_page(self, section, cookie, vr, choices=None):
@@ -722,94 +582,6 @@ class MatrixDefFile:
         navigation=self.navigation(vr, choices_file, section=section),
         form=self.defs_to_html(tokenized_section_def, choices, vr, '', {})
     )
-
-
-  def navigation(self, vr, choices_file, section=None):
-    """
-    Pass through the definition file once, augmenting the list of validation
-    results with section names so that we can put red asterisks on the links
-    to the assocated sub-pages on the nav menu.
-
-    TODO: Simplify this
-    """
-
-    # Get the validation
-    prefix = ''
-    sec_links = []
-    n = -1
-    printed = False
-    for word in self.tokenized_lines:
-      cur_sec = ''
-      word_length = len(word)
-      if word_length < 2 or word[0][0] == COMMENT_CHAR:
-        pass
-      elif word_length == 5 and word[4] == '0':
-        # TODO: This is an undocumented feature of matrixdef: consider
-        # don't print links to sections that are marked 0
-        # TODO: Leaving this in is fine... just need to document it
-        pass
-      elif word[0] == SECTION:
-        printed = False
-        cur_sec = word[1]
-        # disable the link if this is the page we're on
-        if cur_sec == section:
-          sec_links.append('</span><span class="navlinks">%s</span>' % self.section_names[cur_sec])
-        else:
-          sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, self.section_names[cur_sec]))
-        n += 1
-      elif word[0] == BeginIter:
-        if prefix:
-          prefix += '_'
-        prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
-      elif word[0] == EndIter:
-        prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
-      elif not (word[0] == Label and len(word) < 3):
-        pat = '^' + prefix
-        if prefix:
-          pat += '_'
-        pat += word[1] + '$'
-
-        # TODO: This is ridiculously inefficient
-        if not printed:
-          for k in vr.errors:
-            # TODO: Try removing the pattern values and doing a normal hash?
-            if re.search(pat, k):
-              sec_links[n] = ERROR + sec_links[n]
-              printed = True
-              break
-        if not printed:
-          for k in vr.warnings:
-            if re.search(pat, k):
-              sec_links[n] = WARNING + sec_links[n]
-              printed = True
-              break
-
-
-    result = []
-    result.append('<div id="navmenu"><br />')
-    result.append('<a href="." onclick="submit_main()" class="navleft">Main page</a><br />')
-    result.append('<hr />')
-    for l in sec_links:
-      result.append('<span style="color:#ff0000;" class="navleft">'+l+'<br />')
-
-    result.append('<hr />')
-    result.append('<a href="' + choices_file + '" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>')
-    result.append('<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />')
-    # TJT 2014-05-28: Not sure why the following doesn't work -- need to do more investigation
-    #result.append('<a href="?subpage=%s" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />' % section)
-    #result.append('<a href="#clear" onclick="clear_form()" class="navleft">Clear form</a><br />')
-
-    ## if there are errors, then we result.append (the links in red and unclickable)
-    if vr.has_errors():
-      result.append('<span class="navleft">Create grammar:')
-      result.append(html_info_mark(ValidationMessage('', 'Resolve validation errors to enable grammar customization.', '')))
-      result.append('</span><br />')
-      result.append('<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>')
-    else:
-      result.append('<span class="navleft">Create grammar:</span><br />')
-      result.append('<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>')
-      result.append('</div>')
-    return "\n".join(result)
 
 
   def custom_page(self, session_path, grammar_path, arch_type):
@@ -968,6 +740,247 @@ class MatrixDefFile:
     print '</div>'
 
     print HTML_postbody
+
+
+  ##############################################################################
+  # Page components
+  def get_datestamp(self):
+    """
+    Load the datestamp
+    """
+    try:
+      with open('datestamp', 'r') as f:
+        return f.readline().strip()
+    except:
+      return "[date unknown]"
+
+
+  def page_links(self, vr, choices_file, choices):
+    """
+    Get the page links for the main page with the specified
+    validation errors and choices
+    """
+    # TODO: This is very similar to what happens in navigation()... break it out?
+    # pass through the definition file once, augmenting the list of validation
+    # results with section names so that we can put red asterisks on the links
+    # to the assocated sub-pages on the main page.
+    result = []
+
+    prefix = ''
+    for word in self.tokenized_lines:
+      word_length = len(word)
+      element = word[0]
+      if word_length < 2 or word[0][0] == COMMENT_CHAR:
+        pass
+
+      elif element == SECTION:
+        cur_sec = word[1]
+
+      elif element == BeginIter:
+        if prefix:
+          prefix += '_'
+        prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
+
+      elif element == EndIter:
+        prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
+
+      elif not (element == 'Label' and word_length < 3):
+        pat = '^' + prefix
+        if prefix:
+          pat += '_'
+        pat += word[1] + '$'
+        # TODO: This seems ridiculously inefficient
+        for k in vr.errors.keys():
+          if re.search(pat, k):
+            anchor = "matrix.cgi?subpage="+cur_sec+"#"+k
+            vr.err(cur_sec, "This section contains one or more errors. \nClicking this error will link to the error on the subpage.", anchor+"_error", False)
+            break
+        for k in vr.warnings.keys():
+          if re.search(pat, k):
+            anchor = "matrix.cgi?subpage="+cur_sec+"#"+k
+            vr.warn(cur_sec, "This section contains one or more warnings. \nClicking this warning will link to the warning on the subpage.", anchor+"_warning", False)
+            break
+
+    # now pass through again to actually emit the page
+    for word in self.tokenized_lines:
+      word_length = len(word)
+      if word_length == 0:
+        pass
+      # TODO: This != '0' seems to be an undocumented feature of matrixdef... confirm
+      elif word[0] == SECTION and (word_length != 4 or word[3] != '0'):
+        result.append('<div class="section"><span id="' + word[1] + 'button" ' + \
+              'onclick="toggle_display(\'' + \
+              word[1] + '\',\'' + word[1] + 'button\')"' + \
+              '>&#9658;</span>\n')
+        if word[1] in vr.errors:
+          result.append(html_error_mark(vr.errors[word[1]]))
+        elif word[1] in vr.warnings:
+          result.append(html_warning_mark(vr.warnings[word[1]]))
+        result.append('<a href="matrix.cgi?subpage=%s">%s</a>\n' % (word[1], word[2]))
+        result.append('<div class="values" id="%s" style="display:none">' % word[1])
+        cur_sec = ''
+        printed_something = False
+        for c in choices:
+          try:
+            c = c.strip()
+            if c:
+              a, v = c.split('=', 1)
+              if a == 'section':
+                cur_sec = v.strip()
+              elif cur_sec == word[1]:
+                result.append(self.f(a) + ' = ' + self.f(v) + '<br>')
+                printed_something = True
+          except ValueError:
+            if cur_sec == word[1]:
+              result.append('(<i>Bad line in choices file: </i>"<tt>' + \
+                      c + '</tt>")<br>')
+              printed_something = True
+        if not printed_something:
+          result.append('&nbsp;')
+        result.append('</div></div>')
+
+    return "".join(result)
+
+
+  def download_links(self, vr):
+    """
+    the buttons after the subpages
+    TJT 2014-09-18: Converting these radios to new set up
+    """
+    result = []
+    result.append(html_input(vr, 'hidden', 'customize', 'customize', False, '', ''))
+    result.append(html_input(vr, 'radio', 'delivery', 'tgz', True, 'Archive type: ', ' .tar.gz'))
+    result.append(html_input(vr, 'radio', 'delivery', 'zip', False, ' ', ' .zip'))
+    result.append("<br>")
+    result.append(html_input(vr, 'submit', 'create_grammar_submit', 'Create Grammar',
+                             False, '', '', '', '', vr.has_errors()))
+    result.append(html_input(vr, 'submit', 'sentences', 'Test by Generation', False,
+                             '', '', '', '', vr.has_errors()))
+    return "\n".join(result)
+
+
+  def upload_links(self, vr):
+    """
+    the FORM for uploading a choices file
+    """
+    result = []
+    result.append(html_input(vr, 'submit', '', 'Upload Choices File:', False, '<p>', ''))
+    result.append(html_input(vr, 'file', 'choices', '', False, '', '</p>', ''))
+    return "".join(result)
+
+
+  def sample_grammars(self):
+    """
+    the list of sample choices files
+    """
+    result = []
+    if os.path.exists('web/sample-choices'):
+      result.append('<h3>Sample Grammars:</h3>\n')
+      result.append('<p>Click a link below to have the questionnaire ' + \
+                    'filled out automatically.</p>\n')
+      result.append('<p>\n')
+
+      linklist = {}
+
+      for f in glob.iglob('web/sample-choices/*'):
+        f = f.replace('\\', '/')
+        lang = choices.get_choice('language', f) or '(empty questionnaire)'
+        if lang == 'minimal-grammar': lang = '(minimal grammar)'
+        linklist[lang] = f
+
+      for k in sorted(linklist.keys(), lambda x, y: cmp(x.lower(), y.lower())):
+        result.append('<a href="matrix.cgi?choices=%s>%s</a><br />\n' % (linklist[k], k))
+
+      result.append('</p>')
+    return "".join(result)
+
+
+  def navigation(self, vr, choices_file, section=None):
+    """
+    Pass through the definition file once, augmenting the list of validation
+    results with section names so that we can put red asterisks on the links
+    to the assocated sub-pages on the nav menu.
+
+    TODO: Simplify this
+    """
+
+    # Get the validation
+    prefix = ''
+    sec_links = []
+    n = -1
+    printed = False
+    for word in self.tokenized_lines:
+      cur_sec = ''
+      word_length = len(word)
+      if word_length < 2 or word[0][0] == COMMENT_CHAR:
+        pass
+      elif word_length == 5 and word[4] == '0':
+        # TODO: This is an undocumented feature of matrixdef: consider
+        # don't print links to sections that are marked 0
+        # TODO: Leaving this in is fine... just need to document it
+        pass
+      elif word[0] == SECTION:
+        printed = False
+        cur_sec = word[1]
+        # disable the link if this is the page we're on
+        if cur_sec == section:
+          sec_links.append('</span><span class="navlinks">%s</span>' % self.section_names[cur_sec])
+        else:
+          sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, self.section_names[cur_sec]))
+        n += 1
+      elif word[0] == BeginIter:
+        if prefix:
+          prefix += '_'
+        prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
+      elif word[0] == EndIter:
+        prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
+      elif not (word[0] == Label and len(word) < 3):
+        pat = '^' + prefix
+        if prefix:
+          pat += '_'
+        pat += word[1] + '$'
+
+        # TODO: This is ridiculously inefficient
+        if not printed:
+          for k in vr.errors:
+            # TODO: Try removing the pattern values and doing a normal hash?
+            if re.search(pat, k):
+              sec_links[n] = ERROR + sec_links[n]
+              printed = True
+              break
+        if not printed:
+          for k in vr.warnings:
+            if re.search(pat, k):
+              sec_links[n] = WARNING + sec_links[n]
+              printed = True
+              break
+
+
+    result = []
+    result.append('<div id="navmenu"><br />')
+    result.append('<a href="." onclick="submit_main()" class="navleft">Main page</a><br />')
+    result.append('<hr />')
+    for l in sec_links:
+      result.append('<span style="color:#ff0000;" class="navleft">'+l+'<br />')
+
+    result.append('<hr />')
+    result.append('<a href="' + choices_file + '" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>')
+    result.append('<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />')
+    # TJT 2014-05-28: Not sure why the following doesn't work -- need to do more investigation
+    #result.append('<a href="?subpage=%s" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />' % section)
+    #result.append('<a href="#clear" onclick="clear_form()" class="navleft">Clear form</a><br />')
+
+    ## if there are errors, then we result.append (the links in red and unclickable)
+    if vr.has_errors():
+      result.append('<span class="navleft">Create grammar:')
+      result.append(html_info_mark(ValidationMessage('', 'Resolve validation errors to enable grammar customization.', '')))
+      result.append('</span><br />')
+      result.append('<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>')
+    else:
+      result.append('<span class="navleft">Create grammar:</span><br />')
+      result.append('<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>')
+      result.append('</div>')
+    return "\n".join(result)
 
 
 

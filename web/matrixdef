@@ -1044,6 +1044,7 @@ Radio neg2-mod-order "negative adverb order" "NEG2 is ordered: " ""
 . either "either" "" "on either side of the category it modifies.<br>"
 
 Text neg2-mod-orth "negative adverb spelling" "NEG2 is spelled: " "" 20
+
 Label "</div>"
 
 Label "<div id=\"bineg_fb\"></div></div>"
@@ -1218,7 +1219,6 @@ Radio q-inv-verb "Inverted verb in questions" "" ""
 
 
 
-
 Section info-str "Information Structure" "InformationStructure"
 
 Label "<p> Information structure, consisting of topic (what an
@@ -1353,7 +1353,7 @@ subjects and/or objects to be dropped for all verbs or only for
 certain verbs or in particular contexts.  For example, English always
 requires overt subjects (<i>I studied</i>) whereas in Arabic the
 corresponding sentence does not require a pronoun (<i>darastu</i>).
-In languages which allow arugment dropping a marker is often attached
+In languages which allow argument dropping a marker is often attached
 to the verb that contains all of the information that a pronoun
 would--person, number, and gender.  This is not always the case,
 however.  Japanese for instance allows subject dropping but does not
@@ -2287,7 +2287,8 @@ including changes to e.g. case frames or adding predicates. (<b>Experimental</b>
       . obj-add "Object-adding" "object-adding"
 
       Label "<p>Object-adding operations currently only support strict transitive verbs as inputs.<br/>
-        For object-adding operations, also specify (ignored for other operations):</P>"
+        For object-adding operations, also specify (ignored for other operations):</p>"
+
       Text predname "Verb Position Class {i} Lexical Rule Type {j} Valence-changing Operation {k} Predicate Name" "Predicate: " "<br/> " 20
 
       Select argpos "Verb Position Class {i} Lexical Rule Type {j} Valence-changing Operation {k} Complement Position" "The added argument is at the: " " of the complements list.<br/>"

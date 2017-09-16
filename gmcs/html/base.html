@@ -1,5 +1,3 @@
-Content-type: text/html;charset=UTF-8
-Set-cookie: session={{cookie}}
 {#
   This Jinja template acts as a base for the Grammar Matrix website
 
@@ -9,11 +7,18 @@ Set-cookie: session={{cookie}}
     * onload
 
   Note this defines (at least) the following variables:
+    * cookie
     * section_name
     * features
     * verb_case_patterns
     * numbers
+
+    TODO:
+      Create a macro file for forms
 #}
+Content-type: text/html;charset=UTF-8
+Set-cookie: session={{cookie}}
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -23,7 +28,8 @@ Set-cookie: session={{cookie}}
     <link rel="stylesheet" href="web/matrix.css">
 
     <script type="text/javascript" src="web/matrix.js"></script>
-    <script type="text/javascript" src="web/draw.js"></script>
+    {% if section_name %}<script type="text/javascript" src="web/draw.js"></script>{% endif %}
+    {% if features or verb_case_patterns or numbers %}
     <script type="text/javascript">
       <!--
       // An array of strings, each of the form "name:value|friendly value,..."
@@ -34,6 +40,7 @@ Set-cookie: session={{cookie}}
       var numbers = [{{numbers|safe}}];
       -->
     </script>
+    {% endif %}
     {% block head %}{% endblock head %}
   </head>
 

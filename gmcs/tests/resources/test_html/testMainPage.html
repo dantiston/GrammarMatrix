@@ -1,26 +1,25 @@
-{% extends "base.html" %}
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
 
-{#
-  This Jinja template extends base.html to define the welcome/splash page.
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>the Matrix</title>
 
-  Note this defines (at least) the following variables:
-    * datestamp
-    * navigation
-    * download_grammar
-    * choices_file
-    * upload_choices
-    * sample_grammars
+    <link rel="stylesheet" href="web/matrix.css">
 
-#}
+    <script type="text/javascript" src="web/matrix.js"></script>
 
-{% block onload %}animate(){% endblock %}
+  </head>
 
-{% block body %}
-  {# Intro #}
+  <body onload="animate()">
+
+
   <h1>LinGO Grammar Matrix</h1>
   <h1 style="display:inline">Matrix customization and download page</h1>
   <span class="tt">[<a href="http://moin.delph-in.net/MatrixDocTop" target="matrixdoc">help</a>]</span>
-  <h2>Version of {{datestamp|default('[date unknown]')}}</h2>
+  <h2>Version of [date unknown]</h2>
 
   <p id="preamble">
     <p>The <a href="http://www.delph-in.net/matrix">LinGO Grammar
@@ -81,30 +80,49 @@
     on the appropriate subpage.</p>
   </p>
 
-  {# Navigation and links #}
+
   <div class="indented">
 
-    {{navigation}}
+    <div class="section"><span id="test-basicbutton" onclick="toggle_display('test-basic','test-basicbutton')">&#9658;</span>
+<a href="matrix.cgi?subpage=test-basic">Test Basic</a>
+<div class="values" id="test-basic" style="display:none">&nbsp;</div></div>
 
-    {# Downloading grammar #}
+
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
       <p>
-        {{download_grammar}}
+        <input type="hidden"  name="customize" value="customize">
+<label>Archive type: <input type="radio"  name="delivery" value="tgz" checked="checked"> .tar.gz</label>
+<label> <input type="radio"  name="delivery" value="zip"> .zip</label>
+<br>
+<input type="submit"  name="create_grammar_submit" value="Create Grammar">
+<input type="submit"  name="sentences" value="Test by Generation">
       </p>
     </form>
 
     <hr>
 
-    {# Downloading and uploading choices #}
-    <p><a href="{{choices_file}}">View Choices File</a> (right-click to download)</p>
+
+    <p><a href="sessions/7777/choices">View Choices File</a> (right-click to download)</p>
 
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="upload_form">
-      {{upload_choices}}
+      <p><input type="submit"  value="Upload Choices File:"><input type="file"  name="choices"></p>
     </form>
 
     <hr>
 
-    {{sample_grammars}}
+    <h3>Sample Grammars:</h3>
+<p>Click a link below to have the questionnaire filled out automatically.</p>
+<p>
+<a href="matrix.cgi?choices=web/sample-choices/empty>(empty questionnaire)</a><br />
+<a href="matrix.cgi?choices=web/sample-choices/minimal>(minimal grammar)</a><br />
+<a href="matrix.cgi?choices=web/sample-choices/japanese>Japanese</a><br />
+<a href="matrix.cgi?choices=web/sample-choices/maltese>Maltese</a><br />
+<a href="matrix.cgi?choices=web/sample-choices/mini-english>mini English</a><br />
+<a href="matrix.cgi?choices=web/sample-choices/sahaptin>Umatilla Sahaptin</a><br />
+</p>
 
-  </div> {# end indented #}
-{% endblock %}
+  </div>
+
+  </body>
+
+</html>
