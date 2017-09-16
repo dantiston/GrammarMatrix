@@ -1,7 +1,5 @@
 Section test-iter "Test Iter" TestIter
 
 BeginIter test{i} "test-iter"
-
   Text name "Test variable: {i}" "" "" 20
-
 EndIter test

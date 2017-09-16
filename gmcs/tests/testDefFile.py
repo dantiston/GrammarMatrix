@@ -5,6 +5,7 @@ import re
 
 from gmcs import deffile
 from gmcs.choices import ChoicesFile
+from gmcs.deffile import MatrixDefSyntaxException
 
 
 def get_path(*path):
@@ -47,6 +48,17 @@ class InitializerTests(unittest.TestCase):
 class DefsToHtmlTests(unittest.TestCase):
   """
   NOTE: defs_to_html() expects input lines to be stripped
+  TODO: Tests for conditional skipping
+  TODO: Tests for striking options from select and multiselect
+
+  BeginIter: self.iter_to_html,
+  Label: self.label_to_html,
+  Separator: self.separator_to_html,
+  Check: self.check_to_html,
+  Hidden: self.hidden_to_html,
+  File: self.file_to_html,
+  Button: self.button_to_html,
+  MultiSelect: self.select_to_html,
   """
 
   @classmethod
@@ -60,6 +72,15 @@ class DefsToHtmlTests(unittest.TestCase):
       tokenized_lines = [['Cache', 'nouns', 'noun[0-9]+$', 'name']]
       actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}}), mock_validation(), "", {})
       expected = '<script type="text/javascript">\n// A cache of choices from other subpages\nvar nouns = [\n\'test-noun:noun1\',\n];\n</script>'
+      self.assertEqual(actual, expected)
+
+
+  @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
+  def testDefsToHtml_iter(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
+      expected = ''
       self.assertEqual(actual, expected)
 
 
@@ -121,11 +142,43 @@ class SubPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
+  def testButton(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testButton")
+      actual = definition.sub_page('test-button', '7777', mock_validation())
+      expected = load_expected("testButton")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
   def testCache(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       definition = load("testCache")
       actual = definition.sub_page('test-cache', '7777', mock_validation(), choices=mock_choices({"noun1":{"name":"test-noun"}, "verb1":{"name":"test-verb"}}))
       expected = load_expected("testCache")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testCheck(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testCheck")
+      actual = definition.sub_page('test-check', '7777', mock_validation())
+      expected = load_expected("testCheck")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testFile(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testFile")
+      actual = definition.sub_page('test-file', '7777', mock_validation())
+      expected = load_expected("testFile")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testHidden(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testHidden")
+      actual = definition.sub_page('test-hidden', '7777', mock_validation())
+      expected = load_expected("testHidden")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -147,7 +200,8 @@ class SubPageTests(unittest.TestCase):
 
   def testIterBroken(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      self.assertRaises(Exception, load("testIterBroken"))
+      with self.assertRaises(MatrixDefSyntaxException) as context:
+        load("testIterBroken").sub_page('test-iter', '7777', mock_validation())
 
 
   def testSelect(self):
@@ -208,6 +262,12 @@ class SubPageTests(unittest.TestCase):
       expected2 = load_expected("testMultipleSections2")
       self.assertEqual(remove_empty_lines(actual1), remove_empty_lines(expected1))
       self.assertEqual(remove_empty_lines(actual2), remove_empty_lines(expected2))
+
+
+class MainPageTests(unittest.TestCase):
+
+  def testMainPage(self):
+    pass
 
 
 class NavigationTests(unittest.TestCase):
@@ -659,8 +719,16 @@ class mock_error(object):
 
 class mock_choices(object):
 
-  def __init__(self, choices):
-    self.choices = choices
+  def __init__(self, choices_dict):
+    # choices = {}
+    # for key in choices_dict:
+    #   choices[mock_choice(key)] = choices_dict[key]
+    # self.choices = choices
+    self.choices = choices_dict
+
+
+  def get(self, key, default=None):
+    return self.choices[key] if key in self.choices else default
 
 
   def get_regex(self, regex):
@@ -692,7 +760,25 @@ class mock_choices(object):
     return []
 
 
+# class mock_choice(object):
+#
+#   def __init__(self, key):
+#     self.key = key
+#
+#
+#   def iter_num(self):
+#     if self.key:
+#         result = re.search('[0-9]+$', self.full_key)
+#         if result:
+#             return int(result.group(0))
+#     return None
+
+
 class os_environ(object):
+  """
+  Helper wrapper to save, set, and reset environment variables used
+  in deffile.py for testing
+  """
 
   def __init__(self, *args, **kwargs):
     self.variables = kwargs

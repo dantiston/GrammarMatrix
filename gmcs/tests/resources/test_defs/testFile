@@ -1,0 +1,3 @@
+Section test-file "Test File" TestFile
+
+File test-file "test file" "<p>Test file: </p>" ""

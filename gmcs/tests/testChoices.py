@@ -9,7 +9,7 @@ from gmcs.choices import split_variable_key
 from gmcs.choices import get_next_key
 
 class TestChoiceCategoryClasses(unittest.TestCase):
-    
+
     def test_choicecategory(self):
         c = ChoiceCategory()
         self.assertEqual(c.full_key, None)
@@ -347,6 +347,7 @@ class TestExampleChoicesFiles(unittest.TestCase):
 
 ##############################################################################
 #### Choices File Strings
+# TODO: Move these to actual files
 
 empty_choices_file = ['']
 

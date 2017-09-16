@@ -21,18 +21,22 @@ class ChoicesFileParseError(Exception):
     return repr(self.msg)
 
 ######################################################################
-# ChoiceCategory is a parent-class for ChoiceDict and ChoiceList.
-# Any meta-information about choices should be encoded in
-# ChoiceCategory, and ChoiceDict and ChoiceList should most likely
-# just be empty classes inheriting from ChoiceCategory and their
-# namesake datatype.
 
-class ChoiceCategory:
+class ChoiceCategory(object):
+  """
+  ChoiceCategory is a parent-class for ChoiceDict and ChoiceList.
+  Any meta-information about choices should be encoded in
+  ChoiceCategory, and ChoiceDict and ChoiceList should most likely
+  just be empty classes inheriting from ChoiceCategory and their
+  namesake datatype.
+  """
+
   def __init__(self, full_key=None):
     self.full_key = full_key
     # When safe_get is true, index operations (e.g. choices['key']) will
     # return the default value if the key (or index) doesn't exist
     self.safe_get = True
+
 
   def get(self, key, default=None):
     # turn off safe_get so we can catch exceptions
@@ -50,21 +54,13 @@ class ChoiceCategory:
     self.safe_get = True
     return x
 
+
   def full_keys(self):
-    full_keys = []
-    if issubclass(self.__class__, ChoiceDict):
-      for key in self:
-        if issubclass(self[key].__class__,ChoiceCategory):
-          full_keys += self[key].full_keys()
-        else:
-          if self.full_key:
-            full_keys += [self.full_key+'_'+key]
-          else:
-            full_keys += [key]
-    elif issubclass(self.__class__, ChoiceList):
-      for item in self:
-        full_keys += item.full_keys()
-    return full_keys
+    """
+    Overwrite me!
+    """
+    return []
+
 
 class ChoiceDict(ChoiceCategory, dict):
 
@@ -81,6 +77,7 @@ class ChoiceDict(ChoiceCategory, dict):
         raise e
     return retval
 
+
   def __setitem__(self, key, value):
     cur_key, remaining_keys = get_next_key(key)
     # keys will be empty if we are setting the value
@@ -95,6 +92,7 @@ class ChoiceDict(ChoiceCategory, dict):
         dict.__setitem__(self, cur_key, new_list)
       dict.__getitem__(self, cur_key)[remaining_keys] = value
 
+
   def __delitem__(self, key):
     cur, remaining = get_next_key(key)
     if remaining:
@@ -103,6 +101,7 @@ class ChoiceDict(ChoiceCategory, dict):
     elif cur in self:
       dict.__delitem__(self, cur)
 
+
   def iter_num(self):
     if self.full_key is not None:
         result = re.search('[0-9]+$', self.full_key)
@@ -110,8 +109,10 @@ class ChoiceDict(ChoiceCategory, dict):
             return int(result.group(0))
     return None
 
+
   def split_value(self, key):
     return [x for x in self[key].split(', ') if x != '']
+
 
   def walk(self, intermediates=False):
     if intermediates and self.full_key != None:
@@ -126,6 +127,20 @@ class ChoiceDict(ChoiceCategory, dict):
           fullkey = self.full_key + '_' + key
         yield (fullkey, self[key])
 
+
+  def full_keys(self):
+    full_keys = []
+    for key in self:
+      if issubclass(self[key].__class__, ChoiceCategory):
+        full_keys += self[key].full_keys()
+      else:
+        if self.full_key:
+          full_keys += [self.full_key+'_'+key]
+        else:
+          full_keys += [key]
+    return full_keys
+
+
   def __str__(self):
     return '\n'.join(
       '='.join(['_'.join([self.full_key, key]) if self.full_key else key,
@@ -134,7 +149,9 @@ class ChoiceDict(ChoiceCategory, dict):
        else str(self[key])
        for key in self)
 
+
 class ChoiceList(ChoiceCategory, list):
+
 
   def __getitem__(self, key):
     index, remaining = get_next_key(key)
@@ -155,6 +172,7 @@ class ChoiceList(ChoiceCategory, list):
         raise e
     return retval
 
+
   def __setitem__(self, key, value):
     index, remaining_keys = get_next_key(key)
     # create the dicts, if needed, then descend into the one at index
@@ -169,6 +187,7 @@ class ChoiceList(ChoiceCategory, list):
                                                      str(index)))
       list.__getitem__(self, index - 1)[remaining_keys] = value
 
+
   def __delitem__(self, key):
     cur, remaining = get_next_key(key)
     if remaining:
@@ -177,6 +196,7 @@ class ChoiceList(ChoiceCategory, list):
     elif cur <= list.__len__(self):
       # but don't actually delete list items, since that breaks indexing
       self[cur] = None
+
 
   # custom iterator ignores empty items (e.g. when a
   # user deletes an item in the middle of a list)
@@ -188,12 +208,14 @@ class ChoiceList(ChoiceCategory, list):
       if item is not None:
         yield item
 
+
   def walk(self, intermediates=False):
     if intermediates:
       yield (self.full_key, self)
     for item in self:
       for result in item.walk(intermediates):
         yield result
+
 
   def __len__(self):
     """
@@ -203,8 +225,10 @@ class ChoiceList(ChoiceCategory, list):
     # The custom iterator only returns non-empty items, so just use that.
     return sum(1 for x in self)
 
+
   def is_empty(self):
     return len(self) == 0
+
 
   def get_first(self):
     """
@@ -217,6 +241,7 @@ class ChoiceList(ChoiceCategory, list):
     except StopIteration:
       return None
 
+
   def get_last(self):
     """
     Return the last non-None list item.
@@ -227,12 +252,22 @@ class ChoiceList(ChoiceCategory, list):
         return d
     return None
 
+
   def next_iter_num(self):
     if len(self) == 0: return 1
     return (self.get_last().iter_num() or 0) + 1
 
+
+  def full_keys(self):
+    full_keys = []
+    for item in self:
+      full_keys += item.full_keys()
+    return full_keys
+
+
   def __str__(self):
     return '\n'.join(str(item) for item in self)
+
 
 ######################################################################
 # Helper functions
@@ -255,12 +290,9 @@ def get_choice(choice, choices):
       return val
   return None
 
-# use the following re if keys like abc_def should be split:
-#var_delim_re = re.compile(r'(\d+)?(?:_|$)')
+
 # use the following re if final digits should be split
 var_delim_re = re.compile(r'(\d+)(?:_|$)')
-# use the following re if we only split when a digit precedes _
-#var_delim_re = re.compile(r'(\d+)(?:_)')
 def split_variable_key(key):
   """
   Split a compound variable key into a list of its component parts.
@@ -327,14 +359,14 @@ class ChoicesFile:
       return False
     else:
       if len(self.full_keys()) != len(object.full_keys()):
-        print self.full_keys()
-        print str(len(self.full_keys()))+"/"+str(len(object.full_keys()))
+        # print self.full_keys()
+        # print str(len(self.full_keys()))+"/"+str(len(object.full_keys()))
         return False
       else:
         for i in self.full_keys():
           if object[i] != self[i]:
-            print object[i]
-            print self[i]
+            # print object[i]
+            # print self[i]
             return False
     return True
 

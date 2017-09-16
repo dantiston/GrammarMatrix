@@ -23,14 +23,9 @@ from gmcs.validate import validate_choices
 from gmcs.choices import ChoicesFile
 from gmcs.linglib.toolboximport import import_toolbox_lexicon
 
-from gmcs.deffile import HTTP_header
-
 
 ######################################################################
 # beginning of main program
-
-# Uncomment this to see the output from print in the HTML page
-# print HTTP_header + '\n'
 
 # TODO: Can we store this in a server side session?
 matrixdef = MatrixDefFile('web/matrixdef')
@@ -202,3 +197,7 @@ elif form_data.has_key('subpage'):
     matrixdef.cookie_error_page()
 else:
   matrixdef.main_page(cookie, vr)
+
+
+if __name__ == "__main__":
+  cgi.test()

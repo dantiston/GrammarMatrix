@@ -1,0 +1,3 @@
+Section test-button "Test Button" TestButton
+
+Button test-button "<p>Test Button: " "</p>" ""

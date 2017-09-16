@@ -1,0 +1,3 @@
+Section test-check "Test Check" TestCheck
+
+Check test-check "test-check" "check: " "" "testMe();"
