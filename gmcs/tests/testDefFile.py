@@ -60,14 +60,7 @@ class DefsToHtmlTests(unittest.TestCase):
   TODO: Tests for striking options from select and multiselect
 
   TODO: These still need tests
-  BeginIter: self.iter_to_html,
-  Label: self.label_to_html,
-  Separator: self.separator_to_html,
-  Check: self.check_to_html,
-  Hidden: self.hidden_to_html,
-  File: self.file_to_html,
-  Button: self.button_to_html,
-  MultiSelect: self.select_to_html,
+  BeginIter: self.iter_to_html
   """
 
   @classmethod
@@ -93,6 +86,60 @@ class DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
+  def testDefsToHtml_label(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # Label "<p>Test</p>"
+      tokenized_lines = [['Label', '<p>Test</p>']]
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      expected = '<p>Test</p>\n'
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_separator(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # Separator
+      tokenized_lines = [['Separator']]
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      expected = '<hr>\n'
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_button(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # Button test-button "<p>Test Button: " "</p>" ""
+      tokenized_lines = [['Button', 'test-button', '<p>Test Button: ', '</p>', '']]
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      expected = '<p>Test Button: <input type="button"  value="test-button"></p>\n'
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_check(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # Check test-check "test-check" "check: " "" "testMe();"
+      tokenized_lines = [['Check', 'test-check', 'test-check', 'check: ', '', 'testMe();']]
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      expected = '<label>check: <input type="checkbox"  name="test-check" onclick="testMe();"></label>\n'
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_file(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # File test-file "test file" "<p>Test file: </p>" ""
+      tokenized_lines = [['File', 'test-file', 'test file', '<p>Test file: </p>', '']]
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      expected = '<p>Test file: </p><input type="file"  name="test-file">\n'
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_hidden(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # Hidden test-hidden "test hidden"
+      tokenized_lines = [['Hidden', 'test-hidden', 'test hidden']]
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      expected = '<input type="hidden"  name="test-hidden">\n'
+      self.assertEqual(actual, expected)
+
+
   def testDefsToHtml_radio(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Radio test-radio \"test radio\" \"\" \"\"", ". test-bullet1 \"hello\" \"\" \"\" \"\"", ". test-bullet2 \"world\" \"\" \"\" \"\""
@@ -108,6 +155,16 @@ class DefsToHtmlTests(unittest.TestCase):
       tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
       actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '\n<select name="test-select">\n<option value="" selected class="temp"></option>\n</select><br />\n'
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_multiselect(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # MultiSelect test-multiselect "Test multiselect" "" "<br />"
+      # fillverbpat
+      tokenized_lines = [['MultiSelect', 'test-multiselect', 'Test multiselect', '', '<br />'], ['fillverbpat']]
+      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      expected = '\n<select name="test-multiselect" class="multi"  multiple="multiple"  onfocus="fill(\'test-multiselect\', [].concat(fill_case_patterns(false)));">\n<option value="" selected class="temp"></option>\n</select><br />\n'
       self.assertEqual(actual, expected)
 
 
@@ -265,14 +322,25 @@ class SubPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual2), remove_empty_lines(expected2))
 
 
-
 class MainPageTests(unittest.TestCase):
+  """
+  TODO: Need to write tests for displaying choices
+  TODO: Need to write tests for displaying validation messages
+  """
 
-  def testMainPage(self):
+  def testMainPage_basic(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       definition = load("testBasic")
       actual = definition.main_page('7777', mock_validation())
       expected = load_expected("testMainPage")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testMainPage_error(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testBasic")
+      actual = definition.main_page('7777', mock_validation(errors={"test-basic":mock_error(message="error")}))
+      expected = load_expected("testMainPageError")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 

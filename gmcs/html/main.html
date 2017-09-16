@@ -84,12 +84,12 @@
   {# Navigation and links #}
   <div class="indented">
 
-    {{navigation}}
+    {{navigation|indent}}
 
     {# Downloading grammar #}
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
       <p>
-        {{download_grammar}}
+        {{download_grammar|indent}}
       </p>
     </form>
 
@@ -99,12 +99,12 @@
     <p><a href="{{choices_file}}">View Choices File</a> (right-click to download)</p>
 
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="upload_form">
-      {{upload_choices}}
+      {{upload_choices|indent}}
     </form>
 
     <hr>
 
-    {{sample_grammars}}
+    {{sample_grammars|indent}}
 
   </div> {# end indented #}
 {% endblock %}

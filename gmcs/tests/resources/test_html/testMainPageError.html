@@ -86,7 +86,7 @@ Set-cookie: session=7777
   <div class="indented">
 
     <div class="section"><span id="test-basicbutton" onclick="toggle_display('test-basic','test-basicbutton')">&#9658;</span>
-    <a href="matrix.cgi?subpage=test-basic">Test Basic</a>
+    <a name="" style="text-decoration:none"><span class="error" title="error">*</span></a><a href="matrix.cgi?subpage=test-basic">Test Basic</a>
     <div class="values" id="test-basic" style="display:none">&nbsp;</div></div>
 
 
@@ -96,8 +96,8 @@ Set-cookie: session=7777
     <label>Archive type: <input type="radio"  name="delivery" value="tgz" checked="checked"> .tar.gz</label>
     <label><input type="radio"  name="delivery" value="zip"> .zip</label>
     <br>
-    <input type="submit"  name="create_grammar_submit" value="Create Grammar">
-    <input type="submit"  name="sentences" value="Test by Generation">
+    <input type="submit"  name="create_grammar_submit" value="Create Grammar" disabled="disabled">
+    <input type="submit"  name="sentences" value="Test by Generation" disabled="disabled">
       </p>
     </form>
 

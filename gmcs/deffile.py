@@ -115,8 +115,9 @@ def html_info_mark(vm):
   return html_mark(INFO, vm)
 
 
-def html_input(vr, sort, name, value, checked, before = '', after = '',
-               size = '', onclick = '', disabled = False, onchange = ''):
+def html_input(vr, sort, name, value, checked=False,
+               before='', after='', html_class='', title='', size='',
+               onclick='', onchange='', disabled=False):
   """
   Return an HTML <input> tag with the specified attributes and
     surrounding text
@@ -142,7 +143,8 @@ def html_input(vr, sort, name, value, checked, before = '', after = '',
   dsabld = ' disabled="disabled"' if disabled else ''
 
   mark = ''
-  if sort != 'radio':
+  # TJT 9-16-17 Not checking validation on buttons
+  if sort not in ('radio', 'button'):
     mark = validation_mark(vr, name)
 
   if sort == 'textarea':
@@ -151,14 +153,18 @@ def html_input(vr, sort, name, value, checked, before = '', after = '',
          (before, mark, name, size, value, after)
 
   else:
+    if html_class:
+      html_class = ' class="%s"' % html_class
     if value:
       value = ' value="%s"' % value
     if name:
       name = ' name="%s"' % name
+    if title:
+      title = ' title="%s"' % title
 
-    output = '%s%s<input type="%s" %s%s%s%s%s%s%s>%s' % \
-         (before, mark, sort, name, value, chkd, size, dsabld,
-          onclick, onchange, after)
+    output = '%s%s<input type="%s" %s%s%s%s%s%s%s%s%s>%s' % \
+         (before, mark, sort, html_class, title, name, value,
+          chkd, size, dsabld, onclick, onchange, after)
 
     # TJT 2014-09-05: If checkbox
     if sort in ('checkbox', 'radio'):
@@ -211,9 +217,15 @@ def html_delbutton(code):
   iterator "code"
   """
   # TJT 2014-5-27 Regular capital X looks the best + most compliant
-  return '<input type="button" class="delbutton" ' + \
-         'value="X" name="" title="Delete" ' + \
-         'onclick="remove_element(\'%s\')">\n' % code
+  # return '<input type="button" class="delbutton" ' + \
+  #        'value="X" name="" title="Delete" ' + \
+  #        'onclick="remove_element(\'%s\')">\n' % code
+  return html_input(None, "button", "", "X",
+           html_class="delbutton", title="Delete",
+           onclick="remove_element(\'%s\')" % code) + "\n"
+  # def html_input(vr, sort, name, value, checked, before = '', after = '',
+  #                size = '', onclick = '', disabled = False, onchange = ''):
+
 
 
 def merge_quoted_strings(document):
@@ -847,14 +859,15 @@ class MatrixDefFile:
     TJT 2014-09-18: Converting these radios to new set up
     """
     result = []
-    result.append(html_input(vr, 'hidden', 'customize', 'customize', False, '', ''))
-    result.append(html_input(vr, 'radio', 'delivery', 'tgz', True, 'Archive type: ', ' .tar.gz'))
-    result.append(html_input(vr, 'radio', 'delivery', 'zip', False, ' ', ' .zip'))
+    result.append(html_input(vr, 'hidden', 'customize', 'customize'))
+    result.append(html_input(vr, 'radio', 'delivery', 'tgz',
+                             checked=True, before='Archive type: ', after=' .tar.gz'))
+    result.append(html_input(vr, 'radio', 'delivery', 'zip', after=' .zip'))
     result.append("<br>")
     result.append(html_input(vr, 'submit', 'create_grammar_submit', 'Create Grammar',
-                             False, '', '', '', '', vr.has_errors()))
-    result.append(html_input(vr, 'submit', 'sentences', 'Test by Generation', False,
-                             '', '', '', '', vr.has_errors()))
+                             disabled=vr.has_errors()))
+    result.append(html_input(vr, 'submit', 'sentences', 'Test by Generation',
+                             disabled=vr.has_errors()))
     return "\n".join(result)
 
 
@@ -888,7 +901,7 @@ class MatrixDefFile:
         linklist[lang] = f
 
       for k in sorted(linklist.keys(), lambda x, y: cmp(x.lower(), y.lower())):
-        result.append('<a href="matrix.cgi?choices=%s>%s</a><br />\n' % (linklist[k], k))
+        result.append('<a href="matrix.cgi?choices=%s">%s</a><br />\n' % (linklist[k], k))
 
       result.append('</p>')
     return "".join(result)
@@ -1097,7 +1110,7 @@ class MatrixDefFile:
     vn, fn, bf, af = word[1:]
     vn = prefix + vn
     value = choices.get(vn, '') # If no choice existing, return ''
-    html = html_input(vr, element.lower(), vn, value, False, bf, af) + '\n'
+    html = html_input(vr, element.lower(), vn, value, checked=False, before=bf, after=af) + '\n'
     return word, word_length, element, i, html
 
 
@@ -1106,7 +1119,7 @@ class MatrixDefFile:
       raise MatrixDefSyntaxException("Hidden improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
     vn, fn = word[1:]
     value = choices.get(vn, '') # If no choice existing, return ''
-    html = html_input(vr, element.lower(), vn, value, False, '', '', 0) + '\n'
+    html = html_input(vr, element.lower(), vn, value) + '\n'
     return word, word_length, element, i, html
 
 
@@ -1402,8 +1415,9 @@ class MatrixDefFile:
         oc = "check_radio_button('"+prefix[:-1]+"_inflecting', 'yes'); " + oc
     vn = prefix + vn
     value = choices.get(vn, '') # If no choice existing, return ''
-    html += html_input(vr, element.lower(), vn, value, False,
-                       bf, af, sz, onchange=oc) + '\n'
+    html += html_input(vr, element.lower(), vn, value,
+                checked=False, before=bf, after=af, size=sz, onchange=oc)
+    html += "\n"
 
     return word, word_length, element, i, html
 
