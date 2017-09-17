@@ -11,14 +11,17 @@ from gmcs.deffile import MatrixDefSyntaxException
 def get_path(*path):
   return os.path.abspath(os.path.join(os.path.dirname(__file__), *path))
 
+
 def load(file_name):
   path = get_path("resources", "test_defs", file_name)
   return deffile.MatrixDefFile(path)
+
 
 def load_expected(file_name):
   path = get_path("resources", "test_html", file_name + ".html")
   with open(path, 'r') as f:
     return f.read()
+
 
 def remove_empty_lines(string):
   return "\n".join((line.strip() for line in string.split("\n") if line.strip()))
@@ -63,34 +66,30 @@ class DefsToHtmlTests(unittest.TestCase):
   BeginIter: self.iter_to_html
   """
 
-  @classmethod
-  def setUpClass(cls):
-    DefsToHtmlTests.__def = load("testBasic")
-
 
   def testDefsToHtml_cache(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Cache nouns noun[0-9]+$ name"
       tokenized_lines = [['Cache', 'nouns', 'noun[0-9]+$', 'name']]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}}), mock_validation(), "", {})
+      actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}}), mock_validation(), "", {})
       expected = '<script type="text/javascript">\n// A cache of choices from other subpages\nvar nouns = [\n\'test-noun:noun1\',\n];\n</script>'
       self.assertEqual(actual, expected)
 
 
-  @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
-  def testDefsToHtml_iter(self):
-    with os_environ(HTTP_COOKIE="session=7777"):
-      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
-      expected = ''
-      self.assertEqual(actual, expected)
+  # @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
+  # def testDefsToHtml_iter(self):
+  #   with os_environ(HTTP_COOKIE="session=7777"):
+  #     tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
+  #     actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
+  #     expected = ''
+  #     self.assertEqual(actual, expected)
 
 
   def testDefsToHtml_label(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # Label "<p>Test</p>"
       tokenized_lines = [['Label', '<p>Test</p>']]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>Test</p>\n'
       self.assertEqual(actual, expected)
 
@@ -99,7 +98,7 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       # Separator
       tokenized_lines = [['Separator']]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<hr>\n'
       self.assertEqual(actual, expected)
 
@@ -108,7 +107,7 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       # Button test-button "<p>Test Button: " "</p>" ""
       tokenized_lines = [['Button', 'test-button', '<p>Test Button: ', '</p>', '']]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>Test Button: <input type="button"  value="test-button"></p>\n'
       self.assertEqual(actual, expected)
 
@@ -117,7 +116,7 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       # Check test-check "test-check" "check: " "" "testMe();"
       tokenized_lines = [['Check', 'test-check', 'test-check', 'check: ', '', 'testMe();']]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<label>check: <input type="checkbox"  name="test-check" onclick="testMe();"></label>\n'
       self.assertEqual(actual, expected)
 
@@ -126,7 +125,7 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       # File test-file "test file" "<p>Test file: </p>" ""
       tokenized_lines = [['File', 'test-file', 'test file', '<p>Test file: </p>', '']]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>Test file: </p><input type="file"  name="test-file">\n'
       self.assertEqual(actual, expected)
 
@@ -135,7 +134,7 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       # Hidden test-hidden "test hidden"
       tokenized_lines = [['Hidden', 'test-hidden', 'test hidden']]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<input type="hidden"  name="test-hidden">\n'
       self.assertEqual(actual, expected)
 
@@ -144,7 +143,7 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Radio test-radio \"test radio\" \"\" \"\"", ". test-bullet1 \"hello\" \"\" \"\" \"\"", ". test-bullet2 \"world\" \"\" \"\" \"\""
       tokenized_lines = [['Radio', 'test-radio', 'test radio', '', ''], ['.', 'test-bullet1', 'hello', '', '', ''], ['.', 'test-bullet2', 'world', '', '', '']]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '\n<label><input type="radio"  name="test-radio" value="test-bullet1"></label>\n<label><input type="radio"  name="test-radio" value="test-bullet2"></label>\n\n'
       self.assertEqual(actual, expected)
 
@@ -153,7 +152,7 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Select test-select \"test select\" \"\" \"<br />\""
       tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '\n<select name="test-select">\n<option value="" selected class="temp"></option>\n</select><br />\n'
       self.assertEqual(actual, expected)
 
@@ -163,7 +162,7 @@ class DefsToHtmlTests(unittest.TestCase):
       # MultiSelect test-multiselect "Test multiselect" "" "<br />"
       # fillverbpat
       tokenized_lines = [['MultiSelect', 'test-multiselect', 'Test multiselect', '', '<br />'], ['fillverbpat']]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '\n<select name="test-multiselect" class="multi"  multiple="multiple"  onfocus="fill(\'test-multiselect\', [].concat(fill_case_patterns(false)));">\n<option value="" selected class="temp"></option>\n</select><br />\n'
       self.assertEqual(actual, expected)
 
@@ -172,7 +171,7 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Text test \"Test name\" \"<p>Some test text: </p>\" \"<br />\" 42"
       tokenized_lines = [["Text", "test", "Test name", "<p>Some test text: </p>", "<br />", "42"]]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>Some test text: </p><input type="text"  name="test" size="42"><br />\n'
       self.assertEqual(actual, expected)
 
@@ -181,7 +180,7 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       #lines = ['TextArea test "Test name" "<p>A test text area:</p>" "<br />" 42x42']
       tokenized_lines = [["TextArea", "test", "Test name", "<p>A test text area:</p>", "<br />", "42x42"]]
-      actual = DefsToHtmlTests.__def.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
+      actual = deffile.MatrixDefFile(None).defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>A test text area:</p><TextArea name="test" cols="42" rows="42"></TextArea><br />\n'
       self.assertEqual(actual, expected)
 
@@ -258,8 +257,7 @@ class SubPageTests(unittest.TestCase):
 
   def testIterBroken(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      with self.assertRaises(MatrixDefSyntaxException) as context:
-        load("testIterBroken").sub_page('test-iter', '7777', mock_validation())
+      self.assertRaises(MatrixDefSyntaxException, load("testIterBroken").sub_page, 'test-iter', '7777', mock_validation())
 
 
   def testSelect(self):

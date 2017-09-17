@@ -14,10 +14,10 @@ unset LUI
 ### INITIALIZATION CHECKS
 ###
 
-if [ -z "${LOGONROOT}" ]; then
-  echo "run-regression-tests: unable to determine \$LOGONROOT directory; exit."
-  exit 1
-fi
+# if [ -z "${LOGONROOT}" ]; then
+#   echo "run-regression-tests: unable to determine \$LOGONROOT directory; exit."
+#   exit 1
+# fi
 
 if [ -z "${CUSTOMIZATIONROOT}" ]; then
   echo "run-regression-tests: unable to determine \$CUSTOMIZATIONROOT directory; exit."
@@ -70,7 +70,7 @@ matrix_cmd="$python_cmd ${CUSTOMIZATIONROOT}/../matrix.py"
 # include a shared set of shell functions and global parameters, including the
 # architecture identifier .LOGONOS.
 #
-. ${LOGONROOT}/etc/library.bash
+#. ${LOGONROOT}/etc/library.bash
 date=$(date "+%Y-%m-%d")
 datetime=$(date)
 count=1
@@ -98,7 +98,7 @@ if [ -e ${ALLTSDBLOG} ]; then
     rm ${ALLTSDBLOG}
 fi
 
-# Create one log file with results from all tests, appending on 
+# Create one log file with results from all tests, appending on
 # comments.
 # 2008-08-22: By request not overwriting the log file
 # but appending instead, with time stamps.
@@ -139,7 +139,7 @@ if [ -z $1 ]; then
     echo "run-regression-tests: Problem with regression-test-index, cannot run regression tests."
     exit 1
     fi
-else 
+else
     lgnames=$@
 fi
 
@@ -161,7 +161,7 @@ done
 profiles=""
 comparison=""
 
-echo "== All grammars are being created. =="      
+echo "== All grammars are being created. =="
 
 for lgname in $lgnames
 do
@@ -195,12 +195,13 @@ do
 
     # Customize (Performance needs a grammar, too, though)
     if [[ $customize || $performance ]]; then
-      $matrix_cmd --cheap-hack cf $choicesfile $grammardir >> $log
-      if [[ $customize && $? != 0 ]]; then
-        echo "FAIL!"
-        echo "There was an error during the customization of the grammar." >> $log
-        continue
-      fi
+      # $matrix_cmd --cheap-hack cf $choicesfile $grammardir >> $log
+      # if [[ $customize && $? != 0 ]]; then
+      #   echo "FAIL!"
+      #   echo "There was an error during the customization of the grammar." >> $log
+      #   continue
+      # fi
+      $matrix_cmd c $choicesfile $grammardir >> $log
     fi
 
     # Parsing Performance
@@ -212,8 +213,15 @@ do
         continue
       fi
     fi
-    
+
     subdir=`ls -d $grammardir/*/`
+    if [[ -z $subdir ]]; then
+      echo "ERROR!"
+      echo "Missing grammar dir!"
+      exit
+      continue
+    fi
+
     dat_file=$subdir/${lgname}.dat
     config_file=$subdir/ace/config.tdl
     $ACECMD -G $dat_file -g $config_file 1>/dev/null 2>/dev/null
@@ -221,7 +229,8 @@ do
     #echo "Running ACE with $lgname..."
 
     mkdir -p $tsdbhome/$target
-    cp ${LOGONROOT}/lingo/lkb/src/tsdb/skeletons/english/Relations $tsdbhome/$target/relations
+    #cp ${LOGONROOT}/lingo/lkb/src/tsdb/skeletons/english/Relations $tsdbhome/$target/relations
+    cp ${rtestdir}/Relations_TEMPLATE $tsdbhome/$target/relations
     touch $tsdbhome/$target/item-set
     touch $tsdbhome/$target/run
     touch $tsdbhome/$target/parse
@@ -231,8 +240,10 @@ do
     touch $tsdbhome/$target/preference
     touch $tsdbhome/$target/tree
     cp $skeleton/item $tsdbhome/$target/item
-    cut -d@ -f7 $skeleton/item | ${CUSTOMIZATIONROOT}/regression_tests/art-static-prerelease -a "$ACECMD -g $dat_file 2>/dev/null" $tsdbhome/$target 1>/dev/null
-    echo "DONE"	
+    #cut -d@ -f7 $skeleton/item | ${CUSTOMIZATIONROOT}/regression_tests/art-static-prerelease -a "$ACECMD -g $dat_file 2>/dev/null" $tsdbhome/$target 1>/dev/null
+    cut -d@ -f7 $skeleton/item | ${CUSTOMIZATIONROOT}/regression_tests/art -a "$ACECMD -g $dat_file 2>/dev/null" $tsdbhome/$target 1>/dev/null
+    #cut -d@ -f7 $skeleton/item | ${CUSTOMIZATIONROOT}/regression_tests/art -a "$ACECMD -g $dat_file" $tsdbhome/$target
+    echo "DONE"
 
     #echo "Working on ACE is done!!!"
     sed "s;@@;@0@;g" $tsdbhome/$target/parse > $tsdbhome/$target/tmp
@@ -253,7 +264,7 @@ do
 done
 
 
-echo "== All profiles are being compared to the gold standards. =="      
+echo "== All profiles are being compared to the gold standards. =="
 
 {
   options=":error :exit :wait 300"
@@ -291,13 +302,14 @@ do
     echo "=== MRS-Compare ===" >> $log
     echo "" >> $log
     cp $gold/result $gold/result.tmp
-    cp $gold/parse $gold/parse.tmp 
-    cp $gold/item $gold/item.tmp  
+    cp $gold/parse $gold/parse.tmp
+    cp $gold/item $gold/item.tmp
     cp $target/result $target/result.tmp
-    cp $target/parse $target/parse.tmp 
-    cp $target/item $target/item.tmp  
+    cp $target/parse $target/parse.tmp
+    cp $target/item $target/item.tmp
     $python_cmd ${CUSTOMIZATIONROOT}/regression_tests/multiple-mrs.py $gold
     $python_cmd ${CUSTOMIZATIONROOT}/regression_tests/multiple-mrs.py $target
+    ###### TODO: Need to get mac compatible mrs-compare
     ${CUSTOMIZATIONROOT}/regression_tests/mrs-compare $target $gold >> $log
     mv $gold/result.tmp $gold/result
     mv $gold/parse.tmp $gold/parse
@@ -307,7 +319,7 @@ do
     mv $target/item.tmp $target/item
 
     target="current/$lgname"
-    
+
     if [ ! -e $tsdbhome/$target ]
     then
       echo "ERROR!"

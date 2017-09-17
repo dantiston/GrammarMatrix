@@ -644,8 +644,8 @@ def customize_grammar(path, destination=None, flop=False, cheaphack=False):
   directory.
   """
   # run this check before customizing
-  if flop and 'LOGONROOT' not in os.environ:
-    sys.exit('Error: Cannot flop grammar if LOGONROOT is not set.')
+  #if flop and 'LOGONROOT' not in os.environ:
+  #  sys.exit('Error: Cannot flop grammar if LOGONROOT is not set.')
   # customize if choices file found
   import gmcs.customize
   if os.path.isdir(path):

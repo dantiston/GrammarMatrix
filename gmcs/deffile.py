@@ -391,11 +391,8 @@ class MatrixDefFile:
     self.section_names = {}
     self.doc_links = {}
 
-    self.def_file = def_file
-    with open(self.def_file) as f:
-      self.load_file(f)
-
-    self.make_name_map()
+    if def_file: # Allow initialization of empty file for testing
+      self.load(def_file)
 
     self.html_gens = {
       BEGIN_ITER: self.iter_to_html,
@@ -413,8 +410,18 @@ class MatrixDefFile:
       TEXT_AREA: self.text_to_html
     }
 
+  def load(self, def_file):
+    """
+    (Re)load a matrixdef file to this MatrixDefFile
+    """
+    self.def_file = def_file
+    with open(self.def_file) as f:
+      self.__load_file(f)
 
-  def load_file(self, f):
+    self.make_name_map()
+
+
+  def __load_file(self, f):
     """
     Load the matrixdef file into memory
     """
@@ -502,6 +509,7 @@ class MatrixDefFile:
     switches = [switch.rsplit('=', 1) if "=" in switch else switch
                 for switch in switches]
     # Default to true
+    # TODO: This dict can be removed, just return false when setting values to false
     skip_it = {}
     for switch in switches:
       if isinstance(switch, list):
@@ -543,13 +551,7 @@ class MatrixDefFile:
     that determines where to look for the choices file.
     """
 
-    # Get cookie
-    if not choices:
-      choices_file = 'sessions/' + cookie + '/choices'
-      choices = ChoicesFile(choices_file)
-    else:
-      # In test mode
-      choices_file = ''
+    choices, choices_file = self.get_choices_from_cookie(cookie, choices)
 
     template = jinja.get_template('main.html')
     return template.render(
@@ -572,13 +574,7 @@ class MatrixDefFile:
 
     tokenized_section_def = self.sections[section]
 
-    # Get cookie
-    if not choices:
-      choices_file = 'sessions/' + cookie + '/choices'
-      choices = ChoicesFile(choices_file)
-    else:
-      # In test mode
-      choices_file = ''
+    choices, choices_file = self.get_choices_from_cookie(cookie, choices)
 
     template = jinja.get_template('sub.html')
     return template.render(
@@ -755,6 +751,20 @@ class MatrixDefFile:
 
   ##############################################################################
   # Page components
+  def get_choices_from_cookie(self, cookie, choices):
+    """
+    Load the choices file from the given cookie directory
+    """
+    # Get cookie
+    if not choices:
+      choices_file = 'sessions/' + cookie + '/choices'
+      choices = ChoicesFile(choices_file)
+    else:
+      # In test mode
+      choices_file = ''
+    return choices, choices_file
+
+
   def get_datestamp(self):
     """
     Load the datestamp
@@ -1302,7 +1312,7 @@ class MatrixDefFile:
             if word[6]: # If anything here...
               disabled = True
           html += html_input(vr, 'radio', vn, rval, checked, rbef, raft,
-                           onclick=js, disabled=disabled) + '\n'
+                             onclick=js, disabled=disabled) + '\n'
           i += 1
           if i < num_lines:
             word, word_length, element = self.__get_word(tokenized_lines, i)
