@@ -708,6 +708,12 @@ def run_unit_tests(tests=None):
     import gmcs.tests.testDefFile
     runner.run(loader.loadTestsFromModule(gmcs.tests.testDefFile))
 
+  if not tests or "html" in tests:
+    print_line()
+    print 'HTML tests:'
+    import gmcs.tests.testHtml
+    runner.run(loader.loadTestsFromModule(gmcs.tests.testHtml))
+
 #   print_line()
 #   print 'Linglib/Morphotactics tests:'
 #   import gmcs.linglib.tests.testMorphotactics

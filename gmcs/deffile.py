@@ -28,12 +28,13 @@ import zipfile
 from collections import defaultdict
 
 from gmcs import choices
-from gmcs.choices import ChoicesFile
-from gmcs.utils import tokenize_def, get_name
+from gmcs import html
 from gmcs import generate
+from gmcs.utils import tokenize_def, get_name
+from gmcs.choices import ChoicesFile
 from gmcs.validate import ValidationMessage
 
-from jinja2 import Environment, PackageLoader, select_autoescape
+from jinja2 import Environment, PackageLoader
 
 ######################################################################
 # HTML blocks, used to create web pages
@@ -62,10 +63,6 @@ HTML_postform = '</form>'
 
 ######################################################################
 # Constants
-ERROR = "*"
-WARNING = "?"
-INFO = "#"
-
 COMMENT_CHAR = "#"
 
 HTTP_COOKIE = "HTTP_COOKIE"
@@ -73,186 +70,6 @@ HTTP_COOKIE = "HTTP_COOKIE"
 ######################################################################
 # Jinja
 jinja = Environment(loader=PackageLoader('gmcs', 'html'))
-
-######################################################################
-# HTML creation functions
-# TODO: Move these
-
-def validation_mark(vr, name):
-  """
-  Check if there's an error and generate the appropriate error mark
-  """
-  result = ''
-  if name in vr.errors:
-    result = html_error_mark(vr.errors[name])
-  elif name in vr.warnings:
-    result = html_warning_mark(vr.warnings[name])
-  elif name in vr.infos:
-    result = html_info_mark(vr.infos[name])
-  return result
-
-
-def html_mark(mark, vm):
-  """
-  Return a formatted validation note
-  """
-  msg = vm.message.replace('"', '&quot;')
-  info = mark == INFO
-  sort = "name" if not vm.href and not info else "href"
-  marker = vm.href or vm.name
-  css_class = "info" if info else "error"
-  return '<a %s="%s" style="text-decoration:none"><span class="%s" title="%s">%s</span></a>' %\
-         (sort, marker, css_class, msg, mark)
-
-
-def html_error_mark(vm):
-  return html_mark(ERROR, vm)
-
-def html_warning_mark(vm):
-  return html_mark(WARNING, vm)
-
-def html_info_mark(vm):
-  return html_mark(INFO, vm)
-
-
-def html_input(vr, sort, name, value, checked=False,
-               before='', after='', html_class='', title='', size='',
-               onclick='', onchange='', disabled=False):
-  """
-  Return an HTML <input> tag with the specified attributes and
-    surrounding text
-  TJT 2014-05-07 Adding randid to html_input to pass random number
-    matching radio buttons to their labels along
-  TJT 2014-09-05 Getting rid of randid to wrap entire radio option in label
-
-  Known types: check, radio, text, textarea, file, button, submit, hidden
-  """
-
-  if size:
-    if 'x' in size:
-      size = ' cols="%s" rows="%s"' % tuple(size.split('x'))
-    else:
-      size = ' size="' + size + '"'
-
-  if onclick:
-    onclick = ' onclick="%s"' % onclick
-  if onchange:
-    onchange = ' onchange="%s"' % onchange
-
-  chkd = ' checked="checked"' if checked else ''
-  dsabld = ' disabled="disabled"' if disabled else ''
-
-  mark = ''
-  # TJT 9-16-17 Not checking validation on buttons
-  if sort not in ('radio', 'button'):
-    mark = validation_mark(vr, name)
-
-  if sort == 'textarea':
-    value = value.replace('\\n','\n')
-    return '%s%s<TextArea name="%s"%s>%s</TextArea>%s' % \
-         (before, mark, name, size, value, after)
-
-  else:
-    if html_class:
-      html_class = ' class="%s"' % html_class
-    if value:
-      value = ' value="%s"' % value
-    if name:
-      name = ' name="%s"' % name
-    if title:
-      title = ' title="%s"' % title
-
-    output = '%s%s<input type="%s" %s%s%s%s%s%s%s%s%s>%s' % \
-         (before, mark, sort, html_class, title, name, value,
-          chkd, size, dsabld, onclick, onchange, after)
-
-    # TJT 2014-09-05: If checkbox
-    if sort in ('checkbox', 'radio'):
-      output = "<label>%s</label>" % output
-
-    return output
-
-
-# TJT 2014-08-26: Adding onchange
-def html_select(vr, name, multi=False, onfocus='', onchange=''):
-  """
-  Return an HTML <select> tag with the specified name
-  """
-  mark = validation_mark(vr, name)
-
-  multi_attr = ' class="multi"  multiple="multiple" ' if multi else ''
-
-  if onfocus:
-    onfocus = ' onfocus="%s"' % onfocus
-  if onchange:
-    onchange = ' onchange="%s"' % onchange
-
-  return '%s<select name="%s"%s%s%s>' % \
-         (mark, name, multi_attr, onfocus, onchange)
-
-
-def html_option(vr, name, selected, html, temp=False, strike=False):
-  """
-  Return an HTML <option> tag with the specified attributes and
-  surrounding text
-  """
-
-  # TJT 2014-03-19: adding disabled option for always-disabled "future work"
-  # TODO: javascript cuts this out, need to change javascript
-  if strike:
-    strike = ' disabled'
-    html = '<p style="display:inline;color:#ADADAD"> %s</p>' % html
-  else: strike = ''
-
-  temp = ' class="temp"' or ''
-  selected = ' selected' or ''
-
-  return '<option value="%s"%s%s%s>%s</option>' % \
-         (name, selected, temp, strike, html)
-
-
-def html_delbutton(code):
-  """
-  return the HTML for an iterator delete button that will delete
-  iterator "code"
-  """
-  # TJT 2014-5-27 Regular capital X looks the best + most compliant
-  # return '<input type="button" class="delbutton" ' + \
-  #        'value="X" name="" title="Delete" ' + \
-  #        'onclick="remove_element(\'%s\')">\n' % code
-  return html_input(None, "button", "", "X",
-           html_class="delbutton", title="Delete",
-           onclick="remove_element(\'%s\')" % code) + "\n"
-  # def html_input(vr, sort, name, value, checked, before = '', after = '',
-  #                size = '', onclick = '', disabled = False, onchange = ''):
-
-
-
-def merge_quoted_strings(document):
-  """
-  given a list of lines of text, some of which may contain
-  unterminated double-quoted strings, merge some lines as necessary so
-  that every quoted string is contained on a single line, and return
-  the merged list
-  """
-  i = 0
-  while i < len(document):
-    j = 0
-    in_quotes = False
-    while j < len(document[i]):
-      if document[i][j] == '"' and (j == 0 or document[i][j-1] != '\\'):
-        in_quotes = not in_quotes
-      j += 1
-
-    # if we reach the end of a line inside a quoted string, merge with
-    # the next line and reprocess the newly-merged line
-    if in_quotes:
-      document[i] += document[i+1] # crash here implies an unbalanced '"'
-      del document[i+1]
-    else:
-      i += 1
-
-  return document
 
 
 ######################################################################
@@ -293,6 +110,36 @@ def make_zip(directory):
     add_zip_files(z, directory)
 
 
+################################################################################
+# matrixdef functions
+
+def merge_quoted_strings(document):
+  """
+  given a list of lines of text, some of which may contain
+  unterminated double-quoted strings, merge some lines as necessary so
+  that every quoted string is contained on a single line, and return
+  the merged list
+  """
+  i = 0
+  while i < len(document):
+    j = 0
+    in_quotes = False
+    while j < len(document[i]):
+      if document[i][j] == '"' and (j == 0 or document[i][j-1] != '\\'):
+        in_quotes = not in_quotes
+      j += 1
+
+    # if we reach the end of a line inside a quoted string, merge with
+    # the next line and reprocess the newly-merged line
+    if in_quotes:
+      document[i] += document[i+1] # crash here implies an unbalanced '"'
+      del document[i+1]
+    else:
+      i += 1
+
+  return document
+
+
 def replace_vars(line, iter_vars):
   """
   Replace variables of the form "{name}" in line using the dict iter_vars
@@ -318,35 +165,6 @@ def compile_string_keys(regexes):
   for regex in regexes:
     result[regex] = re.compile("\\{%s\\}" % regex)
   return result
-
-
-def js_array(items, N=2):
-  """
-  From a list of triples of strings [string1, string2, ...], return
-  a string containing a JavaScript-formatted list of strings of the
-  form 'string1:string2'.
-  """
-  return ",\n".join(('"' + ":".join(item[:N]) + '"' for item in items))
-
-
-def js_array3(items):
-  """
-  # From a list of triples of strings [string1, string2, ...], return
-  # a string containing a JavaScript-formatted list of strings of the
-  # form 'string1:string2:string3'. This is used to convey features,
-  # values and category (category of feature).
-  """
-  return js_array(items, N=3)
-
-
-def js_array4(items):
-  """
-  # From a list of triples of strings [string1, string2, ...], return
-  # a string containing a JavaScript-formatted list of strings of the
-  # form 'string1:string2:string3:string4'. This is used to convey features,
-  # values, category (category of feature), a flag feature 'customized'.
-  """
-  return js_array(items, N=4)
 
 
 ######################################################################
@@ -579,9 +397,9 @@ class MatrixDefFile:
     template = jinja.get_template('sub.html')
     return template.render(
         title=self.section_names[section],
-        features=js_array4(choices.features()),
-        verb_case_patterns=js_array([c for c in choices.patterns() if not c[2]]),
-        numbers=js_array(choices.numbers()),
+        features=html.js_array4(choices.features()),
+        verb_case_patterns=html.js_array([c for c in choices.patterns() if not c[2]]),
+        numbers=html.js_array(choices.numbers()),
         onload=tokenized_section_def[0][4] if len(tokenized_section_def[0]) > 4 else "",
         cookie=cookie,
         section_name=self.section_names[section],
@@ -834,7 +652,7 @@ class MatrixDefFile:
               word[1] + '\',\'' + word[1] + 'button\')"' + \
               '>&#9658;</span>\n')
         if word[1] in vr.errors:
-          result.append(html_error_mark(vr.errors[word[1]]))
+          result.append(html.html_error_mark(vr.errors[word[1]]))
         elif word[1] in vr.warnings:
           result.append(html_warning_mark(vr.warnings[word[1]]))
         result.append('<a href="matrix.cgi?subpage=%s">%s</a>\n' % (word[1], word[2]))
@@ -869,14 +687,14 @@ class MatrixDefFile:
     TJT 2014-09-18: Converting these radios to new set up
     """
     result = []
-    result.append(html_input(vr, 'hidden', 'customize', 'customize'))
-    result.append(html_input(vr, 'radio', 'delivery', 'tgz',
+    result.append(html.html_input(vr, 'hidden', 'customize', 'customize'))
+    result.append(html.html_input(vr, 'radio', 'delivery', 'tgz',
                              checked=True, before='Archive type: ', after=' .tar.gz'))
-    result.append(html_input(vr, 'radio', 'delivery', 'zip', after=' .zip'))
+    result.append(html.html_input(vr, 'radio', 'delivery', 'zip', after=' .zip'))
     result.append("<br>")
-    result.append(html_input(vr, 'submit', 'create_grammar_submit', 'Create Grammar',
+    result.append(html.html_input(vr, 'submit', 'create_grammar_submit', 'Create Grammar',
                              disabled=vr.has_errors()))
-    result.append(html_input(vr, 'submit', 'sentences', 'Test by Generation',
+    result.append(html.html_input(vr, 'submit', 'sentences', 'Test by Generation',
                              disabled=vr.has_errors()))
     return "\n".join(result)
 
@@ -886,8 +704,8 @@ class MatrixDefFile:
     the FORM for uploading a choices file
     """
     result = []
-    result.append(html_input(vr, 'submit', '', 'Upload Choices File:', False, '<p>', ''))
-    result.append(html_input(vr, 'file', 'choices', '', False, '', '</p>', ''))
+    result.append(html.html_input(vr, 'submit', '', 'Upload Choices File:', False, '<p>', ''))
+    result.append(html.html_input(vr, 'file', 'choices', '', False, '', '</p>', ''))
     return "".join(result)
 
 
@@ -992,10 +810,10 @@ class MatrixDefFile:
     #result.append('<a href="?subpage=%s" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />' % section)
     #result.append('<a href="#clear" onclick="clear_form()" class="navleft">Clear form</a><br />')
 
-    ## if there are errors, then we result.append (the links in red and unclickable)
+    ## if there are errors, then we mark them on the links (the links in red and unclickable)
     if vr.has_errors():
       result.append('<span class="navleft">Create grammar:')
-      result.append(html_info_mark(ValidationMessage('', 'Resolve validation errors to enable grammar customization.', '')))
+      result.append(html.html_info_mark(ValidationMessage('', 'Resolve validation errors to enable grammar customization.', '')))
       result.append('</span><br />')
       result.append('<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>')
     else:
@@ -1034,8 +852,6 @@ class MatrixDefFile:
     TODO: Write a syntax checker... maybe make this a syntax checker?
     """
 
-    html = ""
-
     http_cookie = os.getenv(HTTP_COOKIE)
 
     cookie = {}
@@ -1045,6 +861,7 @@ class MatrixDefFile:
 
     num_lines = len(tokenized_lines)
 
+    page = ""
     i = 0
     while i < num_lines:
       word, word_length, element = self.__get_word(tokenized_lines, i)
@@ -1053,11 +870,11 @@ class MatrixDefFile:
           word, word_length, element, i, result = self.html_gens[element](
               tokenized_lines, choices, vr, prefix, variables,
               num_lines, word, word_length, element, i)
-          html += result
+          page += result
 
         i += 1
 
-    return html
+    return page
 
 
   def check_syntax(self, tokenized_lines):
@@ -1074,8 +891,8 @@ class MatrixDefFile:
       # TODO: Technically, before and after should be optional
       raise MatrixDefSyntaxException("Button improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
     vn, bf, af, oc = word[1:]
-    html = html_input(vr, element.lower(), '', vn, False, bf, af, onclick=oc) + '\n'
-    return word, word_length, element, i, html
+    result = html.html_input(vr, element.lower(), '', vn, False, bf, af, onclick=oc) + '\n'
+    return word, word_length, element, i, result
 
 
   def cache_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
@@ -1085,14 +902,14 @@ class MatrixDefFile:
     items = choices.get_regex(word[2])
     if word_length > 3:
       items = [(k, v.get(word[3])) for k, v in items]
-    html = HTML_jscache % (cache_name,
+    result = HTML_jscache % (cache_name,
                            '\n'.join(["'%s'," % ':'.join((v, k))
                                       for k, v in items]))
-    return word, word_length, element, i, html
+    return word, word_length, element, i, result
 
 
   def check_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
-    html = ""
+    result = ""
     if word_length < 5:
       # TODO: Technically, before and after should be optional
       raise MatrixDefSyntaxException("Check improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
@@ -1108,9 +925,9 @@ class MatrixDefFile:
     if not skip_this_check:
       vn = prefix + vn
       checked = choices.get(vn, '') # If no choice existing, return ''
-      html += html_input(vr, 'checkbox', vn, '', checked,
+      result += html.html_input(vr, 'checkbox', vn, '', checked,
                          bf, af, onclick=js) + '\n'
-    return word, word_length, element, i, html
+    return word, word_length, element, i, result
 
 
   def file_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
@@ -1120,8 +937,8 @@ class MatrixDefFile:
     vn, fn, bf, af = word[1:]
     vn = prefix + vn
     value = choices.get(vn, '') # If no choice existing, return ''
-    html = html_input(vr, element.lower(), vn, value, checked=False, before=bf, after=af) + '\n'
-    return word, word_length, element, i, html
+    result = html.html_input(vr, element.lower(), vn, value, checked=False, before=bf, after=af) + '\n'
+    return word, word_length, element, i, result
 
 
   def hidden_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
@@ -1129,14 +946,14 @@ class MatrixDefFile:
       raise MatrixDefSyntaxException("Hidden improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
     vn, fn = word[1:]
     value = choices.get(vn, '') # If no choice existing, return ''
-    html = html_input(vr, element.lower(), vn, value) + '\n'
-    return word, word_length, element, i, html
+    result = html.html_input(vr, element.lower(), vn, value) + '\n'
+    return word, word_length, element, i, result
 
 
   def iter_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
     if word_length < 3:
       raise MatrixDefSyntaxException("BeginIter improperly defined: %s; expected at least 3 tokens, got %s" % (word, word_length))
-    html = ""
+    result = ""
     iter_orig = word[1]
     if "{" not in iter_orig or "}" not in iter_orig:
       raise MatrixDefSyntaxException("BeginIter improperly defined: %s; missing variable defined as {\\d}" % word)
@@ -1180,17 +997,17 @@ class MatrixDefFile:
       # write out the (invisible) template for the iterator
       # (this will be copied by JavaScript on the client side when
       # the user clicks the "Add" button)
-      html += '<div class="iterator" style="display: none" id="' + \
+      result += '<div class="iterator" style="display: none" id="' + \
               prefix + iter_name + '_TEMPLATE">\n'
-      html += html_delbutton(prefix + iter_name + '{' + iter_var + '}')
-      html += '<div class="iterframe">'
-      html += self.defs_to_html(tokenized_lines[beg:end],
+      result += html.html_delbutton(prefix + iter_name + '{' + iter_var + '}')
+      result += '<div class="iterframe">'
+      result += self.defs_to_html(tokenized_lines[beg:end],
                                 choices,
                                 vr,
                                 prefix + iter_orig + '_',
                                 variables
       )
-      html += '</div>\n</div>\n\n'
+      result += '</div>\n</div>\n\n'
 
       # write out as many copies of the iterator as called for by
       # the current choices file OR iter_min copies, whichever is
@@ -1216,68 +1033,69 @@ class MatrixDefFile:
             name = show_name+" ("+new_prefix[:-1]+")"
           else:
             name = new_prefix[:-1]
-          html += '<span id="'+new_prefix[:-1]+'_errors" class="error" '
+          result += '<span id="'+new_prefix[:-1]+'_errors" class="error" '
           if cookie.get(new_prefix[:-1]+'button','block') != 'none':
-            html += 'style="display: none"'
-          html += '></span>'+'<a id="' + new_prefix[:-1] + 'button" ' + \
+            result += 'style="display: none"'
+          result += '></span>'+'<a id="' + new_prefix[:-1] + 'button" ' + \
               'onclick="toggle_display_lex(\'' + \
               new_prefix[:-1] + '\',\'' + new_prefix[:-1] + 'button\')">'
 
           if cookie.get(new_prefix[:-1]+'button','block') == 'none':
-            html += '&#9658; '+name+'<br /></a>'
+            result += '&#9658; '+name+'<br /></a>'
           else:
-            html += '&#9660; '+name+'</a>'
-        if cookie.get(new_prefix[:-1], 'block') == 'block':
-          html += '<div class="iterator" id="' + new_prefix[:-1] + '">\n'
-        else:
-          html += '<div class="iterator" style="display: none" id="' + new_prefix[:-1] + '">\n'
+            result += '&#9660; '+name+'</a>'
 
-        html += html_delbutton(new_prefix[:-1])
-        html += '<div class="iterframe">'
+        if cookie.get(new_prefix[:-1], 'block') == 'block':
+          result += '<div class="iterator" id="' + new_prefix[:-1] + '">\n'
+        else:
+          result += '<div class="iterator" style="display: none" id="' + new_prefix[:-1] + '">\n'
+
+        result += html.html_delbutton(new_prefix[:-1])
+        result += '<div class="iterframe">'
         # TODO: Consider not doing this? Can the previous result simply be modified???
         # It looks like each iteration changes "variables"... think more about this
         # Additionally, some choices are loaded into the block via their prefix
-        html += self.defs_to_html(tokenized_lines[beg:end],
+        result += self.defs_to_html(tokenized_lines[beg:end],
                                   choices,
                                   vr,
                                   new_prefix,
                                   variables
         )
-        html += '</div>\n</div>\n'
+        result += '</div>\n</div>\n' # close iterator, iterframe
 
         del variables[iter_var]
         c += 1
 
       # write out the "anchor" marking the end of the iterator and
       # the "Add" button
-      html += '<div class="anchor" id="' + \
+      result += '<div class="anchor" id="' + \
               prefix + iter_name + '_ANCHOR"></div>\n<p>'
       # add any iterator-nonspecific errors here
-      html += validation_mark(vr, prefix + iter_name)
+      result += html.validation_mark(vr, prefix + iter_name)
 
       # finally add the button
-      html += '<input type="button" name="" ' + \
+      result += '<input type="button" name="" ' + \
               'value="Add ' + label + '" ' + \
               'onclick="clone_region(\'' + \
               prefix + iter_name + '\', \'' + \
               iter_var + '\','
 
-      html += 'true' if show_hide else 'false'
-      html += ')">'
-    return word, word_length, element, i, html
+      result += 'true' if show_hide else 'false'
+      result += ')">'
+    return word, word_length, element, i, result
 
 
   def label_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
-    html = ""
+    result = ""
     if word_length > 2:
       key = prefix + word[1]
-      html += validation_mark(vr, key)
-    html += word[-1] + '\n'
-    return word, word_length, element, i, html
+      result += html.validation_mark(vr, key)
+    result += word[-1] + '\n'
+    return word, word_length, element, i, result
 
 
   def radio_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
-    html = ""
+    result = ""
     if word_length < 5:
       raise MatrixDefSyntaxException("Radio button improperly defined: %s; expected at least 5 tokens, got %s: \"%s\"" % (word, word_length, " ".join(tokenized_lines[i])))
     vn, fn, bf, af = word[1:5]
@@ -1292,8 +1110,8 @@ class MatrixDefFile:
     # it's nicer to put vrs for radio buttons on the entire
     # collection of inputs, rather than one for each button
     if not skip_this_radio:
-      mark = validation_mark(vr, vn)
-      html += bf + mark + '\n'
+      mark = html.validation_mark(vr, vn)
+      result += bf + mark + '\n'
       i += 1
       if i < num_lines:
         word, word_length, element = self.__get_word(tokenized_lines, i)
@@ -1311,12 +1129,12 @@ class MatrixDefFile:
           if word_length >= 7: # TJT 2014-03-19: option for disabled radio buttons
             if word[6]: # If anything here...
               disabled = True
-          html += html_input(vr, 'radio', vn, rval, checked, rbef, raft,
+          result += html.html_input(vr, 'radio', vn, rval, checked, rbef, raft,
                              onclick=js, disabled=disabled) + '\n'
           i += 1
           if i < num_lines:
             word, word_length, element = self.__get_word(tokenized_lines, i)
-      html += af + '\n'
+      result += af + '\n'
 
     else:
       # TJT 2014-08-28: skipping radio buttons,
@@ -1324,11 +1142,11 @@ class MatrixDefFile:
       while tokenized_lines[i][0] == BULLET:
         i += 1
 
-    return word, word_length, element, i, html
+    return word, word_length, element, i, result
 
 
   def select_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
-    html = ""
+    result = ""
     multi = element == MULTI_SELECT
     vn, fn, bf, af = word[1:5]
 
@@ -1338,7 +1156,7 @@ class MatrixDefFile:
 
     vn = prefix + vn
 
-    html += bf + '\n'
+    result += bf + '\n'
 
     fillers = []
 
@@ -1371,15 +1189,15 @@ class MatrixDefFile:
     sval = choices.get(vn)
     if fillers:
       fillcmd = "fill('%s', [].concat(%s));" % (vn, ','.join(fillers))
-      html += html_select(vr, vn, multi, fillcmd+onfocus, onchange=onchange) + '\n'
+      result += html.html_select(vr, vn, multi, fillcmd+onfocus, onchange=onchange) + '\n'
       # Mark previously selected filled item as selected
       # This is necessary because the value is not in the deffile
       if sval:
-          html += html_option(vr, sval, True, self.f(sval), True) + '\n'
+          result += html.html_option(vr, sval, True, self.f(sval), True) + '\n'
     else:
       # If not using fillers, previously selected value
       # will be marked during option processing below
-      html += html_select(vr, vn, multi, onchange=onchange) + '\n'
+      result += html.html_select(vr, vn, multi, onchange=onchange) + '\n'
 
     # Add individual items, if applicable
     if i < num_lines:
@@ -1393,13 +1211,13 @@ class MatrixDefFile:
         # If there's anything in this slot, disable option
         if word_length >= 5: sstrike = True
         # Add option and mark "selected" if previously selected
-        html += html_option(vr, oval, sval == oval, ofrn, strike=sstrike) + '\n'
+        result += html.html_option(vr, oval, sval == oval, ofrn, strike=sstrike) + '\n'
         i += 1
     # add empty option
-    html += html_option(vr, '', False, '') + '\n'
-    html += '</select>'
-    html += af + '\n'
-    return word, word_length, element, i, html
+    result += html.html_option(vr, '', False, '') + '\n'
+    result += '</select>'
+    result += af + '\n'
+    return word, word_length, element, i, result
 
 
   def separator_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
@@ -1407,7 +1225,7 @@ class MatrixDefFile:
 
 
   def text_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
-    html = ""
+    result = ""
     if word_length > 6:
       vn, fn, bf, af, sz, oc = word[1:]
     else:
@@ -1425,11 +1243,11 @@ class MatrixDefFile:
         oc = "check_radio_button('"+prefix[:-1]+"_inflecting', 'yes'); " + oc
     vn = prefix + vn
     value = choices.get(vn, '') # If no choice existing, return ''
-    html += html_input(vr, element.lower(), vn, value,
+    result += html.html_input(vr, element.lower(), vn, value,
                 checked=False, before=bf, after=af, size=sz, onchange=oc)
-    html += "\n"
+    result += "\n"
 
-    return word, word_length, element, i, html
+    return word, word_length, element, i, result
 
 
   def __get_word(self, tokenized_lines, i):
