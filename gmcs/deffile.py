@@ -606,9 +606,7 @@ class MatrixDefFile:
     result = []
 
     prefix = ''
-    for word in self.tokenized_lines:
-      word_length = len(word)
-      element = word[0]
+    for word, word_length, element in self.__get_words(self.tokenized_lines):
       if word_length < 2 or word[0][0] == COMMENT_CHAR:
         pass
 
@@ -628,7 +626,7 @@ class MatrixDefFile:
         if prefix:
           pat += '_'
         pat += word[1] + '$'
-        # TODO: This seems ridiculously inefficient
+        # TODO: This could be made more efficient
         for k in vr.errors.keys():
           if re.search(pat, k):
             anchor = "matrix.cgi?subpage="+cur_sec+"#"+k
@@ -641,12 +639,11 @@ class MatrixDefFile:
             break
 
     # now pass through again to actually emit the page
-    for word in self.tokenized_lines:
-      word_length = len(word)
+    for word, word_length, element in self.__get_words(self.tokenized_lines):
       if word_length == 0:
         pass
       # TODO: This != '0' seems to be an undocumented feature of matrixdef... confirm
-      elif word[0] == SECTION and (word_length != 4 or word[3] != '0'):
+      elif element == SECTION and (word_length != 4 or word[3] != '0'):
         result.append('<div class="section"><span id="' + word[1] + 'button" ' + \
               'onclick="toggle_display(\'' + \
               word[1] + '\',\'' + word[1] + 'button\')"' + \
@@ -748,7 +745,6 @@ class MatrixDefFile:
     printed = False
     for word, word_length, element in self.__get_words(self.tokenized_lines):
       cur_sec = ''
-      word_length = len(word)
       if word_length < 2 or word[0][0] == COMMENT_CHAR:
         pass
       elif word_length == 5 and word[4] == '0':
@@ -772,25 +768,21 @@ class MatrixDefFile:
       elif element == END_ITER:
         prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
       elif not (element == LABEL and len(word) < 3):
-        pat = '^' + prefix
+        pattern = '^' + prefix
         if prefix:
-          pat += '_'
-        pat += word[1] + '$'
+          pattern += '_'
+        pattern += word[1] + '$'
 
-        # if self.tokenized_lines[0][1] == "test-radios":
-        #   import pdb; pdb.set_trace()
-
-        # TODO: This is ridiculously inefficient
+        # TODO: This could be made more efficient
         if not printed:
           for k in vr.errors:
-            # TODO: Try removing the pattern values and doing a normal hash?
-            if re.search(pat, k):
+            if re.search(pattern, k):
               sec_links[n] = html.ERROR + sec_links[n]
               printed = True
               break
         if not printed:
           for k in vr.warnings:
-            if re.search(pat, k):
+            if re.search(pattern, k):
               sec_links[n] = html.WARNING + sec_links[n]
               printed = True
               break

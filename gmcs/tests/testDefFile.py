@@ -192,6 +192,7 @@ class SubPageTests(unittest.TestCase):
   """
   TODO: Tests for conditional skipping
   TODO: Tests for striking options from select and multiselect
+  TODO: Additional tests for validations errors
   """
 
   def testBasic(self):
@@ -406,7 +407,7 @@ class NavigationTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-  def testNavigation_Warnings(self):
+  def testNavigation_RadiosWarnings(self):
     definition = load("testRadios")
     actual = definition.navigation(mock_validation(warnings={"test-radio":mock_error(message="warning")}), "dummy_choices")
     expected = """<div id="navmenu"><br />
@@ -418,6 +419,24 @@ class NavigationTests(unittest.TestCase):
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
 <span class="navleft">Create grammar:</span><br />
 <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+</div>"""
+    self.assertEqual(actual, expected)
+
+
+  def testNavigation_NestedIterErrors(self):
+    definition = load("testNestedIter")
+    actual = definition.navigation(mock_validation(errors={"test-nested1_test-nested-inner1_name":mock_error(message="errors")}), "dummy_choices")
+    expected = """<div id="navmenu"><br />
+<a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+<hr />
+<span style="color:#ff0000;" class="navleft">*</span><a class="navlinks" href="#" onclick="submit_go('test-nested-iter')">Test Nested Iter</a><br />
+<hr />
+<a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+<span class="navleft">Create grammar:
+<a href="" style="text-decoration:none"><span class="info" title="Resolve validation errors to enable grammar customization.">#</span></a>
+</span><br />
+<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>
 </div>"""
     self.assertEqual(actual, expected)
 
