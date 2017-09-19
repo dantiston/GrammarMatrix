@@ -288,6 +288,14 @@ class SubPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
+  def testRadiosWithText(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load("testRadiosWithText")
+      actual = definition.sub_page('test-radios-with-text', '7777', mock_validation())
+      expected = load_expected("testRadiosWithText")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
   def testText(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       definition = load("testText")
@@ -363,39 +371,6 @@ class NavigationTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-  def testNavigation_Warnings(self):
-    definition = load("testBasic")
-    actual = definition.navigation(mock_validation(warnings={"test-basic":mock_error(message="warning")}), "dummy_choices")
-    expected = """<div id="navmenu"><br />
-<a href="." onclick="submit_main()" class="navleft">Main page</a><br />
-<hr />
-<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go(\'test-basic\')">Test Basic</a><br />
-<hr />
-<a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
-<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
-<span class="navleft">Create grammar:</span><br />
-<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>
-</div>"""
-    self.assertEqual(actual, expected)
-
-
-  def testNavigation_Errors(self):
-    definition = load("testBasic")
-    actual = definition.navigation(mock_validation(errors={"test-basic":mock_error(message="errror")}), "dummy_choices")
-    expected = """<div id="navmenu"><br />
-<a href="." onclick="submit_main()" class="navleft">Main page</a><br />
-<hr />
-<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go(\'test-basic\')">Test Basic</a><br />
-<hr />
-<a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
-<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
-<span class="navleft">Create grammar:
-<a href="" style="text-decoration:none"><span class="info" title="Resolve validation errors to enable grammar customization.">#</span></a>
-</span><br />
-<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>"""
-    self.assertEqual(actual, expected)
-
-
   def testNavigation_MultipleSections(self):
     definition = load("testMultipleSections")
     actual = definition.navigation(mock_validation(), "dummy_choices")
@@ -409,6 +384,40 @@ class NavigationTests(unittest.TestCase):
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
 <span class="navleft">Create grammar:</span><br />
 <a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>
+</div>"""
+    self.assertEqual(actual, expected)
+
+
+  def testNavigation_Errors(self):
+    definition = load("testRadios")
+    actual = definition.navigation(mock_validation(errors={"test-radio":mock_error(message="error")}), "dummy_choices")
+    expected = """<div id="navmenu"><br />
+<a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+<hr />
+<span style="color:#ff0000;" class="navleft">*</span><a class="navlinks" href="#" onclick="submit_go('test-radios')">Test Radios</a><br />
+<hr />
+<a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+<span class="navleft">Create grammar:
+<a href="" style="text-decoration:none"><span class="info" title="Resolve validation errors to enable grammar customization.">#</span></a>
+</span><br />
+<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>
+</div>"""
+    self.assertEqual(actual, expected)
+
+
+  def testNavigation_Warnings(self):
+    definition = load("testRadios")
+    actual = definition.navigation(mock_validation(warnings={"test-radio":mock_error(message="warning")}), "dummy_choices")
+    expected = """<div id="navmenu"><br />
+<a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+<hr />
+<span style="color:#ff0000;" class="navleft">?</span><a class="navlinks" href="#" onclick="submit_go('test-radios')">Test Radios</a><br />
+<hr />
+<a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+<span class="navleft">Create grammar:</span><br />
+<a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
 </div>"""
     self.assertEqual(actual, expected)
 

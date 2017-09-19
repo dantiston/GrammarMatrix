@@ -651,10 +651,7 @@ class MatrixDefFile:
               'onclick="toggle_display(\'' + \
               word[1] + '\',\'' + word[1] + 'button\')"' + \
               '>&#9658;</span>\n')
-        if word[1] in vr.errors:
-          result.append(html.html_error_mark(vr.errors[word[1]]))
-        elif word[1] in vr.warnings:
-          result.append(html_warning_mark(vr.warnings[word[1]]))
+        result.append(html.validation_mark(vr, word[1], info=False))
         result.append('<a href="matrix.cgi?subpage=%s">%s</a>\n' % (word[1], word[2]))
         result.append('<div class="values" id="%s" style="display:none">' % word[1])
         cur_sec = ''
@@ -749,7 +746,7 @@ class MatrixDefFile:
     sec_links = []
     n = -1
     printed = False
-    for word in self.tokenized_lines:
+    for word, word_length, element in self.__get_words(self.tokenized_lines):
       cur_sec = ''
       word_length = len(word)
       if word_length < 2 or word[0][0] == COMMENT_CHAR:
@@ -759,7 +756,7 @@ class MatrixDefFile:
         # don't print links to sections that are marked 0
         # TODO: Leaving this in is fine... just need to document it
         pass
-      elif word[0] == SECTION:
+      elif element == SECTION:
         printed = False
         cur_sec = word[1]
         # disable the link if this is the page we're on
@@ -768,30 +765,33 @@ class MatrixDefFile:
         else:
           sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, self.section_names[cur_sec]))
         n += 1
-      elif word[0] == BEGIN_ITER:
+      elif element == BEGIN_ITER:
         if prefix:
           prefix += '_'
         prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
-      elif word[0] == END_ITER:
+      elif element == END_ITER:
         prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
-      elif not (word[0] == LABEL and len(word) < 3):
+      elif not (element == LABEL and len(word) < 3):
         pat = '^' + prefix
         if prefix:
           pat += '_'
         pat += word[1] + '$'
+
+        # if self.tokenized_lines[0][1] == "test-radios":
+        #   import pdb; pdb.set_trace()
 
         # TODO: This is ridiculously inefficient
         if not printed:
           for k in vr.errors:
             # TODO: Try removing the pattern values and doing a normal hash?
             if re.search(pat, k):
-              sec_links[n] = ERROR + sec_links[n]
+              sec_links[n] = html.ERROR + sec_links[n]
               printed = True
               break
         if not printed:
           for k in vr.warnings:
             if re.search(pat, k):
-              sec_links[n] = WARNING + sec_links[n]
+              sec_links[n] = html.WARNING + sec_links[n]
               printed = True
               break
 
@@ -819,7 +819,8 @@ class MatrixDefFile:
     else:
       result.append('<span class="navleft">Create grammar:</span><br />')
       result.append('<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>')
-      result.append('</div>')
+
+    result.append('</div>')
     return "\n".join(result)
 
 
@@ -872,7 +873,7 @@ class MatrixDefFile:
               num_lines, word, word_length, element, i)
           page += result
 
-        i += 1
+      i += 1
 
     return page
 
@@ -981,15 +982,13 @@ class MatrixDefFile:
     # collect the lines that are between BeginIter and EndIter
     i += 1
     beg = i
-    while True:
-      if i >= num_lines:
-        raise MatrixDefSyntaxException("Missing EndIter statement for Iter \"%s\"" % iter_orig)
-      word, word_length, element = self.__get_word(tokenized_lines, i)
-      if not word_length:
-        pass
-      elif element == END_ITER and word[1] == iter_name:
-        break
-      i += 1
+    for word, word_length, element in self.__get_words(tokenized_lines[i:]):
+      if word_length:
+        if element == END_ITER and word[1] == iter_name:
+          break
+        i += 1
+    else:
+      raise MatrixDefSyntaxException("Missing EndIter statement for Iter \"%s\"" % iter_orig)
     end = i
 
     # TJT 2014-08-20: if skipping iter, skip this whole section
@@ -1114,12 +1113,12 @@ class MatrixDefFile:
       result += bf + mark + '\n'
       i += 1
       if i < num_lines:
-        word, word_length, element = self.__get_word(tokenized_lines, i)
-        while i < num_lines and element == BULLET:
+        for word, word_length, element in self.__get_words(tokenized_lines[i:]):
+          if element != BULLET:
+            break
           # Reset flags on each item
           disabled, js = '', ''
           checked = False
-          # TJT 2014-05-07 Rearranged this logic (hoping for speed)
           rval, rfrn, rbef, raft = word[1:5]
           # Format choice name
           if choices.get(vn) == rval: # If previously marked, mark as checked again
@@ -1131,9 +1130,6 @@ class MatrixDefFile:
               disabled = True
           result += html.html_input(vr, 'radio', vn, rval, checked, rbef, raft,
                              onclick=js, disabled=disabled) + '\n'
-          i += 1
-          if i < num_lines:
-            word, word_length, element = self.__get_word(tokenized_lines, i)
       result += af + '\n'
 
     else:
@@ -1141,6 +1137,7 @@ class MatrixDefFile:
       # so skip the button definitions
       while tokenized_lines[i][0] == BULLET:
         i += 1
+      word, word_length, element = self.__get_word(tokenized_lines, i)
 
     return word, word_length, element, i, result
 
@@ -1253,6 +1250,14 @@ class MatrixDefFile:
   def __get_word(self, tokenized_lines, i):
     word = tokenized_lines[i]
     return word, len(word), word[0]
+
+
+  def __get_words(self, tokenized_lines):
+    """
+    TODO: Change the code to use this!
+    """
+    for i, word in enumerate(tokenized_lines):
+      yield word, len(word), word[0]
 
 
   ##############################################################################

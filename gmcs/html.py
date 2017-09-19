@@ -13,7 +13,7 @@ INFO = "#"
 ################################################################################
 # Validation methods
 
-def validation_mark(vr, name):
+def validation_mark(vr, name, info=True):
   """
   Check if there's an error and generate the appropriate error mark
   """
@@ -22,7 +22,7 @@ def validation_mark(vr, name):
     result = html_error_mark(vr.errors[name])
   elif name in vr.warnings:
     result = html_warning_mark(vr.warnings[name])
-  elif name in vr.infos:
+  elif info and name in vr.infos:
     result = html_info_mark(vr.infos[name])
   return result
 
