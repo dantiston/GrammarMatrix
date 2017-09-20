@@ -1,0 +1,143 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Other Features</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["argument structure:intrans|intransitive (case unspecified);trans|transitive (case unspecified)::verb",
+"negation:plus|plus;minus|minus::verb",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:LOCAL.CONT.HOOK.ICONS-KEY:both"];
+
+      var verb_case_patterns = ["intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)"];
+
+      var numbers = [];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h2 style="display:inline">Other Features</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/OtherFeatures" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('general')">General Information</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('word-order')">Word Order</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('number')">Number</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('person')">Person</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gender')">Gender</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('case')">Case</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('direct-inverse')">Direct-inverse</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect, and Mood</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Other Features</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('sentential-negation')">Sentential Negation</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('coordination')">Coordination</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('arg-opt')">Argument Optionality</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('lexicon')">Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Import Toolbox Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">Test by Generation Options</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('ToolboxLexicon')">Toolbox Lexicon</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <p>If your language has other features beyond those that can be
+    defined elsewhere in this questionnaire, you can define those features
+    here.  For example, if your language has merged features (e.g. <span
+    class="feat">pernum</span> instead of <span
+    class="feat">person</span> and <span class="feat">number</span>,
+    <span class="feat">gendnum</span> instead of <span
+    class="feat">gender</span> and <span class="feat">number</span>),
+    they can be defined below.</p>
+    <p>For each feature, you will define a type hierarchy, which
+    consists of a root type you will name (e.g. <span
+    class="feat">pernum</span>), and then a series of other values of
+    the feature, each of which is the subtype of at least one of the other
+    values, possibly the root.</p>
+    <input type="hidden" name="existing_value_type1_name"  value="bool">
+    <input type="hidden" name="existing_value_type2_name"  value="luk">
+    <div class="iterator" style="display: none" id="feature_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('feature{i}')">
+    <div class="iterframe">Feature name: <input type="text"  name="feature{i}_name" size="20" onchange="fill_display_name('feature{i}');"><br>
+    Is this feature:<br>
+    <label><input type="radio"  name="feature{i}_type" value="head"> a syntactic feature (which will go under <span class="feat">head</span>)?<br></label>
+    <label><input type="radio"  name="feature{i}_type" value="index"> a semantic feature (which will go under <span class="feat">index</span>)?<br><br></label>
+
+    Is this feature for:<br>
+    <label><input type="radio"  name="feature{i}_cat" value="noun"> nominal categories?<br></label>
+    <label><input type="radio"  name="feature{i}_cat" value="verb"> verbal categories?<br></label>
+    <label><input type="radio"  name="feature{i}_cat" value="both"> both categories?<br><br></label>
+
+    Values in the feature hierarchy:<br>
+
+    <label><input type="radio"  name="feature{i}_new" value="no" onclick="remove_element_all('feature{i}', 'value');"> use an existing value type: </label>
+
+
+    <select name="feature{i}_existing" onfocus="fill('feature{i}_existing', [].concat(fill_regex('(existing_value_type[0-9]+_name)',true),fill_feature_names_only_customized('both')));remove_element_all('feature{i}', 'value'); check_radio_button('feature{i}_new', 'no');">
+    <option value="" selected class="temp"></option>
+    </select><br>
+    <div id='feature{i}_region'>
+    <div class="iterator" style="display: none" id="feature{i}_value_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('feature{i}_value{j}')">
+    <div class="iterframe">Value name: <input type="text"  name="feature{i}_value{j}_name" size="20" onchange="fill_display_name('feature{i}_value{j}');">
+    <div class="iterator" style="display: none" id="feature{i}_value{j}_supertype_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('feature{i}_value{j}_supertype{k}')">
+    <div class="iterframe">Supertype:
+    <select name="feature{i}_value{j}_supertype{k}_name" onfocus="fill('feature{i}_value{j}_supertype{k}_name', [].concat(fill_regex('(feature{i}_name|feature{i}_value[0-9]+_name)',true)));">
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="feature{i}_value{j}_supertype1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('feature{i}_value{j}_supertype1')">
+    <div class="iterframe">Supertype:
+    <select name="feature{i}_value{j}_supertype1_name" onfocus="fill('feature{i}_value{j}_supertype1_name', [].concat(fill_regex('(feature{i}_name|feature{i}_value[0-9]+_name)',true)));">
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="feature{i}_value{j}_supertype_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Supertype" onclick="clone_region('feature{i}_value{j}_supertype', 'k',false)"></div>
+    </div>
+
+    <div class="anchor" id="feature{i}_value_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Value" onclick="clone_region('feature{i}_value', 'j',true)"></div>
+    </div>
+    </div>
+
+    <div class="anchor" id="feature_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('feature', 'i',true)">
+    </form>
+  </div>
+
+  </body>
+
+</html>

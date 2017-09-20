@@ -1,0 +1,196 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Case</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["argument structure:intrans|intransitive (case unspecified);trans|transitive (case unspecified)::verb",
+"negation:plus|plus;minus|minus::verb",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:LOCAL.CONT.HOOK.ICONS-KEY:both"];
+
+      var verb_case_patterns = ["intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)"];
+
+      var numbers = [];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h2 style="display:inline">Case</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/Case" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('general')">General Information</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('word-order')">Word Order</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('number')">Number</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('person')">Person</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gender')">Gender</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Case</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('direct-inverse')">Direct-inverse</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect, and Mood</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('other-features')">Other Features</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('sentential-negation')">Sentential Negation</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('coordination')">Coordination</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('arg-opt')">Argument Optionality</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('lexicon')">Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Import Toolbox Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">Test by Generation Options</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('ToolboxLexicon')">Toolbox Lexicon</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <p>Blake (2001) defines <span class="dfn">case</span> as
+    &quot;a system of marking dependent nouns for the type of relationship
+    they bear to their heads.&quot; For example, case commonly marks the
+    subject or the direct object of a verb. The marking might consist of
+    affixation or some other morpholological process that marks words, or
+    it might be an adposition that marks whole noun phrases.</p>
+    <p>This questionnaire allows you to describe <span
+    class="dfn">core case marking</span> in your language; that is, the
+    pattern of cases marking the mandatory arguments of transitive and
+    intransitive verbs.  Following Dixon (1968), we refer to the
+    grammatical relations commonly expressed by case using the following
+    abbreviations: A refers to the agent of a transitive verb; O refers to
+    the patient (or object) of a transitive verb; and S refers to the lone
+    argument (or subject) of intransitive verbs.</p>
+    <p>What type of core case marking does your language exhibit?</p>
+    <label><p style="margin-left:20px;text-indent:-20px"><input type="radio"  name="case-marking" value="none"><b>None</b><br>(Verbal argument roles are determined only by word order, by intonation, or pragmatically.)</p></label>
+    <label><p style="margin-left:20px;margin-bottom:0px;text-indent:-20px"><input type="radio"  name="case-marking" value="nom-acc"><b>Nominative-accusative</b><br></p></label>
+
+    <p style="margin-left:20px;margin-top:0px">
+    S and A take a case named the <input type="text"  name="nom-acc-nom-case-name" size="20"> (e.g. nominative, subjective)<br>
+    O takes a case named the <input type="text"  name="nom-acc-acc-case-name" size="20"> (e.g. accusative, objective)<br>
+    </p>
+
+    <label><p style="margin-left:20px;margin-bottom:0px;text-indent:-20px"><input type="radio"  name="case-marking" value="erg-abs"><b>Ergative-absolutive</b><br></p></label>
+
+    <p style="margin-left:20px;margin-top:0px">
+    A takes a case named the <input type="text"  name="erg-abs-erg-case-name" size="20"> (e.g. ergative, relative, narrative)<br>
+    S and O take a case named the <input type="text"  name="erg-abs-abs-case-name" size="20"> (e.g. absolutive, nominative)<br>
+    </p>
+
+    <label><p style="margin-left:20px;margin-bottom:0px;text-indent:-20px"><input type="radio"  name="case-marking" value="tripartite"><b>Tripartite</b><br></p></label>
+
+    <p style="margin-left:20px;margin-top:0px">
+    S takes a case named the <input type="text"  name="tripartite-s-case-name" size="20"> (e.g. nominative, subjective)<br>
+    A takes a case named the <input type="text"  name="tripartite-a-case-name" size="20"> (e.g. ergative, agentive)<br>
+    O takes a case named the <input type="text"  name="tripartite-o-case-name" size="20"> (e.g. absolutive, patientive)<br>
+    </p>
+
+    <label><p style="margin-left:20px;margin-bottom:0px;text-indent:-20px"><input type="radio"  name="case-marking" value="split-s"><b>Split-S</b><br></p></label>
+
+    <p style="margin: 0px 0px 0px 20px">(The S argument of some intransitive verbs is marked by the
+    same case as the agent of transitives, while for other verbs the S
+    argument is marked by the same case as the patient.)</p>
+    <p style="margin-left:20px;margin-top:0px">
+    A takes a case named the <input type="text"  name="split-s-a-case-name" size="20"> (e.g. ergative, agentive)<br>
+    O takes a case named the <input type="text"  name="split-s-o-case-name" size="20"> (e.g. absolutive, patientive)<br>
+    </p>
+
+    <label><p style="margin-left:20px;margin-bottom:0px;text-indent:-20px"><input type="radio"  name="case-marking" value="fluid-s"><b>Fluid-S</b><br></p></label>
+
+    <p style="margin: 0px 0px 0px 20px">(The S argument of some intransitive verbs is marked by the
+    same case as the agent of transitives, while for other verbs the S
+    argument is marked by the same case as the patient, and for still
+    other verbs the S argument can be marked by either case, depending on
+    pragmatic factors (e.g. whether the S is perceived as being in control
+    of the action.)</p>
+    <p style="margin-left:20px;margin-top:0px">
+    A takes a case named the <input type="text"  name="fluid-s-a-case-name" size="20"> (e.g. ergative, agentive)<br>
+    O takes a case named the <input type="text"  name="fluid-s-o-case-name" size="20"> (e.g. absolutive, patientive)<br>
+    </p>
+
+    <label><p style="margin-left:20px;margin-bottom:0px;text-indent:-20px"><input type="radio"  name="case-marking" value="split-n"><b>Split conditioned on features of the noun phrase arguments</b><br></p></label>
+
+    <p style="margin: 0px 0px 0px 20px">(Some classes of noun phrases (e.g. pronouns) show a
+    nominative-accusative pattern, while others (e.g. common nouns) show
+    an ergative-absolutive pattern.  You will have an opportunity to
+    define these classes on the Lexicon page.)</p>
+    <p style="margin-left:20px;margin-top:0px">
+    S and A take a case named the <input type="text"  name="split-n-nom-case-name" size="20"> (e.g. nominative, subjective)<br>
+    O takes a case named the <input type="text"  name="split-n-acc-case-name" size="20"> (e.g. accusative, objective)<br>
+    A takes a case named the <input type="text"  name="split-n-erg-case-name" size="20"> (e.g. ergative, relative, narrative)<br>
+    S and O take a case named the <input type="text"  name="split-n-abs-case-name" size="20"> (e.g. absolutive, nominative)<br>
+    </p>
+
+    <label><p style="margin-left:20px;margin-bottom:0px;text-indent:-20px"><input type="radio"  name="case-marking" value="split-v"><b>Split conditioned on features of the verb</b><br></p></label>
+
+    <p style="margin: 0px 0px 0px 20px">(Depending on some feature of the verb (e.g. tense or aspect),
+    the core arguments are sometimes marked in a nominative-accusative
+    pattern and other times in an ergative-absolutive pattern.  You will
+    have an opportunity to define these features on the Lexicon
+    page.)</p>
+    <p style="margin-left:20px;margin-top:0px">
+    S and A take a case named the <input type="text"  name="split-v-nom-case-name" size="20"> (e.g. nominative, subjective)<br>
+    O takes a case named the <input type="text"  name="split-v-acc-case-name" size="20"> (e.g. accusative, objective)<br>
+    A takes a case named the <input type="text"  name="split-v-erg-case-name" size="20"> (e.g. ergative, relative, narrative)<br>
+    S and O take a case named the <input type="text"  name="split-v-abs-case-name" size="20"> (e.g. absolutive, nominative)<br>
+    </p>
+
+    <label><p style="margin-left:20px;margin-bottom:0px;text-indent:-20px"><input type="radio"  name="case-marking" value="focus"><b>Focus-case</b><br></p></label>
+
+    <p style="margin: 0px 0px 0px 20px">(A number of Austronesian languages, including several
+    Philippine languages, have a system where A and O are marked by cases.
+    An additional case, sometimes called the <span
+    class="dfn">focus</span>, is mandatory in every clause and has its
+    grammatical role assigned by the morphology of the verb.  You will
+    have an opportunity to define this morphology on the Morphology
+    page.)</p>
+    <p style="margin-left:20px;margin-top:0px">
+    The focus case is named the <input type="text"  name="focus-focus-case-name" size="20"><br>
+    A takes a case named the <input type="text"  name="focus-a-case-name" size="20"> (e.g. ergative, relative, narrative)<br>
+    O takes a case named the <input type="text"  name="focus-o-case-name" size="20"> (e.g. accusative, objective)<br>
+    </p>
+    <p><b>Additional Cases</b></p><p>If your language has any
+    additional cases not covered above that occur in simple intransitive
+    or transitive clauses (e.g. if you language has verbs whose O is
+    marked by the dative), define those cases here:</p>
+    <div class="iterator" style="display: none" id="case_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('case{i}')">
+    <div class="iterframe">Name: <input type="text"  name="case{i}_name" size="20" onchange="fill_display_name('case{i}');">
+    </div>
+    </div>
+
+    <div class="anchor" id="case_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Case" onclick="clone_region('case', 'i',false)"><h4>References</h4>
+    <div style="font-size:2">
+    <p>Blake, Barry J. 2001. Case. Cambridge: Cambridge University
+    Press.</p>
+    <p>Dixon, R. M. W. 1968. The Dyirbal Language of North
+    Queensland. Ph.D. thesis, University of London.</p>
+    </div>
+    </form>
+  </div>
+
+  </body>
+
+</html>

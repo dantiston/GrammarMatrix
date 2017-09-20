@@ -1,0 +1,188 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Coordination</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["argument structure:intrans|intransitive (case unspecified);trans|transitive (case unspecified)::verb",
+"negation:plus|plus;minus|minus::verb",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:LOCAL.CONT.HOOK.ICONS-KEY:both"];
+
+      var verb_case_patterns = ["intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)"];
+
+      var numbers = [];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h2 style="display:inline">Coordination</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/Coordination" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('general')">General Information</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('word-order')">Word Order</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('number')">Number</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('person')">Person</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gender')">Gender</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('case')">Case</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('direct-inverse')">Direct-inverse</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect, and Mood</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('other-features')">Other Features</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('sentential-negation')">Sentential Negation</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Coordination</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('arg-opt')">Argument Optionality</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('lexicon')">Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Import Toolbox Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">Test by Generation Options</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('ToolboxLexicon')">Toolbox Lexicon</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <script type="text/javascript">
+    // A cache of choices from other subpages
+    var pats = [
+
+    ];
+    </script><p>Languages can have multiple strategies for marking
+    coordination that differ among the various parts of speech. The Matrix
+    supports both lexical and morphological marking of coordination and
+    several different marking patterns, including:</p>
+    <div style="padding-left: 16px"><p><span
+    class="dfn">Monosyndeton</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;A B
+    and C&quot; (last coordinand is marked; also allows &quot;A and B and
+    C&quot;)<br><span
+    class="dfn">Polysyndeton</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;A
+    and B and C&quot; (all coordinands but the first are marked)<br><span
+    class="dfn">Omnisyndeton</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;and
+    A and B and C&quot; (all coordinands are marked)<br><span
+    class="dfn">Asyndeton</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;A B
+    C&quot; (no marking; also known as <span
+    class="dfn">juxtaposition</span>)</div>
+    <p>You may define any number of coordination strategies below.
+    You may also leave this section blank, in which case the starter
+    grammar produced will not support coordination.</p>
+    <div class="iterator" style="display: none" id="cs_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cs{i}')">
+    <div class="iterframe"><p>Coordination Strategy {i}:<br>&nbsp;&nbsp;&nbsp;&nbsp;in which
+    <label><input type="checkbox"  name="cs{i}_n">nouns </label>
+    <label><input type="checkbox"  name="cs{i}_np">NPs </label>
+    <label><input type="checkbox"  name="cs{i}_vp">VPs </label>
+    <label><input type="checkbox"  name="cs{i}_s">sentences<br></label>
+    &nbsp;&nbsp;&nbsp;&nbsp;are marked in a
+    <label><input type="radio"  name="cs{i}_pat" value="mono">monosyndeton </label>
+    <label><input type="radio"  name="cs{i}_pat" value="poly">polysyndeton </label>
+    <label><input type="radio"  name="cs{i}_pat" value="omni">omnisyndeton </label>
+    <label><input type="radio"  name="cs{i}_pat" value="a">asyndeton &nbsp; pattern<br></label>
+
+    &nbsp;&nbsp;&nbsp;&nbsp;by a
+    <label><input type="radio"  name="cs{i}_mark" value="word">word </label>
+    <label><input type="radio"  name="cs{i}_mark" value="affix">affix spelled </label>
+
+    <input type="text"  name="cs{i}_orth" size="10" onchange="check_radio_button('cs{i}_inflecting', 'yes'); ">
+    that comes
+    <label><input type="radio"  name="cs{i}_order" value="before">before </label>
+    <label><input type="radio"  name="cs{i}_order" value="after">after the coordinand<br></label>
+
+    <div class="iterator" style="display: none" id="cs{i}_csap_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cs{i}_csap{j}')">
+    <div class="iterframe">&nbsp;&nbsp;&nbsp;&nbsp;and uses the
+    <select name="cs{i}_csap{j}_pat" onfocus="fill('cs{i}_csap{j}_pat', [].concat(fill_cache('pats')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="cs{i}_csap_ANCHOR"></div>
+    <p><input type="button" name="" value="Add an agreement pattern (optional)" onclick="clone_region('cs{i}_csap', 'j',true)"></p>
+    </div>
+    </div>
+
+    <div class="anchor" id="cs_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Coordination Strategy" onclick="clone_region('cs', 'i',true)"><h3 style='display:inline'>Agreement Features in Coordinated Phrases</h3>
+    <p>You may describe how agreement features work in coordinated structures. You can then link coordination strategies with a defined agreement pattern. You may also leave this section blank and not attach any agreement patterns to a coordination strategy, in which case the top node of coordinated phrases will be underspecified for agreement features.</p>
+    <b>Feature Resolution</b>
+    <p>In a <b>feature resolution</b> pattern, the feature value of a coordinated phrase is derived from the values of both the child nodes. <p>For example, in many languages, person values follow a hierarchy in which any coordinated phrase with a 1st person conjunct will have 1st person value in the top node, phrases with a 2nd person conjunct (but no 1st person conjunct) will be 2nd person, and phrases with only 3rd person conjuncts will be 3rd person. You may also define feature resolution patterns for features such as gender and number. <p> You'll have to specify the rules that apply to each feature you wish to model.</p>
+    <div class="iterator" style="display: none" id="fr_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('fr{i}')">
+    <div class="iterframe"><p>(Optionally) give this pattern a name:
+    <input type="text"  name="fr{i}_name" size="10" onchange="fill_display_name('fr{i}');">
+    <p>This feature resolution pattern uses the following features: <br>
+    <div class="iterator" style="display: none" id="fr{i}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('fr{i}_feat{j}')">
+    <div class="iterframe">Feature:
+    <select name="fr{i}_feat{j}_name" onfocus="fill('fr{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Child 1:
+    <select name="fr{i}_feat{j}_left" class="multi"  multiple="multiple"  onfocus="fill('fr{i}_feat{j}_left', [].concat(fill_feature_values('fr{i}_feat{j}_name')));">
+    <option value="any" selected class="temp">any</option>
+    <option value="same" selected class="temp">the same</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    Parent:
+    <select name="fr{i}_feat{j}_par" onfocus="fill('fr{i}_feat{j}_par', [].concat(fill_feature_values('fr{i}_feat{j}_name')));">
+    <option value="any" selected class="temp">any</option>
+    <option value="same" selected class="temp">the same</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="fr{i}_feat_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('fr{i}_feat', 'j',false)"></div>
+    </div>
+
+    <div class="anchor" id="fr_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a feature resolution pattern" onclick="clone_region('fr', 'i',true)"><p><b>Distinguished Conjunct</b>
+    <p>In a <b>distinguished conjunct</b> pattern, the feature value of a coordinated phrase is the same as the value of a particular conjunct. Typically, this conjunct is either the closest one to the verb (closest conjunct), or always in a particular position (first or last conjunct).
+    <div class="iterator" style="display: none" id="dconj_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('dconj{i}')">
+    <div class="iterframe"><p>(Optionally) give this pattern a name:
+    <input type="text"  name="dconj{i}_name" size="10" onchange="fill_display_name('dconj{i}');">
+    <p>This agreement pattern uses agreement features from the<br>
+
+    <label><input type="radio"  name="dconj{i}_order" value="first">first </label>
+    <label><input type="radio"  name="dconj{i}_order" value="last">last conjunct</label>
+    <label><input type="radio"  name="dconj{i}_order" value="closest">closest conjunct to the verb</label>
+
+    </div>
+    </div>
+
+    <div class="anchor" id="dconj_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a distinguished conjunct pattern" onclick="clone_region('dconj', 'i',true)">
+    </form>
+  </div>
+
+  </body>
+
+</html>

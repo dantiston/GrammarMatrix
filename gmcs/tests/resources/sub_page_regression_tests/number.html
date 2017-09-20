@@ -1,0 +1,118 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Number</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["argument structure:intrans|intransitive (case unspecified);trans|transitive (case unspecified)::verb",
+"negation:plus|plus;minus|minus::verb",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:LOCAL.CONT.HOOK.ICONS-KEY:both"];
+
+      var verb_case_patterns = ["intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)"];
+
+      var numbers = [];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h2 style="display:inline">Number</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/Number" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('general')">General Information</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('word-order')">Word Order</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Number</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('person')">Person</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gender')">Gender</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('case')">Case</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('direct-inverse')">Direct-inverse</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect, and Mood</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('other-features')">Other Features</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('sentential-negation')">Sentential Negation</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('coordination')">Coordination</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('arg-opt')">Argument Optionality</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('lexicon')">Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Import Toolbox Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">Test by Generation Options</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('ToolboxLexicon')">Toolbox Lexicon</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <p><span class="dfn">Number</span> is a grammatical category
+    that distinguishes between different numbers of real-world entities.
+    For example, many languages distinguish a <span
+    class="dfn">singular</span> number from a <span
+    class="dfn">plural</span>, the former begin associated with one
+    entity and the latter with more than one.  Other languages distinguish
+    still more number values, including a <span class="dfn">dual</span>
+    (two entities) and a <span class="dfn">paucal</span> (a few
+    entities).  It is important to distinguish between number, described
+    here, and numerals, which cannot currently be described in this
+    questionnaire.  The answers you provide on this page will determine
+    the values available on the lexicon page for the <span
+    class="feat">number</span> feature (or the <span
+    class="feat">pernum</span> feature, about which see the Person
+    section of the questionnaire for more details).</p>
+    <p>Please describe the number hierarchy in your language.  Add
+    all the values of number that the language's grammar distinguishes.
+    For each you may provide one or more supertypes, using the other
+    number values you have defined or the root type
+    <span class="tt">number</span> (which
+    will be assumed if no supertype is provided).  If your language does
+    not have number as a grammatical category, leave this section
+    blank.</p>
+    <div class="iterator" style="display: none" id="number_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('number{i}')">
+    <div class="iterframe">Number name: <input type="text"  name="number{i}_name" size="20" onchange="fill_display_name('number{i}');">
+    <div class="iterator" style="display: none" id="number{i}_supertype_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('number{i}_supertype{j}')">
+    <div class="iterframe">Supertype:
+    <select name="number{i}_supertype{j}_name" onfocus="fill('number{i}_supertype{j}_name', [].concat(fill_regex('number[0-9]+_name',true)));">
+    <option value="number" selected class="temp">Number</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="number{i}_supertype_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Supertype" onclick="clone_region('number{i}_supertype', 'j',false)"></div>
+    </div>
+
+    <div class="anchor" id="number_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Number" onclick="clone_region('number', 'i',true)">
+    </form>
+  </div>
+
+  </body>
+
+</html>

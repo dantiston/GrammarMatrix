@@ -1,0 +1,133 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Person</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["argument structure:intrans|intransitive (case unspecified);trans|transitive (case unspecified)::verb",
+"negation:plus|plus;minus|minus::verb",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:LOCAL.CONT.HOOK.ICONS-KEY:both"];
+
+      var verb_case_patterns = ["intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)"];
+
+      var numbers = [];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h2 style="display:inline">Person</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/Person" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('general')">General Information</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('word-order')">Word Order</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('number')">Number</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Person</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gender')">Gender</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('case')">Case</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('direct-inverse')">Direct-inverse</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect, and Mood</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('other-features')">Other Features</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('sentential-negation')">Sentential Negation</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('coordination')">Coordination</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('arg-opt')">Argument Optionality</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('lexicon')">Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Import Toolbox Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">Test by Generation Options</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('ToolboxLexicon')">Toolbox Lexicon</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <p><span class="dfn">Person</span> is a grammatical category
+    that distinguishes between different discourse participants.  Natural
+    languages generally distinguish up to three discourse participants:
+    the speaker (the <span class="dfn">first person</span>), the person
+    spoken to (the <span class="dfn">second person</span>), and anyone
+    else (the <span class="dfn">third person</span>).  Some languages
+    are analyzed as having an additional <span class="dfn">fourth
+    person</span> category, whose meaning varies from language to
+    language.  The answers you provide on this page will determine what
+    values are available later in the questionnaire for the <span
+    class="feat">person</span> feature (or the <span
+    class="feat">pernum</span> feature; see below).</p>
+    <p>Which values of person are distinguished in your language?<br>
+    <label><input type="radio"  name="person" value="none">none<br></label>
+    <label><input type="radio"  name="person" value="1-2-3">First, second, and third<br></label>
+    <label><input type="radio"  name="person" value="1-2-3-4">First, second, third, and fourth<br></label>
+    <label><input type="radio"  name="person" value="1-non-1">First and non-first<br></label>
+    <label><input type="radio"  name="person" value="2-non-2">Second and non-second<br></label>
+    <label><input type="radio"  name="person" value="3-non-3">Third and non-third</p></label>
+
+    <p>Some languages are best analyzed as having subtypes of the
+    first person for some values of the <span class="feat">number</span>
+    feature.  For example, <span class="dfn">inclusive/exclusive</span>
+    languages make a distinction in the non-singular between the first
+    person <span class="dfn">exclusive</span>, which does not include
+    the person spoken to, and the first person <span
+    class="dfn">inclusive</span>, which does.  In <span
+    class="dfn">minimal/augmented</span> languages, three distinctions
+    are made: speaker and one person spoken to, speaker and one other
+    (third) person, and speaker and more than one other person.</p>
+    <p>What subtypes does your language distinguish in the first person?<br>
+    <label><input type="radio"  name="first-person" value="none"> none<br></label>
+    <label><input type="radio"  name="first-person" value="incl-excl"> inclusive and exclusive</label>
+
+     in the:
+    <select name="incl-excl-number" class="multi"  multiple="multiple"  onfocus="fill('incl-excl-number', [].concat(fill_numbers()));">
+    <option value="" selected class="temp"></option>
+    </select><br>
+    <div style="padding-left: 16px">
+    Please provide names for the subtypes distinguished by your
+    language.  The names you provide below will be prefixed with the
+    appropriate person and number value; for example, if you enter a
+    subtype named "excl" of the first person for the number values
+    <span class="tt">dual</span> and <span class="tt">plural</span>, the system will produce two
+    subtypes named <span class="tt">1dual_excl</span> and <span class="tt">1plural_excl</span>.)<br>
+    <div class="iterator" style="display: none" id="person-subtype_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('person-subtype{i}')">
+    <div class="iterframe">Name: <input type="text"  name="person-subtype{i}_name" size="20" onchange="fill_display_name('person-subtype{i}');">
+     in the first person:
+    <select name="person-subtype{i}_number" class="multi"  multiple="multiple"  onfocus="fill('person-subtype{i}_number', [].concat(fill_numbers()));">
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="person-subtype_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Subtype" onclick="clone_region('person-subtype', 'i',false)"></div>
+    </form>
+  </div>
+
+  </body>
+
+</html>

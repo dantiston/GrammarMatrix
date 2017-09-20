@@ -341,7 +341,7 @@ class ChoicesFile:
     if choices_file is not None:
       try:
         f = choices_file
-        if type(choices_file) == str:
+        if isinstance(choices_file, basestring):
           f = open(choices_file, 'r')
         f.seek(0)
         lines = get_valid_lines(f.readlines())

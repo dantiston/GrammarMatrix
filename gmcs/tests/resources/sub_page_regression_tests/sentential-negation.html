@@ -1,0 +1,288 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Sentential Negation</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["argument structure:intrans|intransitive (case unspecified);trans|transitive (case unspecified)::verb",
+"negation:plus|plus;minus|minus::verb",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:LOCAL.CONT.HOOK.ICONS-KEY:both"];
+
+      var verb_case_patterns = ["intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)"];
+
+      var numbers = [];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();display_neg_form();">
+
+  <h2 style="display:inline">Sentential Negation</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/SententialNegation" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('general')">General Information</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('word-order')">Word Order</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('number')">Number</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('person')">Person</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gender')">Gender</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('case')">Case</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('direct-inverse')">Direct-inverse</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect, and Mood</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('other-features')">Other Features</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Sentential Negation</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('coordination')">Coordination</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('arg-opt')">Argument Optionality</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('lexicon')">Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Import Toolbox Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">Test by Generation Options</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('ToolboxLexicon')">Toolbox Lexicon</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <script type="text/javascript">
+    // A cache of choices from other subpages
+    var verbpcs = [
+
+    ];
+    </script><p>On this page you can select a strategy that your language uses for sentential negation.  In most cases, morpheme classes that you can further modify will be created on the morphology page.</p>
+    <p>Sentential negation constructions can be classified based on the number of overt morphemes required by the construction.  What's the morphosyntactic exponence of the negation construction you'd like to model?<p>
+
+    <label><input type="radio"  name="neg-exp" value="0" onclick="set_negexp('0')">zero</label>
+    <label><input type="radio"  name="neg-exp" value="1" onclick="set_negexp('1')">simple</label>
+    <label><input type="radio"  name="neg-exp" value="2" onclick="set_negexp('2')">bipartite</label>
+    <label><input type="radio"  name="neg-exp" value="3" onclick="set_negexp('3')">tripartite</label>
+    <label><input type="radio"  name="neg-exp" value="more" onclick="set_negexp('more')">more?!</label>
+
+    <hr /><a id='anobutton' onclick='toggle_display_lex("asymmetric_negation_options","anobutton")'>&#9658; asymmetric negation options</a><div id='asymmetric_negation_options' style='display:none'>
+    <div id='anhdiv'><a id='anhbutton' onclick='toggle_display_lex("asymmetric_negation_help", "anhbutton")'>&#9658; asymmetric negation help</a>
+    <div id='asymmetric_negation_help' style='display:none'><p>Negation is marked with respect to affirmation (Givón 1984).  In many languages, there are certain tenses/moods/aspects which are not compatible with negation.  You might model this by enabling a HEAD feature, [NEGATED luk], set this to '+' on negated verbs and have certain constructions and/or lexical types specify an incompatible value.</p>
+
+    <p>Alternatively, you can have negation specify the values for particular features, and use an agreement mechanism to trigger the presence of any appropriate marking.  For example, in Maung [mph],  irrealis marking is obligatory with negation.  So you might have the negator specify an AGR feature of irrealis, then make sure that the head that it is attaching to agrees.</p>
+
+    <pre>
+    ŋi-udba
+    1sg.3-put
+    'I put.'
+
+    ŋi-udba-ji
+    1SG.3-put-IRR.NPST
+    'I can put.'
+
+    marig ŋi-udba-ji
+    NEG 1SG.3-put-IRR.NPST
+    'I do not put.', 'I cannot put.'
+
+    *marig  ŋi-udba
+    NEG 1SG.3-put
+    I do not put.
+    </pre>
+
+    </div></div>
+    <label><p><input type="checkbox"  name="neg-head-feature">Enable a HEAD feature ([NEGATED luk]) which is appropriate for heads of type verb.<br /></label>
+    </div><hr />
+    <div id='zero-neg' class='neg_exp_switch' style='display:none'><p>Negation without an overt marker.  In some south Dravidian languages such as (Historical Kannada [kan]), sentential negation was marked by the <em>absence</em> of the tense marking morpheme that appeared in the corresponding affirmative.  This sort of phenomenon is typologically rare.</p><p>You can model omissive negation as a phonologically empty inflectional rule ('lexical rule type/instance') which targets a particular position class in your morphotactic system.  You'll then have to specify at least one other morpheme that canuoccur in this position class so that negation is indicated by the lack of phonological material in this position.</p>
+    <p>I can create a phonologically empty negation affix for you here.  Choose a position class from the verbal position classes that you've defined (on the morphology page), or choose "create" to create a new pc for use with zero neg:
+    <select name="vpc-0-neg" onfocus="fill('vpc-0-neg', [].concat(fill_cache('verbpcs')));">
+    <option value="create" selected class="temp">Create</option>
+    <option value="" selected class="temp"></option>
+    </select>  You'll see the result of this choice as a lexical rule instance with no affix and a feature called [NEGATION] with the value "plus".  This 'feature' is not a grammatical one---it won't appear in your grammar, it only indicates to the customization system that negative semantics should be added to this morpheme at customize time.</p>
+    <div id='uni-neg' class='neg_exp_switch' style='display:none'><p> Negation can be indicated by the presence of a single negative morpheme.  Your negative morpheme might be bound (negation by inflection) or it might be free (one of the other choices). Your free negator might be a syntactic head (a verb), or it might be a dependent (a complement or a modifier).  Specify it's syntax below.</p>
+    <label><p><input type="checkbox"  name="infl-neg">Inflectional negation: Checking this box enables a feature called <span class="feat">negation</span> with possible value <span class="tt">plus</span> for use in defining morphemes on the morphology page.  Defining morphemes that specify [<span class="feat">negation</span> <span class="tt">plus</span>] will produce lexical rules that add the semantics of negation.</p></label>
+    <label><p><input type="checkbox"  name="neg-aux">Negative auxiliary verb: Checking this box creates a neg-aux type which contributes a neg_rel that outscopes it's complement's handle.  This lexical type will show up on the lexicon page where you'll need to further specify its syntax.</p></label>
+    <span style='display:none'><input type="text"  name="neg-aux-index" size="1"></span>
+    <label><input type="checkbox"  name="adv-neg">An adverb which is a modifier of:<br /></label>
+
+    <label><input type="radio"  name="neg-mod" value="s">S </label>
+    <label><input type="radio"  name="neg-mod" value="vp">VP </label>
+    <label><input type="radio"  name="neg-mod" value="v">V </label>
+
+    and appears
+    <label><input type="radio"  name="neg-order" value="before">before </label>
+    <label><input type="radio"  name="neg-order" value="after">after </label>
+    <label><input type="radio"  name="neg-order" value="either">on either side of the category it modifies.<br></label>
+
+    ...and which is spelled: <input type="text"  name="neg-adv-orth" size="20">
+    <label><p><input type="checkbox"  name="comp-neg" onclick="neg_comp()">An adverb like particle which is a selected complement.  This option will create a non-inflecting lexical rule that maps plain Vs to Vs which select for negation in addition to their regular COMPS.</p></label>
+    <div style='margin-left:10px'>
+    Is neg selected by
+    <label><input type="radio"  name="comp-neg-head" value="aux" onclick="neg_comp()">a (sub-)class of aux-verbs</label>
+    <label><input type="radio"  name="comp-neg-head" value="v" onclick="neg_comp()">any (finite) verb</label>
+    <br />
+    How is neg ordered with resepct to other COMPS?
+    <label><input type="radio"  name="comp-neg-order" value="before">before </label>
+    <label><input type="radio"  name="comp-neg-order" value="after">after </label>
+    <br />(NB: After other complements order is only available for non-argument composing auxiliaries.)<br />
+    What's the ORTH value for neg?<input type="text"  name="comp-neg-orth" size="20">
+    </div></div>
+    <div id='bi-neg' class='neg_exp_switch' style='display:none'><p> Negation can be indicated by the required presence of two negative morphemes.  You'll have to specify their morphosyntax and their interactions.</p>
+    <input type="hidden"  name="bineg-type">
+    <p>We can label the two morphemes NEG1 and NEG2 and ask about the syntactic properties of each.  Perhaps in your language one of the two negative morphemes is more closely associated with the contribution of negative force to the sentence, and the other functions as a resumptive or specifying marker.  Call the primary indicator of negation NEG1 and the secondary one NEG2.  Please choose the morpheme type for each exponent of negation:</p>
+    NEG1
+    <label><input type="radio"  name="neg1-type" value="b" onclick="display_neg_form()">bound</label>
+    <label><input type="radio"  name="neg1-type" value="fh" onclick="display_neg_form()">free, syntactic head</label>
+    <label><input type="radio"  name="neg1-type" value="fc" onclick="display_neg_form()">free, syntactic complement</label>
+    <label><input type="radio"  name="neg1-type" value="fm" onclick="display_neg_form()">free, syntactic modifier</label>
+    <br />
+    NEG2
+    <label><input type="radio"  name="neg2-type" value="b" onclick="display_neg_form()">bound</label>
+    <label><input type="radio"  name="neg2-type" value="fh" onclick="display_neg_form()">free, syntactic head</label>
+    <label><input type="radio"  name="neg2-type" value="fc" onclick="display_neg_form()">free, syntactic complement</label>
+    <label><input type="radio"  name="neg2-type" value="fm" onclick="display_neg_form()">free, syntactic modifier</label>
+
+    <div id="infl-infl-neg" class='bineg_switch' style='display:none'><p>If both NEG1 and NEG2 are bound to the same root, you can set up the dendency using the morphotactics system on the morphology page. Only specify that one of your LRIs is 'negation plus' (you only need one <em>neg_rel</em>), and set up a requires relation between the two morphemes.</p><p>If NEG1 is bound to an auxiliary and NEG2 is bound to a lexical verb, check the box below.  This will enable several options for you as you define your lexical rules for NEG1 and NEG2 on the morphology page.  A value for FORM 'negform' will be added to your grammar (as a subtype of nonfinite).  Indicate the lexical rule corresponding to NEG1 by setting [NEGATION +] (this adds the negative semantics) and the requirement that the complement be [FORM negform].  For the second negator, you can create it in the normal way using the morphology page.  Be sure that the FORM value for your NEG2 morpheme is set to negform.   This will set up the NEG2 lexical rule to change the FORM value on its head to negform.  In this way, auxiliary verbs inflected by NEG1 will require their complement to be headed by a verb which has been inflected by NEG2.</p>
+    <label>neg1 bound to aux requires neg2 bound to lexical verb<input type="checkbox"  name="neg1b-neg2b"></div></label>
+    <div id='infl-head-neg' class='bineg_switch' style='display:none'><p>You have selected a negation construction with a negative auxiliary verb and an inflectional rule.  When you save this page, the negative auxiliary will be created for you on the lexicon page (where you can further define and constrain its syntax.  A subtype of nonfinite (part of the FORM value hierarchy) called 'negform' has also been created and your negative auxiliary should select for a complement which is [FORM negform].  Indicate your negation lexical rule by marking it as [negation plus] on the morphology subpage.  This rule will change the FORM of verbs to which it attaches to [FORM negform].</p></div>
+    <div id='infl-comp-neg' class='bineg_switch' style='display:none'><p>You have selected a construction with a negative inflectional rule and a negative selected complement.  Define your lexical rule on the morphology subpage and indicate it with [negation plus].  Please provide some specifics about the negative complement here:</p>
+    Is neg selected by
+    <label><input type="radio"  name="comp-neg-head-infl-comp-neg" value="aux" onclick="neg_comp()">a (sub-)class of aux-verbs</label>
+    <label><input type="radio"  name="comp-neg-head-infl-comp-neg" value="v" onclick="neg_comp()">any (finite) verb</label>
+    <br />
+    How is neg ordered with resepct to other COMPS?
+    <label><input type="radio"  name="comp-neg-order-infl-head" value="before">before </label>
+    <label><input type="radio"  name="comp-neg-order-infl-head" value="after">after </label>
+    <br />(NB: After other complements order is only available for non-argument composing auxiliaries.)<br />
+    What's the ORTH value for neg?<input type="text"  name="comp-neg-orth" size="20">
+    </div>
+    <div id='infl-mod-neg' class='bineg_switch' style='display:none'><p>You have selected a negation construction with a negative inflectional rule and a negative word attached through a head-modifier rule.  Define your lexical rule on the morphology subpage and indicate it with [negation plus].  Please provide some further information about the negative modifier here:</p><p>
+    NEG adverb modifies:
+    <label><input type="radio"  name="neg-mod-infl-mod-neg" value="s">S </label>
+    <label><input type="radio"  name="neg-mod-infl-mod-neg" value="vp">VP </label>
+    <label><input type="radio"  name="neg-mod-infl-mod-neg" value="v">V </label>
+    <br />
+    NEG adverb is ordered:
+    <label><input type="radio"  name="neg-mod-order-infl-mod-neg" value="before">before </label>
+    <label><input type="radio"  name="neg-mod-order-infl-mod-neg" value="after">after </label>
+    <label><input type="radio"  name="neg-mod-order-infl-mod-neg" value="either">on either side of the category it modifies.<br></label>
+
+    NEG adverb is spelled: <input type="text"  name="neg-mod-orth" size="20">
+    </div>
+    <div id='head-head-neg' class='bineg_switch' style='display:none'><p>Two negative heads is not available.  Please contact matrix-dev if you believe this is the best analysis for your language.</p></div>
+    <div id='head-comp-neg' class='bineg_switch' style='display:none'><p>You have selected a negative construction with a negative auxiliary verb and a negative selected complement.  When you save the page, the negative auxiliary verb will be created for you on the lexicon page where you can further define its syntax.  Please provide some more information about the negative complement here:</p><p>
+    How is NEG complement ordered with resepct to other COMPS?
+    <label><input type="radio"  name="comp-neg-order-head-comp" value="before">before </label>
+    <label><input type="radio"  name="comp-neg-order-head-comp" value="after">after </label>
+    <br />(NB: After other complements order is only available for non-argument composing auxiliaries.)<br />
+    What's the ORTH value for NEG complement?<input type="text"  name="comp-neg-orth" size="20"></p>
+    </div>
+    <div id='head-mod-neg' class='bineg_switch' style='display:none'><p>You have selected a negation construction with a negative auxiliary verb and a negative adverb attached through a head-modifier rule.  The negative auxiliary verb will be created for you on the lexicon page where you can further specify its syntax.  Please provide some further information about the negative modifier here:</p>
+    NEG adverb modifies:
+    <label><input type="radio"  name="neg-mod-head-mod-neg" value="s">S </label>
+    <label><input type="radio"  name="neg-mod-head-mod-neg" value="vp">VP </label>
+    <label><input type="radio"  name="neg-mod-head-mod-neg" value="v">V </label>
+    <br />
+    NEG adverb is ordered:
+    <label><input type="radio"  name="neg-mod-order-head-mod-neg" value="before">before </label>
+    <label><input type="radio"  name="neg-mod-order-head-mod-neg" value="after">after </label>
+    <label><input type="radio"  name="neg-mod-order-head-mod-neg" value="either">on either side of the category it modifies.<br></label>
+
+    NEG adverb is spelled: <input type="text"  name="neg-mod-orth" size="20">
+    </div>
+    <div id='comp-comp-neg' class='bineg_switch' style='display:none'><p>You have selected a construction with two negative complements.  Please provide some further information about the two complements here:</p><p>
+    Is NEG1 selected by
+    <label><input type="radio"  name="comp-neg1-head" value="aux" onclick="neg_comp()">a (sub-)class of aux-verbs</label>
+    <label><input type="radio"  name="comp-neg1-head" value="v" onclick="neg_comp()">any (finite) verb</label>
+    <br />
+    How is NEG1 ordered with resepct to other COMPS?
+    <label><input type="radio"  name="comp-neg1-order" value="before">before </label>
+    <label><input type="radio"  name="comp-neg1-order" value="after">after </label>
+    <br />(NB: After other complements order is only available for non-argument composing auxiliaries.)<br />
+    What's the ORTH value for NEG1?<input type="text"  name="comp-neg1-orth" size="20"></p><p>
+    Is NEG2 selected by
+    <label><input type="radio"  name="comp-neg2-head" value="aux" onclick="neg_comp()">a (sub-)class of aux-verbs</label>
+    <label><input type="radio"  name="comp-neg2-head" value="v" onclick="neg_comp()">any (finite) verb</label>
+    <br />
+    How is NEG2 ordered with resepct to other COMPS?
+    <label><input type="radio"  name="comp-neg2-order" value="before">before </label>
+    <label><input type="radio"  name="comp-neg2-order" value="after">after </label>
+    <br />(NB: After other complements order is only available for non-argument composing auxiliaries.)<br />
+    What's the ORTH value for NEG2?<input type="text"  name="comp-neg2-orth" size="20"></p>
+    </div>
+    <div id='comp-mod-neg' class='bineg_switch' style='display:none'><p>You have selected a negation construction with a negative complement and a negative modifier.  Please provide some further information here:</p><p>
+    Is NEG complement selected by
+    <label><input type="radio"  name="comp-neg-head-comp-mod" value="aux" onclick="neg_comp()">a (sub-)class of aux-verbs</label>
+    <label><input type="radio"  name="comp-neg-head-comp-mod" value="v" onclick="neg_comp()">any (finite) verb</label>
+    <br />
+    How is NEG ordered with resepct to other COMPS?
+    <label><input type="radio"  name="comp-neg-order-comp-mod" value="before">before </label>
+    <label><input type="radio"  name="comp-neg-order-comp-mod" value="after">after </label>
+    <br />(NB: After other complements order is only available for non-argument composing auxiliaries.)<br />
+    What's the ORTH value for the NEG complement?<input type="text"  name="comp-neg-orth" size="20"></p><p>
+    NEG adverb modifies:
+    <label><input type="radio"  name="neg-mod-comp-mod-neg" value="s">S </label>
+    <label><input type="radio"  name="neg-mod-comp-mod-neg" value="vp">VP </label>
+    <label><input type="radio"  name="neg-mod-comp-mod-neg" value="v">V </label>
+    <br />
+    NEG adverb is ordered:
+    <label><input type="radio"  name="neg-mod-order-comp-mod-neg" value="before">before </label>
+    <label><input type="radio"  name="neg-mod-order-comp-mod-neg" value="after">after </label>
+    <label><input type="radio"  name="neg-mod-order-comp-mod-neg" value="either">on either side of the category it modifies.<br></label>
+
+    NEG adverb is spelled: <input type="text"  name="neg-mod-orth" size="20"></p>
+    </div>
+    <div id='mod-mod-neg' class='bineg_switch' style='display:none'><p>You have selected a negation construction with two negative modifiers.  Please provide some further information here:</p><p>
+    NEG1 modifies:
+    <label><input type="radio"  name="neg1-mod" value="s">S </label>
+    <label><input type="radio"  name="neg1-mod" value="vp">VP </label>
+    <label><input type="radio"  name="neg1-mod" value="v">V </label>
+    <br />
+    NEG1 is ordered:
+    <label><input type="radio"  name="neg1-mod-order" value="before">before </label>
+    <label><input type="radio"  name="neg1-mod-order" value="after">after </label>
+    <label><input type="radio"  name="neg1-mod-order" value="either">on either side of the category it modifies.<br></label>
+
+    NEG1 is spelled: <input type="text"  name="neg1-mod-orth" size="20"></p>
+    NEG2 modifies:
+    <label><input type="radio"  name="neg2-mod" value="s">S </label>
+    <label><input type="radio"  name="neg2-mod" value="vp">VP </label>
+    <label><input type="radio"  name="neg2-mod" value="v">V </label>
+    <br />
+    NEG2 is ordered:
+    <label><input type="radio"  name="neg2-mod-order" value="before">before </label>
+    <label><input type="radio"  name="neg2-mod-order" value="after">after </label>
+    <label><input type="radio"  name="neg2-mod-order" value="either">on either side of the category it modifies.<br></label>
+
+    NEG2 is spelled: <input type="text"  name="neg2-mod-orth" size="20">
+    </div>
+    <div id="bineg_fb"></div></div>
+    <div id='tri-neg' class='neg_exp_switch' style='display:none'><p> Negation by three morphemes has been reported in some languages of Vanuatu like Lewo [lww].</p></div>
+    <div id='x-neg' class='neg_exp_switch' style='display:none'><p>We're not aware of natural languages reported to require more than 3 morphemes as an integral part of a negation construction.  Please send e-mail about this language to the matrix-dev mailing list.</p></div>
+    <hr /><p>Notes: This section is under construction.  Expect problems.  Currently, some menu options (under bipartite negation) are only present as previews of future implementations and as of now provide no functionality.</p>
+    <h5>References</h5>
+    <ol>
+    <li>Givón, Talmy. 1984. <em>Syntax: a typological-functional introduction [vol. III].</em>  John Benjamins. Amsterdam, Philidelphia.</li>
+    </ol>
+    </form>
+  </div>
+
+  </body>
+
+</html>

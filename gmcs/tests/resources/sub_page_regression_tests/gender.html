@@ -1,0 +1,124 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Gender</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["argument structure:intrans|intransitive (case unspecified);trans|transitive (case unspecified)::verb",
+"negation:plus|plus;minus|minus::verb",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:LOCAL.CONT.HOOK.ICONS-KEY:both"];
+
+      var verb_case_patterns = ["intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)"];
+
+      var numbers = [];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h2 style="display:inline">Gender</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/Gender" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('general')">General Information</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('word-order')">Word Order</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('number')">Number</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('person')">Person</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Gender</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('case')">Case</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('direct-inverse')">Direct-inverse</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect, and Mood</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('other-features')">Other Features</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('sentential-negation')">Sentential Negation</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('coordination')">Coordination</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('arg-opt')">Argument Optionality</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('lexicon')">Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Import Toolbox Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">Test by Generation Options</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('ToolboxLexicon')">Toolbox Lexicon</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <p>Hockett (1958) defines grammatical <span
+    class="dfn">gender</span>s as "classes of nouns reflected in the
+    behavior of associated words." Gender is, therefore, a phenomenon
+    that appears in patterns of agreement.  Some languages have no
+    genders, others divide nouns into two genders (e.g. <span
+    class="dfn">masculine</span> and <span
+    class="dfn">feminine</span>, <span class="dfn">animate</span> and
+    <span class="dfn">inanimate</span>, or <span
+    class="dfn">rational</span> and <span
+    class="dfn">non-rational</span>), while still others have more.
+    Some languages have genders that are subtypes of other genders; for
+    example, a language may distinguish between inanimate nouns and
+    animate nouns, and within the animate nouns, between masculine and
+    feminine.  Any number of genders and the relationship between them can
+    be described by creating a type hierarchy, below.  The hierarchy you
+    define will determine what values of the <span
+    class="feat">gender</span> feature are available later in the
+    questionnaire.</p>
+    <p>Please describe the gender hierarchy in your language.  Add
+    all the values of gender that the language's grammar distinguishes.
+    For each you may provide one or more supertypes, using the other
+    gender values you have defined or the root type <span class="tt">gender</span>
+    (which will be assumed if no supertype is provided).  If your language does
+    not have gender as a grammatical category, leave this section
+    blank.</p>
+    <div class="iterator" style="display: none" id="gender_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('gender{i}')">
+    <div class="iterframe">Gender name: <input type="text"  name="gender{i}_name" size="20" onchange="fill_display_name('gender{i}');">
+    <div class="iterator" style="display: none" id="gender{i}_supertype_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('gender{i}_supertype{j}')">
+    <div class="iterframe">Supertype:
+    <select name="gender{i}_supertype{j}_name" onfocus="fill('gender{i}_supertype{j}_name', [].concat(fill_regex('gender[0-9]+_name',true)));">
+    <option value="gender" selected class="temp">Gender</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="gender{i}_supertype_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Supertype" onclick="clone_region('gender{i}_supertype', 'j',false)"></div>
+    </div>
+
+    <div class="anchor" id="gender_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Gender" onclick="clone_region('gender', 'i',true)"><h4>References</h4>
+    <div style="font-size:2">
+    <p>Hockett, Charles F. 1958. A Course in Modern
+    Linguistics. New York: Macmillan.</p>
+    </div>
+    </form>
+  </div>
+
+  </body>
+
+</html>

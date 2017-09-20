@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2.7
 import sys
 import os
 import getopt
@@ -27,6 +27,10 @@ from gmcs.deffile import MatrixDefFile
 # this is 2.5). In order to fail gracefully, this script must not have any
 # syntax from later Python versions (otherwise it will throw a SyntaxError
 # before it does anything).
+
+# NOTE TO DEVELOPERS
+# As of 9/19/17, the Grammar Matrix has officially dropped support for Python
+# 2.4, 2.5, and 2.6. The only support version is now Python 2.7.
 
 def main():
   # The force flag is used to skip checks in some commands
@@ -378,16 +382,18 @@ def main():
   else:
     usage()
 
+
 def validate_python_version():
   """
-  Make sure the user is running Python 2.5 or greater.
+  Make sure the user is running Python 2.7 or greater.
   """
-  if sys.version_info[0] != 2 or sys.version_info[1] < 5:
+  if sys.version_info[0] != 2 or sys.version_info[1] < 7:
     version = '.'.join(str(x) for x in sys.version_info[0:2])
     print "Operation aborted: incompatible Python version."
     print "  You are running Python " + version + ", but the Grammar Matrix"
-    print "  Customization System requires Python 2.5, 2.6, or 2.7."
+    print "  Customization System requires Python 2.7."
     sys.exit(2)
+
 
 def ensure_customization_root_set():
   """
@@ -713,6 +719,12 @@ def run_unit_tests(tests=None):
     print 'HTML tests:'
     import gmcs.tests.testHtml
     runner.run(loader.loadTestsFromModule(gmcs.tests.testHtml))
+
+  if not tests or "subpages" in tests:
+    print_line()
+    print 'Subpage regression tests:'
+    import gmcs.tests.testSubPageRegressions
+    runner.run(loader.loadTestsFromModule(gmcs.tests.testSubPageRegressions))
 
 #   print_line()
 #   print 'Linglib/Morphotactics tests:'

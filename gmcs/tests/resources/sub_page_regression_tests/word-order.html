@@ -1,0 +1,128 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Word Order</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["argument structure:intrans|intransitive (case unspecified);trans|transitive (case unspecified)::verb",
+"negation:plus|plus;minus|minus::verb",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:LOCAL.CONT.HOOK.ICONS-KEY:both"];
+
+      var verb_case_patterns = ["intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)"];
+
+      var numbers = [];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h2 style="display:inline">Word Order</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/WordOrder" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('general')">General Information</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Word Order</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('number')">Number</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('person')">Person</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gender')">Gender</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('case')">Case</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('direct-inverse')">Direct-inverse</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect, and Mood</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('other-features')">Other Features</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('sentential-negation')">Sentential Negation</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('coordination')">Coordination</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('arg-opt')">Argument Optionality</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('lexicon')">Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Import Toolbox Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">Test by Generation Options</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('ToolboxLexicon')">Toolbox Lexicon</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <p>
+    Please indicate which pattern best describes the basic word order of your language in matrix (main) clauses:<br>
+    <label><input type="radio"  name="word-order" value="sov">SOV<br></label>
+    <label><input type="radio"  name="word-order" value="svo">SVO<br></label>
+    <label><input type="radio"  name="word-order" value="vso">VSO<br></label>
+    <label><input type="radio"  name="word-order" value="osv">OSV<br></label>
+    <label><input type="radio"  name="word-order" value="ovs">OVS<br></label>
+    <label><input type="radio"  name="word-order" value="vos">VOS<br></label>
+    <label><input type="radio"  name="word-order" value="v-final">V-final<br></label>
+    <label><input type="radio"  name="word-order" value="v-initial">V-initial<br></label>
+    <label><input type="radio"  name="word-order" value="free">free (pragmatically determined word order)<br></label>
+    <label><input type="radio"  name="word-order" value="v2">finite verb or auxiliary in second position, else free word order</label>
+    </p>
+    <p>Note: Modules for V2 order (finite verb second, non-finite
+    verb clause-finally) and differing word order between matrix and
+    subordinate clauses are currently under development.</p>
+    <hr>
+    Does your language have determiners (as independent words)?
+    <label><input type="radio"  name="has-dets" value="yes">yes</label>
+    <label><input type="radio"  name="has-dets" value="no">no<br></label>
+
+    If so, what is the order of determiners with respect to nouns?
+    <label><input type="radio"  name="noun-det-order" value="noun-det">Noun-Det</label>
+    <label><input type="radio"  name="noun-det-order" value="det-noun">Det-Noun<br><br></label>
+
+    <hr>
+    Does your language have auxiliary verbs?
+    <label><input type="radio"  name="has-aux" value="yes">yes</label>
+    <label><input type="radio"  name="has-aux" value="no">no<br></label>
+
+    <p>If so, please specify the following auxiliary properties:</p>
+    <div style="padding-left: 30px">
+    <b>Word Order:</b> Does an auxiliary verb appear before or after its complement?<br>
+    <label><input type="radio"  name="aux-comp-order" value="before">before <br></label>
+    <label><input type="radio"  name="aux-comp-order" value="after">after <br><br></label>
+
+    <b>Complements:</b> The complements of auxiliaries are:<br>
+    <label><input type="radio"  name="aux-comp" value="s">saturated sentences<br></label>
+    <label><input type="radio"  name="aux-comp" value="vp">VPs, raising the subject<br></label>
+    <label><input type="radio"  name="aux-comp" value="v">Vs, raising all of its arguments (argument composition)<br><br></label>
+
+    (If you work with a language where the complement type (V, VP,
+    or S) varies depending on the auxiliary please let us know.)<br><br>
+    Can there be more than one auxiliary in a clause?<br>
+    <label><input type="radio"  name="multiple-aux" value="yes">yes<br></label>
+    <label><input type="radio"  name="multiple-aux" value="no">no<br><br></label>
+
+    NOTE: If your language has free word order and allows more than one auxiliary per clause, we assume that the verbal group forms a cluster (i.e. that all verbal forms are adjacent to each other). If your language reveals different behavior, please let us know.
+    <p><span style="color:red">NOTE: As Modules for V2 order are
+    still under development, relative order of auxiliaries and their
+    complements have not been implemented yet.</span></p>
+    </div>
+    </form>
+  </div>
+
+  </body>
+
+</html>

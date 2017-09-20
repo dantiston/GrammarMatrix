@@ -1,0 +1,1009 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Morphology</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["argument structure:intrans|intransitive (case unspecified);trans|transitive (case unspecified)::verb",
+"negation:plus|plus;minus|minus::verb",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:LOCAL.CONT.HOOK.ICONS-KEY:both"];
+
+      var verb_case_patterns = ["intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)"];
+
+      var numbers = [];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h2 style="display:inline">Morphology</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/Morphology" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('general')">General Information</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('word-order')">Word Order</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('number')">Number</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('person')">Person</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gender')">Gender</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('case')">Case</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('direct-inverse')">Direct-inverse</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect, and Mood</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('other-features')">Other Features</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('sentential-negation')">Sentential Negation</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('coordination')">Coordination</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('arg-opt')">Argument Optionality</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('lexicon')">Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Morphology</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Import Toolbox Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">Test by Generation Options</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('ToolboxLexicon')">Toolbox Lexicon</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <script type="text/javascript">
+    // A cache of choices from other subpages
+    var nouns = [
+
+    ];
+    </script><script type="text/javascript">
+    // A cache of choices from other subpages
+    var verbs = [
+
+    ];
+    </script><script type="text/javascript">
+    // A cache of choices from other subpages
+    var auxes = [
+
+    ];
+    </script><script type="text/javascript">
+    // A cache of choices from other subpages
+    var dets = [
+
+    ];
+    </script><script type="text/javascript">
+    // A cache of choices from other subpages
+    var adjs = [
+
+    ];
+    </script><script type="text/javascript">
+    // A cache of choices from other subpages
+    var cops = [
+
+    ];
+    </script><p>Here you can define inflectional morphology for nouns, verbs, and
+    determiners.  To do so, first define one or more inflectional <span
+    class="dfn">position classes</span>, which determine the order in which
+    morphemes appear, then define one or more <span class="dfn">lexical rule
+    types</span> (LRTs) that can appear in each position class, along with the
+    <span class="dfn">features</span> specified by each LRT.  To determine the
+    order of position classes, you must define one or more <span
+    class="dfn">inputs</span> for each.  For LRTs that attach directly to stems,
+    the input will be a lexical type; for LRTs that attach to already-inflected
+    stems, the input will be another position class.</p>
+    <a id="toggle_all_lex_button" onclick="toggle_all_display_lex(1)">&#9660; all sections</a>
+    <h3>Noun Inflection</h3>
+    <div class="iterator" style="display: none" id="noun-pc_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}')">
+    <div class="iterframe"><b>Noun Position Class {i}</b>:<br/>Position Class Name: <input type="text"  name="noun-pc{i}_name" size="20" onchange="fill_display_name('noun-pc{i}');">
+    <label><br/>Obligatorily occurs:<input type="checkbox"  name="noun-pc{i}_obligatory"></label>
+    <br/>Appears as a prefix or suffix:
+    <select name="noun-pc{i}_order">
+    <option value="prefix" selected class="temp">Prefix</option>
+    <option value="suffix" selected class="temp">Suffix</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    <p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="noun-pc{i}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_require{j}')">
+    <div class="iterframe">Noun Position Class {i} requires one of the following:
+    <select name="noun-pc{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun-pc{i}_require{j}_others', [].concat(fill_cache('nouns'),fill_regex('noun-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="noun" selected class="temp">Any noun</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun-pc{i}_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('noun-pc{i}_require', 'j',false)"><div class="iterator" style="display: none" id="noun-pc{i}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_forbid{j}')">
+    <div class="iterframe">Noun Position Class {i} forbids the following:
+    <select name="noun-pc{i}_forbid{j}_others" onfocus="fill('noun-pc{i}_forbid{j}_others', [].concat(fill_cache('nouns'),fill_regex('noun-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="noun" selected class="temp">Any noun</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun-pc{i}_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('noun-pc{i}_forbid', 'j',false)"><p>Lexical Rule Types that appear in this Position Class:</p>
+    <div class="iterator" style="display: none" id="noun-pc{i}_lrt_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_lrt{j}')">
+    <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="noun-pc{i}_lrt{j}_name" size="20" onchange="fill_display_name('noun-pc{i}_lrt{j}');">
+    <br/>Supertypes:
+    <select name="noun-pc{i}_lrt{j}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun-pc{i}_lrt{j}_supertypes', [].concat(fill_regex('noun-pc{i}_lrt[0-9]+_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    <div class="iterator" style="display: none" id="noun-pc{i}_lrt{j}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_lrt{j}_feat{k}')">
+    <div class="iterframe">Name:
+    <select name="noun-pc{i}_lrt{j}_feat{k}_name" onfocus="fill('noun-pc{i}_lrt{j}_feat{k}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun-pc{i}_lrt{j}_feat_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('noun-pc{i}_lrt{j}_feat', 'k',false)"><p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="noun-pc{i}_lrt{j}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_lrt{j}_require{k}')">
+    <div class="iterframe">Lexical Rule Type {j} requires one of the following:
+    <select name="noun-pc{i}_lrt{j}_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('noun-pc{i}_lrt{j}_require{k}_others', [].concat(fill_cache('nouns'),fill_regex('noun-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="noun" selected class="temp">Any noun</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun-pc{i}_lrt{j}_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('noun-pc{i}_lrt{j}_require', 'k',false)"><div class="iterator" style="display: none" id="noun-pc{i}_lrt{j}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_lrt{j}_forbid{k}')">
+    <div class="iterframe">Lexical Rule Type {j} forbids the following:
+    <select name="noun-pc{i}_lrt{j}_forbid{k}_others" onfocus="fill('noun-pc{i}_lrt{j}_forbid{k}_others', [].concat(fill_cache('nouns'),fill_regex('noun-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="noun" selected class="temp">Any noun</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun-pc{i}_lrt{j}_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('noun-pc{i}_lrt{j}_forbid', 'k',false)"><p>Lexical Rule Instances:</p>
+    <div class="iterator" style="display: none" id="noun-pc{i}_lrt{j}_lri_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_lrt{j}_lri{k}')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="noun-pc{i}_lrt{j}_lri{k}_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="noun-pc{i}_lrt{j}_lri{k}_inflecting" value="yes">Affix spelled</label>
+
+    <input type="text"  name="noun-pc{i}_lrt{j}_lri{k}_orth" size="20" onchange="check_radio_button('noun-pc{i}_lrt{j}_lri{k}_inflecting', 'yes'); ">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun-pc{i}_lrt{j}_lri1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_lrt{j}_lri1')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="noun-pc{i}_lrt{j}_lri1_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="noun-pc{i}_lrt{j}_lri1_inflecting" value="yes">Affix spelled</label>
+
+    <input type="text"  name="noun-pc{i}_lrt{j}_lri1_orth" size="20" onchange="check_radio_button('noun-pc{i}_lrt{j}_lri1_inflecting', 'yes'); ">
+    </div>
+    </div>
+    <div class="anchor" id="noun-pc{i}_lrt{j}_lri_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Instance" onclick="clone_region('noun-pc{i}_lrt{j}_lri', 'k',false)"></div>
+    </div>
+
+    <div class="anchor" id="noun-pc{i}_lrt_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Type" onclick="clone_region('noun-pc{i}_lrt', 'j',true)"></div>
+    </div>
+
+    <div class="anchor" id="noun-pc_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Position Class" onclick="clone_region('noun-pc', 'i',true)"><hr>
+    <h3>Verb Inflection</h3>
+    <div class="iterator" style="display: none" id="verb-pc_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}')">
+    <div class="iterframe"><b>Verb Position Class {i}</b>:<br/>Position Class Name: <input type="text"  name="verb-pc{i}_name" size="20" onchange="fill_display_name('verb-pc{i}');">
+    <label><br/>Obligatorily occurs:<input type="checkbox"  name="verb-pc{i}_obligatory"></label>
+    <br/>Appears as a prefix or suffix:
+    <select name="verb-pc{i}_order">
+    <option value="prefix" selected class="temp">Prefix</option>
+    <option value="suffix" selected class="temp">Suffix</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    <p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="verb-pc{i}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_require{j}')">
+    <div class="iterframe">Verb Position Class {i} requires one of the following:
+    <select name="verb-pc{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_require{j}_others', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="verb" selected class="temp">Any verb</option>
+    <option value="iverb" selected class="temp">Any intransitive verb</option>
+    <option value="tverb" selected class="temp">Any transitive verb</option>
+    <option value="aux" selected class="temp">Any auxiliary verb</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb-pc{i}_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('verb-pc{i}_require', 'j',false)"><div class="iterator" style="display: none" id="verb-pc{i}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_forbid{j}')">
+    <div class="iterframe">Verb Position Class {i} forbids the following:
+    <select name="verb-pc{i}_forbid{j}_others" onfocus="fill('verb-pc{i}_forbid{j}_others', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="verb" selected class="temp">Any verb</option>
+    <option value="iverb" selected class="temp">Any intransitive verb</option>
+    <option value="tverb" selected class="temp">Any transitive verb</option>
+    <option value="aux" selected class="temp">Any auxiliary verb</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb-pc{i}_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('verb-pc{i}_forbid', 'j',false)"><p>Lexical Rule Types that appear in this Position Class:</p>
+    <div class="iterator" style="display: none" id="verb-pc{i}_lrt_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt{j}')">
+    <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="verb-pc{i}_lrt{j}_name" size="20" onchange="fill_display_name('verb-pc{i}_lrt{j}');">
+    <br/>Supertypes:
+    <select name="verb-pc{i}_lrt{j}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_lrt{j}_supertypes', [].concat(fill_regex('verb-pc{i}_lrt[0-9]+_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    <div class="iterator" style="display: none" id="verb-pc{i}_lrt{j}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt{j}_feat{k}')">
+    <div class="iterframe">Name:
+    <select name="verb-pc{i}_lrt{j}_feat{k}_name" onfocus="fill('verb-pc{i}_lrt{j}_feat{k}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Specified on:
+    <select name="verb-pc{i}_lrt{j}_feat{k}_head">
+    <option value="verb" selected class="temp">The verb</option>
+    <option value="subj" selected class="temp">The subject</option>
+    <option value="obj" selected class="temp">The object</option>
+    <option value="higher" selected class="temp">Higher-ranked</option>
+    <option value="lower" selected class="temp">Lower-ranked</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb-pc{i}_lrt{j}_feat_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('verb-pc{i}_lrt{j}_feat', 'k',false)"><p>Valence-changing operations may modify the valence structure of<br/>
+    a verb by adding or removing either a subject or object, possibly <br/>
+    including changes to e.g. case frames or adding predicates. (<b>Experimental</b>)</p>
+    <div class="iterator" style="display: none" id="verb-pc{i}_lrt{j}_valchg_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt{j}_valchg{k}')">
+    <div class="iterframe">Type:
+    <select name="verb-pc{i}_lrt{j}_valchg{k}_operation">
+    <option value="subj-rem" selected class="temp">Subject-removing</option>
+    <option value="obj-rem" selected class="temp">Object-removing</option>
+    <option value="obj-add" selected class="temp">Object-adding</option>
+    <option value="" selected class="temp"></option>
+    </select><br/>
+    Predicate: <input type="text"  name="verb-pc{i}_lrt{j}_valchg{k}_predname" size="20"><br/>
+    The added argument is at the:
+    <select name="verb-pc{i}_lrt{j}_valchg{k}_argpos">
+    <option value="pre" selected class="temp">front</option>
+    <option value="post" selected class="temp">end</option>
+    <option value="" selected class="temp"></option>
+    </select> of the complements list.<br/>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb-pc{i}_lrt{j}_valchg_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a valence-changing operation" onclick="clone_region('verb-pc{i}_lrt{j}_valchg', 'k',false)"><p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="verb-pc{i}_lrt{j}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt{j}_require{k}')">
+    <div class="iterframe">Lexical Rule Type {j} requires one of the following:
+    <select name="verb-pc{i}_lrt{j}_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_lrt{j}_require{k}_others', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="verb" selected class="temp">Any verb</option>
+    <option value="iverb" selected class="temp">Any intransitive verb</option>
+    <option value="tverb" selected class="temp">Any transitive verb</option>
+    <option value="aux" selected class="temp">Any auxiliary verb</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb-pc{i}_lrt{j}_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('verb-pc{i}_lrt{j}_require', 'k',false)"><div class="iterator" style="display: none" id="verb-pc{i}_lrt{j}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt{j}_forbid{k}')">
+    <div class="iterframe">Lexical Rule Type {j} forbids the following:
+    <select name="verb-pc{i}_lrt{j}_forbid{k}_others" onfocus="fill('verb-pc{i}_lrt{j}_forbid{k}_others', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="verb" selected class="temp">Any verb</option>
+    <option value="iverb" selected class="temp">Any intransitive verb</option>
+    <option value="tverb" selected class="temp">Any transitive verb</option>
+    <option value="aux" selected class="temp">Any auxiliary verb</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb-pc{i}_lrt{j}_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('verb-pc{i}_lrt{j}_forbid', 'k',false)"><p>Lexical Rule Instances:</p>
+    <div class="iterator" style="display: none" id="verb-pc{i}_lrt{j}_lri_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt{j}_lri{k}')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="verb-pc{i}_lrt{j}_lri{k}_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="verb-pc{i}_lrt{j}_lri{k}_inflecting" value="yes">Affix spelled</label>
+
+    <input type="text"  name="verb-pc{i}_lrt{j}_lri{k}_orth" size="20" onchange="check_radio_button('verb-pc{i}_lrt{j}_lri{k}_inflecting', 'yes'); ">
+    </div>
+    </div>
+
+    <div class="iterator" id="verb-pc{i}_lrt{j}_lri1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt{j}_lri1')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="verb-pc{i}_lrt{j}_lri1_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="verb-pc{i}_lrt{j}_lri1_inflecting" value="yes">Affix spelled</label>
+
+    <input type="text"  name="verb-pc{i}_lrt{j}_lri1_orth" size="20" onchange="check_radio_button('verb-pc{i}_lrt{j}_lri1_inflecting', 'yes'); ">
+    </div>
+    </div>
+    <div class="anchor" id="verb-pc{i}_lrt{j}_lri_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Instance" onclick="clone_region('verb-pc{i}_lrt{j}_lri', 'k',false)"></div>
+    </div>
+
+    <span id="verb-pc{i}_lrt1_errors" class="error" style="display: none"></span><a id="verb-pc{i}_lrt1button" onclick="toggle_display_lex('verb-pc{i}_lrt1','verb-pc{i}_lrt1button')">&#9660; verb-pc{i}_lrt1</a><div class="iterator" id="verb-pc{i}_lrt1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt1')">
+    <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="verb-pc{i}_lrt1_name" size="20" onchange="fill_display_name('verb-pc{i}_lrt1');">
+    <br/>Supertypes:
+    <select name="verb-pc{i}_lrt1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_lrt1_supertypes', [].concat(fill_regex('verb-pc{i}_lrt[0-9]+_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    <div class="iterator" style="display: none" id="verb-pc{i}_lrt1_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt1_feat{k}')">
+    <div class="iterframe">Name:
+    <select name="verb-pc{i}_lrt1_feat{k}_name" onfocus="fill('verb-pc{i}_lrt1_feat{k}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Specified on:
+    <select name="verb-pc{i}_lrt1_feat{k}_head">
+    <option value="verb" selected class="temp">The verb</option>
+    <option value="subj" selected class="temp">The subject</option>
+    <option value="obj" selected class="temp">The object</option>
+    <option value="higher" selected class="temp">Higher-ranked</option>
+    <option value="lower" selected class="temp">Lower-ranked</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb-pc{i}_lrt1_feat_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('verb-pc{i}_lrt1_feat', 'k',false)"><p>Valence-changing operations may modify the valence structure of<br/>
+    a verb by adding or removing either a subject or object, possibly <br/>
+    including changes to e.g. case frames or adding predicates. (<b>Experimental</b>)</p>
+    <div class="iterator" style="display: none" id="verb-pc{i}_lrt1_valchg_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt1_valchg{k}')">
+    <div class="iterframe">Type:
+    <select name="verb-pc{i}_lrt1_valchg{k}_operation">
+    <option value="subj-rem" selected class="temp">Subject-removing</option>
+    <option value="obj-rem" selected class="temp">Object-removing</option>
+    <option value="obj-add" selected class="temp">Object-adding</option>
+    <option value="" selected class="temp"></option>
+    </select><br/>
+    Predicate: <input type="text"  name="verb-pc{i}_lrt1_valchg{k}_predname" size="20"><br/>
+    The added argument is at the:
+    <select name="verb-pc{i}_lrt1_valchg{k}_argpos">
+    <option value="pre" selected class="temp">front</option>
+    <option value="post" selected class="temp">end</option>
+    <option value="" selected class="temp"></option>
+    </select> of the complements list.<br/>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb-pc{i}_lrt1_valchg_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a valence-changing operation" onclick="clone_region('verb-pc{i}_lrt1_valchg', 'k',false)"><p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="verb-pc{i}_lrt1_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt1_require{k}')">
+    <div class="iterframe">Lexical Rule Type {j} requires one of the following:
+    <select name="verb-pc{i}_lrt1_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_lrt1_require{k}_others', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="verb" selected class="temp">Any verb</option>
+    <option value="iverb" selected class="temp">Any intransitive verb</option>
+    <option value="tverb" selected class="temp">Any transitive verb</option>
+    <option value="aux" selected class="temp">Any auxiliary verb</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb-pc{i}_lrt1_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('verb-pc{i}_lrt1_require', 'k',false)"><div class="iterator" style="display: none" id="verb-pc{i}_lrt1_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt1_forbid{k}')">
+    <div class="iterframe">Lexical Rule Type {j} forbids the following:
+    <select name="verb-pc{i}_lrt1_forbid{k}_others" onfocus="fill('verb-pc{i}_lrt1_forbid{k}_others', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="verb" selected class="temp">Any verb</option>
+    <option value="iverb" selected class="temp">Any intransitive verb</option>
+    <option value="tverb" selected class="temp">Any transitive verb</option>
+    <option value="aux" selected class="temp">Any auxiliary verb</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb-pc{i}_lrt1_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('verb-pc{i}_lrt1_forbid', 'k',false)"><p>Lexical Rule Instances:</p>
+    <div class="iterator" style="display: none" id="verb-pc{i}_lrt1_lri_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt1_lri{k}')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="verb-pc{i}_lrt1_lri{k}_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="verb-pc{i}_lrt1_lri{k}_inflecting" value="yes">Affix spelled</label>
+
+    <input type="text"  name="verb-pc{i}_lrt1_lri{k}_orth" size="20" onchange="check_radio_button('verb-pc{i}_lrt1_lri{k}_inflecting', 'yes'); ">
+    </div>
+    </div>
+
+    <div class="iterator" id="verb-pc{i}_lrt1_lri1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt1_lri1')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="verb-pc{i}_lrt1_lri1_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="verb-pc{i}_lrt1_lri1_inflecting" value="yes">Affix spelled</label>
+
+    <input type="text"  name="verb-pc{i}_lrt1_lri1_orth" size="20" onchange="check_radio_button('verb-pc{i}_lrt1_lri1_inflecting', 'yes'); ">
+    </div>
+    </div>
+    <div class="anchor" id="verb-pc{i}_lrt1_lri_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Instance" onclick="clone_region('verb-pc{i}_lrt1_lri', 'k',false)"></div>
+    </div>
+    <div class="anchor" id="verb-pc{i}_lrt_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Type" onclick="clone_region('verb-pc{i}_lrt', 'j',true)"></div>
+    </div>
+
+    <div class="anchor" id="verb-pc_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Position Class" onclick="clone_region('verb-pc', 'i',true)"><hr>
+    <h3>Adjective Inflection</h3>
+    <div class="iterator" style="display: none" id="adj-pc_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}')">
+    <div class="iterframe"><b> Adjective Position Class {i}</b>:<br/>Position Class Name: <input type="text"  name="adj-pc{i}_name" size="20" onchange="fill_display_name('adj-pc{i}');">
+    <label><br/>Obligatorily occurs:<input type="checkbox"  name="adj-pc{i}_obligatory"></label>
+    <br/>Appears as a prefix or suffix:
+    <select name="adj-pc{i}_order">
+    <option value="prefix" selected class="temp">Prefix</option>
+    <option value="suffix" selected class="temp">Suffix</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    <label><div>This position class constrains the syntactic behavior of its output: <input type="checkbox"  name="adj-pc{i}_switching"></div></label>
+    <p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="adj-pc{i}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_require{j}')">
+    <div class="iterframe">Adjective Position Class {i} requires one of the following:
+    <select name="adj-pc{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_require{j}_others', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="adj" selected class="temp">Any Adjective</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="adj-pc{i}_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('adj-pc{i}_require', 'j',false)"><div class="iterator" style="display: none" id="adj-pc{i}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_forbid{j}')">
+    <div class="iterframe">Adjective Position Class {i} forbids the following:
+    <select name="adj-pc{i}_forbid{j}_others" onfocus="fill('adj-pc{i}_forbid{j}_others', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="adj" selected class="temp">Any Adjective</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="adj-pc{i}_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('adj-pc{i}_forbid', 'j',false)"><p>Lexical Rule Types that appear in this Position Class:</p>
+    <div class="iterator" style="display: none" id="adj-pc{i}_lrt_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt{j}')">
+    <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="adj-pc{i}_lrt{j}_name" size="20" onchange="fill_display_name('adj-pc{i}_lrt{j}');">
+    <br/>Supertypes:
+    <select name="adj-pc{i}_lrt{j}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_lrt{j}_supertypes', [].concat(fill_regex('adj-pc{i}_lrt[0-9]+_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    <div class="iterator" style="display: none" id="adj-pc{i}_lrt{j}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt{j}_feat{k}')">
+    <div class="iterframe">Name:
+    <select name="adj-pc{i}_lrt{j}_feat{k}_name" onfocus="fill('adj-pc{i}_lrt{j}_feat{k}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Specified on:
+    <select name="adj-pc{i}_lrt{j}_feat{k}_head" onchange="toggle_element.call(this, 'adj-pc{i}_lrt{j}_adj_pc_note', 'on', ['subj', 'mod'])">
+    <option value="adj" selected class="temp">The adjective</option>
+    <option value="subj" selected class="temp">The subject</option>
+    <option value="mod" selected class="temp">The modified noun</option>
+    <option value="xarg" selected class="temp">Both positions</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="adj-pc{i}_lrt{j}_feat_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('adj-pc{i}_lrt{j}_feat', 'k',false)"><p id='adj-pc{i}_lrt{j}_adj_pc_note' style='display:none;'>   NOTE: Specifying agreement features on "the subject" or "the modified noun" will create a new position<br>  class with specified features on "both positions" and without an affix to facilitate this functionality. If this<br>  is one of those position classes, make sure the "specified on" choice is set to "both positions"<br></p>
+    <p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="adj-pc{i}_lrt{j}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt{j}_require{k}')">
+    <div class="iterframe">Lexical Rule Type {j} requires one of the following:
+    <select name="adj-pc{i}_lrt{j}_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_lrt{j}_require{k}_others', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="adj" selected class="temp">Any adjective</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="adj-pc{i}_lrt{j}_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('adj-pc{i}_lrt{j}_require', 'k',false)"><div class="iterator" style="display: none" id="adj-pc{i}_lrt{j}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt{j}_forbid{k}')">
+    <div class="iterframe">Lexical Rule Type {j} forbids the following:
+    <select name="adj-pc{i}_lrt{j}_forbid{k}_others" onfocus="fill('adj-pc{i}_lrt{j}_forbid{k}_others', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="adj" selected class="temp">Any adjective</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="adj-pc{i}_lrt{j}_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('adj-pc{i}_lrt{j}_forbid', 'k',false)"><p>Lexical Rule Instances:</p>
+    <div class="iterator" style="display: none" id="adj-pc{i}_lrt{j}_lri_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt{j}_lri{k}')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="adj-pc{i}_lrt{j}_lri{k}_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="adj-pc{i}_lrt{j}_lri{k}_inflecting" value="yes">Affix spelled</label>
+
+    <input type="text"  name="adj-pc{i}_lrt{j}_lri{k}_orth" size="20" onchange="check_radio_button('adj-pc{i}_lrt{j}_lri{k}_inflecting', 'yes'); ">
+    </div>
+    </div>
+
+    <div class="iterator" id="adj-pc{i}_lrt{j}_lri1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt{j}_lri1')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="adj-pc{i}_lrt{j}_lri1_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="adj-pc{i}_lrt{j}_lri1_inflecting" value="yes">Affix spelled</label>
+
+    <input type="text"  name="adj-pc{i}_lrt{j}_lri1_orth" size="20" onchange="check_radio_button('adj-pc{i}_lrt{j}_lri1_inflecting', 'yes'); ">
+    </div>
+    </div>
+    <div class="anchor" id="adj-pc{i}_lrt{j}_lri_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Instance" onclick="clone_region('adj-pc{i}_lrt{j}_lri', 'k',false)"></div>
+    </div>
+
+    <span id="adj-pc{i}_lrt1_errors" class="error" style="display: none"></span><a id="adj-pc{i}_lrt1button" onclick="toggle_display_lex('adj-pc{i}_lrt1','adj-pc{i}_lrt1button')">&#9660; adj-pc{i}_lrt1</a><div class="iterator" id="adj-pc{i}_lrt1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt1')">
+    <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="adj-pc{i}_lrt1_name" size="20" onchange="fill_display_name('adj-pc{i}_lrt1');">
+    <br/>Supertypes:
+    <select name="adj-pc{i}_lrt1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_lrt1_supertypes', [].concat(fill_regex('adj-pc{i}_lrt[0-9]+_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    <div class="iterator" style="display: none" id="adj-pc{i}_lrt1_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt1_feat{k}')">
+    <div class="iterframe">Name:
+    <select name="adj-pc{i}_lrt1_feat{k}_name" onfocus="fill('adj-pc{i}_lrt1_feat{k}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Specified on:
+    <select name="adj-pc{i}_lrt1_feat{k}_head" onchange="toggle_element.call(this, 'adj-pc{i}_lrt{j}_adj_pc_note', 'on', ['subj', 'mod'])">
+    <option value="adj" selected class="temp">The adjective</option>
+    <option value="subj" selected class="temp">The subject</option>
+    <option value="mod" selected class="temp">The modified noun</option>
+    <option value="xarg" selected class="temp">Both positions</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="adj-pc{i}_lrt1_feat_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('adj-pc{i}_lrt1_feat', 'k',false)"><p id='adj-pc{i}_lrt{j}_adj_pc_note' style='display:none;'>   NOTE: Specifying agreement features on "the subject" or "the modified noun" will create a new position<br>  class with specified features on "both positions" and without an affix to facilitate this functionality. If this<br>  is one of those position classes, make sure the "specified on" choice is set to "both positions"<br></p>
+    <p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="adj-pc{i}_lrt1_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt1_require{k}')">
+    <div class="iterframe">Lexical Rule Type {j} requires one of the following:
+    <select name="adj-pc{i}_lrt1_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_lrt1_require{k}_others', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="adj" selected class="temp">Any adjective</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="adj-pc{i}_lrt1_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('adj-pc{i}_lrt1_require', 'k',false)"><div class="iterator" style="display: none" id="adj-pc{i}_lrt1_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt1_forbid{k}')">
+    <div class="iterframe">Lexical Rule Type {j} forbids the following:
+    <select name="adj-pc{i}_lrt1_forbid{k}_others" onfocus="fill('adj-pc{i}_lrt1_forbid{k}_others', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="adj" selected class="temp">Any adjective</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="adj-pc{i}_lrt1_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('adj-pc{i}_lrt1_forbid', 'k',false)"><p>Lexical Rule Instances:</p>
+    <div class="iterator" style="display: none" id="adj-pc{i}_lrt1_lri_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt1_lri{k}')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="adj-pc{i}_lrt1_lri{k}_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="adj-pc{i}_lrt1_lri{k}_inflecting" value="yes">Affix spelled</label>
+
+    <input type="text"  name="adj-pc{i}_lrt1_lri{k}_orth" size="20" onchange="check_radio_button('adj-pc{i}_lrt1_lri{k}_inflecting', 'yes'); ">
+    </div>
+    </div>
+
+    <div class="iterator" id="adj-pc{i}_lrt1_lri1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt1_lri1')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="adj-pc{i}_lrt1_lri1_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="adj-pc{i}_lrt1_lri1_inflecting" value="yes">Affix spelled</label>
+
+    <input type="text"  name="adj-pc{i}_lrt1_lri1_orth" size="20" onchange="check_radio_button('adj-pc{i}_lrt1_lri1_inflecting', 'yes'); ">
+    </div>
+    </div>
+    <div class="anchor" id="adj-pc{i}_lrt1_lri_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Instance" onclick="clone_region('adj-pc{i}_lrt1_lri', 'k',false)"></div>
+    </div>
+    <div class="anchor" id="adj-pc{i}_lrt_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Type" onclick="clone_region('adj-pc{i}_lrt', 'j',true)"></div>
+    </div>
+
+    <div class="anchor" id="adj-pc_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Position Class" onclick="clone_region('adj-pc', 'i',true)"><hr>
+    <h3>Copula Inflection</h3>
+    <div class="iterator" style="display: none" id="cop-pc_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}')">
+    <div class="iterframe"><b> Copula Position Class {i}</b>:<br/>Position Class Name: <input type="text"  name="cop-pc{i}_name" size="20" onchange="fill_display_name('cop-pc{i}');">
+    <label><br/>Obligatorily occurs:<input type="checkbox"  name="cop-pc{i}_obligatory"></label>
+    <br/>Appears as a prefix or suffix:
+    <select name="cop-pc{i}_order">
+    <option value="prefix" selected class="temp">Prefix</option>
+    <option value="suffix" selected class="temp">Suffix</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    <p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="cop-pc{i}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_require{j}')">
+    <div class="iterframe">Copula Position Class {i} requires one of the following:
+    <select name="cop-pc{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_require{j}_others', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="cop" selected class="temp">Any Copula</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="cop-pc{i}_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('cop-pc{i}_require', 'j',false)"><div class="iterator" style="display: none" id="cop-pc{i}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_forbid{j}')">
+    <div class="iterframe">Copula Position Class {i} forbids the following:
+    <select name="cop-pc{i}_forbid{j}_others" onfocus="fill('cop-pc{i}_forbid{j}_others', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="cop" selected class="temp">Any Copula</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="cop-pc{i}_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('cop-pc{i}_forbid', 'j',false)"><p>Lexical Rule Types that appear in this Position Class:</p>
+    <div class="iterator" style="display: none" id="cop-pc{i}_lrt_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt{j}')">
+    <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="cop-pc{i}_lrt{j}_name" size="20" onchange="fill_display_name('cop-pc{i}_lrt{j}');">
+    <br/>Supertypes:
+    <select name="cop-pc{i}_lrt{j}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_lrt{j}_supertypes', [].concat(fill_regex('cop-pc{i}_lrt[0-9]+_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    <div class="iterator" style="display: none" id="cop-pc{i}_lrt{j}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt{j}_feat{k}')">
+    <div class="iterframe">Name:
+    <select name="cop-pc{i}_lrt{j}_feat{k}_name" onfocus="fill('cop-pc{i}_lrt{j}_feat{k}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Specified on:
+    <select name="cop-pc{i}_lrt{j}_feat{k}_head">
+    <option value="cop" selected class="temp">The copula</option>
+    <option value="subj" selected class="temp">The subject</option>
+    <option value="mod" selected class="temp">The complement</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="cop-pc{i}_lrt{j}_feat_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('cop-pc{i}_lrt{j}_feat', 'k',false)"><p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="cop-pc{i}_lrt{j}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt{j}_require{k}')">
+    <div class="iterframe">Lexical Rule Type {j} requires one of the following:
+    <select name="cop-pc{i}_lrt{j}_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_lrt{j}_require{k}_others', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="cop" selected class="temp">Any copula</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="cop-pc{i}_lrt{j}_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('cop-pc{i}_lrt{j}_require', 'k',false)"><div class="iterator" style="display: none" id="cop-pc{i}_lrt{j}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt{j}_forbid{k}')">
+    <div class="iterframe">Lexical Rule Type {j} forbids the following:
+    <select name="cop-pc{i}_lrt{j}_forbid{k}_others" onfocus="fill('cop-pc{i}_lrt{j}_forbid{k}_others', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="cop" selected class="temp">Any copula</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="cop-pc{i}_lrt{j}_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('cop-pc{i}_lrt{j}_forbid', 'k',false)"><p>Lexical Rule Instances:</p>
+    <div class="iterator" style="display: none" id="cop-pc{i}_lrt{j}_lri_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt{j}_lri{k}')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="cop-pc{i}_lrt{j}_lri{k}_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="cop-pc{i}_lrt{j}_lri{k}_inflecting" value="yes">Affix</label>
+
+    spelled<input type="text"  name="cop-pc{i}_lrt{j}_lri{k}_orth" size="20" onchange="check_radio_button('cop-pc{i}_lrt{j}_lri{k}_inflecting', 'yes'); ">
+    </div>
+    </div>
+
+    <div class="iterator" id="cop-pc{i}_lrt{j}_lri1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt{j}_lri1')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="cop-pc{i}_lrt{j}_lri1_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="cop-pc{i}_lrt{j}_lri1_inflecting" value="yes">Affix</label>
+
+    spelled<input type="text"  name="cop-pc{i}_lrt{j}_lri1_orth" size="20" onchange="check_radio_button('cop-pc{i}_lrt{j}_lri1_inflecting', 'yes'); ">
+    </div>
+    </div>
+    <div class="anchor" id="cop-pc{i}_lrt{j}_lri_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Instance" onclick="clone_region('cop-pc{i}_lrt{j}_lri', 'k',false)"></div>
+    </div>
+
+    <span id="cop-pc{i}_lrt1_errors" class="error" style="display: none"></span><a id="cop-pc{i}_lrt1button" onclick="toggle_display_lex('cop-pc{i}_lrt1','cop-pc{i}_lrt1button')">&#9660; cop-pc{i}_lrt1</a><div class="iterator" id="cop-pc{i}_lrt1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt1')">
+    <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="cop-pc{i}_lrt1_name" size="20" onchange="fill_display_name('cop-pc{i}_lrt1');">
+    <br/>Supertypes:
+    <select name="cop-pc{i}_lrt1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_lrt1_supertypes', [].concat(fill_regex('cop-pc{i}_lrt[0-9]+_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    <div class="iterator" style="display: none" id="cop-pc{i}_lrt1_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt1_feat{k}')">
+    <div class="iterframe">Name:
+    <select name="cop-pc{i}_lrt1_feat{k}_name" onfocus="fill('cop-pc{i}_lrt1_feat{k}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Specified on:
+    <select name="cop-pc{i}_lrt1_feat{k}_head">
+    <option value="cop" selected class="temp">The copula</option>
+    <option value="subj" selected class="temp">The subject</option>
+    <option value="mod" selected class="temp">The complement</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="cop-pc{i}_lrt1_feat_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('cop-pc{i}_lrt1_feat', 'k',false)"><p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="cop-pc{i}_lrt1_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt1_require{k}')">
+    <div class="iterframe">Lexical Rule Type {j} requires one of the following:
+    <select name="cop-pc{i}_lrt1_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_lrt1_require{k}_others', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="cop" selected class="temp">Any copula</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="cop-pc{i}_lrt1_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('cop-pc{i}_lrt1_require', 'k',false)"><div class="iterator" style="display: none" id="cop-pc{i}_lrt1_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt1_forbid{k}')">
+    <div class="iterframe">Lexical Rule Type {j} forbids the following:
+    <select name="cop-pc{i}_lrt1_forbid{k}_others" onfocus="fill('cop-pc{i}_lrt1_forbid{k}_others', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="cop" selected class="temp">Any copula</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="cop-pc{i}_lrt1_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('cop-pc{i}_lrt1_forbid', 'k',false)"><p>Lexical Rule Instances:</p>
+    <div class="iterator" style="display: none" id="cop-pc{i}_lrt1_lri_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt1_lri{k}')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="cop-pc{i}_lrt1_lri{k}_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="cop-pc{i}_lrt1_lri{k}_inflecting" value="yes">Affix</label>
+
+    spelled<input type="text"  name="cop-pc{i}_lrt1_lri{k}_orth" size="20" onchange="check_radio_button('cop-pc{i}_lrt1_lri{k}_inflecting', 'yes'); ">
+    </div>
+    </div>
+
+    <div class="iterator" id="cop-pc{i}_lrt1_lri1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt1_lri1')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="cop-pc{i}_lrt1_lri1_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="cop-pc{i}_lrt1_lri1_inflecting" value="yes">Affix</label>
+
+    spelled<input type="text"  name="cop-pc{i}_lrt1_lri1_orth" size="20" onchange="check_radio_button('cop-pc{i}_lrt1_lri1_inflecting', 'yes'); ">
+    </div>
+    </div>
+    <div class="anchor" id="cop-pc{i}_lrt1_lri_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Instance" onclick="clone_region('cop-pc{i}_lrt1_lri', 'k',false)"></div>
+    </div>
+    <div class="anchor" id="cop-pc{i}_lrt_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Type" onclick="clone_region('cop-pc{i}_lrt', 'j',true)"></div>
+    </div>
+
+    <div class="anchor" id="cop-pc_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Position Class" onclick="clone_region('cop-pc', 'i',true)"><hr>
+    <h3>Determiner Inflection</h3>
+    <div class="iterator" style="display: none" id="det-pc_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}')">
+    <div class="iterframe"><b>Determiner Position Class {i}</b>:<br/>Position Class Name: <input type="text"  name="det-pc{i}_name" size="20" onchange="fill_display_name('det-pc{i}');">
+    <label><br/>Obligatorily occurs:<input type="checkbox"  name="det-pc{i}_obligatory"></label>
+    <br/>Appears as a prefix or suffix:
+    <select name="det-pc{i}_order">
+    <option value="prefix" selected class="temp">Prefix</option>
+    <option value="suffix" selected class="temp">Suffix</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    <p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="det-pc{i}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_require{j}')">
+    <div class="iterframe">Determiner Position Class {i} requires one of the following:
+    <select name="det-pc{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_require{j}_others', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="det" selected class="temp">Any determiner</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="det-pc{i}_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('det-pc{i}_require', 'j',false)"><div class="iterator" style="display: none" id="det-pc{i}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_forbid{j}')">
+    <div class="iterframe">Determiner Position Class {i} forbids the following:
+    <select name="det-pc{i}_forbid{j}_others" onfocus="fill('det-pc{i}_forbid{j}_others', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="det" selected class="temp">Any determiner</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="det-pc{i}_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('det-pc{i}_forbid', 'j',false)"><p>Lexical Rule Types that appear in this Position Class:</p>
+    <div class="iterator" style="display: none" id="det-pc{i}_lrt_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt{j}')">
+    <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="det-pc{i}_lrt{j}_name" size="20" onchange="fill_display_name('det-pc{i}_lrt{j}');">
+    <br/>Supertypes:
+    <select name="det-pc{i}_lrt{j}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_lrt{j}_supertypes', [].concat(fill_regex('det-pc{i}_lrt[0-9]+_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    <div class="iterator" style="display: none" id="det-pc{i}_lrt{j}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt{j}_feat{k}')">
+    <div class="iterframe">Name:
+    <select name="det-pc{i}_lrt{j}_feat{k}_name" onfocus="fill('det-pc{i}_lrt{j}_feat{k}_name', [].concat(fill_feature_names('noun')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="det-pc{i}_lrt{j}_feat_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('det-pc{i}_lrt{j}_feat', 'k',false)"><p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="det-pc{i}_lrt{j}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt{j}_require{k}')">
+    <div class="iterframe">Lexical Rule Type {j} requires one of the following:
+    <select name="det-pc{i}_lrt{j}_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_lrt{j}_require{k}_others', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="det" selected class="temp">Any determiner</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="det-pc{i}_lrt{j}_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('det-pc{i}_lrt{j}_require', 'k',false)"><div class="iterator" style="display: none" id="det-pc{i}_lrt{j}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt{j}_forbid{k}')">
+    <div class="iterframe">Lexical Rule Type {j} forbids the following:
+    <select name="det-pc{i}_lrt{j}_forbid{k}_others" onfocus="fill('det-pc{i}_lrt{j}_forbid{k}_others', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="det" selected class="temp">Any determiner</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="det-pc{i}_lrt{j}_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('det-pc{i}_lrt{j}_forbid', 'k',false)"><p>Lexical Rule Instances:</p>
+    <div class="iterator" style="display: none" id="det-pc{i}_lrt{j}_lri_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt{j}_lri{k}')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="det-pc{i}_lrt{j}_lri{k}_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="det-pc{i}_lrt{j}_lri{k}_inflecting" value="yes">Affix</label>
+
+    spelled<input type="text"  name="det-pc{i}_lrt{j}_lri{k}_orth" size="20" onchange="check_radio_button('det-pc{i}_lrt{j}_lri{k}_inflecting', 'yes'); ">
+    </div>
+    </div>
+
+    <div class="iterator" id="det-pc{i}_lrt{j}_lri1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt{j}_lri1')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="det-pc{i}_lrt{j}_lri1_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="det-pc{i}_lrt{j}_lri1_inflecting" value="yes">Affix</label>
+
+    spelled<input type="text"  name="det-pc{i}_lrt{j}_lri1_orth" size="20" onchange="check_radio_button('det-pc{i}_lrt{j}_lri1_inflecting', 'yes'); ">
+    </div>
+    </div>
+    <div class="anchor" id="det-pc{i}_lrt{j}_lri_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Instance" onclick="clone_region('det-pc{i}_lrt{j}_lri', 'k',false)"></div>
+    </div>
+
+    <span id="det-pc{i}_lrt1_errors" class="error" style="display: none"></span><a id="det-pc{i}_lrt1button" onclick="toggle_display_lex('det-pc{i}_lrt1','det-pc{i}_lrt1button')">&#9660; det-pc{i}_lrt1</a><div class="iterator" id="det-pc{i}_lrt1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt1')">
+    <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="det-pc{i}_lrt1_name" size="20" onchange="fill_display_name('det-pc{i}_lrt1');">
+    <br/>Supertypes:
+    <select name="det-pc{i}_lrt1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_lrt1_supertypes', [].concat(fill_regex('det-pc{i}_lrt[0-9]+_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    <div class="iterator" style="display: none" id="det-pc{i}_lrt1_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt1_feat{k}')">
+    <div class="iterframe">Name:
+    <select name="det-pc{i}_lrt1_feat{k}_name" onfocus="fill('det-pc{i}_lrt1_feat{k}_name', [].concat(fill_feature_names('noun')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="det-pc{i}_lrt1_feat_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('det-pc{i}_lrt1_feat', 'k',false)"><p>Morphotactic Constraints:</p>
+    <div class="iterator" style="display: none" id="det-pc{i}_lrt1_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt1_require{k}')">
+    <div class="iterframe">Lexical Rule Type {j} requires one of the following:
+    <select name="det-pc{i}_lrt1_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_lrt1_require{k}_others', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="det" selected class="temp">Any determiner</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="det-pc{i}_lrt1_require_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('det-pc{i}_lrt1_require', 'k',false)"><div class="iterator" style="display: none" id="det-pc{i}_lrt1_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt1_forbid{k}')">
+    <div class="iterframe">Lexical Rule Type {j} forbids the following:
+    <select name="det-pc{i}_lrt1_forbid{k}_others" onfocus="fill('det-pc{i}_lrt1_forbid{k}_others', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
+    <option value="det" selected class="temp">Any determiner</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="det-pc{i}_lrt1_forbid_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('det-pc{i}_lrt1_forbid', 'k',false)"><p>Lexical Rule Instances:</p>
+    <div class="iterator" style="display: none" id="det-pc{i}_lrt1_lri_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt1_lri{k}')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="det-pc{i}_lrt1_lri{k}_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="det-pc{i}_lrt1_lri{k}_inflecting" value="yes">Affix</label>
+
+    spelled<input type="text"  name="det-pc{i}_lrt1_lri{k}_orth" size="20" onchange="check_radio_button('det-pc{i}_lrt1_lri{k}_inflecting', 'yes'); ">
+    </div>
+    </div>
+
+    <div class="iterator" id="det-pc{i}_lrt1_lri1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt1_lri1')">
+    <div class="iterframe">Instance {k}
+    <label><input type="radio"  name="det-pc{i}_lrt1_lri1_inflecting" value="no">No affix</label>
+    <label><input type="radio"  name="det-pc{i}_lrt1_lri1_inflecting" value="yes">Affix</label>
+
+    spelled<input type="text"  name="det-pc{i}_lrt1_lri1_orth" size="20" onchange="check_radio_button('det-pc{i}_lrt1_lri1_inflecting', 'yes'); ">
+    </div>
+    </div>
+    <div class="anchor" id="det-pc{i}_lrt1_lri_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Instance" onclick="clone_region('det-pc{i}_lrt1_lri', 'k',false)"></div>
+    </div>
+    <div class="anchor" id="det-pc{i}_lrt_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Lexical Rule Type" onclick="clone_region('det-pc{i}_lrt', 'j',true)"></div>
+    </div>
+
+    <div class="anchor" id="det-pc_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Position Class" onclick="clone_region('det-pc', 'i',true)">
+    </form>
+  </div>
+
+  </body>
+
+</html>

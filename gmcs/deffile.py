@@ -1,13 +1,12 @@
+#!usr/bin/env python2.7
+
 ### $Id: deffile.py,v 1.16 2008-09-30 23:50:02 lpoulson Exp $
 
 """
-This module is currently a bit of a hybrid.  Most of the code is
-part of the MatrixDefFile class, which is used both to parse
-./matrixdef and to emit HTML.  However, a couple of the methods
-on that class, while they do output HTML, don't have anything to
-do with the matrixdef file.  The HTML-generation code should
-probably be split out into a separate module/class.  Later.
-  - sfd 3/5/2008
+deffile.py
+
+This module provides the class MatrixDefFile and supporting methods for validating,
+loading, and generating HTML from files defining pages in the matrixdef specification
 
 TODO: Move everything except for MatrixDefFile to a different module
 TODO: Think about either making constants for accessing indices of MatrixDefFile
@@ -24,6 +23,7 @@ import re
 import tarfile
 import gzip
 import zipfile
+import codecs
 
 from collections import defaultdict
 
@@ -42,16 +42,16 @@ from jinja2 import Environment, PackageLoader
 def dummy():
   pass # let emacs know the indentation is 2 spaces
 
-HTML_jscache = '''<script type="text/javascript">
+HTML_jscache = u'''<script type="text/javascript">
 // A cache of choices from other subpages
 var %s = [
 %s
 ];
 </script>'''
 
-HTML_preform = '<form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">'
+HTML_preform = u'<form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">'
 
-HTML_postform = '</form>'
+HTML_postform = u'</form>'
 
 
 ######################################################################
@@ -63,9 +63,9 @@ HTML_postform = '</form>'
 
 ######################################################################
 # Constants
-COMMENT_CHAR = "#"
+COMMENT_CHAR = u"#"
 
-HTTP_COOKIE = "HTTP_COOKIE"
+HTTP_COOKIE = u"HTTP_COOKIE"
 
 ######################################################################
 # Jinja
@@ -125,7 +125,7 @@ def merge_quoted_strings(document):
     j = 0
     in_quotes = False
     while j < len(document[i]):
-      if document[i][j] == '"' and (j == 0 or document[i][j-1] != '\\'):
+      if document[i][j] == u'"' and (j == 0 or document[i][j-1] != u'\\'):
         in_quotes = not in_quotes
       j += 1
 
@@ -145,7 +145,7 @@ def replace_vars(line, iter_vars):
   Replace variables of the form "{name}" in line using the dict iter_vars
   """
   for k in iter_vars:
-    line = re.sub('\\{' + k + '\\}', str(iter_vars[k]), line)
+    line = re.sub(u'\\{' + k + u'\\}', str(iter_vars[k]), line)
   return line
 
 
@@ -163,32 +163,32 @@ def replace_vars_tokenized(tokens, iter_vars):
 def compile_string_keys(regexes):
   result = {}
   for regex in regexes:
-    result[regex] = re.compile("\\{%s\\}" % regex)
+    result[regex] = re.compile(u"\\{%s\\}" % regex)
   return result
 
 
 ######################################################################
 # Valid commands
 
-SECTION = 'Section'
-TEXT = 'Text'
-TEXT_AREA = 'TextArea'
-CHECK = 'Check'
-RADIO = 'Radio'
-BULLET = '.'
-BUTTON = 'Button'
-FILE = 'File'
+SECTION = u'Section'
+TEXT = u'Text'
+TEXT_AREA = u'TextArea'
+CHECK = u'Check'
+RADIO = u'Radio'
+BULLET = u'.'
+BUTTON = u'Button'
+FILE = u'File'
 
-LABEL = 'Label'
-HIDDEN = 'Hidden'
-SEPARATOR = 'Separator'
+LABEL = u'Label'
+HIDDEN = u'Hidden'
+SEPARATOR = u'Separator'
 
-CACHE = 'Cache'
+CACHE = u'Cache'
 
-SELECT = 'Select'
-MULTI_SELECT = 'MultiSelect'
-BEGIN_ITER = 'BeginIter'
-END_ITER = 'EndIter'
+SELECT = u'Select'
+MULTI_SELECT = u'MultiSelect'
+BEGIN_ITER = u'BeginIter'
+END_ITER = u'EndIter'
 
 commands = set([SECTION, TEXT, TEXT_AREA, CHECK, RADIO, BUTTON, FILE, LABEL,
                 HIDDEN, SEPARATOR, CACHE, SELECT, MULTI_SELECT, BEGIN_ITER, END_ITER])
@@ -233,7 +233,8 @@ class MatrixDefFile:
     (Re)load a matrixdef file to this MatrixDefFile
     """
     self.def_file = def_file
-    with open(self.def_file) as f:
+    # with open(self.def_file) as f:
+    with codecs.open(self.def_file, encoding="utf-8") as f:
       self.__load_file(f)
 
     self.make_name_map()
@@ -244,7 +245,7 @@ class MatrixDefFile:
     Load the matrixdef file into memory
     """
     def_lines = merge_quoted_strings(f.readlines())
-    def_lines = map(str.strip, def_lines) # Remove unimportant whitespace
+    def_lines = map(unicode.strip, def_lines) # Remove unimportant whitespace
     self.def_lines = [line for line in def_lines if line] # Remove empty lines
     self.tokenized_lines = [tokenize_def(line) for line in self.def_lines] # Tokenize ONCE
 
@@ -400,7 +401,7 @@ class MatrixDefFile:
         features=html.js_array4(choices.features()),
         verb_case_patterns=html.js_array([c for c in choices.patterns() if not c[2]]),
         numbers=html.js_array(choices.numbers()),
-        onload=tokenized_section_def[0][4] if len(tokenized_section_def[0]) > 4 else "",
+        onload=tokenized_section_def[0][4] if len(tokenized_section_def[0]) > 4 else u"",
         cookie=cookie,
         section_name=self.section_names[section],
         section_doc_link=self.doc_links[section],
@@ -420,13 +421,13 @@ class MatrixDefFile:
     # we don't want the contents of the archive to be something like
     # sessions/7149/..., so we remove session_path from grammar_path
     grammar_dir = grammar_path.replace(session_path, '').lstrip('/')
-    if arch_type == 'tgz':
+    if arch_type == u'tgz':
       arch_file = grammar_dir + '.tar.gz'
     else:
       arch_file = grammar_dir + '.zip'
     cwd = os.getcwd()
     os.chdir(session_path)
-    if arch_type == 'tgz':
+    if arch_type == u'tgz':
       make_tgz(grammar_dir)
     else:
       make_zip(grammar_dir)
@@ -447,9 +448,9 @@ class MatrixDefFile:
     for i in range(len(sentences)):
       long = False
       print "<b>" + sentences[i][0][0][4:]+"</b> " + sentences[i][0][2] + ", with predication: " + ", ".join(sentences[i][0][1].values()) +"<br>"
-      if len(sentences[i][1]) > 0 and sentences[i][1][0] == '#EDGE-ERROR#':
+      if len(sentences[i][1]) > 0 and sentences[i][1][0] == u'#EDGE-ERROR#':
         print 'This grammar combined with this input semantics results in too large of a seach space<br>'
-      elif len(sentences[i][1]) > 0 and sentences[i][1][0] == '#NO-SENTENCES#':
+      elif len(sentences[i][1]) > 0 and sentences[i][1][0] == u'#NO-SENTENCES#':
         print 'This combination of verb, pattern, and feature specification did not result in any generated sentences with the nouns that the system chose.<br>'
         print HTML_preform
         print '<input type="hidden" name="verbpred" value="%s">' % sentences[i][0][1]
@@ -500,9 +501,9 @@ class MatrixDefFile:
                                                                template_file,
                                                                session)
     if len(sentences) > 0:
-      if sentences[0] == "#EDGE-ERROR#":
+      if sentences[0] == u"#EDGE-ERROR#":
         print 'This grammar combined with this input semantics results in too large of a search space<br>'
-      if sentences[0] == "#NO-SENTENCES#":
+      if sentences[0] == u"#NO-SENTENCES#":
         print 'This combination of verb, pattern, and feature specification did not result in any generated sentences.<br>'
       else:
         for j in range(len(sentences)):
@@ -575,11 +576,11 @@ class MatrixDefFile:
     """
     # Get cookie
     if not choices:
-      choices_file = 'sessions/' + cookie + '/choices'
+      choices_file = u'sessions/' + cookie + '/choices'
       choices = ChoicesFile(choices_file)
     else:
       # In test mode
-      choices_file = ''
+      choices_file = u''
     return choices, choices_file
 
 
@@ -605,7 +606,7 @@ class MatrixDefFile:
     # to the assocated sub-pages on the main page.
     result = []
 
-    prefix = ''
+    prefix = u''
     for word, word_length, element in self.__get_words(self.tokenized_lines):
       if word_length < 2 or word[0][0] == COMMENT_CHAR:
         pass
@@ -615,26 +616,26 @@ class MatrixDefFile:
 
       elif element == BEGIN_ITER:
         if prefix:
-          prefix += '_'
+          prefix += u'_'
         prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
 
       elif element == END_ITER:
         prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
 
       elif not (element == LABEL and word_length < 3):
-        pat = '^' + prefix
+        pat = u'^' + prefix
         if prefix:
-          pat += '_'
+          pat += u'_'
         pat += word[1] + '$'
         # TODO: This could be made more efficient
         for k in vr.errors.keys():
           if re.search(pat, k):
-            anchor = "matrix.cgi?subpage="+cur_sec+"#"+k
+            anchor = u"matrix.cgi?subpage="+cur_sec+"#"+k
             vr.err(cur_sec, "This section contains one or more errors. \nClicking this error will link to the error on the subpage.", anchor+"_error", False)
             break
         for k in vr.warnings.keys():
           if re.search(pat, k):
-            anchor = "matrix.cgi?subpage="+cur_sec+"#"+k
+            anchor = u"matrix.cgi?subpage="+cur_sec+"#"+k
             vr.warn(cur_sec, "This section contains one or more warnings. \nClicking this warning will link to the warning on the subpage.", anchor+"_warning", False)
             break
 
@@ -642,8 +643,8 @@ class MatrixDefFile:
     for word, word_length, element in self.__get_words(self.tokenized_lines):
       if word_length == 0:
         pass
-      # TODO: This != '0' seems to be an undocumented feature of matrixdef... confirm
-      elif element == SECTION and (word_length != 4 or word[3] != '0'):
+      # TODO: This != u'0' seems to be an undocumented feature of matrixdef... confirm
+      elif element == SECTION and (word_length != 4 or word[3] != u'0'):
         result.append('<div class="section"><span id="' + word[1] + 'button" ' + \
               'onclick="toggle_display(\'' + \
               word[1] + '\',\'' + word[1] + 'button\')"' + \
@@ -651,17 +652,17 @@ class MatrixDefFile:
         result.append(html.validation_mark(vr, word[1], info=False))
         result.append('<a href="matrix.cgi?subpage=%s">%s</a>\n' % (word[1], word[2]))
         result.append('<div class="values" id="%s" style="display:none">' % word[1])
-        cur_sec = ''
+        cur_sec = u''
         printed_something = False
         for c in choices:
           try:
             c = c.strip()
             if c:
               a, v = c.split('=', 1)
-              if a == 'section':
+              if a == u'section':
                 cur_sec = v.strip()
               elif cur_sec == word[1]:
-                result.append(self.f(a) + ' = ' + self.f(v) + '<br>')
+                result.append(self.f(a) + ' = u' + self.f(v) + '<br>')
                 printed_something = True
           except ValueError:
             if cur_sec == word[1]:
@@ -719,7 +720,7 @@ class MatrixDefFile:
       for f in glob.iglob('web/sample-choices/*'):
         f = f.replace('\\', '/')
         lang = choices.get_choice('language', f) or '(empty questionnaire)'
-        if lang == 'minimal-grammar': lang = '(minimal grammar)'
+        if lang == u'minimal-grammar': lang = u'(minimal grammar)'
         linklist[lang] = f
 
       for k in sorted(linklist.keys(), lambda x, y: cmp(x.lower(), y.lower())):
@@ -739,15 +740,15 @@ class MatrixDefFile:
     """
 
     # Get the validation
-    prefix = ''
+    prefix = u''
     sec_links = []
     n = -1
     printed = False
     for word, word_length, element in self.__get_words(self.tokenized_lines):
-      cur_sec = ''
+      cur_sec = u''
       if word_length < 2 or word[0][0] == COMMENT_CHAR:
         pass
-      elif word_length == 5 and word[4] == '0':
+      elif word_length == 5 and word[4] == u'0':
         # TODO: This is an undocumented feature of matrixdef: consider
         # don't print links to sections that are marked 0
         # TODO: Leaving this in is fine... just need to document it
@@ -763,14 +764,14 @@ class MatrixDefFile:
         n += 1
       elif element == BEGIN_ITER:
         if prefix:
-          prefix += '_'
+          prefix += u'_'
         prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
       elif element == END_ITER:
         prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
       elif not (element == LABEL and len(word) < 3):
-        pattern = '^' + prefix
+        pattern = u'^' + prefix
         if prefix:
-          pattern += '_'
+          pattern += u'_'
         pattern += word[1] + '$'
 
         # TODO: This could be made more efficient
@@ -854,14 +855,14 @@ class MatrixDefFile:
 
     num_lines = len(tokenized_lines)
 
-    page = ""
+    page = u""
     i = 0
     while i < num_lines:
       word, word_length, element = self.__get_word(tokenized_lines, i)
       if word:
         if element in self.html_gens:
           word, word_length, element, i, result = self.html_gens[element](
-              tokenized_lines, choices, vr, prefix, variables,
+              tokenized_lines, choices, vr, cookie, prefix, variables,
               num_lines, word, word_length, element, i)
           page += result
 
@@ -879,7 +880,7 @@ class MatrixDefFile:
     return True
 
 
-  def button_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+  def button_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
     if word_length < 5:
       # TODO: Technically, before and after should be optional
       raise MatrixDefSyntaxException("Button improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
@@ -888,7 +889,7 @@ class MatrixDefFile:
     return word, word_length, element, i, result
 
 
-  def cache_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+  def cache_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
     if word_length < 3:
       raise MatrixDefSyntaxException("Cache improperly defined: %s; expected at least 3 tokens, got %s" % (word, word_length))
     cache_name = word[1]
@@ -901,8 +902,8 @@ class MatrixDefFile:
     return word, word_length, element, i, result
 
 
-  def check_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
-    result = ""
+  def check_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+    result = u""
     if word_length < 5:
       # TODO: Technically, before and after should be optional
       raise MatrixDefSyntaxException("Check improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
@@ -923,7 +924,7 @@ class MatrixDefFile:
     return word, word_length, element, i, result
 
 
-  def file_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+  def file_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
     if word_length < 5:
       # TODO: Technically, before and after should be optional
       raise MatrixDefSyntaxException("File improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
@@ -934,7 +935,7 @@ class MatrixDefFile:
     return word, word_length, element, i, result
 
 
-  def hidden_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+  def hidden_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
     if word_length < 3:
       raise MatrixDefSyntaxException("Hidden improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
     vn, fn = word[1:]
@@ -943,10 +944,10 @@ class MatrixDefFile:
     return word, word_length, element, i, result
 
 
-  def iter_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+  def iter_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
     if word_length < 3:
       raise MatrixDefSyntaxException("BeginIter improperly defined: %s; expected at least 3 tokens, got %s" % (word, word_length))
-    result = ""
+    result = u""
     iter_orig = word[1]
     if "{" not in iter_orig or "}" not in iter_orig:
       raise MatrixDefSyntaxException("BeginIter improperly defined: %s; missing variable defined as {\\d}" % word)
@@ -969,7 +970,7 @@ class MatrixDefFile:
     if word_length > 5:
       # matrixdef contains name of choice to switch on
       switch = word[5]
-      skip_this_iter = check_choice_switch(switch, choices)
+      skip_this_iter = self.check_choice_switch(switch, choices)
 
     # collect the lines that are between BeginIter and EndIter
     i += 1
@@ -988,17 +989,17 @@ class MatrixDefFile:
       # write out the (invisible) template for the iterator
       # (this will be copied by JavaScript on the client side when
       # the user clicks the "Add" button)
-      result += '<div class="iterator" style="display: none" id="' + \
+      result += u'<div class="iterator" style="display: none" id="' + \
               prefix + iter_name + '_TEMPLATE">\n'
       result += html.html_delbutton(prefix + iter_name + '{' + iter_var + '}')
-      result += '<div class="iterframe">'
+      result += u'<div class="iterframe">'
       result += self.defs_to_html(tokenized_lines[beg:end],
                                 choices,
                                 vr,
                                 prefix + iter_orig + '_',
                                 variables
       )
-      result += '</div>\n</div>\n\n'
+      result += u'</div>\n</div>\n\n'
 
       # write out as many copies of the iterator as called for by
       # the current choices file OR iter_min copies, whichever is
@@ -1008,7 +1009,7 @@ class MatrixDefFile:
       chlist = [x for x in choices.get(prefix + iter_name) if x]
       chlist_length = len(chlist)
       while (chlist and c < chlist_length) or c < iter_min:
-        show_name = ""
+        show_name = u""
         if c < chlist_length:
           iter_num = str(chlist[c].iter_num())
           show_name = chlist[c]["name"]
@@ -1024,25 +1025,25 @@ class MatrixDefFile:
             name = show_name+" ("+new_prefix[:-1]+")"
           else:
             name = new_prefix[:-1]
-          result += '<span id="'+new_prefix[:-1]+'_errors" class="error" '
-          if cookie.get(new_prefix[:-1]+'button','block') != 'none':
-            result += 'style="display: none"'
-          result += '></span>'+'<a id="' + new_prefix[:-1] + 'button" ' + \
+          result += u'<span id="'+new_prefix[:-1]+'_errors" class="error" '
+          if cookie.get(new_prefix[:-1]+'button','block') != u'none':
+            result += u'style="display: none"'
+          result += u'></span>'+'<a id="' + new_prefix[:-1] + 'button" ' + \
               'onclick="toggle_display_lex(\'' + \
               new_prefix[:-1] + '\',\'' + new_prefix[:-1] + 'button\')">'
 
-          if cookie.get(new_prefix[:-1]+'button','block') == 'none':
-            result += '&#9658; '+name+'<br /></a>'
+          if cookie.get(new_prefix[:-1]+'button','block') == u'none':
+            result += u'&#9658; '+name+'<br /></a>'
           else:
-            result += '&#9660; '+name+'</a>'
+            result += u'&#9660; '+name+'</a>'
 
-        if cookie.get(new_prefix[:-1], 'block') == 'block':
-          result += '<div class="iterator" id="' + new_prefix[:-1] + '">\n'
+        if cookie.get(new_prefix[:-1], 'block') == u'block':
+          result += u'<div class="iterator" id="' + new_prefix[:-1] + '">\n'
         else:
-          result += '<div class="iterator" style="display: none" id="' + new_prefix[:-1] + '">\n'
+          result += u'<div class="iterator" style="display: none" id="' + new_prefix[:-1] + '">\n'
 
         result += html.html_delbutton(new_prefix[:-1])
-        result += '<div class="iterframe">'
+        result += u'<div class="iterframe">'
         # TODO: Consider not doing this? Can the previous result simply be modified???
         # It looks like each iteration changes "variables"... think more about this
         # Additionally, some choices are loaded into the block via their prefix
@@ -1052,32 +1053,32 @@ class MatrixDefFile:
                                   new_prefix,
                                   variables
         )
-        result += '</div>\n</div>\n' # close iterator, iterframe
+        result += u'</div>\n</div>\n' # close iterator, iterframe
 
         del variables[iter_var]
         c += 1
 
       # write out the "anchor" marking the end of the iterator and
       # the "Add" button
-      result += '<div class="anchor" id="' + \
+      result += u'<div class="anchor" id="' + \
               prefix + iter_name + '_ANCHOR"></div>\n<p>'
       # add any iterator-nonspecific errors here
       result += html.validation_mark(vr, prefix + iter_name)
 
       # finally add the button
-      result += '<input type="button" name="" ' + \
+      result += u'<input type="button" name="" ' + \
               'value="Add ' + label + '" ' + \
               'onclick="clone_region(\'' + \
               prefix + iter_name + '\', \'' + \
               iter_var + '\','
 
-      result += 'true' if show_hide else 'false'
-      result += ')">'
+      result += u'true' if show_hide else 'false'
+      result += u')">'
     return word, word_length, element, i, result
 
 
-  def label_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
-    result = ""
+  def label_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+    result = u""
     if word_length > 2:
       key = prefix + word[1]
       result += html.validation_mark(vr, key)
@@ -1085,8 +1086,8 @@ class MatrixDefFile:
     return word, word_length, element, i, result
 
 
-  def radio_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
-    result = ""
+  def radio_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+    result = u""
     if word_length < 5:
       raise MatrixDefSyntaxException("Radio button improperly defined: %s; expected at least 5 tokens, got %s: \"%s\"" % (word, word_length, " ".join(tokenized_lines[i])))
     vn, fn, bf, af = word[1:5]
@@ -1109,7 +1110,7 @@ class MatrixDefFile:
           if element != BULLET:
             break
           # Reset flags on each item
-          disabled, js = '', ''
+          disabled, js = u'', ''
           checked = False
           rval, rfrn, rbef, raft = word[1:5]
           # Format choice name
@@ -1134,12 +1135,12 @@ class MatrixDefFile:
     return word, word_length, element, i, result
 
 
-  def select_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
-    result = ""
+  def select_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+    result = u""
     multi = element == MULTI_SELECT
     vn, fn, bf, af = word[1:5]
 
-    onfocus, onchange = '', ''
+    onfocus, onchange = u'', ''
     if word_length > 5: onfocus = word[5]
     if word_length > 6: onchange = word[6]
 
@@ -1151,33 +1152,25 @@ class MatrixDefFile:
 
     # look ahead and see if we have an auto-filled drop-down
     i += 1
-    if i < num_lines:
+    while i < num_lines:
       word, word_length, element = self.__get_word(tokenized_lines, i)
       # TODO: Also, consider if the fill commands could go anywhere in the list...
-      while i < num_lines and element.startswith('fill'):
-        word, word_length, element = self.__get_word(tokenized_lines, i)
+      if element.startswith('fill'):
         # arguments are labeled like p=pattern, l(literal_feature)=1,
         # n(nameOnly)=1, c=cat
-        argstring = ','.join(['true' if a in ('n', 'l') else "'%s'" % x
+        argstring = u','.join(['true' if a in ('n', 'l') else "'%s'" % x
                               for a, x in [w.split('=') for w in word[1:]]])
         fillers.append(self.fillstrings[element] % {'args':argstring})
         i += 1
+      else:
+        break
 
-
-    # SECTION variables:
-    # SVAL: selected option variable name, e.g. "verb", "subj",
-    #     i.e. the variable name of value previously selected
-    # VN: variable name, e.g. "verb1_feat1_head"
-    # self.f(VN): friendly name, e.g. "The verb", "The subject"
-    # OFRN: option friendly name, e.g. "The verb", "The subject"
-    # OVAL: option variable name, e.g. "verb", "subj"
-    # OHTML: option HTML after, e.g. "the verb", some javascript, etc.
-
-    # Get previously selected item
+    # TODO: Separate out the fillers and the previously selected items
+    # Fill in values from fillers and get previously selected item
     # TJT 2014-05-08 always get selected value, even if not using fillers
     sval = choices.get(vn)
     if fillers:
-      fillcmd = "fill('%s', [].concat(%s));" % (vn, ','.join(fillers))
+      fillcmd = u"fill('%s', [].concat(%s));" % (vn, ','.join(fillers))
       result += html.html_select(vr, vn, multi, fillcmd+onfocus, onchange=onchange) + '\n'
       # Mark previously selected filled item as selected
       # This is necessary because the value is not in the deffile
@@ -1188,11 +1181,11 @@ class MatrixDefFile:
       # will be marked during option processing below
       result += html.html_select(vr, vn, multi, onchange=onchange) + '\n'
 
-    # Add individual items, if applicable
-    if i < num_lines:
+    # Add individual bullets, if applicable
+    while i < num_lines:
       word, word_length, element = self.__get_word(tokenized_lines, i)
-      while i < num_lines and element == BULLET:
-        word, word_length, element = self.__get_word(tokenized_lines, i)
+      if element == BULLET:
+        # word, word_length, element = self.__get_word(tokenized_lines, i)
         sstrike = False # Reset variable
         # select/multiselect options
         oval, ofrn, ohtml = word[1:4]
@@ -1202,39 +1195,43 @@ class MatrixDefFile:
         # Add option and mark "selected" if previously selected
         result += html.html_option(vr, oval, sval == oval, ofrn, strike=sstrike) + '\n'
         i += 1
+      else:
+        break
+
+
     # add empty option
     result += html.html_option(vr, '', False, '') + '\n'
-    result += '</select>'
+    result += u'</select>'
     result += af + '\n'
     return word, word_length, element, i, result
 
 
-  def separator_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
+  def separator_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
     return word, word_length, element, i, "<hr>\n"
 
 
-  def text_to_html(self, tokenized_lines, choices, vr, prefix, variables, num_lines, word, word_length, element, i):
-    result = ""
+  def text_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+    result = u""
     if word_length > 6:
       vn, fn, bf, af, sz, oc = word[1:]
     else:
       vn, fn, bf, af, sz = word[1:]
-      oc = ''
+      oc = u''
     # TJT 2014-08-27: Prepend auto onchange events (instead of assinging)
-    if vn == "name":
-      oc = "fill_display_name('"+prefix[:-1]+"');" + oc
+    if vn == u"name":
+      oc = u"fill_display_name('"+prefix[:-1]+"');" + oc
     # TJT 2014-08-26: Adding auto check radio button
     # on morphology page affixes
-    elif vn == "orth":
+    elif vn == u"orth":
       # If previous non-empty line a radio definition, add check radio
       # button function to onChange
       if tokenized_lines[i-1][0] == BULLET:
-        oc = "check_radio_button('"+prefix[:-1]+"_inflecting', 'yes'); " + oc
+        oc = u"check_radio_button('"+prefix[:-1]+"_inflecting', 'yes'); " + oc
     vn = prefix + vn
     value = choices.get(vn, '') # If no choice existing, return ''
     result += html.html_input(vr, element.lower(), vn, value,
                 checked=False, before=bf, after=af, size=sz, onchange=oc)
-    result += "\n"
+    result += u"\n"
 
     return word, word_length, element, i, result
 
@@ -1258,7 +1255,7 @@ class MatrixDefFile:
   # TODO: Modularize these
   # TODO: Unit test these
   def save_choices_section(self, lines, f, choices,
-                           iter_level = 0, prefix = ''):
+                           iter_level = 0, prefix = u''):
     """
     Based on a section of a matrix definition file in lines, save the
     values from choices into the file handle f.  The section in lines
@@ -1276,11 +1273,11 @@ class MatrixDefFile:
         vn = word[1]
         if prefix + vn not in already_saved:
           already_saved[prefix + vn] = True
-          val = ''
+          val = u''
           if choices.get(prefix + vn):
             val = choices.get(prefix + vn)
             if word[0] == TEXT_AREA:
-                val = '\\n'.join(val.splitlines())
+                val = u'\\n'.join(val.splitlines())
           if vn and val:
             f.write('  '*iter_level) # TJT 2014-09-01: Changing this to one write from loop
             f.write(prefix + vn + '=' + val + '\n')
@@ -1348,57 +1345,57 @@ class MatrixDefFile:
 
     # TJT: 2014-08-26: If optionally copula complement,
     # add zero rules to choices
-    if section == 'lexicon':
+    if section == u'lexicon':
       # TODO: make this a function
       for adj in new_choices.get('adj', []): # check NEW values
-        if adj.get('predcop') == "opt":
+        if adj.get('predcop') == u"opt":
           atype = get_name(adj)
-          pc_name = "%s_opt_cop" % atype
+          pc_name = u"%s_opt_cop" % atype
           # Skip if already added
           if not any(pc.get('name','') == pc_name
                      for pc in old_choices['adj-pc']):
-            switching_pc = "adj-pc%d" % (old_choices['adj-pc'].next_iter_num()
+            switching_pc = u"adj-pc%d" % (old_choices['adj-pc'].next_iter_num()
                                          if old_choices['adj-pc'] else 1)
             # Set up position class
             old_choices[switching_pc+"_name"] = pc_name
-            old_choices[switching_pc+"_obligatory"] = "on"
+            old_choices[switching_pc+"_obligatory"] = u"on"
             old_choices[switching_pc+"_inputs"] = atype
             # Set up new position class as a "switching" pc
-            old_choices[switching_pc+'_switching'] = "on"
+            old_choices[switching_pc+'_switching'] = u"on"
             # Define lexical rule types
             aToA = switching_pc+'_lrt1'
             aToV = switching_pc+'_lrt2'
             # Write adjective to adjective rule
-            old_choices[aToA+"_name"] = "%s_cop_comp" % atype
-            old_choices[aToA+"_predcop"] = "on"
-            old_choices[aToA+"_mod"] = "pred"
+            old_choices[aToA+"_name"] = u"%s_cop_comp" % atype
+            old_choices[aToA+"_predcop"] = u"on"
+            old_choices[aToA+"_mod"] = u"pred"
             # Write adjective to verb rule
-            old_choices[aToV+"_name"] = "%s_stative_pred" % atype
-            #old_choices[aToV+"_predcop"] = "off" # Unchecked is off
-            old_choices[aToV+"_mod"] = "pred"
+            old_choices[aToV+"_name"] = u"%s_stative_pred" % atype
+            #old_choices[aToV+"_predcop"] = u"off" # Unchecked is off
+            old_choices[aToV+"_mod"] = u"pred"
 
 
     # TJT: 2014-08-26: If adjective agrees only with one argument,
     # add zero rules to choices
-    #if section == 'lexicon': # already in lexicon
+    #if section == u'lexicon': # already in lexicon
       # Check lexicon for argument agreement
       for adj in new_choices.get('adj',[]): # check NEW values
         for feat in adj.get('feat',[]):
           if feat.get('head','') in ('subj','mod'):
             atype = get_name(adj)
-            pc_name = "%s_argument_agreement" % atype
+            pc_name = u"%s_argument_agreement" % atype
             # Skip if already added
             if not any(pc.get('name','') == pc_name for pc in old_choices['adj-pc']):
               feats_to_add[atype].append(feat)
 
-    elif section == 'morphology':
+    elif section == u'morphology':
       # Check morphology for argument agreement
       for adj_pc in new_choices.get('adj-pc',[]): # check NEW values
         for lrt in adj_pc.get('lrt',[]):
           for feat in lrt.get('feat',[]):
             if feat.get('head','') in ('subj','mod'):
               apc = adj_pc.full_key
-              pc_name = "%s_argument_agreement" % apc
+              pc_name = u"%s_argument_agreement" % apc
               # Skip if already added
               if not any(pc.get('name','') == pc_name for pc in old_choices['adj-pc']):
                 feats_to_add[apc].append(feat)
@@ -1406,42 +1403,42 @@ class MatrixDefFile:
 
     if section in ('lexicon', 'morphology'):
       # With features collected, add them to choices dict
-      target_page_choices = old_choices if section == "lexicon" else new_choices
+      target_page_choices = old_choices if section == u"lexicon" else new_choices
       for adj in feats_to_add:
         # Add zero rules
-        argument_agreement_pc = "adj-pc%d" % (old_choices['adj-pc'].next_iter_num()
+        argument_agreement_pc = u"adj-pc%d" % (old_choices['adj-pc'].next_iter_num()
                                               if old_choices['adj-pc'] else 1)
         # Set up position class
-        target_page_choices[argument_agreement_pc+'_name'] = "%s_argument_agreement" % adj
-        target_page_choices[argument_agreement_pc+'_obligatory'] = 'on'
+        target_page_choices[argument_agreement_pc+'_name'] = u"%s_argument_agreement" % adj
+        target_page_choices[argument_agreement_pc+'_obligatory'] = u'on'
         target_page_choices[argument_agreement_pc+'_inputs'] = adj
         # Set up new position class as a "switching" pc
-        target_page_choices[argument_agreement_pc+'_switching'] = 'on'
+        target_page_choices[argument_agreement_pc+'_switching'] = u'on'
         # Define lexical rule types
         subj_only = argument_agreement_pc+'_lrt1'
         mod_only = argument_agreement_pc+'_lrt2'
         # Write subject agreement rule
-        target_page_choices[subj_only+'_name'] = "%s_subj_agr" % adj
-        target_page_choices[subj_only+'_mod'] = 'pred'
+        target_page_choices[subj_only+'_name'] = u"%s_subj_agr" % adj
+        target_page_choices[subj_only+'_mod'] = u'pred'
         # Write modificand agreement rule
-        target_page_choices[mod_only+"_name"] = "%s_mod_agr" % adj
-        target_page_choices[mod_only+"_mod"] = "attr"
+        target_page_choices[mod_only+"_name"] = u"%s_mod_agr" % adj
+        target_page_choices[mod_only+"_mod"] = u"attr"
         # Add features from lexicon page to morphology page
         feat_count = 1
         for feat in feats_to_add[adj]:
           head = feat.get('head','').lower()
           if head in ('subj', 'mod'):
-            if head == 'subj':
+            if head == u'subj':
               # Copy subject agreement features
               feature_vn = subj_only+"_feat%d" % feat_count
-            elif head == 'mod':
+            elif head == u'mod':
               # Copy object agreement features
               feature_vn = mod_only+"_feat%d" % feat_count
             target_page_choices[feature_vn+'_name'] = feat.get('name')
             target_page_choices[feature_vn+'_value'] = feat.get('value')
             # Adjectives' MOD, XARG, and SUBJ identified
             # so just agree with the XARG
-            target_page_choices[feature_vn+'_head'] = 'xarg'
+            target_page_choices[feature_vn+'_head'] = u'xarg'
             # Delete this feature from current page
             new_choices.delete(feat.full_key+'_name')
             new_choices.delete(feat.full_key+'_value')
@@ -1449,7 +1446,7 @@ class MatrixDefFile:
             feat_count += 1
 
     # if neg-aux=on exists, create side-effect in lexicon.
-    if section == 'sentential-negation' \
+    if section == u'sentential-negation' \
       and ('neg-aux' in form_data.keys() \
       or ('bineg-type' in form_data.keys() \
       and form_data['bineg-type'].value =='infl-head')):
@@ -1465,30 +1462,30 @@ class MatrixDefFile:
         new_choices["neg-aux-index"] = str(neg_aux_index) if neg_aux_index > 0 else str(1)
 
     # create a zero-neg lri in choices
-    if section == 'sentential-negation' \
-               and form_data['neg-exp'].value == '0' \
+    if section == u'sentential-negation' \
+               and form_data['neg-exp'].value == u'0' \
                and 'vpc-0-neg' in form_data.keys():
-      if form_data['vpc-0-neg'].value != "":
+      if form_data['vpc-0-neg'].value != u"":
         # infl-neg should be on for zero-neg to work
-        new_choices['infl-neg'] = 'on'
+        new_choices['infl-neg'] = u'on'
         old_choices, new_choices = self.create_infl_neg_choices(old_choices, new_choices)
 
     # add FORM subtype for neg1b-neg2b analysis
     # also add it for infl-head neg analysis
-    if section == 'sentential-negation':
+    if section == u'sentential-negation':
       keys = form_data.keys()
       if 'neg1b-neg2b' in keys or \
-        ('neg1-type' in keys and 'neg2-type' in keys and form_data['neg1-type'].value == 'fh' and form_data['neg2-type'].value == 'b') or \
-        ('neg1-type' in keys and 'neg2-type' in keys and form_data['neg2-type'].value == 'fh' and form_data['neg1-type'].value == 'b'):
+        ('neg1-type' in keys and 'neg2-type' in keys and form_data['neg1-type'].value == u'fh' and form_data['neg2-type'].value == u'b') or \
+        ('neg1-type' in keys and 'neg2-type' in keys and form_data['neg2-type'].value == u'fh' and form_data['neg1-type'].value == u'b'):
         next_n = old_choices['nf-subform'].next_iter_num() if 'nf-subform' in old_choices else 1
         found_negform = False
         if next_n > 1:
           nfss = old_choices.get('nf-subform')
           for nfs in nfss:
-            if nfs['name'] == 'negform':
+            if nfs['name'] == u'negform':
               found_negform = True
         if not found_negform:
-          old_choices['nf-subform%d_name' % next_n ] = 'negform'
+          old_choices['nf-subform%d_name' % next_n ] = u'negform'
 
     # Now pass through the def file, writing out either the old choices
     # for each section or, for the section we're saving, the new choices
@@ -1496,7 +1493,7 @@ class MatrixDefFile:
       f.write('\n') # blank line in case an editor inserts a BOM
       f.write('version=' + str(old_choices.current_version()) + '\n\n')
 
-      cur_sec = ''
+      cur_sec = u''
       cur_sec_begin = 0
       # TODO: Verify these changes
       #while i < len(self.def_lines):
@@ -1533,12 +1530,12 @@ class MatrixDefFile:
     next_n = choices['aux'].next_iter_num() if 'aux' in choices else 1
 
     # create a new aux with that number
-    choices['aux%d_name' % next_n] = 'neg'
+    choices['aux%d_name' % next_n] = u'neg'
 
     # copy that to nli for adding further information
     nli = choices['aux'].get_last()
     nli['sem']='add-pred'
-    nli['stem1_pred'] = 'neg_rel'
+    nli['stem1_pred'] = u'neg_rel'
 
     if 'bineg-type' in form_data.keys() and \
       form_data['bineg-type'].value =='infl-head':
@@ -1546,7 +1543,7 @@ class MatrixDefFile:
       nli['compfeature1_value']='negform'
 
     # if auxiliaries are off, turn them on
-    choices['has-aux'] = 'yes'
+    choices['has-aux'] = u'yes'
     return choices, next_n
 
 
@@ -1555,26 +1552,26 @@ class MatrixDefFile:
     TODO: Move this elsewhere
     """
     vpc = new_choices['vpc-0-neg']
-    lrt = ''
-    if vpc == 'create':
+    lrt = u''
+    if vpc == u'create':
       next_n = old_choices['verb-pc'].next_iter_num() if old_choices['verb-pc'] else 1
-      old_choices['verb-pc%d_name' % next_n] = 'negpc'
+      old_choices['verb-pc%d_name' % next_n] = u'negpc'
       vpc = old_choices['verb-pc'].get_last()
-      vpc['lrt1_name'] = 'neg'
+      vpc['lrt1_name'] = u'neg'
       lrt = old_choices['verb-pc'].get_last()['lrt'].get_last()
-      new_choices['vpc-0-neg'] = 'verb-pc'+str(next_n)
+      new_choices['vpc-0-neg'] = u'verb-pc'+str(next_n)
 
     else:
       next_n = old_choices[vpc]['lrt'].next_iter_num() if old_choices[vpc]['lrt'] else 1
     # create new lrt in this position class
-      old_choices[vpc]['lrt%d_name' % next_n] = 'neg'
+      old_choices[vpc]['lrt%d_name' % next_n] = u'neg'
       # add some features for negation and empty PHON
       lrt = old_choices[vpc]['lrt'].get_last()
 
-    lrt['feat1_name']= 'negation'
-    lrt['feat1_value'] = 'plus'
-    lrt['feat1_head'] = 'verb'
-    lrt['lri1_inflecting'] = 'no'
+    lrt['feat1_name']= u'negation'
+    lrt['feat1_value'] = u'plus'
+    lrt['feat1_head'] = u'verb'
+    lrt['lri1_inflecting'] = u'no'
     return old_choices, new_choices
 
 

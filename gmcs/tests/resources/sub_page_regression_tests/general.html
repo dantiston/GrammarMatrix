@@ -1,0 +1,114 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>General Information</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["argument structure:intrans|intransitive (case unspecified);trans|transitive (case unspecified)::verb",
+"negation:plus|plus;minus|minus::verb",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:LOCAL.CONT.HOOK.ICONS-KEY:both"];
+
+      var verb_case_patterns = ["intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)"];
+
+      var numbers = [];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h2 style="display:inline">General Information</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/GeneralInfo" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">General Information</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('word-order')">Word Order</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('number')">Number</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('person')">Person</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gender')">Gender</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('case')">Case</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('direct-inverse')">Direct-inverse</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect, and Mood</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('other-features')">Other Features</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('sentential-negation')">Sentential Negation</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('coordination')">Coordination</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('arg-opt')">Argument Optionality</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('lexicon')">Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Import Toolbox Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">Test by Generation Options</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('ToolboxLexicon')">Toolbox Lexicon</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <h3>Language</h3>
+    <p>Name of your language: <input type="text"  name="language" size="50"></p><br>
+    <a href="http://www.sil.org/iso639-3/codes.asp">ISO code</a> for your language: <input type="text"  name="iso-code" size="6"> (optional) </p>
+    <h3>String-processing</h3><p>Your grammar will include a basic tokenizer file for string-level processing (<span class='tt'>vanilla.rpp</span>, see <a href='http://moin.delph-in.net/ReppTop/'>ReppTop</a> documentation).  We have three default options for this file.  If you do not answer, your grammar will include a tokenizer which will discard most ascii punctuation (except the hyphen, colon, and equals [-,:,=]).<br />
+    <br />
+    <label><input type="radio"  name="punctuation-chars" value="discard-all">split on, and then discard all punctuation characters found in this default list (all lower ascii punctuation except \x22 "): <span class='tt'>!#$%&#38;'()*+,-./:;&lt;=&gt;?@[]^_`{|}~\</span><!--we can't currently do anything about the unicode characters... maybe later 。！？…．　○●◎＊☆★◇◆--><br /></label>
+    <label><input type="radio"  name="punctuation-chars" value="keep-all">only split space and tab characters, all other characters can occur in tokens<br /></label>
+    <label><input type="radio"  name="punctuation-chars" value="keep-list">place characters into a list of characters that can occur within tokens (you can copy and paste from the default list above; do not use any commas or spaces to delimit characters).</label>
+
+    &nbsp;&nbsp;Punctuation characters to parse:<input type="text"  name="punctuation-chars-list" size="50"><br />
+    <h3>Archiving and Version Control</h3>
+    <p>The developers of the Grammar Matrix project would like to
+    retain your answers to this questionnaire in an archive.  We hope
+    that, as the number of linguistic phenomena covered by the
+    questionnaire grows, these archived sets of answers can be used as the
+    basis for a database that will be useful to linguistic typological
+    research. We welcome answers from users of all experience levels.</p>
+    <p>May we retain your answers to this questionnaire?<br>
+    <label><input type="radio"  name="archive" value="yes"> yes (recommended)<br></label>
+    <label><input type="radio"  name="archive" value="no"> no</p></label>
+
+    <p>If you answered "yes", we ask that you also (optionally)
+    provide the information below.  This information will be used to
+    distinguish multiple linguists working on the same language, to help
+    us improve the Grammar Matrix, and possibly to contact you in the
+    future.  We will not share your answers or identifying information
+    outside the project, unless required by law.</p>
+    <table id='feedback'><tr><td>Your email address: <td><input type="text"  name="email" size="40"></tr>
+    <tr><td>Your affiliation: <td><input type="text"  name="affiliation" size="40"></tr>
+    <tr><td>Your reason for using this system: <td><input type="text"  name="motivation" size="80"><br>(e.g. descriptive linguistic research, for a class)</tr>
+    <tr><td>Comments on your implementation of the grammar: <td><TextArea name="comment" cols="80" rows="6"></TextArea><br>(e.g. Choice of analyses, sources of information, etc.)</tr></table>
+    <p>We recommend that you use version control for your grammar development, and aim to facilitate that in two ways.  First, you can choose to have your grammar's code initialized into a Git or Mercurial repository.  Please see <a href="http://wiki.delph-in.net/moin/VersionControlForGrammarDevelopment">this wiki page</a> for information on how to use these systems. The wiki also includes information on how to use Subversion (svn) with your grammar.</p>
+    <p>Version Control System.<br>
+    <label><input type="radio"  name="vcs" value="none"> None<br></label>
+    <label><input type="radio"  name="vcs" value="hg"> Mercurial (hg)<br></label>
+    <label><input type="radio"  name="vcs" value="git"> Git<br></label>
+
+    <p>You may also wish to have your repository hosted through an open source hosting service (e.g., Google Code or GitHub).  This provides off-site back-up and facilitates sharing your grammar and collaborating with others.  The wiki (linked above) includes information on how to set that up.  Note that Google Code can host Mercurial or Subversion repositories, and GitHub hosts Git repositories. If you do host your grammar on one of these sites, please let us know that you have, by emailing matrix-dev -at- uw.edu.</p>
+    </form>
+  </div>
+
+  </body>
+
+</html>

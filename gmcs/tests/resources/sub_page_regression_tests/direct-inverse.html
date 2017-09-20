@@ -1,0 +1,129 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Direct-inverse</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["argument structure:intrans|intransitive (case unspecified);trans|transitive (case unspecified)::verb",
+"negation:plus|plus;minus|minus::verb",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:LOCAL.CONT.HOOK.ICONS-KEY:both"];
+
+      var verb_case_patterns = ["intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)"];
+
+      var numbers = [];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h2 style="display:inline">Direct-inverse</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/DirectInverse" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('general')">General Information</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('word-order')">Word Order</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('number')">Number</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('person')">Person</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gender')">Gender</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('case')">Case</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Direct-inverse</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect, and Mood</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('other-features')">Other Features</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('sentential-negation')">Sentential Negation</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('coordination')">Coordination</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('arg-opt')">Argument Optionality</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('lexicon')">Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Import Toolbox Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">Test by Generation Options</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('ToolboxLexicon')">Toolbox Lexicon</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <p>In some languages, the pattern of marking of verbal
+    arguments (or verbs themselves) is sensitive to a grammatical <span
+    class="dfn">scale</span> that ranks argument noun phrases according
+    to how natural they are in the role of agent; for example, a language
+    might rank animate NPs as more natural agents than inanimate NPs.  In
+    such languages, transitive sentences in which the agent outranks the
+    patient are marked differently from those in which the patient
+    outranks the agent.  Such sentences are said to differ in <span
+    class="dfn">direction</span>.  Sentences where the agent outranks
+    the patient are called <span class="dfn">direct</span>, while
+    sentences where the patient outranks the agent are called <span
+    class="dfn">inverse</span>.  The difference between direct and
+    inverse sentences may be marked by a different verb form, by different
+    cases on the argument NPs, or both.  Creating a direct-inverse scale
+    here will make available, on the Lexicon page, argument structures for
+    verbs that are sensitive to the scale, and also the <span
+    class="feat">direction</span> feature for use in verbal
+    inflection.</p>
+    <p>If your language shows the direct-inverse pattern, please
+    describe the features that define the scale below.  The scale entries
+    should be entered in order from the highest (most agent-like) to the
+    lowest (most patient-like).</p>
+    <div class="iterator" style="display: none" id="scale_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('scale{i}')">
+    <div class="iterframe"><b>Scale entry {i}</b><br>Features:
+    <div class="iterator" style="display: none" id="scale{i}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('scale{i}_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="scale{i}_feat{j}_name" onfocus="fill('scale{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="scale{i}_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('scale{i}_feat1')">
+    <div class="iterframe">Name:
+    <select name="scale{i}_feat1_name" onfocus="fill('scale{i}_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="scale{i}_feat_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('scale{i}_feat', 'j',false)"></div>
+    </div>
+
+    <div class="anchor" id="scale_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Scale Entry" onclick="clone_region('scale', 'i',true)"><p>When the agent and patient have the same scale value, the main verb is
+    <select name="scale-equal">
+    <option value="direct" selected class="temp">Direct</option>
+    <option value="other" selected class="temp">Some other form</option>
+    <option value="" selected class="temp"></option>
+    </select><br>(The other form may be something like a reflexive.  If you select "some other form", the resulting grammar will not parse sentences where the agent and patient are equally ranked.  You will need to edit the starter grammar manually to add the other form.)</p>
+    </form>
+  </div>
+
+  </body>
+
+</html>

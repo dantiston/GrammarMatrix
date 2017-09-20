@@ -1,0 +1,234 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Argument Optionality</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["argument structure:intrans|intransitive (case unspecified);trans|transitive (case unspecified)::verb",
+"negation:plus|plus;minus|minus::verb",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:LOCAL.CONT.HOOK.ICONS-KEY:both"];
+
+      var verb_case_patterns = ["intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)"];
+
+      var numbers = [];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h2 style="display:inline">Argument Optionality</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/ArgumentOptionality" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('general')">General Information</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('word-order')">Word Order</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('number')">Number</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('person')">Person</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gender')">Gender</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('case')">Case</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('direct-inverse')">Direct-inverse</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect, and Mood</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('other-features')">Other Features</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('sentential-negation')">Sentential Negation</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('coordination')">Coordination</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Argument Optionality</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('lexicon')">Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Import Toolbox Lexicon</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">Test by Generation Options</a><br />
+    <span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('ToolboxLexicon')">Toolbox Lexicon</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <p> Languages place different restrictions on argument
+    optionality.  Some require that subjects (and objects of transitive
+    verbs) always be overtly realized as separate words. Others allow
+    subjects and/or objects to be dropped for all verbs or only for
+    certain verbs or in particular contexts.  For example, English always
+    requires overt subjects (<i>I studied</i>) whereas in Arabic the
+    corresponding sentence does not require a pronoun (<i>darastu</i>).
+    In languages which allow argument dropping a marker is often attached
+    to the verb that contains all of the information that a pronoun
+    would--person, number, and gender.  This is not always the case,
+    however.  Japanese for instance allows subject dropping but does not
+    mark the verb for person, number or gender (Dryer 2008).</p>
+    <p>Does your language allow argument optionality?  If so,
+    choose the option that best describes your language.  If not, leave
+    this page blank.</p>
+    <p> NOTE: The questionnaire is only able to handle subject and
+    object marking that occurs on the verb.  It is unable to handle
+    clitics which can attach to words other than the verb.</p>
+    <h3>Subject Dropping</h3>
+    <p>In some languages subjects can always be dropped and in
+    others they can only be dropped for certain verbs or in certain
+    contexts.  Tamil generally allows subject dropping but does not allow
+    verbs relating to the weather to drop their subjects (Asher 1985).
+    Arabic allows subjects to be dropped for all verbs, tenses and persons
+    whereas Hebrew does not allow subjects to be dropped in the present
+    tense (Vainikka and Levy 1999).  If your language only allows subjects
+    to be dropped for certain combinations of verb tenses/aspects and
+    persons/number, please choose the feature values for those
+    combinations.</p>
+    <p>Subject dropping can occur </p>
+    <label><input type="radio"  name="subj-drop" value="subj-drop-all">with any verb<br></label>
+    <label><input type="radio"  name="subj-drop" value="subj-drop-lex">only with certain verbs</label>
+
+    <p>NOTE: When completing the lexicon page, for each verb type
+    which does not allow subject dropping, select the feature <span
+    class="feat">OPT</span> - and marked on the subject.</p>
+    <p>When a subject is dropped, a subject marker on the verb is</p>
+    <label><input type="radio"  name="subj-mark-drop" value="subj-mark-drop-req">required<br></label>
+    <label><input type="radio"  name="subj-mark-drop" value="subj-mark-drop-opt">optional<br></label>
+    <label><input type="radio"  name="subj-mark-drop" value="subj-mark-drop-not">not permitted</label>
+
+    <p>When a subject is overt (not dropped), a subject marker on the verb is</p>
+    <label><input type="radio"  name="subj-mark-no-drop" value="subj-mark-no-drop-req">required<br></label>
+    <label><input type="radio"  name="subj-mark-no-drop" value="subj-mark-no-drop-opt">optional<br></label>
+    <label><input type="radio"  name="subj-mark-no-drop" value="subj-mark-no-drop-not">not permitted</label>
+
+    <p>NOTE: When completing the morphology page, for each morpheme
+    that is optional or required when a subject is dropped and not
+    permitted when an overt subject is present, select <span
+    class="feat">overt-arg</span> not permitted and marked on the
+    subject.</p>
+    <p> For each morpheme that is not permitted when a subject is
+    dropped and required or optional when an overt subject is present,
+    select <span class="feat">drp-arg</span> not permitted and marked on
+    the subject.</p>
+    <p> For each morpheme that is optional when a subject is
+    dropped and required when an overt subject is present, select
+    <span class="feat">dropped-arg</span>  permitted and marked
+    on the subject.</p>
+    <p>For each morpheme that is required when a subject is dropped and
+    optional when an overt subject is present, select
+    <span class="feat">overt-arg</span> permitted and marked on the subject.</p>
+    <p>Subject dropping occurs in </p>
+    <label><input type="radio"  name="subj-con" value="subj-con-always">all contexts<br></label>
+    <label><input type="radio"  name="subj-con" value="subj-con-some">some contexts</label>
+
+    <p><b>Contexts</b></p>
+    <div class="iterator" style="display: none" id="context_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('context{i}')">
+    <div class="iterframe"><b>Context {i}</b><br>
+    Features:
+    <div class="iterator" style="display: none" id="context{i}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('context{i}_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="context{i}_feat{j}_name" onfocus="fill('context{i}_feat{j}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Specified on:
+    <select name="context{i}_feat{j}_head">
+    <option value="verb" selected class="temp">The verb</option>
+    <option value="subj" selected class="temp">The subject</option>
+    <option value="obj" selected class="temp">The object</option>
+    <option value="higher" selected class="temp">Higher-ranked</option>
+    <option value="lower" selected class="temp">Lower-ranked</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="context{i}_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('context{i}_feat1')">
+    <div class="iterframe">Name:
+    <select name="context{i}_feat1_name" onfocus="fill('context{i}_feat1_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Specified on:
+    <select name="context{i}_feat1_head">
+    <option value="verb" selected class="temp">The verb</option>
+    <option value="subj" selected class="temp">The subject</option>
+    <option value="obj" selected class="temp">The object</option>
+    <option value="higher" selected class="temp">Higher-ranked</option>
+    <option value="lower" selected class="temp">Lower-ranked</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="context{i}_feat_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('context{i}_feat', 'j',false)"></div>
+    </div>
+
+    <div class="anchor" id="context_ANCHOR"></div>
+    <p><input type="button" name="" value="Add a Context" onclick="clone_region('context', 'i',true)"><h3>Object Dropping</h3>
+    <p>Some languages allow all transitive verbs to drop their
+    objects. In other languages object dropping is restricted to certain
+    verbs.  English is an example of the latter.  In general transitive
+    verbs must have an overt object, but there are a few verbs such as eat
+    which allow object dropping.</p>
+    <p>Object dropping is </p>
+    <label><input type="radio"  name="obj-drop" value="obj-drop-all">always allowed<br></label>
+    <label><input type="radio"  name="obj-drop" value="obj-drop-lex">lexically licensed</label>
+
+    <p>NOTE: When completing the lexicon page, for each verb which does not allow object dropping, select the feature <span
+    class="feat">OPT</span> - and marked on the object.</p>
+    <p>When an object is dropped, an object marker on the verb is  </p>
+    <label><input type="radio"  name="obj-mark-drop" value="obj-mark-drop-req">required<br></label>
+    <label><input type="radio"  name="obj-mark-drop" value="obj-mark-drop-opt">optional<br></label>
+    <label><input type="radio"  name="obj-mark-drop" value="obj-mark-drop-not">not permitted<br></label>
+
+    <p>When an object is overt (not dropped), an object marker on the verb is</p>
+    <label><input type="radio"  name="obj-mark-no-drop" value="obj-mark-no-drop-req">required<br></label>
+    <label><input type="radio"  name="obj-mark-no-drop" value="obj-mark-no-drop-opt">optional<br></label>
+    <label><input type="radio"  name="obj-mark-no-drop" value="obj-mark-no-drop-not">not permitted<br></label>
+
+    <p>NOTE: When completing the morphology page, for each morpheme
+    that is optional or required when an object is dropped and not
+    permitted when an overt object is present, select <span
+    class="feat">overt-arg</span> not permitted and marked on the
+    object.</p>
+    <p> For each morpheme that is not permitted when an object is
+    dropped and required or optional when an overt object is present,
+    select <span class="feat">drp-arg</span> not permitted and marked on
+    the object.</p>
+    <p> For each morpheme that is optional when an object is
+    dropped and required when an overt object is present, select
+    <span class="feat">dropped-arg</span>  permitted and marked
+    on the object.</p>
+    <p>For each morpheme that is required when an object is dropped and
+    optional when an overt object is present, select
+    <span class="feat">overt-arg</span> permitted and marked on the object.</p>
+    <h4>References</h4>
+    <div style="font-size:2">
+    <p>Asher, R.E. 1985. Tamil. London:Croom-Helm.</p>
+    <p>Dryer, M. 2008. "Expression of Pronominal Subjects."
+    WALS. <a
+    href="http://wals.info/feature/description/101">http://wals.info/feature/description/101</a></p>
+    <p> Vainikka, A and Levy, Y. 1999. "Empty Subjects in Finnish
+    and Hebrew." Natural Language and Linguistic Theory 17: 614-71.</p>
+    </div>
+    </form>
+  </div>
+
+  </body>
+
+</html>

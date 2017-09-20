@@ -1,0 +1,8 @@
+Section test-radios-with-text "Test Radios With Text" TestRadiosWithText
+
+Radio test-radio "Test Radio" "<br />" ""
+. test-basic "test basic" "" ""
+. keep-before-after "test before and after HTML" "<p>Before HTML</p>" "<p>After HTML</p>"
+. test-disabled "test disabled feature" "" "" x
+
+Text test "Test name" "<p>Some test text: </p>" "<br />" 42

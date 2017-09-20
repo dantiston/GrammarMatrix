@@ -6,9 +6,9 @@ Utilities for HTML formatting
 
 ################################################################################
 # Constants
-ERROR = "*"
-WARNING = "?"
-INFO = "#"
+ERROR = u"*"
+WARNING = u"?"
+INFO = u"#"
 
 ################################################################################
 # Validation methods
@@ -17,7 +17,7 @@ def validation_mark(vr, name, info=True):
   """
   Check if there's an error and generate the appropriate error mark
   """
-  result = ''
+  result = u''
   if name in vr.errors:
     result = html_error_mark(vr.errors[name])
   elif name in vr.warnings:
@@ -31,12 +31,12 @@ def html_mark(mark, vm):
   """
   Return a formatted validation note
   """
-  msg = vm.message.replace('"', '&quot;')
+  msg = vm.message.replace(u'"', u'&quot;')
   info = mark == INFO
-  sort = "name" if not vm.href and not info else "href"
+  sort = u"name" if not vm.href and not info else u"href"
   marker = vm.href or vm.name
-  css_class = "info" if info else "error"
-  return '<a %s="%s" style="text-decoration:none"><span class="%s" title="%s">%s</span></a>' %\
+  css_class = u"info" if info else u"error"
+  return u'<a %s="%s" style="text-decoration:none"><span class="%s" title="%s">%s</span></a>' %\
          (sort, marker, css_class, msg, mark)
 
 
@@ -65,45 +65,45 @@ def html_input(vr, sort, name, value, checked=False,
 
   if size:
     if 'x' in size:
-      size = ' cols="%s" rows="%s"' % tuple(size.split('x'))
+      size = u' cols="%s" rows="%s"' % tuple(size.split('x'))
     else:
-      size = ' size="' + size + '"'
+      size = u' size="' + size + '"'
 
   if onclick:
-    onclick = ' onclick="%s"' % onclick
+    onclick = u' onclick="%s"' % onclick
   if onchange:
-    onchange = ' onchange="%s"' % onchange
+    onchange = u' onchange="%s"' % onchange
 
-  chkd = ' checked="checked"' if checked else ''
-  dsabld = ' disabled="disabled"' if disabled else ''
+  chkd = u' checked="checked"' if checked else u''
+  dsabld = u' disabled="disabled"' if disabled else u''
 
-  mark = ''
+  mark = u''
   # TJT 9-16-17 Not checking validation on buttons
   if sort not in ('radio', 'button'):
     mark = validation_mark(vr, name)
 
-  if sort == 'textarea':
+  if sort == u'textarea':
     value = value.replace('\\n','\n')
-    return '%s%s<TextArea name="%s"%s>%s</TextArea>%s' % \
+    return u'%s%s<TextArea name="%s"%s>%s</TextArea>%s' % \
          (before, mark, name, size, value, after)
 
   else:
     if html_class:
-      html_class = ' class="%s"' % html_class
+      html_class = u' class="%s"' % html_class
     if value:
-      value = ' value="%s"' % value
+      value = u' value="%s"' % value
     if name:
-      name = ' name="%s"' % name
+      name = u' name="%s"' % name
     if title:
-      title = ' title="%s"' % title
+      title = u' title="%s"' % title
 
-    output = '%s%s<input type="%s" %s%s%s%s%s%s%s%s%s>%s' % \
+    output = u'%s%s<input type="%s" %s%s%s%s%s%s%s%s%s>%s' % \
          (before, mark, sort, html_class, title, name, value,
           chkd, size, dsabld, onclick, onchange, after)
 
     # TJT 2014-09-05: If checkbox
     if sort in ('checkbox', 'radio'):
-      output = "<label>%s</label>" % output
+      output = u"<label>%s</label>" % output
 
     return output
 
@@ -115,14 +115,14 @@ def html_select(vr, name, multi=False, onfocus='', onchange=''):
   """
   mark = validation_mark(vr, name)
 
-  multi_attr = ' class="multi"  multiple="multiple" ' if multi else ''
+  multi_attr = u' class="multi"  multiple="multiple" ' if multi else u''
 
   if onfocus:
-    onfocus = ' onfocus="%s"' % onfocus
+    onfocus = u' onfocus="%s"' % onfocus
   if onchange:
-    onchange = ' onchange="%s"' % onchange
+    onchange = u' onchange="%s"' % onchange
 
-  return '%s<select name="%s"%s%s%s>' % \
+  return u'%s<select name="%s"%s%s%s>' % \
          (mark, name, multi_attr, onfocus, onchange)
 
 
@@ -134,14 +134,14 @@ def html_option(vr, name, selected, html, temp=False, strike=False):
   # TJT 2014-03-19: adding disabled option for always-disabled "future work"
   # TODO: javascript cuts this out, need to change javascript
   if strike:
-    strike = ' disabled'
-    html = '<p style="display:inline;color:#ADADAD"> %s</p>' % html
-  else: strike = ''
+    strike = u' disabled'
+    html = u'<p style="display:inline;color:#ADADAD"> %s</p>' % html
+  else: strike = u''
 
-  temp = ' class="temp"' or ''
-  selected = ' selected' or ''
+  temp = u' class="temp"' or ''
+  selected = u' selected' or ''
 
-  return '<option value="%s"%s%s%s>%s</option>' % \
+  return u'<option value="%s"%s%s%s>%s</option>' % \
          (name, selected, temp, strike, html)
 
 
@@ -162,7 +162,7 @@ def js_array(items, N=2):
   a string containing a JavaScript-formatted list of strings of the
   form 'string1:string2'.
   """
-  return ",\n".join(('"' + ":".join(item[:N]) + '"' for item in items))
+  return u",\n".join((u'"' + u":".join(item[:N]) + u'"' for item in items))
 
 
 def js_array3(items):
