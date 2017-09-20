@@ -5,7 +5,7 @@ import getopt
 import subprocess
 import random
 from gmcs.choices import ChoicesFile
-from gmcs.deffile import MatrixDefFile
+from gmcs.deffile import MatrixDef
 
 #import cgi
 
@@ -865,9 +865,10 @@ def validate_html(arg):
 
   if arg == '':
     # get the list of subpages by instantiating matrixdef
-    md = MatrixDefFile('web/matrixdef')
+    # TODO: Make this a parameter?
+    md = MatrixDef('web/matrixdef')
     print "subpages:"
-    for s in md.sections.keys():
+    for s in md.sections:
       time.sleep(2) # w3c asks for >= 1s  b/t requests
       print "\nsending subpage: ",s,"..."
       cmd = os.path.join(os.environ['CUSTOMIZATIONROOT'],

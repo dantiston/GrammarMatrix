@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import unittest
 import tempfile
-from gmcs.choices import ChoicesFile
-from gmcs.choices import FormData
-from gmcs.choices import FormInfo
+
+from gmcs.choices import ChoicesFile, FormData, FormInfo
 from gmcs.linglib import toolboximport
-from gmcs.deffile import MatrixDefFile
+from gmcs.deffile import MatrixDef
 
 class TestToolboxImport(unittest.TestCase):
+
   def setUp(self):
     try:
       #try to close open toolbox temp file handles
@@ -16,10 +16,11 @@ class TestToolboxImport(unittest.TestCase):
     except AttributeError:
       #If we don't have any toolbox_files then just continue
       pass
-    self.toolbox_files = [];
+    self.toolbox_files = []
     self.c = ChoicesFile()
     self.gold = ChoicesFile()
-    self.matrixdef = MatrixDefFile('web/matrixdef')
+    self.matrixdef = MatrixDef('web/matrixdef')
+
 
   def save_choices(self, choices):
     '''This writes a choices file using matrix def.'''
@@ -31,6 +32,7 @@ class TestToolboxImport(unittest.TestCase):
     tmp.seek(0)
     self.matrixdef.save_choices(formdata, tmp.name)
     return tmp
+
 
   def add_toolbox_files(self, choices, tb_strings):
     '''
@@ -45,7 +47,8 @@ class TestToolboxImport(unittest.TestCase):
         self.toolbox_files.append(fout);
         choices["toolboximportconfig"+str(i+1)+"_toolboxfile"+str(j+1)+"_tbfilename"] = fout.name
     return self.save_choices(choices)
- 
+
+
   def test_empty(self):
     '''
     Test loading an empty toolbox lexicon into an empty choices file.
@@ -57,6 +60,7 @@ class TestToolboxImport(unittest.TestCase):
     choices.close()
     self.gold.load_choices(empty_choices_file.splitlines())
     self.assertEqual(self.c, self.gold)
+
 
   def test_import(self):
     '''
@@ -12187,7 +12191,7 @@ section=test-sentences
 
 section=gen-options
 
-section=ToolboxLexicon''' 
+section=ToolboxLexicon'''
 
 test_gold_file = '''
 version=26
@@ -12697,7 +12701,7 @@ section=ToolboxLexicon
   imported-entry133_lextype=noun1
   imported-entry133_orth=4836.3519236004
   imported-entry133_pred=_6172%2E12633457846_n_rel
-''' 
+'''
 
 if __name__ == '__main__':
     unittest.main()

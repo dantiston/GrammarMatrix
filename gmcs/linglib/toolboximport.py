@@ -4,9 +4,8 @@
 import os
 import re
 from gmcs.utils import TDLencode
-from gmcs.choices import ChoicesFile
-from gmcs.choices import FormData
-from gmcs.deffile import MatrixDefFile
+from gmcs.choices import ChoicesFile, FormData
+from gmcs.deffile import MatrixDef
 
 # ERB 2011-04-25
 # These functions enable the import of information from
@@ -44,7 +43,7 @@ def make_pred(tbentry,stemtag,glosstag,predchoice,lextype):
         print "Error: lex cat isn't verb or noun."
     # Construct stem
     if predchoice == 'stem':
-        pred = TDLencode('_' + tbentry[stemtag] + rel) 
+        pred = TDLencode('_' + tbentry[stemtag] + rel)
     elif predchoice == 'gloss':
         if tbentry[glosstag]:
             pred = TDLencode('_' + tbentry[glosstag] + rel)
@@ -59,7 +58,7 @@ def make_pred(tbentry,stemtag,glosstag,predchoice,lextype):
         print "Error: bad predchoice."
 
     return pred
-  
+
 
 def process_tb_entry(tbentry,lexclasses,stemtag,
                      bistemtag,glosstag,predchoice,choices,affixes,
@@ -82,7 +81,7 @@ def process_tb_entry(tbentry,lexclasses,stemtag,
 
         if match == len(tvps):
 #            if choices['imported-entry']:
-#                n = choices['imported-entry'].next_iter_num() 
+#                n = choices['imported-entry'].next_iter_num()
 #            else:
 #                n = 1
             prefix = 'imported-entry' + str(n)
@@ -103,10 +102,10 @@ def process_tb_entry(tbentry,lexclasses,stemtag,
                 continue
 
     return affixes
- 
+
 
 def get_affix_from_entry(tbentry,idtag,stemtag,affixes,affix_strings):
-    ''' 
+    '''
     Given a toolbox entry see if it is an entry for a bistem
     affix, If so, find the orthography of the affix and store it in
     the affix_strings dictionary.
@@ -223,20 +222,23 @@ def import_toolbox_lexicon(choicesfile):
                             tbentry = {}
                         tbentry[words[0]] = ' '.join(words[1:])
                 insert_affixes(form_data, affix_strings, form_data_entries)
-                # FIXME:  Put a break statement here so that we 
+                # FIXME:  Put a break statement here so that we
                 # don't keep reading the file if we've found all the
                 # affixes (i.e., if affixes == []).
-        
+
 
     # Print new choices file by concatenating input choices
     # with output choices.  FIXME: What about section=?
-    matrixdef = MatrixDefFile('web/matrixdef')
-    matrixdef.save_choices(form_data, choicesfile)
+    # TODO: Definitely make this not use the def file
+    # TODO: Make the deffile a parameter
+    # TODO: Make sure to change this when moving save_choices
+    matrixdef = MatrixDef("web/matrixdef").save_choices(form_data, choicesfile)
 #    fout = open(choicesfile+"new", 'w')
 #    choices['version'] = str(choices.current_version())
 #    fout.write(str(choices))
 #    fout.write('Toolbox entries processed: ' + str(tbentries))
 #    fout.write('Total entries imported: ' + str(choices['imported-entry'].next_iter_num() - 1))
+
 
 def integrate_imported_entries(choices):
     '''
@@ -261,7 +263,7 @@ def integrate_imported_entries(choices):
 
         if choices[prefix]:
             n = choices[prefix].next_iter_num()
-        else: 
+        else:
             n = 1
 
         prefix = prefix + str(n)
@@ -277,4 +279,3 @@ def integrate_imported_entries(choices):
     # and then come back some time later).  Also, the printed version
     # should probably include the section = lines, right?
     choices.delete('imported-entry')
-

@@ -39,7 +39,7 @@ class RegressionTests(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls._definition = deffile.MatrixDefFile("web/matrixdef")
+    cls._definition = deffile.MatrixDef("web/matrixdef")
 
 
   def testCase(self):

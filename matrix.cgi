@@ -17,7 +17,7 @@ import tempfile
 from random import randint
 from distutils.dir_util import remove_tree
 
-from gmcs.deffile import MatrixDefFile
+from gmcs.deffile import MatrixDef
 from gmcs.customize import customize_matrix
 from gmcs.validate import validate_choices
 from gmcs.choices import ChoicesFile
@@ -28,7 +28,8 @@ from gmcs.linglib.toolboximport import import_toolbox_lexicon
 # beginning of main program
 
 # TODO: Can we store this in a server side session?
-matrixdef = MatrixDefFile('web/matrixdef')
+# TODO: Make this a parameter?
+matrixdef = MatrixDef('web/matrixdef')
 
 form_data = cgi.FieldStorage()
 
@@ -192,11 +193,11 @@ if form_data.has_key('customize'):
       matrixdef.custom_page(session_path, grammar_dir, arch_type)
 elif form_data.has_key('subpage'):
   if browser_cookie:
-    matrixdef.sub_page(form_data['subpage'].value, cookie, vr)
+    print(matrixdef.sub_page(form_data['subpage'].value, cookie, vr))
   else:
     matrixdef.cookie_error_page()
 else:
-  matrixdef.main_page(cookie, vr)
+  print(matrixdef.main_page(cookie, vr))
 
 
 if __name__ == "__main__":

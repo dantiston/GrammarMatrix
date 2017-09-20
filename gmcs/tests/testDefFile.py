@@ -17,7 +17,7 @@ def get_path(*path):
 
 def load(file_name):
   path = get_path("resources", "test_defs", file_name)
-  return deffile.MatrixDefFile(path)
+  return deffile.MatrixDef(path)
 
 
 def load_expected(file_name):
@@ -71,7 +71,7 @@ class DefsToHtmlTests(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls._definition = deffile.MatrixDefFile(None)
+    cls._definition = deffile.MatrixDef(None)
 
 
   def testDefsToHtml_cache(self):
@@ -83,15 +83,16 @@ class DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
-  # @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
-  # def testDefsToHtml_iter(self):
-  #   with os_environ(HTTP_COOKIE="session=7777"):
-  #     tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
-  #     actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
-  #     expected = ''
-  #     self.assertEqual(actual, expected)
+  @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
+  def testDefsToHtml_iter(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
+      expected = ''
+      self.assertEqual(actual, expected)
 
 
+  @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
   def testDefsToHtml_iter_cookie(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
@@ -465,6 +466,12 @@ class ReplaceVarsTests(unittest.TestCase):
   def testReplaceVarsTokenized(self):
     actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}", '"hello"', ""], {"i":1})
     expected = ["BeginIter", "test-iter-1", '"hello"', ""]
+    self.assertEqual(actual, expected)
+
+
+  def testReplaceVarsTokenized_non1(self):
+    actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}", '"hello"', ""], {"i":2})
+    expected = ["BeginIter", "test-iter-2", '"hello"', ""]
     self.assertEqual(actual, expected)
 
 

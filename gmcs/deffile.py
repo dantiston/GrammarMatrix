@@ -5,13 +5,11 @@
 """
 deffile.py
 
-This module provides the class MatrixDefFile and supporting methods for validating,
+This module provides the class MatrixDef and supporting methods for validating,
 loading, and generating HTML from files defining pages in the matrixdef specification
 
-TODO: Move everything except for MatrixDefFile to a different module
-TODO: Think about either making constants for accessing indices of MatrixDefFile
+TODO: Think about either making constants for accessing indices of MatrixDef
       or make the data of the deffile object oriented (and have accessors)
-
 """
 
 # imports
@@ -195,9 +193,9 @@ commands = set([SECTION, TEXT, TEXT_AREA, CHECK, RADIO, BUTTON, FILE, LABEL,
 
 
 ######################################################################
-# MatrixDefFile class
+# MatrixDef class
 
-class MatrixDefFile:
+class MatrixDef:
   """
   This class and its methods are used to parse Matrix definition
   formatted files (currently just the file ./matrixdef), and based
@@ -230,7 +228,7 @@ class MatrixDefFile:
 
   def load(self, def_file):
     """
-    (Re)load a matrixdef file to this MatrixDefFile
+    (Re)load a matrixdef file to this MatrixDef
     """
     self.def_file = def_file
     # with open(self.def_file) as f:
