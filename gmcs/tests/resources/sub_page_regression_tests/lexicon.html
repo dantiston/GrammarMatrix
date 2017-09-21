@@ -1,6 +1,8 @@
 Content-type: text/html;charset=UTF-8
 Set-cookie: session=7777
 
+
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -146,7 +148,7 @@ Set-cookie: session=7777
 
     <div class="iterator" id="noun{i}_stem1">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun{i}_stem1')">
-    <div class="iterframe">Spelling: <input type="text"  name="noun{i}_stem1_orth" size="30" onchange="fill_pred('noun{i}_stem{j}', 'n')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun{i}_stem1_orth" size="30" onchange="fill_pred('noun{i}_stem1', 'n')">
      Predicate: <input type="text"  name="noun{i}_stem1_pred" size="30">
     </div>
     </div>
@@ -178,11 +180,11 @@ Set-cookie: session=7777
 
     <span id="noun1_errors" class="error" style="display: none"></span><a id="noun1button" onclick="toggle_display_lex('noun1','noun1button')">&#9660; noun1</a><div class="iterator" id="noun1">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1')">
-    <div class="iterframe"><b>Noun type {i}</b>:
+    <div class="iterframe"><b>Noun type 1</b>:
     <div style="padding-left: 16px">
     Type name: <input type="text"  name="noun1_name" size="20" onchange="fill_display_name('noun1');"><br /><br />
     Supertypes:
-    <select name="noun1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun1_supertypes', [].concat(fill_regex('noun(?!{i}_)[0-9]+_name')));">
+    <select name="noun1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun1_supertypes', [].concat(fill_regex('noun(?!1_)[0-9]+_name')));">
     <option value="" selected class="temp"></option>
     </select><br />
     <div class="iterator" style="display: none" id="noun1_feat_TEMPLATE">
@@ -203,14 +205,14 @@ Set-cookie: session=7777
     Stems:
     <div class="iterator" style="display: none" id="noun1_stem_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_stem{j}')">
-    <div class="iterframe">Spelling: <input type="text"  name="noun1_stem{j}_orth" size="30" onchange="fill_pred('noun{i}_stem{j}', 'n')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun1_stem{j}_orth" size="30" onchange="fill_pred('noun1_stem1', 'n')">
      Predicate: <input type="text"  name="noun1_stem{j}_pred" size="30">
     </div>
     </div>
 
     <div class="iterator" id="noun1_stem1">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_stem1')">
-    <div class="iterframe">Spelling: <input type="text"  name="noun1_stem1_orth" size="30" onchange="fill_pred('noun{i}_stem{j}', 'n')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun1_stem1_orth" size="30" onchange="fill_pred('noun1_stem1', 'n')">
      Predicate: <input type="text"  name="noun1_stem1_pred" size="30">
     </div>
     </div>
@@ -218,7 +220,7 @@ Set-cookie: session=7777
     <p><input type="button" name="" value="Add a Stem" onclick="clone_region('noun1_stem', 'j',false)"><p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="noun1_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_require{j}')">
-    <div class="iterframe">Noun {i} requires one of the following:
+    <div class="iterframe">Noun 1 requires one of the following:
     <select name="noun1_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun1_require{j}_others', [].concat(fill_cache('nounlrs')));">
     <option value="" selected class="temp"></option>
     </select>
@@ -228,7 +230,7 @@ Set-cookie: session=7777
     <div class="anchor" id="noun1_require_ANCHOR"></div>
     <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('noun1_require', 'j',false)"><div class="iterator" style="display: none" id="noun1_forbid_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_forbid{j}')">
-    <div class="iterframe">Noun {i} forbids the following position class:
+    <div class="iterframe">Noun 1 forbids the following position class:
     <select name="noun1_forbid{j}_others" onfocus="fill('noun1_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
     <option value="" selected class="temp"></option>
     </select>
@@ -285,7 +287,7 @@ Set-cookie: session=7777
 
     <div class="iterator" id="verb{i}_stem1">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb{i}_stem1')">
-    <div class="iterframe">Spelling: <input type="text"  name="verb{i}_stem1_orth" size="30" onchange="fill_pred('verb{i}_stem{j}', 'v')">
+    <div class="iterframe">Spelling: <input type="text"  name="verb{i}_stem1_orth" size="30" onchange="fill_pred('verb{i}_stem1', 'v')">
      Predicate: <input type="text"  name="verb{i}_stem1_pred" size="30">
     </div>
     </div>
@@ -326,11 +328,11 @@ Set-cookie: session=7777
 
     <span id="verb1_errors" class="error" style="display: none"></span><a id="verb1button" onclick="toggle_display_lex('verb1','verb1button')">&#9660; verb1</a><div class="iterator" id="verb1">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1')">
-    <div class="iterframe"><b>Verb type {i}</b>:
+    <div class="iterframe"><b>Verb type 1</b>:
     <div style="padding-left: 16px">
     Type name: <input type="text"  name="verb1_name" size="20" onchange="fill_display_name('verb1');"><br /><br />
     Supertypes:
-    <select name="verb1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb1_supertypes', [].concat(fill_regex('verb(?!{i}_)[0-9]+_name')));">
+    <select name="verb1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb1_supertypes', [].concat(fill_regex('verb(?!1_)[0-9]+_name')));">
     <option value="" selected class="temp"></option>
     </select><br /><br />
     <div class="iterator" style="display: none" id="verb1_feat_TEMPLATE">
@@ -359,21 +361,21 @@ Set-cookie: session=7777
     Stems:
     <div class="iterator" style="display: none" id="verb1_stem_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_stem{j}')">
-    <div class="iterframe">Spelling: <input type="text"  name="verb1_stem{j}_orth" size="30" onchange="fill_pred('verb{i}_stem{j}', 'v')">
+    <div class="iterframe">Spelling: <input type="text"  name="verb1_stem{j}_orth" size="30" onchange="fill_pred('verb1_stem1', 'v')">
      Predicate: <input type="text"  name="verb1_stem{j}_pred" size="30">
     </div>
     </div>
 
     <div class="iterator" id="verb1_stem1">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_stem1')">
-    <div class="iterframe">Spelling: <input type="text"  name="verb1_stem1_orth" size="30" onchange="fill_pred('verb{i}_stem{j}', 'v')">
+    <div class="iterframe">Spelling: <input type="text"  name="verb1_stem1_orth" size="30" onchange="fill_pred('verb1_stem1', 'v')">
      Predicate: <input type="text"  name="verb1_stem1_pred" size="30">
     </div>
     </div>
     <div class="anchor" id="verb1_stem_ANCHOR"></div>
     <p><input type="button" name="" value="Add a simple Stem" onclick="clone_region('verb1_stem', 'j',false)"><div class="iterator" style="display: none" id="verb1_bistem_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_bistem{j}')">
-    <div class="iterframe">Root spelling: <input type="text"  name="verb1_bistem{j}_orth" size="30" onchange="fill_pred('verb{i}_bistem{j}', 'v')">
+    <div class="iterframe">Root spelling: <input type="text"  name="verb1_bistem{j}_orth" size="30" onchange="fill_pred('verb1_bistem{j}', 'v')">
     Affix spelling: <input type="text"  name="verb1_bistem{j}_aff" size="30">
      Predicate: <input type="text"  name="verb1_bistem{j}_pred" size="30">
     </div>
@@ -383,7 +385,7 @@ Set-cookie: session=7777
     <p><input type="button" name="" value="Add a bipartite Stem" onclick="clone_region('verb1_bistem', 'j',false)"><p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="verb1_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_require{j}')">
-    <div class="iterframe">Verb {i} requires one of the following position classes:
+    <div class="iterframe">Verb 1 requires one of the following position classes:
     <select name="verb1_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('verb1_require{j}_others', [].concat(fill_cache('verblrs')));">
     <option value="" selected class="temp"></option>
     </select>
@@ -393,7 +395,7 @@ Set-cookie: session=7777
     <div class="anchor" id="verb1_require_ANCHOR"></div>
     <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('verb1_require', 'j',false)"><div class="iterator" style="display: none" id="verb1_forbid_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_forbid{j}')">
-    <div class="iterframe">Verb {i} forbids the following position class:
+    <div class="iterframe">Verb 1 forbids the following position class:
     <select name="verb1_forbid{j}_others" onfocus="fill('verb1_forbid{j}_others', [].concat(fill_cache('verblrs')));">
     <option value="" selected class="temp"></option>
     </select>
@@ -406,11 +408,11 @@ Set-cookie: session=7777
     </div>
     <span id="verb2_errors" class="error" style="display: none"></span><a id="verb2button" onclick="toggle_display_lex('verb2','verb2button')">&#9660; verb2</a><div class="iterator" id="verb2">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2')">
-    <div class="iterframe"><b>Verb type {i}</b>:
+    <div class="iterframe"><b>Verb type 1</b>:
     <div style="padding-left: 16px">
     Type name: <input type="text"  name="verb2_name" size="20" onchange="fill_display_name('verb2');"><br /><br />
     Supertypes:
-    <select name="verb2_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb2_supertypes', [].concat(fill_regex('verb(?!{i}_)[0-9]+_name')));">
+    <select name="verb2_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb2_supertypes', [].concat(fill_regex('verb(?!1_)[0-9]+_name')));">
     <option value="" selected class="temp"></option>
     </select><br /><br />
     <div class="iterator" style="display: none" id="verb2_feat_TEMPLATE">
@@ -439,21 +441,21 @@ Set-cookie: session=7777
     Stems:
     <div class="iterator" style="display: none" id="verb2_stem_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_stem{j}')">
-    <div class="iterframe">Spelling: <input type="text"  name="verb2_stem{j}_orth" size="30" onchange="fill_pred('verb{i}_stem{j}', 'v')">
+    <div class="iterframe">Spelling: <input type="text"  name="verb2_stem{j}_orth" size="30" onchange="fill_pred('verb1_stem1', 'v')">
      Predicate: <input type="text"  name="verb2_stem{j}_pred" size="30">
     </div>
     </div>
 
     <div class="iterator" id="verb2_stem1">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_stem1')">
-    <div class="iterframe">Spelling: <input type="text"  name="verb2_stem1_orth" size="30" onchange="fill_pred('verb{i}_stem{j}', 'v')">
+    <div class="iterframe">Spelling: <input type="text"  name="verb2_stem1_orth" size="30" onchange="fill_pred('verb1_stem1', 'v')">
      Predicate: <input type="text"  name="verb2_stem1_pred" size="30">
     </div>
     </div>
     <div class="anchor" id="verb2_stem_ANCHOR"></div>
     <p><input type="button" name="" value="Add a simple Stem" onclick="clone_region('verb2_stem', 'j',false)"><div class="iterator" style="display: none" id="verb2_bistem_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_bistem{j}')">
-    <div class="iterframe">Root spelling: <input type="text"  name="verb2_bistem{j}_orth" size="30" onchange="fill_pred('verb{i}_bistem{j}', 'v')">
+    <div class="iterframe">Root spelling: <input type="text"  name="verb2_bistem{j}_orth" size="30" onchange="fill_pred('verb1_bistem{j}', 'v')">
     Affix spelling: <input type="text"  name="verb2_bistem{j}_aff" size="30">
      Predicate: <input type="text"  name="verb2_bistem{j}_pred" size="30">
     </div>
@@ -463,7 +465,7 @@ Set-cookie: session=7777
     <p><input type="button" name="" value="Add a bipartite Stem" onclick="clone_region('verb2_bistem', 'j',false)"><p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="verb2_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_require{j}')">
-    <div class="iterframe">Verb {i} requires one of the following position classes:
+    <div class="iterframe">Verb 1 requires one of the following position classes:
     <select name="verb2_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('verb2_require{j}_others', [].concat(fill_cache('verblrs')));">
     <option value="" selected class="temp"></option>
     </select>
@@ -473,7 +475,7 @@ Set-cookie: session=7777
     <div class="anchor" id="verb2_require_ANCHOR"></div>
     <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('verb2_require', 'j',false)"><div class="iterator" style="display: none" id="verb2_forbid_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_forbid{j}')">
-    <div class="iterframe">Verb {i} forbids the following position class:
+    <div class="iterframe">Verb 1 forbids the following position class:
     <select name="verb2_forbid{j}_others" onfocus="fill('verb2_forbid{j}_others', [].concat(fill_cache('verblrs')));">
     <option value="" selected class="temp"></option>
     </select>
@@ -548,7 +550,7 @@ Set-cookie: session=7777
 
     <div class="iterator" id="adj{i}_stem1">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj{i}_stem1')">
-    <div class="iterframe">Spelling: <input type="text"  name="adj{i}_stem1_orth" size="30" onchange="fill_pred('adj{i}_stem{j}', 'a')">
+    <div class="iterframe">Spelling: <input type="text"  name="adj{i}_stem1_orth" size="30" onchange="fill_pred('adj{i}_stem1', 'a')">
      Predicate: <input type="text"  name="adj{i}_stem1_pred" size="30">
     </div>
     </div>
@@ -664,7 +666,7 @@ Set-cookie: session=7777
 
     <div class="iterator" id="aux{i}_stem1">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}_stem1')">
-    <div class="iterframe">Spelling: <input type="text"  name="aux{i}_stem1_orth" size="30" onchange="aux_fill_pred('aux{i}', 'stem{j}', 'v')">
+    <div class="iterframe">Spelling: <input type="text"  name="aux{i}_stem1_orth" size="30" onchange="aux_fill_pred('aux{i}', 'stem1', 'v')">
     &nbsp;&nbsp;&nbsp;&nbsp;Predicate (if applicable): <input type="text"  name="aux{i}_stem1_pred" size="30">
     </div>
     </div>
@@ -740,7 +742,7 @@ Set-cookie: session=7777
 
     <div class="iterator" id="cop{i}_stem1">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop{i}_stem1')">
-    <div class="iterframe">Spelling: <input type="text"  name="cop{i}_stem1_orth" size="30" onchange="aux_fill_pred('cop{i}', 'stem{j}', 'v')">
+    <div class="iterframe">Spelling: <input type="text"  name="cop{i}_stem1_orth" size="30" onchange="aux_fill_pred('cop{i}', 'stem1', 'v')">
     </div>
     </div>
     <div class="anchor" id="cop{i}_stem_ANCHOR"></div>
@@ -786,7 +788,7 @@ Set-cookie: session=7777
 
     <div class="iterator" id="det{i}_stem1">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det{i}_stem1')">
-    <div class="iterframe">Spelling: <input type="text"  name="det{i}_stem1_orth" size="30" onchange="fill_pred('det{i}_stem{j}', 'q')">
+    <div class="iterframe">Spelling: <input type="text"  name="det{i}_stem1_orth" size="30" onchange="fill_pred('det{i}_stem1', 'q')">
      Predicate: <input type="text"  name="det{i}_stem1_pred" size="30"><br>
     </div>
     </div>
