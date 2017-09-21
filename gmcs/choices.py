@@ -277,6 +277,7 @@ def get_choice(choice, choices):
   Return the value of a choice from choice lines or a choices file.
   The choice must be fully specified choice (not a sub-structure).
   Returns None if the choice does not result in a value.
+  TODO: This is extremely slow
   """
   choice_lines = choices
   if type(choices) is str:

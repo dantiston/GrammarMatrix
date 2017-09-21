@@ -84,11 +84,11 @@ class DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
-  @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
+  @unittest.skip("'NoneType' object is not iterable")
   def testDefsToHtml_iter(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
-      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({}), mock_validation(), "", {})
       expected = ''
       self.assertEqual(actual, expected)
 
@@ -111,6 +111,27 @@ class DefsToHtmlTests(unittest.TestCase):
       tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
       expected = ''
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_iter_example(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
+      choices = ChoicesFile("gmcs/tests/resources/test_choices/iter_choices.txt")
+      actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
+      expected = """<div class="iterator" style="display: none" id="test_TEMPLATE">
+<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test{i}')">
+<div class="iterframe"><input type="text"  name="test{i}_name" size="20" onchange="fill_display_name('test{i}');">
+</div>
+</div>
+
+<div class="iterator" id="test1">
+<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test1')">
+<div class="iterframe"><input type="text"  name="test1_name" value="common" size="20" onchange="fill_display_name('test1');">
+</div>
+</div>
+<div class="anchor" id="test_ANCHOR"></div>
+<p><input type="button" name="" value="Add "test-iter"" onclick="clone_region('test', 'i',false)">"""
       self.assertEqual(actual, expected)
 
 
