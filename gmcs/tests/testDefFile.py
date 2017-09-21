@@ -64,6 +64,7 @@ class DefsToHtmlTests(unittest.TestCase):
   NOTE: defs_to_html() expects input lines to be stripped
   TODO: Tests for conditional skipping
   TODO: Tests for striking options from select and multiselect
+  TODO: Tests for choices
 
   TODO: These still need tests
   BeginIter: self.iter_to_html
@@ -93,7 +94,19 @@ class DefsToHtmlTests(unittest.TestCase):
 
 
   @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
+  def testDefsToHtml_iter_choices(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
+      expected = ''
+      self.assertEqual(actual, expected)
+
+
+  @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
   def testDefsToHtml_iter_cookie(self):
+    """
+    Test the functionality which checks for css in the cookie
+    """
     with os_environ(HTTP_COOKIE="session=7777"):
       tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})

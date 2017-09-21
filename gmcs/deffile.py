@@ -830,7 +830,7 @@ class MatrixDef:
                  'fillcache':'fill_cache(%(args)s)'}
 
 
-  def defs_to_html(self, tokenized_lines, choices, vr, prefix, variables):
+  def defs_to_html(self, tokenized_lines, choices, vr, prefix, variables, do_replace=False):
     """
     Turn a list of lines containing matrix definitions into a string
     containing HTML
@@ -844,24 +844,19 @@ class MatrixDef:
     TODO: Write a syntax checker... maybe make this a syntax checker?
     """
 
-    http_cookie = os.getenv(HTTP_COOKIE)
-
-    cookie = {}
-    for c in http_cookie.split(';'):
-      name, value = c.split('=', 1)
-      cookie[name.strip()] = value
+    cookie = self.get_cookie()
 
     num_lines = len(tokenized_lines)
 
     page = u""
     i = 0
     while i < num_lines:
-      word, word_length, element = self.__get_word(tokenized_lines, i)
+      word, word_length, element = self.__get_word(tokenized_lines, i, variables=variables, do_replace=do_replace)
       if word:
         if element in self.html_gens:
           word, word_length, element, i, result = self.html_gens[element](
               tokenized_lines, choices, vr, cookie, prefix, variables,
-              num_lines, word, word_length, element, i)
+              num_lines, word, word_length, element, i, do_replace=do_replace)
           page += result
 
       i += 1
@@ -878,7 +873,7 @@ class MatrixDef:
     return True
 
 
-  def button_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+  def button_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
     if word_length < 5:
       # TODO: Technically, before and after should be optional
       raise MatrixDefSyntaxException("Button improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
@@ -887,7 +882,7 @@ class MatrixDef:
     return word, word_length, element, i, result
 
 
-  def cache_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+  def cache_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
     if word_length < 3:
       raise MatrixDefSyntaxException("Cache improperly defined: %s; expected at least 3 tokens, got %s" % (word, word_length))
     cache_name = word[1]
@@ -900,7 +895,7 @@ class MatrixDef:
     return word, word_length, element, i, result
 
 
-  def check_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+  def check_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
     result = u""
     if word_length < 5:
       # TODO: Technically, before and after should be optional
@@ -922,7 +917,7 @@ class MatrixDef:
     return word, word_length, element, i, result
 
 
-  def file_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+  def file_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
     if word_length < 5:
       # TODO: Technically, before and after should be optional
       raise MatrixDefSyntaxException("File improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
@@ -933,7 +928,7 @@ class MatrixDef:
     return word, word_length, element, i, result
 
 
-  def hidden_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+  def hidden_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
     if word_length < 3:
       raise MatrixDefSyntaxException("Hidden improperly defined: %s; expected at least 5 tokens, got %s" % (word, word_length))
     vn, fn = word[1:]
@@ -942,7 +937,7 @@ class MatrixDef:
     return word, word_length, element, i, result
 
 
-  def iter_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+  def iter_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
     if word_length < 3:
       raise MatrixDefSyntaxException("BeginIter improperly defined: %s; expected at least 3 tokens, got %s" % (word, word_length))
     result = u""
@@ -955,13 +950,13 @@ class MatrixDef:
     if word_length > 3:
       try:
         show_hide = int(word[3])
-      except Exception as e:
+      except ValueError as e:
         raise MatrixDefSyntaxException("BeginIter improperly defined: %s; expected 0|1, received %s" % (word, show_hide))
     iter_min = 0
     if word_length > 4:
       try:
         iter_min = int(word[4])
-      except Exception as e:
+      except ValueError as e:
         raise MatrixDefSyntaxException("BeginIter improperly defined: %s; expected integer, received %s" % (word, iter_min))
     # TJT 2014-08-20: adding option to only do iter based on other choice
     skip_this_iter = False
@@ -972,15 +967,15 @@ class MatrixDef:
 
     # collect the lines that are between BeginIter and EndIter
     i += 1
-    beg = i
+    section_lines = []
     for word, word_length, element in self.__get_words(tokenized_lines[i:]):
-      if word_length:
-        if element == END_ITER and word[1] == iter_name:
-          break
-        i += 1
+      if word_length and element == END_ITER and word[1] == iter_name:
+        break
+      section_lines.append(word)
+      i += 1
     else:
       raise MatrixDefSyntaxException("Missing EndIter statement for Iter \"%s\"" % iter_orig)
-    end = i
+
 
     # TJT 2014-08-20: if skipping iter, skip this whole section
     if not skip_this_iter:
@@ -991,7 +986,8 @@ class MatrixDef:
               prefix + iter_name + '_TEMPLATE">\n'
       result += html.html_delbutton(prefix + iter_name + '{' + iter_var + '}')
       result += u'<div class="iterframe">'
-      result += self.defs_to_html(tokenized_lines[beg:end],
+      result += self.defs_to_html(
+                                section_lines,
                                 choices,
                                 vr,
                                 prefix + iter_orig + '_',
@@ -1015,6 +1011,9 @@ class MatrixDef:
           iter_num = str(int(iter_num)+1)
         new_prefix = prefix + iter_name + iter_num + '_'
         variables[iter_var] = iter_num
+
+        # Set the variables for this iter
+        iter_lines = [replace_vars_tokenized(word, variables) for word in section_lines]
 
         # the show/hide button gets placed before each iterator
         # as long as it's not a stem/feature/forbid/require/lri iterator
@@ -1045,11 +1044,13 @@ class MatrixDef:
         # TODO: Consider not doing this? Can the previous result simply be modified???
         # It looks like each iteration changes "variables"... think more about this
         # Additionally, some choices are loaded into the block via their prefix
-        result += self.defs_to_html(tokenized_lines[beg:end],
+        result += self.defs_to_html(
+                                  iter_lines,
                                   choices,
                                   vr,
                                   new_prefix,
-                                  variables
+                                  variables,
+                                  do_replace=True,
         )
         result += u'</div>\n</div>\n' # close iterator, iterframe
 
@@ -1075,7 +1076,7 @@ class MatrixDef:
     return word, word_length, element, i, result
 
 
-  def label_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+  def label_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
     result = u""
     if word_length > 2:
       key = prefix + word[1]
@@ -1084,7 +1085,7 @@ class MatrixDef:
     return word, word_length, element, i, result
 
 
-  def radio_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+  def radio_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
     result = u""
     if word_length < 5:
       raise MatrixDefSyntaxException("Radio button improperly defined: %s; expected at least 5 tokens, got %s: \"%s\"" % (word, word_length, " ".join(tokenized_lines[i])))
@@ -1104,7 +1105,7 @@ class MatrixDef:
       result += bf + mark + '\n'
       i += 1
       if i < num_lines:
-        for word, word_length, element in self.__get_words(tokenized_lines[i:]):
+        for word, word_length, element in self.__get_words(tokenized_lines[i:], variables=variables, do_replace=do_replace):
           if element != BULLET:
             break
           # Reset flags on each item
@@ -1133,7 +1134,7 @@ class MatrixDef:
     return word, word_length, element, i, result
 
 
-  def select_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+  def select_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
     result = u""
     multi = element == MULTI_SELECT
     vn, fn, bf, af = word[1:5]
@@ -1151,7 +1152,7 @@ class MatrixDef:
     # look ahead and see if we have an auto-filled drop-down
     i += 1
     while i < num_lines:
-      word, word_length, element = self.__get_word(tokenized_lines, i)
+      word, word_length, element = self.__get_word(tokenized_lines, i, variables=variables, do_replace=do_replace)
       # TODO: Also, consider if the fill commands could go anywhere in the list...
       if element.startswith('fill'):
         # arguments are labeled like p=pattern, l(literal_feature)=1,
@@ -1181,9 +1182,8 @@ class MatrixDef:
 
     # Add individual bullets, if applicable
     while i < num_lines:
-      word, word_length, element = self.__get_word(tokenized_lines, i)
+      word, word_length, element = self.__get_word(tokenized_lines, i, variables=variables, do_replace=do_replace)
       if element == BULLET:
-        # word, word_length, element = self.__get_word(tokenized_lines, i)
         sstrike = False # Reset variable
         # select/multiselect options
         oval, ofrn, ohtml = word[1:4]
@@ -1204,11 +1204,11 @@ class MatrixDef:
     return word, word_length, element, i, result
 
 
-  def separator_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+  def separator_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
     return word, word_length, element, i, "<hr>\n"
 
 
-  def text_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i):
+  def text_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
     result = u""
     if word_length > 6:
       vn, fn, bf, af, sz, oc = word[1:]
@@ -1234,17 +1234,28 @@ class MatrixDef:
     return word, word_length, element, i, result
 
 
-  def __get_word(self, tokenized_lines, i):
-    word = tokenized_lines[i]
-    return word, len(word), word[0]
+  def get_cookie(self, http_cookie=os.getenv(HTTP_COOKIE)):
+    result = {}
+    if http_cookie:
+      for c in http_cookie.split(';'):
+        name, value = c.split('=', 1)
+        result[name.strip()] = value
+    return result
 
 
-  def __get_words(self, tokenized_lines):
-    """
-    TODO: Change the code to use this!
-    """
+  def __get_word(self, tokenized_lines, i, variables={}, do_replace=False):
+    return self.__do_get(tokenized_lines[i], variables=variables, do_replace=do_replace)
+
+
+  def __get_words(self, tokenized_lines, variables={}, do_replace=False):
     for i, word in enumerate(tokenized_lines):
-      yield word, len(word), word[0]
+      yield self.__do_get(word, variables=variables, do_replace=do_replace)
+
+
+  def __do_get(self, word, variables={}, do_replace=False):
+    if do_replace:
+      word = replace_vars_tokenized(word, variables)
+    return word, len(word), word[0]
 
 
   ##############################################################################
