@@ -152,10 +152,12 @@ def replace_vars_tokenized(tokens, iter_vars):
   Replace variables of the form "{name}" in line using the dict iter_vars
   """
   regexes = compile_string_keys(iter_vars)
-  for i, token in enumerate(tokens):
-    for k in iter_vars:
-      tokens[i] = regexes[k].sub(str(iter_vars[k]), tokens[i])
-  return tokens
+  result = list(tokens)
+  # modifying result in place, so don't iterate through its elements
+  for i in range(len(result)):
+    for k, v in iter_vars.items():
+      result[i] = regexes[k].sub(str(v), result[i])
+  return result
 
 
 def compile_string_keys(regexes):

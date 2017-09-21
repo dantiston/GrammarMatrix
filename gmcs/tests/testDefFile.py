@@ -116,18 +116,18 @@ class DefsToHtmlTests(unittest.TestCase):
 
   def testDefsToHtml_iter_example(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
+      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Label', 'Test variable: {i}'], ['EndIter', 'test']]
       choices = ChoicesFile("gmcs/tests/resources/test_choices/iter_choices.txt")
       actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
       expected = """<div class="iterator" style="display: none" id="test_TEMPLATE">
 <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test{i}')">
-<div class="iterframe"><input type="text"  name="test{i}_name" size="20" onchange="fill_display_name('test{i}');">
+<div class="iterframe">Test variable: {i}
 </div>
 </div>
 
 <div class="iterator" id="test1">
 <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test1')">
-<div class="iterframe"><input type="text"  name="test1_name" value="common" size="20" onchange="fill_display_name('test1');">
+<div class="iterframe">Test variable: 1
 </div>
 </div>
 <div class="anchor" id="test_ANCHOR"></div>
@@ -137,23 +137,23 @@ class DefsToHtmlTests(unittest.TestCase):
 
   def testDefsToHtml_iter_example2(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
+      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Label', 'Test variable: {i}'], ['EndIter', 'test']]
       choices = ChoicesFile("gmcs/tests/resources/test_choices/iter_choices2.txt")
       actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
       expected = """<div class="iterator" style="display: none" id="test_TEMPLATE">
 <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test{i}')">
-<div class="iterframe"><input type="text"  name="test{i}_name" size="20" onchange="fill_display_name('test{i}');">
+<div class="iterframe">Test variable: {i}
 </div>
 </div>
 
 <div class="iterator" id="test1">
 <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test1')">
-<div class="iterframe"><input type="text"  name="test1_name" value="common" size="20" onchange="fill_display_name('test1');">
+<div class="iterframe">Test variable: 1
 </div>
 </div>
 <div class="iterator" id="test2">
 <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test2')">
-<div class="iterframe"><input type="text"  name="test2_name" value="common" size="20" onchange="fill_display_name('test2');">
+<div class="iterframe">Test variable: 2
 </div>
 </div>
 <div class="anchor" id="test_ANCHOR"></div>
