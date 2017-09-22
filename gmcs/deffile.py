@@ -209,8 +209,12 @@ class MatrixDef:
     self.section_names = {}
     self.doc_links = {}
 
-    if def_file: # Allow initialization of empty file for testing
+    # Allow initialization of empty file for testing
+    if def_file:
       self.load(def_file)
+    else:
+      self.v2f = defaultdict(lambda key: key)
+      self.f2v = defaultdict(lambda key: key)
 
     self.html_gens = {
       BEGIN_ITER: self.iter_to_html,
@@ -227,6 +231,7 @@ class MatrixDef:
       TEXT: self.text_to_html,
       TEXT_AREA: self.text_to_html
     }
+
 
   def load(self, def_file):
     """
@@ -1141,7 +1146,7 @@ class MatrixDef:
     multi = element == MULTI_SELECT
     vn, fn, bf, af = word[1:5]
 
-    onfocus, onchange = u'', ''
+    onfocus, onchange = u'', u''
     if word_length > 5: onfocus = word[5]
     if word_length > 6: onchange = word[6]
 
@@ -1166,21 +1171,21 @@ class MatrixDef:
       else:
         break
 
-    # TODO: Separate out the fillers and the previously selected items
-    # Fill in values from fillers and get previously selected item
-    # TJT 2014-05-08 always get selected value, even if not using fillers
-    sval = choices.get(vn)
+
     if fillers:
       fillcmd = u"fill('%s', [].concat(%s));" % (vn, ','.join(fillers))
       result += html.html_select(vr, vn, multi, fillcmd+onfocus, onchange=onchange) + '\n'
-      # Mark previously selected filled item as selected
-      # This is necessary because the value is not in the deffile
-      if sval:
-          result += html.html_option(vr, sval, True, self.f(sval), True) + '\n'
     else:
       # If not using fillers, previously selected value
       # will be marked during option processing below
       result += html.html_select(vr, vn, multi, onchange=onchange) + '\n'
+
+
+    # Fill in values from fillers and get previously selected item
+    # This is necessary because the value is not in the deffile
+    sval = choices.get(vn)
+    if sval:
+        result += html.html_option(vr, sval, True, self.f(sval), True) + '\n'
 
     # Add individual bullets, if applicable
     while i < num_lines:
@@ -1192,17 +1197,22 @@ class MatrixDef:
         # TJT 2014-03-19: add disabled option to allow for always-disabled
         # If there's anything in this slot, disable option
         if word_length >= 5: sstrike = True
-        # Add option and mark "selected" if previously selected
-        result += html.html_option(vr, oval, sval == oval, ofrn, strike=sstrike) + '\n'
+        # Add option if not previously selected
+        if sval != oval:
+          result += html.html_option(vr, oval, False, ofrn, strike=sstrike) + '\n'
         i += 1
       else:
         break
-
 
     # add empty option
     result += html.html_option(vr, '', False, '') + '\n'
     result += u'</select>'
     result += af + '\n'
+
+    # Go back one...
+    i -= 1
+    word, word_length, element = self.__get_word(tokenized_lines, i, variables=variables, do_replace=do_replace)
+
     return word, word_length, element, i, result
 
 

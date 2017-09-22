@@ -25,6 +25,11 @@ def load_expected(file_name):
   with open(path, 'r') as f:
     return f.read()
 
+def load_choices(file_name):
+  # "gmcs/tests/resources/test_choices/iter_choices.txt"
+  path = get_path("resources", "test_choices", file_name)
+  return ChoicesFile(path)
+
 
 def remove_empty_lines(string):
   return "\n".join((line.strip() for line in string.split("\n") if line.strip()))
@@ -114,53 +119,6 @@ class DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
-  def testDefsToHtml_iter_example(self):
-    with os_environ(HTTP_COOKIE="session=7777"):
-      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Label', 'Test variable: {i}'], ['EndIter', 'test']]
-      choices = ChoicesFile("gmcs/tests/resources/test_choices/iter_choices.txt")
-      actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
-      expected = """<div class="iterator" style="display: none" id="test_TEMPLATE">
-<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test{i}')">
-<div class="iterframe">Test variable: {i}
-</div>
-</div>
-
-<div class="iterator" id="test1">
-<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test1')">
-<div class="iterframe">Test variable: 1
-</div>
-</div>
-<div class="anchor" id="test_ANCHOR"></div>
-<p><input type="button" name="" value="Add "test-iter"" onclick="clone_region('test', 'i',false)">"""
-      self.assertEqual(actual, expected)
-
-
-  def testDefsToHtml_iter_example2(self):
-    with os_environ(HTTP_COOKIE="session=7777"):
-      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Label', 'Test variable: {i}'], ['EndIter', 'test']]
-      choices = ChoicesFile("gmcs/tests/resources/test_choices/iter_choices2.txt")
-      actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
-      expected = """<div class="iterator" style="display: none" id="test_TEMPLATE">
-<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test{i}')">
-<div class="iterframe">Test variable: {i}
-</div>
-</div>
-
-<div class="iterator" id="test1">
-<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test1')">
-<div class="iterframe">Test variable: 1
-</div>
-</div>
-<div class="iterator" id="test2">
-<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test2')">
-<div class="iterframe">Test variable: 2
-</div>
-</div>
-<div class="anchor" id="test_ANCHOR"></div>
-<p><input type="button" name="" value="Add "test-iter"" onclick="clone_region('test', 'i',false)">"""
-      self.assertEqual(actual, expected)
-
-
   def testDefsToHtml_label(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # Label "<p>Test</p>"
@@ -233,6 +191,18 @@ class DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
+  def testDefsToHtml_select_ends(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # Select supertypes "Noun type {i}" "Supertypes: " "<br />"
+      # fillregex p=noun(?!{i}_)[0-9]+_name
+      #
+      # Label "Features:"
+      tokenized_lines = [["Select", "supertypes", "Noun type {i}", "Supertypes: ", "<br />"], ["fillregex", "p=noun(?!{i}_)[0-9]+_name"], ["Label", "Features:"]]
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
+      expected = 'Supertypes: \n<select name="supertypes" onfocus="fill(\'supertypes\', [].concat(fill_regex(\'noun(?!{i}_)[0-9]+_name\')));">\n<option value="" selected class="temp"></option>\n</select><br />\nFeatures:\n'
+      self.assertEqual(actual, expected)
+
+
   def testDefsToHtml_multiselect(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # MultiSelect test-multiselect "Test multiselect" "" "<br />"
@@ -240,6 +210,18 @@ class DefsToHtmlTests(unittest.TestCase):
       tokenized_lines = [['MultiSelect', 'test-multiselect', 'Test multiselect', '', '<br />'], ['fillverbpat']]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '\n<select name="test-multiselect" class="multi"  multiple="multiple"  onfocus="fill(\'test-multiselect\', [].concat(fill_case_patterns(false)));">\n<option value="" selected class="temp"></option>\n</select><br />\n'
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_multiselect_ends(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # MultiSelect supertypes "Noun type {i}" "Supertypes: " "<br />"
+      # fillregex p=noun(?!{i}_)[0-9]+_name
+      #
+      # Label "Features:"
+      tokenized_lines = [["MultiSelect", "supertypes", "Noun type {i}", "Supertypes: ", "<br />"], ["fillregex", "p=noun(?!{i}_)[0-9]+_name"], ["Label", "Features:"]]
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
+      expected = 'Supertypes: \n<select name="supertypes" class="multi"  multiple="multiple"  onfocus="fill(\'supertypes\', [].concat(fill_regex(\'noun(?!{i}_)[0-9]+_name\')));">\n<option value="" selected class="temp"></option>\n</select><br />\nFeatures:\n'
       self.assertEqual(actual, expected)
 
 
@@ -258,6 +240,65 @@ class DefsToHtmlTests(unittest.TestCase):
       tokenized_lines = [["TextArea", "test", "Test name", "<p>A test text area:</p>", "<br />", "42x42"]]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>A test text area:</p><TextArea name="test" cols="42" rows="42"></TextArea><br />\n'
+      self.assertEqual(actual, expected)
+
+
+  # defs_to_html with choices
+  def testDefsToHtml_iter_example(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Label', 'Test variable: {i}'], ['EndIter', 'test']]
+      choices = load_choices("iter_choices.txt")
+      actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
+      expected = """<div class="iterator" style="display: none" id="test_TEMPLATE">
+<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test{i}')">
+<div class="iterframe">Test variable: {i}
+</div>
+</div>
+
+<div class="iterator" id="test1">
+<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test1')">
+<div class="iterframe">Test variable: 1
+</div>
+</div>
+<div class="anchor" id="test_ANCHOR"></div>
+<p><input type="button" name="" value="Add "test-iter"" onclick="clone_region('test', 'i',false)">"""
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_iter_example2(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Label', 'Test variable: {i}'], ['EndIter', 'test']]
+      choices = load_choices("iter_choices2.txt")
+      actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
+      expected = """<div class="iterator" style="display: none" id="test_TEMPLATE">
+<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test{i}')">
+<div class="iterframe">Test variable: {i}
+</div>
+</div>
+
+<div class="iterator" id="test1">
+<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test1')">
+<div class="iterframe">Test variable: 1
+</div>
+</div>
+<div class="iterator" id="test2">
+<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test2')">
+<div class="iterframe">Test variable: 2
+</div>
+</div>
+<div class="anchor" id="test_ANCHOR"></div>
+<p><input type="button" name="" value="Add "test-iter"" onclick="clone_region('test', 'i',false)">"""
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_select_example(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
+      choices = load_choices("select_choices.txt")
+      actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
+      expected = """\n<select name="test-select">
+<option value="common" selected class="temp">common</option>
+<option value="" selected class="temp"></option>\n</select><br />\n"""
       self.assertEqual(actual, expected)
 
 
