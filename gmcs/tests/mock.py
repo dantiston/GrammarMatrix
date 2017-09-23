@@ -36,24 +36,8 @@ class mock_choices(dict):
 
 
   def __init__(self, choices_dict):
-    # choices = {}
-    # for key in choices_dict:
-    #   choices[mock_choice(key)] = choices_dict[key]
-    # self.choices = choices
     self.choices = choices_dict
     self.update(choices_dict)
-
-
-  # def __get__(self, k):
-  #   return self.choices[k]
-  #
-  #
-  # def __set__(self, k, v):
-  #   self.choices[k] = v
-  #
-  #
-  # def __str__(self):
-  #   return str(self.choices)
 
 
   def get(self, key, default=None):

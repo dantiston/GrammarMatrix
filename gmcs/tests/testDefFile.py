@@ -282,6 +282,14 @@ class DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
+  def testDefsToHtml_section(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      tokenized_lines = [['Section', 'Test', 'test section', 'testSection'], ['Label', 'test-label', 'test label']]
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({}), mock_validation(), "", {})
+      expected = "test label\n"
+      self.assertEqual(actual, expected)
+
+
 class SubPageTests(unittest.TestCase):
   """
   TODO: Tests for conditional skipping
@@ -310,7 +318,6 @@ class SubPageTests(unittest.TestCase):
       definition = load_matrixdef("testCache")
       actual = definition.sub_page('test-cache', '7777', mock_validation(), choices=mock_choices({"noun1":{"name":"test-noun"}, "verb1":{"name":"test-verb"}}))
       expected = load_testhtml("testCache")
-      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -481,6 +488,23 @@ class NavigationTests(unittest.TestCase):
 <span class="navleft">Create grammar:</span><br />
 <a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>
 </div>"""
+    self.assertEqual(actual, expected)
+
+
+  def testNavigation_HiddenSection(self):
+    definition = load_matrixdef("testHiddenSection")
+    actual = definition.navigation(mock_validation(), "dummy_choices")
+    expected = """<div id="navmenu"><br />
+<a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+<hr />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-section')">Test Section</a><br />
+<hr />
+<a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+<span class="navleft">Create grammar:</span><br />
+<a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+</div>"""
+    save_both(actual, expected)
     self.assertEqual(actual, expected)
 
 

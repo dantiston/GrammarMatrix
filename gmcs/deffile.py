@@ -14,18 +14,23 @@ TODO: Think about either making constants for accessing indices of MatrixDef
 TODO:
     * Choice saving
         * Choice saving is broken!!!!!!
+        * Hitting save takes you back to the main page!!!!!
 
     * Select options not selecting properly (empty option being selected)
         * empty option of select appearing checked by default... consider
         * Tense, Aspect, Situation, Mood supertypes not available on TAM page
         * Totally different options in "Use an existing value type"
         * Feature not filled in (Coordination, information-structure meaning, Lexicon Argument Structure, Lexicon Copula, Lexicon Case Marking)
+        * Existing choices not selected in Select (Morphology)
+        * Wrong choice selected in MultiSelect (Morphology)
+        * Wrong choice selected in Select (Morphology:features)
 
     * Navigation
         * Extra "Toolbox Lexicon" page in the nav... is it not being skipped??
 
     * Other issues
         * UnicodeDecodeError: General, Sentential Negation, Information Structure,
+        * Adding debug into to the end of the page
 """
 
 # imports
@@ -254,8 +259,7 @@ class MatrixDef:
     (Re)load a matrixdef file to this MatrixDef
     """
     self.def_file = def_file
-    # with open(self.def_file) as f:
-    with codecs.open(self.def_file, encoding="utf-8") as f:
+    with codecs.open(self.def_file, 'r', encoding="utf-8") as f:
       self.__load_file(f)
 
     self.make_name_map()
@@ -269,6 +273,9 @@ class MatrixDef:
     def_lines = map(unicode.strip, def_lines) # Remove unimportant whitespace
     self.def_lines = [line for line in def_lines if line] # Remove empty lines
     self.tokenized_lines = [tokenize_def(line) for line in self.def_lines] # Tokenize ONCE
+
+    # Keep track of which sections to not show on navigation
+    self.hide_on_navigation = set()
 
     self.sections = {}
     last = -1
@@ -286,6 +293,8 @@ class MatrixDef:
           self.section_names[section_name] = line[2]
           if len(line) >= 4:
             self.doc_links[section_name] = line[3]
+            if len(line) >= 5:
+              self.hide_on_navigation.add(section_name)
     if last != len(self):
       self.sections[section_name] = self.tokenized_lines[last:]
 
@@ -610,10 +619,10 @@ class MatrixDef:
     Load the datestamp
     """
     try:
-      with open('datestamp', 'r') as f:
+      with codecs.open('datestamp', 'r', encoding="utf-8") as f:
         return f.readline().strip()
     except:
-      return "[date unknown]"
+      return u"[date unknown]"
 
 
   def page_links(self, vr, choices_file, choices):
@@ -769,20 +778,17 @@ class MatrixDef:
       cur_sec = u''
       if word_length < 2 or word[0][0] == COMMENT_CHAR:
         pass
-      elif word_length == 5 and word[4] == u'0':
-        # TODO: This is an undocumented feature of matrixdef: consider
-        # don't print links to sections that are marked 0
-        # TODO: Leaving this in is fine... just need to document it
-        pass
       elif element == SECTION:
         printed = False
         cur_sec = word[1]
-        # disable the link if this is the page we're on
-        if cur_sec == section:
-          sec_links.append('</span><span class="navlinks">%s</span>' % self.section_names[cur_sec])
-        else:
-          sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, self.section_names[cur_sec]))
-        n += 1
+        # If marked hidden, don't show it in navigation
+        if cur_sec not in self.hide_on_navigation:
+          # disable the link if this is the page we're on
+          if cur_sec == section:
+            sec_links.append('</span><span class="navlinks">%s</span>' % self.section_names[cur_sec])
+          else:
+            sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, self.section_names[cur_sec]))
+          n += 1
       elif element == BEGIN_ITER:
         if prefix:
           prefix += u'_'
@@ -796,6 +802,7 @@ class MatrixDef:
         pattern += word[1] + '$'
 
         # TODO: This could be made more efficient
+        # Add errors to the links
         if not printed:
           for k in vr.errors:
             if re.search(pattern, k):
@@ -1532,7 +1539,7 @@ class MatrixDef:
 
     # Now pass through the def file, writing out either the old choices
     # for each section or, for the section we're saving, the new choices
-    with open(choices_file, 'w') as f:
+    with codecs.open(choices_file, 'w', encoding="utf-8") as f:
       f.write('\n') # blank line in case an editor inserts a BOM
       f.write('version=' + str(old_choices.current_version()) + '\n\n')
 
