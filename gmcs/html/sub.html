@@ -24,6 +24,10 @@
   <div id="form_holder">
     {# TODO: Make this a macro #}
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      {# Keep track of where we are! #}
+      <input type="hidden" name="section" value="{{section_name}}"></input>
+      <input type="hidden" name="subpage" value="{{section_name}}"></input>
+      {# UI content #}
       {{form|indent}}
     </form>
   </div>

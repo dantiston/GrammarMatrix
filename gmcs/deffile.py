@@ -15,6 +15,9 @@ TODO:
     * Choice saving
         * Choice saving is broken!!!!!!
         * Hitting save takes you back to the main page!!!!!
+        * Missing the following statements on the subpage:
+            print html_input(vr, 'hidden', 'section', section, False, '', '\n')
+            print html_input(vr, 'hidden', 'subpage', section, False, '', '\n')
 
     * Select options not selecting properly (empty option being selected)
         * empty option of select appearing checked by default... consider
@@ -24,9 +27,6 @@ TODO:
         * Existing choices not selected in Select (Morphology)
         * Wrong choice selected in MultiSelect (Morphology)
         * Wrong choice selected in Select (Morphology:features)
-
-    * Navigation
-        * Extra "Toolbox Lexicon" page in the nav... is it not being skipped??
 
     * Other issues
         * UnicodeDecodeError: General, Sentential Negation, Information Structure,
