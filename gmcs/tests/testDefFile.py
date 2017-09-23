@@ -261,7 +261,7 @@ class DefsToHtmlTests(unittest.TestCase):
 </div>
 </div>
 <div class="anchor" id="test_ANCHOR"></div>
-<p><input type="button" name="" value="Add "test-iter"" onclick="clone_region('test', 'i',false)">"""
+<p><input type="button"  value="Add "test-iter"" onclick="clone_region('test', 'i', false)">"""
       self.assertEqual(actual, expected)
 
 
@@ -287,7 +287,7 @@ class DefsToHtmlTests(unittest.TestCase):
 </div>
 </div>
 <div class="anchor" id="test_ANCHOR"></div>
-<p><input type="button" name="" value="Add "test-iter"" onclick="clone_region('test', 'i',false)">"""
+<p><input type="button"  value="Add "test-iter"" onclick="clone_region('test', 'i', false)">"""
       self.assertEqual(actual, expected)
 
 

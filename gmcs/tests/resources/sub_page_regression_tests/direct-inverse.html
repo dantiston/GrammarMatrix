@@ -101,6 +101,10 @@ Set-cookie: session=7777
     <select name="scale{i}_feat{j}_name" onfocus="fill('scale{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
     <option value="" selected class="temp"></option>
     </select>
+    Value:
+    <select name="scale{i}_feat{j}_value" onfocus="fill('scale{i}_feat{j}_value', [].concat(fill_feature_values('scale{i}_feat{j}_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
     </div>
     </div>
 
@@ -110,15 +114,21 @@ Set-cookie: session=7777
     <select name="scale{i}_feat1_name" onfocus="fill('scale{i}_feat1_name', [].concat(fill_feature_names('noun')));">
     <option value="" selected class="temp"></option>
     </select>
+    Value:
+    <select name="scale{i}_feat1_value" onfocus="fill('scale{i}_feat1_value', [].concat(fill_feature_values('scale{i}_feat1_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
     </div>
     </div>
     <div class="anchor" id="scale{i}_feat_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('scale{i}_feat', 'j',false)"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('scale{i}_feat', 'j', false)"></div>
     </div>
 
     <div class="anchor" id="scale_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Scale Entry" onclick="clone_region('scale', 'i',true)"><p>When the agent and patient have the same scale value, the main verb is
+    <p><input type="button"  value="Add a Scale Entry" onclick="clone_region('scale', 'i', true)"><p>When the agent and patient have the same scale value, the main verb is
     <select name="scale-equal">
+    <option value="direct" selected class="temp">Direct</option>
+    <option value="other" selected class="temp">Some other form</option>
     <option value="" selected class="temp"></option>
     </select><br>(The other form may be something like a reflexive.  If you select "some other form", the resulting grammar will not parse sentences where the agent and patient are equally ranked.  You will need to edit the starter grammar manually to add the other form.)</p>
     </form>

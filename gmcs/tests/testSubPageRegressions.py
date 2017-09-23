@@ -38,6 +38,7 @@ def save_both(actual, expected):
   save(actual, "actual.txt")
   save(expected, "expected.txt")
 
+
 def save(text, location):
   with codecs.open(location, 'w+', encoding='UTF-8') as f:
     f.write(text)
@@ -90,7 +91,6 @@ class RegressionTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('number', '7777', mock_validation())
       expected = load_expected("number")
-      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -101,7 +101,6 @@ class RegressionTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-  @unittest.skip("Failing after changes")
   def testDirectInverse(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('direct-inverse', '7777', mock_validation())
@@ -116,7 +115,6 @@ class RegressionTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-  @unittest.skip("Failing after changes")
   def testSententialNegation(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('sentential-negation', '7777', mock_validation())
@@ -124,8 +122,10 @@ class RegressionTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-  @unittest.skip("Failing after changes")
   def testCoordination(self):
+    """
+    TODO: Confirm this... seems like it might be wrong
+    """
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('coordination', '7777', mock_validation())
       expected = load_expected("coordination")
@@ -146,7 +146,6 @@ class RegressionTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-  @unittest.skip("Failing after changes")
   def testArgumentOptionality(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('arg-opt', '7777', mock_validation())
@@ -154,7 +153,6 @@ class RegressionTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-  @unittest.skip("Failing after changes")
   def testLexicon(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('lexicon', '7777', mock_validation())
@@ -162,9 +160,9 @@ class RegressionTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-  @unittest.skip("Failing after changes")
   def testMorphology(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('morphology', '7777', mock_validation())
       expected = load_expected("morphology")
+      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))

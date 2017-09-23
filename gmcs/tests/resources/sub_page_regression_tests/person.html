@@ -1,6 +1,8 @@
 Content-type: text/html;charset=UTF-8
 Set-cookie: session=7777
 
+
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -106,6 +108,9 @@ Set-cookie: session=7777
     <select name="incl-excl-number" class="multi"  multiple="multiple"  onfocus="fill('incl-excl-number', [].concat(fill_numbers()));">
     <option value="" selected class="temp"></option>
     </select><br>
+
+    <label><input type="radio"  name="first-person" value="other"> other:</p></label>
+
     <div style="padding-left: 16px">
     Please provide names for the subtypes distinguished by your
     language.  The names you provide below will be prefixed with the
@@ -124,7 +129,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="person-subtype_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Subtype" onclick="clone_region('person-subtype', 'i',false)"></div>
+    <p><input type="button"  value="Add a Subtype" onclick="clone_region('person-subtype', 'i', false)"></div>
     </form>
   </div>
 

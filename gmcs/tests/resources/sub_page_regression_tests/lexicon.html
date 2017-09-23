@@ -123,17 +123,22 @@ Set-cookie: session=7777
     <select name="noun{i}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun{i}_supertypes', [].concat(fill_regex('noun(?!{i}_)[0-9]+_name')));">
     <option value="" selected class="temp"></option>
     </select><br />
+    Features:
     <div class="iterator" style="display: none" id="noun{i}_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun{i}_feat{j}')">
     <div class="iterframe">Name:
     <select name="noun{i}_feat{j}_name" onfocus="fill('noun{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
     <option value="" selected class="temp"></option>
     </select>
+    Value:
+    <select name="noun{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun{i}_feat{j}_value', [].concat(fill_feature_values('noun{i}_feat{j}_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
     </div>
     </div>
 
     <div class="anchor" id="noun{i}_feat_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('noun{i}_feat', 'j',false)"><p>For nouns of this type, a determiner is:
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun{i}_feat', 'j', false)"><p>For nouns of this type, a determiner is:
     <label><input type="radio"  name="noun{i}_det" value="obl"> obligatory</label>
     <label><input type="radio"  name="noun{i}_det" value="opt"> optional</label>
     <label><input type="radio"  name="noun{i}_det" value="imp"> impossible</label>
@@ -153,7 +158,7 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="noun{i}_stem_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Stem" onclick="clone_region('noun{i}_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun{i}_stem', 'j', false)"><p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="noun{i}_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun{i}_require{j}')">
     <div class="iterframe">Noun {i} requires one of the following:
@@ -164,7 +169,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="noun{i}_require_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('noun{i}_require', 'j',false)"><div class="iterator" style="display: none" id="noun{i}_forbid_TEMPLATE">
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun{i}_require', 'j', false)"><div class="iterator" style="display: none" id="noun{i}_forbid_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun{i}_forbid{j}')">
     <div class="iterframe">Noun {i} forbids the following position class:
     <select name="noun{i}_forbid{j}_others" onfocus="fill('noun{i}_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
@@ -174,7 +179,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="noun{i}_forbid_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('noun{i}_forbid', 'j',false)"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun{i}_forbid', 'j', false)"></div>
     </div>
     </div>
 
@@ -187,17 +192,22 @@ Set-cookie: session=7777
     <select name="noun1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun1_supertypes', [].concat(fill_regex('noun(?!1_)[0-9]+_name')));">
     <option value="" selected class="temp"></option>
     </select><br />
+    Features:
     <div class="iterator" style="display: none" id="noun1_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_feat{j}')">
     <div class="iterframe">Name:
     <select name="noun1_feat{j}_name" onfocus="fill('noun1_feat{j}_name', [].concat(fill_feature_names('noun')));">
     <option value="" selected class="temp"></option>
     </select>
+    Value:
+    <select name="noun1_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun1_feat{j}_value', [].concat(fill_feature_values('noun1_feat{j}_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
     </div>
     </div>
 
     <div class="anchor" id="noun1_feat_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('noun1_feat', 'j',false)"><p>For nouns of this type, a determiner is:
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun1_feat', 'j', false)"><p>For nouns of this type, a determiner is:
     <label><input type="radio"  name="noun1_det" value="obl"> obligatory</label>
     <label><input type="radio"  name="noun1_det" value="opt"> optional</label>
     <label><input type="radio"  name="noun1_det" value="imp"> impossible</label>
@@ -217,7 +227,7 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="noun1_stem_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Stem" onclick="clone_region('noun1_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun1_stem', 'j', false)"><p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="noun1_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_require{j}')">
     <div class="iterframe">Noun 1 requires one of the following:
@@ -228,7 +238,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="noun1_require_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('noun1_require', 'j',false)"><div class="iterator" style="display: none" id="noun1_forbid_TEMPLATE">
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun1_require', 'j', false)"><div class="iterator" style="display: none" id="noun1_forbid_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_forbid{j}')">
     <div class="iterframe">Noun 1 forbids the following position class:
     <select name="noun1_forbid{j}_others" onfocus="fill('noun1_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
@@ -238,11 +248,11 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="noun1_forbid_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('noun1_forbid', 'j',false)"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun1_forbid', 'j', false)"></div>
     </div>
     </div>
     <div class="anchor" id="noun_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Noun Type" onclick="clone_region('noun', 'i',true)"><hr>
+    <p><input type="button"  value="Add a Noun Type" onclick="clone_region('noun', 'i', true)"><hr>
     <h3 style='display:inline'>Verb Types</h3>
     <span>| <a href='javascript:void(0);' onclick="draw_hierarchy('verb')">visualize verb hierarchy</a> (experimental)</span><br />
     <div class="iterator" style="display: none" id="verb_TEMPLATE">
@@ -254,10 +264,15 @@ Set-cookie: session=7777
     <select name="verb{i}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb{i}_supertypes', [].concat(fill_regex('verb(?!{i}_)[0-9]+_name')));">
     <option value="" selected class="temp"></option>
     </select><br /><br />
+    Features:
     <div class="iterator" style="display: none" id="verb{i}_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb{i}_feat{j}')">
     <div class="iterframe">Name:
     <select name="verb{i}_feat{j}_name" onfocus="fill('verb{i}_feat{j}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Value:
+    <select name="verb{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('verb{i}_feat{j}_value', [].concat(fill_feature_values('verb{i}_feat{j}_name')));">
     <option value="" selected class="temp"></option>
     </select>
     Specified on:
@@ -273,8 +288,12 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="verb{i}_feat_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('verb{i}_feat', 'j',false)"><br /><br />Argument structure:
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('verb{i}_feat', 'j', false)"><br /><br />Argument structure:
     <select name="verb{i}_valence" onfocus="fill('verb{i}_valence', [].concat(fill_case_patterns(false)));">
+    <option value="" selected class="temp"></option>
+    </select><br />
+    If this verb class includes bipartite stems, select the position class for the affix portion of the stems:
+    <select name="verb{i}_bipartitepc" onfocus="fill('verb{i}_bipartitepc', [].concat(fill_cache('verbpcs')));">
     <option value="" selected class="temp"></option>
     </select><br />
     Stems:
@@ -292,7 +311,7 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="verb{i}_stem_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a simple Stem" onclick="clone_region('verb{i}_stem', 'j',false)"><div class="iterator" style="display: none" id="verb{i}_bistem_TEMPLATE">
+    <p><input type="button"  value="Add a simple Stem" onclick="clone_region('verb{i}_stem', 'j', false)"><div class="iterator" style="display: none" id="verb{i}_bistem_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb{i}_bistem{j}')">
     <div class="iterframe">Root spelling: <input type="text"  name="verb{i}_bistem{j}_orth" size="30" onchange="fill_pred('verb{i}_bistem{j}', 'v')">
     Affix spelling: <input type="text"  name="verb{i}_bistem{j}_aff" size="30">
@@ -301,7 +320,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="verb{i}_bistem_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a bipartite Stem" onclick="clone_region('verb{i}_bistem', 'j',false)"><p>Morphotactic Constraints:</p>
+    <p><input type="button"  value="Add a bipartite Stem" onclick="clone_region('verb{i}_bistem', 'j', false)"><p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="verb{i}_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb{i}_require{j}')">
     <div class="iterframe">Verb {i} requires one of the following position classes:
@@ -312,7 +331,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="verb{i}_require_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('verb{i}_require', 'j',false)"><div class="iterator" style="display: none" id="verb{i}_forbid_TEMPLATE">
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('verb{i}_require', 'j', false)"><div class="iterator" style="display: none" id="verb{i}_forbid_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb{i}_forbid{j}')">
     <div class="iterframe">Verb {i} forbids the following position class:
     <select name="verb{i}_forbid{j}_others" onfocus="fill('verb{i}_forbid{j}_others', [].concat(fill_cache('verblrs')));">
@@ -322,7 +341,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="verb{i}_forbid_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('verb{i}_forbid', 'j',false)"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('verb{i}_forbid', 'j', false)"></div>
     </div>
     </div>
 
@@ -335,10 +354,15 @@ Set-cookie: session=7777
     <select name="verb1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb1_supertypes', [].concat(fill_regex('verb(?!1_)[0-9]+_name')));">
     <option value="" selected class="temp"></option>
     </select><br /><br />
+    Features:
     <div class="iterator" style="display: none" id="verb1_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_feat{j}')">
     <div class="iterframe">Name:
     <select name="verb1_feat{j}_name" onfocus="fill('verb1_feat{j}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Value:
+    <select name="verb1_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('verb1_feat{j}_value', [].concat(fill_feature_values('verb1_feat{j}_name')));">
     <option value="" selected class="temp"></option>
     </select>
     Specified on:
@@ -354,8 +378,12 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="verb1_feat_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('verb1_feat', 'j',false)"><br /><br />Argument structure:
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('verb1_feat', 'j', false)"><br /><br />Argument structure:
     <select name="verb1_valence" onfocus="fill('verb1_valence', [].concat(fill_case_patterns(false)));">
+    <option value="" selected class="temp"></option>
+    </select><br />
+    If this verb class includes bipartite stems, select the position class for the affix portion of the stems:
+    <select name="verb1_bipartitepc" onfocus="fill('verb1_bipartitepc', [].concat(fill_cache('verbpcs')));">
     <option value="" selected class="temp"></option>
     </select><br />
     Stems:
@@ -373,7 +401,7 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="verb1_stem_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a simple Stem" onclick="clone_region('verb1_stem', 'j',false)"><div class="iterator" style="display: none" id="verb1_bistem_TEMPLATE">
+    <p><input type="button"  value="Add a simple Stem" onclick="clone_region('verb1_stem', 'j', false)"><div class="iterator" style="display: none" id="verb1_bistem_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_bistem{j}')">
     <div class="iterframe">Root spelling: <input type="text"  name="verb1_bistem{j}_orth" size="30" onchange="fill_pred('verb1_bistem{j}', 'v')">
     Affix spelling: <input type="text"  name="verb1_bistem{j}_aff" size="30">
@@ -382,7 +410,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="verb1_bistem_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a bipartite Stem" onclick="clone_region('verb1_bistem', 'j',false)"><p>Morphotactic Constraints:</p>
+    <p><input type="button"  value="Add a bipartite Stem" onclick="clone_region('verb1_bistem', 'j', false)"><p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="verb1_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_require{j}')">
     <div class="iterframe">Verb 1 requires one of the following position classes:
@@ -393,7 +421,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="verb1_require_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('verb1_require', 'j',false)"><div class="iterator" style="display: none" id="verb1_forbid_TEMPLATE">
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('verb1_require', 'j', false)"><div class="iterator" style="display: none" id="verb1_forbid_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_forbid{j}')">
     <div class="iterframe">Verb 1 forbids the following position class:
     <select name="verb1_forbid{j}_others" onfocus="fill('verb1_forbid{j}_others', [].concat(fill_cache('verblrs')));">
@@ -403,7 +431,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="verb1_forbid_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('verb1_forbid', 'j',false)"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('verb1_forbid', 'j', false)"></div>
     </div>
     </div>
     <span id="verb2_errors" class="error" style="display: none"></span><a id="verb2button" onclick="toggle_display_lex('verb2','verb2button')">&#9660; verb2</a><div class="iterator" id="verb2">
@@ -415,10 +443,15 @@ Set-cookie: session=7777
     <select name="verb2_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb2_supertypes', [].concat(fill_regex('verb(?!2_)[0-9]+_name')));">
     <option value="" selected class="temp"></option>
     </select><br /><br />
+    Features:
     <div class="iterator" style="display: none" id="verb2_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_feat{j}')">
     <div class="iterframe">Name:
     <select name="verb2_feat{j}_name" onfocus="fill('verb2_feat{j}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Value:
+    <select name="verb2_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('verb2_feat{j}_value', [].concat(fill_feature_values('verb2_feat{j}_name')));">
     <option value="" selected class="temp"></option>
     </select>
     Specified on:
@@ -434,8 +467,12 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="verb2_feat_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('verb2_feat', 'j',false)"><br /><br />Argument structure:
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('verb2_feat', 'j', false)"><br /><br />Argument structure:
     <select name="verb2_valence" onfocus="fill('verb2_valence', [].concat(fill_case_patterns(false)));">
+    <option value="" selected class="temp"></option>
+    </select><br />
+    If this verb class includes bipartite stems, select the position class for the affix portion of the stems:
+    <select name="verb2_bipartitepc" onfocus="fill('verb2_bipartitepc', [].concat(fill_cache('verbpcs')));">
     <option value="" selected class="temp"></option>
     </select><br />
     Stems:
@@ -453,7 +490,7 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="verb2_stem_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a simple Stem" onclick="clone_region('verb2_stem', 'j',false)"><div class="iterator" style="display: none" id="verb2_bistem_TEMPLATE">
+    <p><input type="button"  value="Add a simple Stem" onclick="clone_region('verb2_stem', 'j', false)"><div class="iterator" style="display: none" id="verb2_bistem_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_bistem{j}')">
     <div class="iterframe">Root spelling: <input type="text"  name="verb2_bistem{j}_orth" size="30" onchange="fill_pred('verb2_bistem{j}', 'v')">
     Affix spelling: <input type="text"  name="verb2_bistem{j}_aff" size="30">
@@ -462,7 +499,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="verb2_bistem_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a bipartite Stem" onclick="clone_region('verb2_bistem', 'j',false)"><p>Morphotactic Constraints:</p>
+    <p><input type="button"  value="Add a bipartite Stem" onclick="clone_region('verb2_bistem', 'j', false)"><p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="verb2_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_require{j}')">
     <div class="iterframe">Verb 2 requires one of the following position classes:
@@ -473,7 +510,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="verb2_require_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('verb2_require', 'j',false)"><div class="iterator" style="display: none" id="verb2_forbid_TEMPLATE">
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('verb2_require', 'j', false)"><div class="iterator" style="display: none" id="verb2_forbid_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_forbid{j}')">
     <div class="iterframe">Verb 2 forbids the following position class:
     <select name="verb2_forbid{j}_others" onfocus="fill('verb2_forbid{j}_others', [].concat(fill_cache('verblrs')));">
@@ -483,11 +520,11 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="verb2_forbid_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('verb2_forbid', 'j',false)"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('verb2_forbid', 'j', false)"></div>
     </div>
     </div>
     <div class="anchor" id="verb_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Verb Type" onclick="clone_region('verb', 'i',true)"><hr>
+    <p><input type="button"  value="Add a Verb Type" onclick="clone_region('verb', 'i', true)"><hr>
     <h3 style='display:inline'>Adjective Types</h3>
     <span>| <a href='javascript:void(0);' onclick="draw_hierarchy('adj')">visualize adjective hierarchy</a> (experimental)</span><br />
     <div class="iterator" style="display: none" id="adj_TEMPLATE">
@@ -499,6 +536,10 @@ Set-cookie: session=7777
     <select name="adj{i}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('adj{i}_supertypes', [].concat(fill_regex('adj(?!{i})[0-9]+_name')));">
     <option value="" selected class="temp"></option>
     </select><br />
+    <p>Adjectives in constructions are described as <span class="dfn">attributive</span>:
+      those that modify nouns (e.g. "the <b>big</b> dog"); <br>
+      and <span class="dfn">predicative</span>, those that predicate their subject (e.g. "the dog is <b>big</b>").
+      <br>Many adjectives in many languages can be both predicative or attributive.</p>
     <p>This type of adjective is
     <label><input type="radio"  name="adj{i}_mod" value="attr">attributive </label>
     <label><input type="radio"  name="adj{i}_mod" value="pred">predicative </label>
@@ -510,6 +551,10 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj{i}_feat{j}')">
     <div class="iterframe">Name:
     <select name="adj{i}_feat{j}_name" onfocus="fill('adj{i}_feat{j}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Value:
+    <select name="adj{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('adj{i}_feat{j}_value', [].concat(fill_feature_values('adj{i}_feat{j}_name')));">
     <option value="" selected class="temp"></option>
     </select>
     Specified on:
@@ -524,7 +569,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="adj{i}_feat_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('adj{i}_feat', 'j',false)"><p id='adj{i}_adj_pc_note' style='display:none;'>  NOTE: Specifying agreement features on "the subject" or "the modified noun" will create a new<br>  position class on the Morphology page with specified features on "both positions" and without an affix<br>  to facilitate this functionality.<br>  The type of this adjective has also been changed to 'unspecified' to support this. Specify adjective types<br>  on the Morphology page when using this feature.<br></p>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('adj{i}_feat', 'j', false)"><p id='adj{i}_adj_pc_note' style='display:none;'>  NOTE: Specifying agreement features on "the subject" or "the modified noun" will create a new<br>  position class on the Morphology page with specified features on "both positions" and without an affix<br>  to facilitate this functionality.<br>  The type of this adjective has also been changed to 'unspecified' to support this. Specify adjective types<br>  on the Morphology page when using this feature.<br></p>
     <p>This type of adjective behaving
       attributively modifies items immediately <br>
     <label><input type="radio"  name="adj{i}_modpos" value="after"> after the adjective <br></label>
@@ -555,7 +600,7 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="adj{i}_stem_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Stem" onclick="clone_region('adj{i}_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('adj{i}_stem', 'j', false)"><p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="adj{i}_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj{i}_require{j}')">
     <div class="iterframe">Adjective {i} requires one of the following position classes:
@@ -566,7 +611,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="adj{i}_require_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('adj{i}_require', 'j',false)"><div class="iterator" style="display: none" id="adj{i}_forbid_TEMPLATE">
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('adj{i}_require', 'j', false)"><div class="iterator" style="display: none" id="adj{i}_forbid_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj{i}_forbid{j}')">
     <div class="iterframe">Adjective {i} forbids the following position class:
     <select name="adj{i}_forbid{j}_others" onfocus="fill('adj{i}_forbid{j}_others', [].concat(fill_cache('adjlrs')));">
@@ -576,12 +621,12 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="adj{i}_forbid_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('adj{i}_forbid', 'j',false)"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('adj{i}_forbid', 'j', false)"></div>
     </div>
     </div>
 
     <div class="anchor" id="adj_ANCHOR"></div>
-    <p><input type="button" name="" value="Add an Adjective Type" onclick="clone_region('adj', 'i',true)"><hr>
+    <p><input type="button"  value="Add an Adjective Type" onclick="clone_region('adj', 'i', true)"><hr>
     <h3>
     Auxiliary Verb and Copula Types</h3>
     <p>Auxiliaries may contribute an independent predicate, e.g.,
@@ -613,6 +658,10 @@ Set-cookie: session=7777
     <select name="aux{i}_feat{j}_name" onfocus="fill('aux{i}_feat{j}_name', [].concat(fill_feature_names('verb')));">
     <option value="" selected class="temp"></option>
     </select>
+    Value:
+    <select name="aux{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('aux{i}_feat{j}_value', [].concat(fill_feature_values('aux{i}_feat{j}_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
     Specified on:
     <select name="aux{i}_feat{j}_head">
     <option value="verb" selected class="temp">The auxiliary</option>
@@ -626,7 +675,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="aux{i}_feat_ANCHOR"></div>
-    <p><input type="button" name="" value="Add an auxiliary feature" onclick="clone_region('aux{i}_feat', 'j',false)"><br><br>
+    <p><input type="button"  value="Add an auxiliary feature" onclick="clone_region('aux{i}_feat', 'j', false)"><br><br>
     If this auxiliary type takes a VP or V complement, select the subject type:<br>
     <label><input type="radio"  name="aux{i}_subj" value="np">noun phrase without case restrictions <br></label>
     <label><input type="radio"  name="aux{i}_subj" value="np-comp-case">noun phrase bearing the case the verbal complement assigns to its subject <br></label>
@@ -636,12 +685,19 @@ Set-cookie: session=7777
     <select name="aux{i}_subj_case" onfocus="fill('aux{i}_subj_case', [].concat(fill_feature_values('case',true)));">
     <option value="" selected class="temp"></option>
     </select>
+
+    <label><br><input type="radio"  name="aux{i}_subj" value="adp">adpositional phrase<br><br></label>
+
     Complement Features:&nbsp; &nbsp; &nbsp; &nbsp; (Note: A
       value for the feature FORM is required.)<br>
     <div class="iterator" style="display: none" id="aux{i}_compfeature_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}_compfeature{j}')">
     <div class="iterframe">Name:
     <select name="aux{i}_compfeature{j}_name" onfocus="fill('aux{i}_compfeature{j}_name', [].concat(fill_feature_names('verb')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Value:
+    <select name="aux{i}_compfeature{j}_value" class="multi"  multiple="multiple"  onfocus="fill('aux{i}_compfeature{j}_value', [].concat(fill_feature_values('aux{i}_compfeature{j}_name')));">
     <option value="" selected class="temp"></option>
     </select>
     </div>
@@ -653,10 +709,14 @@ Set-cookie: session=7777
     <select name="aux{i}_compfeature1_name" onfocus="fill('aux{i}_compfeature1_name', [].concat(fill_feature_names('verb')));">
     <option value="" selected class="temp"></option>
     </select>
+    Value:
+    <select name="aux{i}_compfeature1_value" class="multi"  multiple="multiple"  onfocus="fill('aux{i}_compfeature1_value', [].concat(fill_feature_values('aux{i}_compfeature1_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
     </div>
     </div>
     <div class="anchor" id="aux{i}_compfeature_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a complement feature" onclick="clone_region('aux{i}_compfeature', 'j',false)"><br><br>Stems:
+    <p><input type="button"  value="Add a complement feature" onclick="clone_region('aux{i}_compfeature', 'j', false)"><br><br>Stems:
     <div class="iterator" style="display: none" id="aux{i}_stem_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}_stem{j}')">
     <div class="iterframe">Spelling: <input type="text"  name="aux{i}_stem{j}_orth" size="30" onchange="aux_fill_pred('aux{i}', 'stem{j}', 'v')">
@@ -671,7 +731,7 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="aux{i}_stem_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Stem" onclick="clone_region('aux{i}_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('aux{i}_stem', 'j', false)"><p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="aux{i}_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}_require{j}')">
     <div class="iterframe">Aux {i} requires one of the following position classes:
@@ -682,7 +742,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="aux{i}_require_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('aux{i}_require', 'j',false)"><div class="iterator" style="display: none" id="aux{i}_forbid_TEMPLATE">
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('aux{i}_require', 'j', false)"><div class="iterator" style="display: none" id="aux{i}_forbid_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}_forbid{j}')">
     <div class="iterframe">Aux {i} forbids the following position class:
     <select name="aux{i}_forbid{j}_others" onfocus="fill('aux{i}_forbid{j}_others', [].concat(fill_cache('verblrs')));">
@@ -692,12 +752,12 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="aux{i}_forbid_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('aux{i}_forbid', 'j',false)"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('aux{i}_forbid', 'j', false)"></div>
     </div>
     </div>
 
     <div class="anchor" id="aux_ANCHOR"></div>
-    <p><input type="button" name="" value="Add an Auxiliary Type" onclick="clone_region('aux', 'i',true)"><p>Define a copula to introduce complements.</p>
+    <p><input type="button"  value="Add an Auxiliary Type" onclick="clone_region('aux', 'i', true)"><p>Define a copula to introduce complements.</p>
     <span><a href='javascript:void(0);' onclick="draw_hierarchy('cop')">visualize copula hierarchy</a> (experimental)</span><br /><br />
     <div class="iterator" style="display: none" id="cop_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop{i}')">
@@ -709,6 +769,7 @@ Set-cookie: session=7777
     <select name="cop{i}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('cop{i}_supertypes', [].concat(fill_regex('cop(?!{i})[0-9]+_name')));">
     <option value="" selected class="temp"></option>
     </select><br />
+    <br />Complement Type: What kind of complements does this copula allow?<br />
     Type:
     <select name="cop{i}_comptype" class="multi"  multiple="multiple"  onfocus="fill('cop{i}_comptype', [].concat(fill_feature_values('cop{i}_feat{j}_name')));">
     <option value="np" selected class="temp" disabled><p style="display:inline;color:#ADADAD"> NPs</p></option>
@@ -716,10 +777,15 @@ Set-cookie: session=7777
     <option value="ap" selected class="temp">APs</option>
     <option value="" selected class="temp"></option>
     </select>
+    <br /><br />Copula features:
     <div class="iterator" style="display: none" id="cop{i}_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop{i}_feat{j}')">
     <div class="iterframe">Name:
     <select name="cop{i}_feat{j}_name" onfocus="fill('cop{i}_feat{j}_name', [].concat(fill_feature_names('both')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Value:
+    <select name="cop{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('cop{i}_feat{j}_value', [].concat(fill_feature_values('cop{i}_feat{j}_name')));">
     <option value="" selected class="temp"></option>
     </select>
     Specified on:
@@ -733,7 +799,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="cop{i}_feat_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a copula feature" onclick="clone_region('cop{i}_feat', 'j',false)"><br><br>Stems:
+    <p><input type="button"  value="Add a copula feature" onclick="clone_region('cop{i}_feat', 'j', false)"><br><br>Stems:
     <div class="iterator" style="display: none" id="cop{i}_stem_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop{i}_stem{j}')">
     <div class="iterframe">Spelling: <input type="text"  name="cop{i}_stem{j}_orth" size="30" onchange="aux_fill_pred('cop{i}', 'stem{j}', 'v')">
@@ -746,7 +812,7 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="cop{i}_stem_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Stem" onclick="clone_region('cop{i}_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('cop{i}_stem', 'j', false)"><p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="cop{i}_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop{i}_require{j}')">
     <div class="iterframe">Copula {i} requires one of the following position classes:
@@ -757,7 +823,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="cop{i}_require_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('cop{i}_require', 'j',false)"><div class="iterator" style="display: none" id="cop{i}_forbid_TEMPLATE">
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('cop{i}_require', 'j', false)"><div class="iterator" style="display: none" id="cop{i}_forbid_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop{i}_forbid{j}')">
     <div class="iterframe">Copula {i} forbids the following position class:
     <select name="cop{i}_forbid{j}_others" onfocus="fill('cop{i}_forbid{j}_others', [].concat(fill_cache('verblrs')));">
@@ -767,12 +833,12 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="cop{i}_forbid_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('cop{i}_forbid', 'j',false)"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('cop{i}_forbid', 'j', false)"></div>
     </div>
     </div>
 
     <div class="anchor" id="cop_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Copula Type" onclick="clone_region('cop', 'i',true)"><hr>
+    <p><input type="button"  value="Add a Copula Type" onclick="clone_region('cop', 'i', true)"><hr>
     <h3>Determiners</h3>
     <div class="iterator" style="display: none" id="det_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det{i}')">
@@ -793,18 +859,22 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="det{i}_stem_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Stem" onclick="clone_region('det{i}_stem', 'j',false)"><br><br>Features:
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('det{i}_stem', 'j', false)"><br><br>Features:
     <div class="iterator" style="display: none" id="det{i}_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det{i}_feat{j}')">
     <div class="iterframe">Name:
     <select name="det{i}_feat{j}_name" onfocus="fill('det{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
     <option value="" selected class="temp"></option>
     </select>
+    Value:
+    <select name="det{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('det{i}_feat{j}_value', [].concat(fill_feature_values('det{i}_feat{j}_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
     </div>
     </div>
 
     <div class="anchor" id="det{i}_feat_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('det{i}_feat', 'j',false)"><p>Morphotactic Constraints:</p>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('det{i}_feat', 'j', false)"><p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="det{i}_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det{i}_require{j}')">
     <div class="iterframe">Determiner {i} requires one of the following position classes:
@@ -815,7 +885,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="det{i}_require_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('det{i}_require', 'j',false)"><div class="iterator" style="display: none" id="det{i}_forbid_TEMPLATE">
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('det{i}_require', 'j', false)"><div class="iterator" style="display: none" id="det{i}_forbid_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det{i}_forbid{j}')">
     <div class="iterframe">Determiner {i} requires one of the following position classes:
     <select name="det{i}_forbid{j}_others" class="multi"  multiple="multiple"  onfocus="fill('det{i}_forbid{j}_others', [].concat(fill_cache('detlrs')));">
@@ -825,12 +895,12 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="det{i}_forbid_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('det{i}_forbid', 'j',false)"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('det{i}_forbid', 'j', false)"></div>
     </div>
     </div>
 
     <div class="anchor" id="det_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Determiner" onclick="clone_region('det', 'i',true)"><hr>
+    <p><input type="button"  value="Add a Determiner" onclick="clone_region('det', 'i', true)"><hr>
     <h3>Case-marking and/or Information Structural Adpositions</h3>
     <div class="iterator" style="display: none" id="adp_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adp{i}')">
@@ -842,15 +912,37 @@ Set-cookie: session=7777
     <option value="before" selected class="temp">Before</option>
     <option value="" selected class="temp"></option>
     </select> a noun phrase<br><br>Features:<br>
-    Name:
-    <select name="adp{i}_name" onfocus="fill('adp{i}_name', [].concat(fill_feature_names('noun')));">
+    <div class="iterator" style="display: none" id="adp{i}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adp{i}_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="adp{i}_feat{j}_name" onfocus="fill('adp{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Value:
+    <select name="adp{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('adp{i}_feat{j}_value', [].concat(fill_feature_values('adp{i}_feat{j}_name')));">
     <option value="" selected class="temp"></option>
     </select>
     </div>
     </div>
 
+    <div class="iterator" id="adp{i}_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adp{i}_feat1')">
+    <div class="iterframe">Name:
+    <select name="adp{i}_feat1_name" onfocus="fill('adp{i}_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    Value:
+    <select name="adp{i}_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('adp{i}_feat1_value', [].concat(fill_feature_values('adp{i}_feat1_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="adp{i}_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('adp{i}_feat', 'j', false)"></div>
+    </div>
+
     <div class="anchor" id="adp_ANCHOR"></div>
-    <p><input type="button" name="" value="Add an Adposition" onclick="clone_region('adp', 'i',true)">
+    <p><input type="button"  value="Add an Adposition" onclick="clone_region('adp', 'i', true)">
     </form>
   </div>
 

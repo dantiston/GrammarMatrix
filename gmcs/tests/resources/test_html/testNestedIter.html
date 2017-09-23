@@ -1,6 +1,8 @@
 Content-type: text/html;charset=UTF-8
 Set-cookie: session=7777
 
+
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -11,6 +13,7 @@ Set-cookie: session=7777
 
     <script type="text/javascript" src="web/matrix.js"></script>
     <script type="text/javascript" src="web/draw.js"></script>
+
     <script type="text/javascript">
       <!--
       // An array of strings, each of the form "name:value|friendly value,..."
@@ -24,6 +27,7 @@ Set-cookie: session=7777
       var numbers = [];
       -->
     </script>
+
 
   </head>
 
@@ -45,6 +49,7 @@ Set-cookie: session=7777
     </div>
 
   <div id="form_holder">
+
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
       <div class="iterator" style="display: none" id="test-nested_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test-nested{i}')">
@@ -55,11 +60,11 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="test-nested{i}_test-nested-inner_ANCHOR"></div>
-    <p><input type="button" name="" value="Add test-iter-nested-inner" onclick="clone_region('test-nested{i}_test-nested-inner', 'j',false)"></div>
+    <p><input type="button"  value="Add test-iter-nested-inner" onclick="clone_region('test-nested{i}_test-nested-inner', 'j', false)"></div>
     </div>
 
     <div class="anchor" id="test-nested_ANCHOR"></div>
-    <p><input type="button" name="" value="Add test-iter-nested" onclick="clone_region('test-nested', 'i',false)">
+    <p><input type="button"  value="Add test-iter-nested" onclick="clone_region('test-nested', 'i', false)">
     </form>
   </div>
 

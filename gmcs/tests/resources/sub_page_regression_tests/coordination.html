@@ -1,6 +1,8 @@
 Content-type: text/html;charset=UTF-8
 Set-cookie: session=7777
 
+
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -119,16 +121,23 @@ Set-cookie: session=7777
     <select name="cs{i}_csap{j}_pat" onfocus="fill('cs{i}_csap{j}_pat', [].concat(fill_cache('pats')));">
     <option value="" selected class="temp"></option>
     </select>
+    agreement pattern for
+    <select name="cs{i}_csap{j}_target">
+    <option value="all" selected class="temp">all arguments</option>
+    <option value="subj" selected class="temp">subjects only</option>
+    <option value="obj" selected class="temp">objects only</option>
+    <option value="" selected class="temp"></option>
+    </select>
     </div>
     </div>
 
     <div class="anchor" id="cs{i}_csap_ANCHOR"></div>
-    <p><input type="button" name="" value="Add an agreement pattern (optional)" onclick="clone_region('cs{i}_csap', 'j',true)"></p>
+    <p><input type="button"  value="Add an agreement pattern (optional)" onclick="clone_region('cs{i}_csap', 'j', true)"></p>
     </div>
     </div>
 
     <div class="anchor" id="cs_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Coordination Strategy" onclick="clone_region('cs', 'i',true)"><h3 style='display:inline'>Agreement Features in Coordinated Phrases</h3>
+    <p><input type="button"  value="Add a Coordination Strategy" onclick="clone_region('cs', 'i', true)"><h3 style='display:inline'>Agreement Features in Coordinated Phrases</h3>
     <p>You may describe how agreement features work in coordinated structures. You can then link coordination strategies with a defined agreement pattern. You may also leave this section blank and not attach any agreement patterns to a coordination strategy, in which case the top node of coordinated phrases will be underspecified for agreement features.</p>
     <b>Feature Resolution</b>
     <p>In a <b>feature resolution</b> pattern, the feature value of a coordinated phrase is derived from the values of both the child nodes. <p>For example, in many languages, person values follow a hierarchy in which any coordinated phrase with a 1st person conjunct will have 1st person value in the top node, phrases with a 2nd person conjunct (but no 1st person conjunct) will be 2nd person, and phrases with only 3rd person conjuncts will be 3rd person. You may also define feature resolution patterns for features such as gender and number. <p> You'll have to specify the rules that apply to each feature you wish to model.</p>
@@ -143,14 +152,23 @@ Set-cookie: session=7777
     <select name="fr{i}_feat{j}_name" onfocus="fill('fr{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
     <option value="" selected class="temp"></option>
     </select>
-    Child 1:
-    <select name="fr{i}_feat{j}_left" class="multi"  multiple="multiple"  onfocus="fill('fr{i}_feat{j}_left', [].concat(fill_feature_values('fr{i}_feat{j}_name')));">
+    <div class="iterator" style="display: none" id="fr{i}_feat{j}_rule_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('fr{i}_feat{j}_rule{k}')">
+    <div class="iterframe">Child 1:
+    <select name="fr{i}_feat{j}_rule{k}_left" class="multi"  multiple="multiple"  onfocus="fill('fr{i}_feat{j}_rule{k}_left', [].concat(fill_feature_values('fr{i}_feat{j}_name')));">
     <option value="any" selected class="temp">any</option>
     <option value="same" selected class="temp">the same</option>
+    <option value="" selected class="temp"></option>
+    </select>
+    Child 2:
+    <select name="fr{i}_feat{j}_rule{k}_right" onfocus="fill('fr{i}_feat{j}_rule{k}_right', [].concat(fill_feature_values('fr{i}_feat{j}_name')));">
+    <option value="any" selected class="temp">any</option>
+    <option value="same" selected class="temp">the same</option>
+    <option value="nonmatching" selected class="temp">any non-matching value in that list</option>
     <option value="" selected class="temp"></option>
     </select>
     Parent:
-    <select name="fr{i}_feat{j}_par" onfocus="fill('fr{i}_feat{j}_par', [].concat(fill_feature_values('fr{i}_feat{j}_name')));">
+    <select name="fr{i}_feat{j}_rule{k}_par" onfocus="fill('fr{i}_feat{j}_rule{k}_par', [].concat(fill_feature_values('fr{i}_feat{j}_name')));">
     <option value="any" selected class="temp">any</option>
     <option value="same" selected class="temp">the same</option>
     <option value="" selected class="temp"></option>
@@ -158,12 +176,16 @@ Set-cookie: session=7777
     </div>
     </div>
 
+    <div class="anchor" id="fr{i}_feat{j}_rule_ANCHOR"></div>
+    <p><input type="button"  value="Add a Rule" onclick="clone_region('fr{i}_feat{j}_rule', 'k', false)"></div>
+    </div>
+
     <div class="anchor" id="fr{i}_feat_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('fr{i}_feat', 'j',false)"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('fr{i}_feat', 'j', false)"></div>
     </div>
 
     <div class="anchor" id="fr_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a feature resolution pattern" onclick="clone_region('fr', 'i',true)"><p><b>Distinguished Conjunct</b>
+    <p><input type="button"  value="Add a feature resolution pattern" onclick="clone_region('fr', 'i', true)"><p><b>Distinguished Conjunct</b>
     <p>In a <b>distinguished conjunct</b> pattern, the feature value of a coordinated phrase is the same as the value of a particular conjunct. Typically, this conjunct is either the closest one to the verb (closest conjunct), or always in a particular position (first or last conjunct).
     <div class="iterator" style="display: none" id="dconj_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('dconj{i}')">
@@ -179,7 +201,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="dconj_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a distinguished conjunct pattern" onclick="clone_region('dconj', 'i',true)">
+    <p><input type="button"  value="Add a distinguished conjunct pattern" onclick="clone_region('dconj', 'i', true)">
     </form>
   </div>
 

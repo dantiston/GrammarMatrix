@@ -1,6 +1,8 @@
 Content-type: text/html;charset=UTF-8
 Set-cookie: session=7777
 
+
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -103,6 +105,9 @@ Set-cookie: session=7777
     <select name="feature{i}_existing" onfocus="fill('feature{i}_existing', [].concat(fill_regex('(existing_value_type[0-9]+_name)',true),fill_feature_names_only_customized('both')));remove_element_all('feature{i}', 'value'); check_radio_button('feature{i}_new', 'no');">
     <option value="" selected class="temp"></option>
     </select><br>
+
+    <label><input type="radio"  name="feature{i}_new" value="yes" onclick="empty_value('feature{i}_existing', 0);"> define a new value type<br></label>
+
     <div id='feature{i}_region'>
     <div class="iterator" style="display: none" id="feature{i}_value_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('feature{i}_value{j}')">
@@ -125,16 +130,16 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="feature{i}_value{j}_supertype_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Supertype" onclick="clone_region('feature{i}_value{j}_supertype', 'k',false)"></div>
+    <p><input type="button"  value="Add a Supertype" onclick="clone_region('feature{i}_value{j}_supertype', 'k', false)"></div>
     </div>
 
     <div class="anchor" id="feature{i}_value_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Value" onclick="clone_region('feature{i}_value', 'j',true)"></div>
+    <p><input type="button"  value="Add a Value" onclick="clone_region('feature{i}_value', 'j', true)"></div>
     </div>
     </div>
 
     <div class="anchor" id="feature_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('feature', 'i',true)">
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('feature', 'i', true)">
     </form>
   </div>
 

@@ -348,6 +348,9 @@ class MatrixDef:
         switch = instance
         values = False # set default
 
+    #   print(switch)
+    #   import pdb; pdb.set_trace()
+      # TODO: Morphology is hanging, in part here, when trying to get "adj-pc{i}_switching"
       results = choices.get_regex(switch)
       if results:
         # Found a match
@@ -861,6 +864,7 @@ class MatrixDef:
       word, word_length, element = self.__get_word(tokenized_lines, i, variables=variables, do_replace=do_replace)
       if word:
         if element in self.html_gens:
+          # TODO: Hanging involves jumping back out here???
           word, word_length, element, i, result = self.html_gens[element](
               tokenized_lines, choices, vr, cookie, prefix, variables,
               num_lines, word, word_length, element, i, do_replace=do_replace)
@@ -945,14 +949,13 @@ class MatrixDef:
 
 
   def iter_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
+    # Syntax checking
     if word_length < 3:
       raise MatrixDefSyntaxException("BeginIter improperly defined: %s; expected at least 3 tokens, got %s" % (word, word_length))
-    result = u""
     iter_orig = word[1]
     if "{" not in iter_orig or "}" not in iter_orig:
       raise MatrixDefSyntaxException("BeginIter improperly defined: %s; missing variable defined as {\\d}" % word)
     iter_name, iter_var = iter_orig.replace('}', '').split('{', 1)
-    label = word[2]
     show_hide = 0
     if word_length > 3:
       try:
@@ -965,6 +968,10 @@ class MatrixDef:
         iter_min = int(word[4])
       except ValueError as e:
         raise MatrixDefSyntaxException("BeginIter improperly defined: %s; expected integer, received %s" % (word, iter_min))
+
+    # Build the result
+    result = u""
+    label = word[2]
     # TJT 2014-08-20: adding option to only do iter based on other choice
     skip_this_iter = False
     if word_length > 5:
@@ -1010,6 +1017,7 @@ class MatrixDef:
       chlist = [x for x in choices.get(prefix + iter_name) if x]
       chlist_length = len(chlist)
       while (chlist and c < chlist_length) or c < iter_min:
+
         show_name = u""
         if c < chlist_length:
           iter_num = str(chlist[c].iter_num())
@@ -1056,8 +1064,7 @@ class MatrixDef:
                                   choices,
                                   vr,
                                   new_prefix,
-                                  variables,
-                                  do_replace=True,
+                                  variables
         )
         result += u'</div>\n</div>\n' # close iterator, iterframe
 
@@ -1066,20 +1073,14 @@ class MatrixDef:
 
       # write out the "anchor" marking the end of the iterator and
       # the "Add" button
-      result += u'<div class="anchor" id="' + \
-              prefix + iter_name + '_ANCHOR"></div>\n<p>'
+      result += u'<div class="anchor" id="%s%s_ANCHOR"></div>\n<p>' % (prefix, iter_name)
       # add any iterator-nonspecific errors here
       result += html.validation_mark(vr, prefix + iter_name)
 
       # finally add the button
-      result += u'<input type="button" name="" ' + \
-              'value="Add ' + label + '" ' + \
-              'onclick="clone_region(\'' + \
-              prefix + iter_name + '\', \'' + \
-              iter_var + '\','
+      result += html.html_input(vr, 'button', "", "Add %s" % label,
+                                onclick="clone_region('%s', '%s', %s)" % (prefix + iter_name, iter_var, str(bool(show_hide)).lower()))
 
-      result += u'true' if show_hide else 'false'
-      result += u')">'
     return word, word_length, element, i, result
 
 
@@ -1093,9 +1094,12 @@ class MatrixDef:
 
 
   def radio_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
-    result = u""
+    """
+    This method is infinitely recursing
+    """
     if word_length < 5:
       raise MatrixDefSyntaxException("Radio button improperly defined: %s; expected at least 5 tokens, got %s: \"%s\"" % (word, word_length, " ".join(tokenized_lines[i])))
+    result = u""
     vn, fn, bf, af = word[1:5]
     vn = prefix + vn
     # TJT 2014-08-28: Adding switch here to ignore entire radio definition
@@ -1129,14 +1133,18 @@ class MatrixDef:
               disabled = True
           result += html.html_input(vr, 'radio', vn, rval, checked, rbef, raft,
                              onclick=js, disabled=disabled) + '\n'
+          i += 1
       result += af + '\n'
+
+      # Went one too far, go back one
+      i -= 1
+      word, word_length, element = self.__get_word(tokenized_lines, i, variables=variables, do_replace=do_replace)
 
     else:
       # TJT 2014-08-28: skipping radio buttons,
       # so skip the button definitions
-      while tokenized_lines[i][0] == BULLET:
+      while i < num_lines and tokenized_lines[i][0] == BULLET:
         i += 1
-      word, word_length, element = self.__get_word(tokenized_lines, i)
 
     return word, word_length, element, i, result
 
@@ -1180,7 +1188,6 @@ class MatrixDef:
       # will be marked during option processing below
       result += html.html_select(vr, vn, multi, onchange=onchange) + '\n'
 
-
     # Fill in values from fillers and get previously selected item
     # This is necessary because the value is not in the deffile
     sval = choices.get(vn)
@@ -1188,28 +1195,28 @@ class MatrixDef:
         result += html.html_option(vr, sval, True, self.f(sval), True) + '\n'
 
     # Add individual bullets, if applicable
-    while i < num_lines:
-      word, word_length, element = self.__get_word(tokenized_lines, i, variables=variables, do_replace=do_replace)
-      if element == BULLET:
-        sstrike = False # Reset variable
-        # select/multiselect options
-        oval, ofrn, ohtml = word[1:4]
-        # TJT 2014-03-19: add disabled option to allow for always-disabled
-        # If there's anything in this slot, disable option
-        if word_length >= 5: sstrike = True
-        # Add option if not previously selected
-        if sval != oval:
-          result += html.html_option(vr, oval, False, ofrn, strike=sstrike) + '\n'
-        i += 1
-      else:
-        break
+    if i < num_lines:
+      for word, word_length, element in self.__get_words(tokenized_lines[i:], variables=variables, do_replace=do_replace):
+        if element == BULLET:
+          sstrike = False # Reset variable
+          # select/multiselect options
+          oval, ofrn, ohtml = word[1:4]
+          # TJT 2014-03-19: add disabled option to allow for always-disabled
+          # If there's anything in this slot, disable option
+          if word_length >= 5: sstrike = True
+          # Add option if not previously selected
+          if sval != oval:
+            result += html.html_option(vr, oval, False, ofrn, strike=sstrike) + '\n'
+          i += 1
+        else:
+          break
 
     # add empty option
     result += html.html_option(vr, '', False, '') + '\n'
     result += u'</select>'
     result += af + '\n'
 
-    # Go back one...
+    # Went one too far, go back one
     i -= 1
     word, word_length, element = self.__get_word(tokenized_lines, i, variables=variables, do_replace=do_replace)
 
@@ -1260,7 +1267,7 @@ class MatrixDef:
 
 
   def __get_words(self, tokenized_lines, variables={}, do_replace=False):
-    for i, word in enumerate(tokenized_lines):
+    for word in tokenized_lines:
       yield self.__do_get(word, variables=variables, do_replace=do_replace)
 
 

@@ -104,7 +104,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="past-subtype_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a subtype" onclick="clone_region('past-subtype', 'i',false)"><label><br><br><input type="checkbox"  name="present"><b>present</b><br></label>
+    <p><input type="button"  value="Add a subtype" onclick="clone_region('past-subtype', 'i', false)"><label><br><br><input type="checkbox"  name="present"><b>present</b><br></label>
     <div class="iterator" style="display: none" id="present-subtype_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('present-subtype{i}')">
     <div class="iterframe">Subtype: <input type="text"  name="present-subtype{i}_name" size="20" onchange="fill_display_name('present-subtype{i}');">
@@ -112,7 +112,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="present-subtype_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a subtype" onclick="clone_region('present-subtype', 'i',false)"><label><br><br><input type="checkbox"  name="future"><b>future</b><br></label>
+    <p><input type="button"  value="Add a subtype" onclick="clone_region('present-subtype', 'i', false)"><label><br><br><input type="checkbox"  name="future"><b>future</b><br></label>
     <div class="iterator" style="display: none" id="future-subtype_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('future-subtype{i}')">
     <div class="iterframe">Subtype: <input type="text"  name="future-subtype{i}_name" size="20" onchange="fill_display_name('future-subtype{i}');">
@@ -120,7 +120,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="future-subtype_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a subtype" onclick="clone_region('future-subtype', 'i',false)"><label><br><br><input type="checkbox"  name="nonpast"><b>nonpast</b> &nbsp;&nbsp;&nbsp;&nbsp; <span style="font-size:-1">(note: If present and/or future are also selected they are assumed to be subtypes of nonpast.)<br></span></label>
+    <p><input type="button"  value="Add a subtype" onclick="clone_region('future-subtype', 'i', false)"><label><br><br><input type="checkbox"  name="nonpast"><b>nonpast</b> &nbsp;&nbsp;&nbsp;&nbsp; <span style="font-size:-1">(note: If present and/or future are also selected they are assumed to be subtypes of nonpast.)<br></span></label>
     <div class="iterator" style="display: none" id="nonpast-subtype_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('nonpast-subtype{i}')">
     <div class="iterframe">Subtype: <input type="text"  name="nonpast-subtype{i}_name" size="20" onchange="fill_display_name('nonpast-subtype{i}');">
@@ -128,7 +128,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="nonpast-subtype_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a subtype" onclick="clone_region('nonpast-subtype', 'i',false)"><label><br><br><input type="checkbox"  name="nonfuture"><b>nonfuture</b> &nbsp;&nbsp;&nbsp;&nbsp; <span style="font-size:-1">(note: If present and/or past are also selected they are assumed to be subtypes of nonfuture.)<br></span></label>
+    <p><input type="button"  value="Add a subtype" onclick="clone_region('nonpast-subtype', 'i', false)"><label><br><br><input type="checkbox"  name="nonfuture"><b>nonfuture</b> &nbsp;&nbsp;&nbsp;&nbsp; <span style="font-size:-1">(note: If present and/or past are also selected they are assumed to be subtypes of nonfuture.)<br></span></label>
     <div class="iterator" style="display: none" id="nonfuture-subtype_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('nonfuture-subtype{i}')">
     <div class="iterframe">Subtype: <input type="text"  name="nonfuture-subtype{i}_name" size="20" onchange="fill_display_name('nonfuture-subtype{i}');">
@@ -136,7 +136,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="nonfuture-subtype_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a subtype" onclick="clone_region('nonfuture-subtype', 'i',false)"></div>
+    <p><input type="button"  value="Add a subtype" onclick="clone_region('nonfuture-subtype', 'i', false)"></div>
 
     <label><input type="radio"  name="tense-definition" value="build"><strong>Build your own <span class="feat">tense</span> hierarchy</strong><br></label>
 
@@ -166,11 +166,11 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="tense{i}_supertype_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Supertype" onclick="clone_region('tense{i}_supertype', 'j',false)"></div>
+    <p><input type="button"  value="Add a Supertype" onclick="clone_region('tense{i}_supertype', 'j', false)"></div>
     </div>
 
     <div class="anchor" id="tense_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a tense type" onclick="clone_region('tense', 'i',true)"></div>
+    <p><input type="button"  value="Add a tense type" onclick="clone_region('tense', 'i', true)"></div>
     <h4><span class="feat">aspect</span></h4>
     <p>According to Kibort (2008), "The term 'aspect' designates
     the perspective taken on the internal temporal organisation of the
@@ -220,11 +220,11 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="aspect{i}_supertype_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Supertype" onclick="clone_region('aspect{i}_supertype', 'j',false)"></div>
+    <p><input type="button"  value="Add a Supertype" onclick="clone_region('aspect{i}_supertype', 'j', false)"></div>
     </div>
 
     <div class="anchor" id="aspect_ANCHOR"></div>
-    <p><input type="button" name="" value="Add an aspect type" onclick="clone_region('aspect', 'i',true)"><p><b>Situation Aspect</b>
+    <p><input type="button"  value="Add an aspect type" onclick="clone_region('aspect', 'i', true)"><p><b>Situation Aspect</b>
     <p>The term "situation aspect" overlaps with, or subsumes,
     lexical aspect, inherent aspect and some uses of the term
     Aktionsart. Situation aspect values may be conveyed by the meaning of
@@ -266,11 +266,11 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="situation{i}_supertype_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Supertype" onclick="clone_region('situation{i}_supertype', 'j',false)"></div>
+    <p><input type="button"  value="Add a Supertype" onclick="clone_region('situation{i}_supertype', 'j', false)"></div>
     </div>
 
     <div class="anchor" id="situation_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a situation type" onclick="clone_region('situation', 'i',true)"></div>
+    <p><input type="button"  value="Add a situation type" onclick="clone_region('situation', 'i', true)"></div>
     </div>
     <div style="padding-left: 16px">
     <h4><span class="feat">mood</span></h4>
@@ -301,11 +301,11 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="mood{i}_supertype_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Supertype" onclick="clone_region('mood{i}_supertype', 'j',false)"></div>
+    <p><input type="button"  value="Add a Supertype" onclick="clone_region('mood{i}_supertype', 'j', false)"></div>
     </div>
 
     <div class="anchor" id="mood_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a mood type" onclick="clone_region('mood', 'i',true)"></div>
+    <p><input type="button"  value="Add a mood type" onclick="clone_region('mood', 'i', true)"></div>
     <hr>
     <h3>Syntactic Feature</h3>
     <div style="padding-left: 16px">
@@ -337,7 +337,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="nf-subform_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a subtype" onclick="clone_region('nf-subform', 'i',false)"><br><br><b>finite</b>:
+    <p><input type="button"  value="Add a subtype" onclick="clone_region('nf-subform', 'i', false)"><br><br><b>finite</b>:
     <div class="iterator" style="display: none" id="fin-subform_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('fin-subform{i}')">
     <div class="iterframe">finite subtype name: <input type="text"  name="fin-subform{i}_name" size="20" onchange="fill_display_name('fin-subform{i}');">
@@ -345,7 +345,7 @@ Set-cookie: session=7777
     </div>
 
     <div class="anchor" id="fin-subform_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a subtype" onclick="clone_region('fin-subform', 'i',false)"></div>
+    <p><input type="button"  value="Add a subtype" onclick="clone_region('fin-subform', 'i', false)"></div>
     </div>
     <h4>References</h4>
     <div style="font-size:2">

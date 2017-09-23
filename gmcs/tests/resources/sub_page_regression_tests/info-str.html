@@ -1,6 +1,8 @@
 Content-type: text/html;charset=UTF-8
 Set-cookie: session=7777
 
+
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -97,12 +99,16 @@ Set-cookie: session=7777
     <select name="focus-marker{i}_pos" class="multi"  multiple="multiple"  onfocus="fill('focus-marker{i}_pos', [].concat(fill_regex('(pos_type[0-9]_name)',true)));">
     <option value="" selected class="temp"></option>
     </select>
+
+    <select name="focus-marker{i}_cat" class="multi"  multiple="multiple"  onfocus="fill('focus-marker{i}_cat', [].concat(fill_regex('(cat_type[0-9]_name)',true)));">
+    <option value="" selected class="temp"></option>
+    </select>
      Spelling: <input type="text"  name="focus-marker{i}_orth" size="10"><br>
     </div>
     </div>
 
     <div class="anchor" id="focus-marker_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Focus Marker" onclick="clone_region('focus-marker', 'i',true)"><h3>Topic</h3>
+    <p><input type="button"  value="Add a Focus Marker" onclick="clone_region('focus-marker', 'i', true)"><h3>Topic</h3>
     <label><input type="checkbox"  name="topic-first">Topic always occurs sentence-initially in my language.<br> </label>
     <div class="iterator" style="display: none" id="topic-marker_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('topic-marker{i}')">
@@ -115,12 +121,16 @@ Set-cookie: session=7777
     <select name="topic-marker{i}_pos" class="multi"  multiple="multiple"  onfocus="fill('topic-marker{i}_pos', [].concat(fill_regex('(pos_type[0-9]_name)',true)));">
     <option value="" selected class="temp"></option>
     </select>
+
+    <select name="topic-marker{i}_cat" class="multi"  multiple="multiple"  onfocus="fill('topic-marker{i}_cat', [].concat(fill_regex('(cat_type[0-9]_name)',true)));">
+    <option value="" selected class="temp"></option>
+    </select>
      Spelling: <input type="text"  name="topic-marker{i}_orth" size="10"><br>
     </div>
     </div>
 
     <div class="anchor" id="topic-marker_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Topic Marker" onclick="clone_region('topic-marker', 'i',true)"><h3>Contrastive Focus</h3>
+    <p><input type="button"  value="Add a Topic Marker" onclick="clone_region('topic-marker', 'i', true)"><h3>Contrastive Focus</h3>
     <label><input type="checkbox"  name="c-focus" onclick="uncheck_all('c-focus-pos');">My language uses the same position to express contrastive focus as non-contrastive focus.<br></label>
     <br>My language places contrastively focused constituents in a specific position. The position is<br>
     <label>&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio"  name="c-focus-pos" value="clause-initial" onclick="uncheck_all('c-focus');">clause-initial.<br> </label>
@@ -139,12 +149,16 @@ Set-cookie: session=7777
     <select name="c-focus-marker{i}_pos" class="multi"  multiple="multiple"  onfocus="fill('c-focus-marker{i}_pos', [].concat(fill_regex('(pos_type[0-9]_name)',true)));">
     <option value="" selected class="temp"></option>
     </select>
+
+    <select name="c-focus-marker{i}_cat" class="multi"  multiple="multiple"  onfocus="fill('c-focus-marker{i}_cat', [].concat(fill_regex('(cat_type[0-9]_name)',true)));">
+    <option value="" selected class="temp"></option>
+    </select>
      Spelling: <input type="text"  name="c-focus-marker{i}_orth" size="10"><br>
     </div>
     </div>
 
     <div class="anchor" id="c-focus-marker_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Contrastive Focus Marker" onclick="clone_region('c-focus-marker', 'i',true)"><h3>Contrastive Topic</h3>
+    <p><input type="button"  value="Add a Contrastive Focus Marker" onclick="clone_region('c-focus-marker', 'i', true)"><h3>Contrastive Topic</h3>
     <div class="iterator" style="display: none" id="c-topic-marker_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('c-topic-marker{i}')">
     <div class="iterframe">This marker is<br>
@@ -156,12 +170,16 @@ Set-cookie: session=7777
     <select name="c-topic-marker{i}_pos" class="multi"  multiple="multiple"  onfocus="fill('c-topic-marker{i}_pos', [].concat(fill_regex('(pos_type[0-9]_name)',true)));">
     <option value="" selected class="temp"></option>
     </select>
+
+    <select name="c-topic-marker{i}_cat" class="multi"  multiple="multiple"  onfocus="fill('c-topic-marker{i}_cat', [].concat(fill_regex('(cat_type[0-9]_name)',true)));">
+    <option value="" selected class="temp"></option>
+    </select>
      Spelling: <input type="text"  name="c-topic-marker{i}_orth" size="10"><br>
     </div>
     </div>
 
     <div class="anchor" id="c-topic-marker_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Contrastive Topic Marker" onclick="clone_region('c-topic-marker', 'i',true)"><h4>References</h4>
+    <p><input type="button"  value="Add a Contrastive Topic Marker" onclick="clone_region('c-topic-marker', 'i', true)"><h4>References</h4>
     <font size="2">
     <p>Lambrecht, Knud. 1996. Information Structure and Sentence Form: Topic, Focus, and the Mental Representations of Discourse Referents. Cambridge, UK: Cambridge University Press.</p>
     <p>Gundel, Jeanette K. 1999. On Different Kinds of Focus. In Peter Bosch and Rob van der Sandt (eds.), Focus: Linguistic, Cognitive, and Computational Perspectives, pages 293-305, Cambridge: Cambridge University Press.</p>

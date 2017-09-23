@@ -1,6 +1,8 @@
 Content-type: text/html;charset=UTF-8
 Set-cookie: session=7777
 
+
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -145,6 +147,10 @@ Set-cookie: session=7777
     <select name="context{i}_feat{j}_name" onfocus="fill('context{i}_feat{j}_name', [].concat(fill_feature_names('both')));">
     <option value="" selected class="temp"></option>
     </select>
+    Value:
+    <select name="context{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('context{i}_feat{j}_value', [].concat(fill_feature_values('context{i}_feat{j}_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
     Specified on:
     <select name="context{i}_feat{j}_head">
     <option value="verb" selected class="temp">The verb</option>
@@ -163,6 +169,10 @@ Set-cookie: session=7777
     <select name="context{i}_feat1_name" onfocus="fill('context{i}_feat1_name', [].concat(fill_feature_names('both')));">
     <option value="" selected class="temp"></option>
     </select>
+    Value:
+    <select name="context{i}_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('context{i}_feat1_value', [].concat(fill_feature_values('context{i}_feat1_name')));">
+    <option value="" selected class="temp"></option>
+    </select>
     Specified on:
     <select name="context{i}_feat1_head">
     <option value="verb" selected class="temp">The verb</option>
@@ -175,11 +185,11 @@ Set-cookie: session=7777
     </div>
     </div>
     <div class="anchor" id="context{i}_feat_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Feature" onclick="clone_region('context{i}_feat', 'j',false)"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('context{i}_feat', 'j', false)"></div>
     </div>
 
     <div class="anchor" id="context_ANCHOR"></div>
-    <p><input type="button" name="" value="Add a Context" onclick="clone_region('context', 'i',true)"><h3>Object Dropping</h3>
+    <p><input type="button"  value="Add a Context" onclick="clone_region('context', 'i', true)"><h3>Object Dropping</h3>
     <p>Some languages allow all transitive verbs to drop their
     objects. In other languages object dropping is restricted to certain
     verbs.  English is an example of the latter.  In general transitive
