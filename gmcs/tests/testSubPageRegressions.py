@@ -52,6 +52,7 @@ class RegressionTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('general', '7777', mock_validation())
       expected = load_subpage("general")
+      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 

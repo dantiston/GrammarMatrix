@@ -2803,7 +2803,7 @@ BeginIter stv-feat{j} "a Feature"
 
 EndIter stv-feat
 
-Section ToolboxLexicon "Toolbox Lexicon" ImportToolboxLexicon X
+Section ToolboxLexicon "Toolbox Lexicon" ImportToolboxLexicon "" X
 
 Label "<p> Imported Toolbox Lexical items are displayed here, if any of these are incorrect
 we recommend changing your import configurations and reimporting your files instead of

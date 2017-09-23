@@ -43,7 +43,7 @@ def load_choices(file_name):
 
 # Comparing
 def remove_empty_lines(string):
-  return "\n".join((line.strip() for line in string.split("\n") if line.strip()))
+  return [line for line in [line.strip() for line in string.split("\n")] if line]
 
 
 # Debugging
