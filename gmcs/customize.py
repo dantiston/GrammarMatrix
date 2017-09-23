@@ -1,5 +1,13 @@
-#
+#!usr/bin/env python2.7
+# -*- coding: utf-8 -*-
+
 # $Id: customize.py,v 1.71 2008-09-30 23:50:02 lpoulson Exp $
+
+"""
+customize.py
+
+The main entry point for customizing a grammar based on a choices file
+"""
 
 ######################################################################
 # imports
@@ -8,20 +16,12 @@ import os
 import datetime
 import shutil
 import tdl
-#import tarfile
-#import gzip
-#import zipfile
 import sys
-#import re
 import codecs
 from subprocess import call
 
 from gmcs.choices import ChoicesFile
-#from gmcs.utils import TDLencode
-#from gmcs.utils import get_name
 from gmcs.utils import format_comment_block
-
-#from gmcs.lib import TDLHierarchy
 
 from gmcs.linglib import morphotactics
 from gmcs.linglib import information_structure
@@ -583,8 +583,8 @@ def customize_matrix(path, arch_type, destination=None):
 
   features.process_cfv_list(mylang, ch, hierarchies, to_cfv)
 
-  
-  
+
+
   # Call the other customization functions
  # customize_person_and_number()
  # customize_gender()

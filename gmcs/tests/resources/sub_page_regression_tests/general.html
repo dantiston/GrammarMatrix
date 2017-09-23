@@ -68,6 +68,9 @@ Set-cookie: session=7777
   <div id="form_holder">
 
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <input type="hidden" name="section" value="general"></input>
+      <input type="hidden" name="subpage" value="general"></input>
+
       <h3>Language</h3>
     <p>Name of your language: <input type="text"  name="language" size="50"></p><br>
     <a href="http://www.sil.org/iso639-3/codes.asp">ISO code</a> for your language: <input type="text"  name="iso-code" size="6"> (optional) </p>

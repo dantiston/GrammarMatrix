@@ -1,36 +1,40 @@
 #!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
+
+"""
+matrix.py
+
+A general-purpose script for running Matrix code.
+The intention of this script is to define options, commands, and
+arguments for running Matrix code, validates the user's input, and
+offers helpful messages for improper input, missing files, etc. It
+should not have a general try-except wrapper unless it re-raises
+the errors (otherwise they will be hidden from the user). Further,
+if possible it should check to make sure the developer is following
+best-practices for Matrix development (e.g. running regression tests
+and checking in code before vivifying, etc.).
+
+# NOTE TO DEVELOPERS
+Because we are unsure of the Python version being used (and some systems
+we rely on use 2.4), this module should check the version and fail
+gracefully if it's less than our 'officially supported' version (currently
+this is 2.5). In order to fail gracefully, this script must not have any
+syntax from later Python versions (otherwise it will throw a SyntaxError
+before it does anything).
+
+# NOTE TO DEVELOPERS
+As of 9/19/17, the Grammar Matrix has officially dropped support for Python
+2.4, 2.5, and 2.6. The only supported version is now Python 2.7.
+"""
+
 import sys
 import os
 import getopt
 import subprocess
 import random
+
 from gmcs.choices import ChoicesFile
 from gmcs.deffile import MatrixDef
-
-#import cgi
-
-### matrix.py
-### A general-purpose script for running Matrix code.
-### The intention of this script is to define options, commands, and
-### arguments for running Matrix code, validates the user's input, and
-### offers helpful messages for improper input, missing files, etc. It
-### should not have a general try-except wrapper unless it re-raises
-### the errors (otherwise they will be hidden from the user). Further,
-### if possible it should check to make sure the developer is following
-### best-practices for Matrix development (e.g. running regression tests
-### and checking in code before vivifying, etc.).
-
-# NOTE TO DEVELOPERS
-# Because we are unsure of the Python version being used (and some systems
-# we rely on use 2.4), this module should check the version and fail
-# gracefully if it's less than our 'officially supported' version (currently
-# this is 2.5). In order to fail gracefully, this script must not have any
-# syntax from later Python versions (otherwise it will throw a SyntaxError
-# before it does anything).
-
-# NOTE TO DEVELOPERS
-# As of 9/19/17, the Grammar Matrix has officially dropped support for Python
-# 2.4, 2.5, and 2.6. The only support version is now Python 2.7.
 
 def main():
   # The force flag is used to skip checks in some commands
@@ -334,16 +338,16 @@ def main():
   #### WEB TESTS ####
 
   elif args[0] in ('w', 'web-test'):
-    run_web_tests();
+    run_web_tests()
 
   elif args[0] in ('wa', 'web-test-add'):
     comment = None
     if len(args) > 2:
       comment = args[2]
-    add_web_test(args[1], comment);
+    add_web_test(args[1], comment)
 
   elif args[0] in ('wr', 'web-test-remove'):
-    remove_web_test(args[1]);
+    remove_web_test(args[1])
   elif args[0] == 'import-lex':
     import gmcs.linglib.toolboximport
     gmcs.linglib.toolboximport.import_toolbox_lexicon(args[1])
@@ -681,6 +685,7 @@ def customize_grammar(path, destination=None, flop=False, cheaphack=False):
     subprocess.call([cmd, pet_file], cwd=grammar_dir,
                     env=os.environ, stderr=devnull)
 
+
 def run_unit_tests(tests=None):
   import unittest
 
@@ -779,7 +784,7 @@ def add_web_test(filename, comment):
   import re
   file_out = open(filename, "r")
   test_file = open('./gmcs/web_tests/testWeb.py', 'r+')
-  write = False;
+  write = False
   new_test = []
   for line in file_out:
     #print line;
@@ -789,7 +794,7 @@ def add_web_test(filename, comment):
       write = False
     if write:
       new_test.append(line)
-  file_out.close();
+  file_out.close()
 #  print new_test;
 #  for line in test_file:
 #  if line == "if __name__ == \"__main__\":\n":
@@ -843,7 +848,7 @@ def validate_html(arg):
   # the httpstr off for validation after dropping
   # the http headers
 
-  if arg in ['main','m','']:
+  if arg in ('main','m',''):
     print "main page:"
 
     # need to drop the first few lines of the reply from

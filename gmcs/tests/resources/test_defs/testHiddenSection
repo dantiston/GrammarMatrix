@@ -3,6 +3,6 @@ Section test-section "Test Section" TestSection
 Label "<p>Test section</p>"
 
 
-Section test-hidden-section "Test Hidden Section" TestHiddenSection "0"
+Section test-hidden-section "Test Hidden Section" TestHiddenSection "" "0"
 
 Label "<p>Test hidden section</p>"

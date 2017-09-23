@@ -51,6 +51,8 @@ Set-cookie: session=7777
   <div id="form_holder">
 
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <input type="hidden" name="section" value="test-nested-iter"></input>
+      <input type="hidden" name="subpage" value="test-nested-iter"></input>
       <div class="iterator" style="display: none" id="test-nested_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test-nested{i}')">
     <div class="iterframe"><div class="iterator" style="display: none" id="test-nested{i}_test-nested-inner_TEMPLATE">

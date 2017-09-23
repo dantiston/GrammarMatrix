@@ -47,6 +47,8 @@ Set-cookie: session=7777
   <div id="form_holder">
 
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <input type="hidden" name="section" value="test-check"></input>
+      <input type="hidden" name="subpage" value="test-check"></input>
       <label>check: <input type="checkbox"  name="test-check" onclick="testMe();"></label>
     </form>
   </div>

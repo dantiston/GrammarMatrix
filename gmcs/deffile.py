@@ -1,4 +1,5 @@
 #!usr/bin/env python2.7
+# -*- coding: utf-8 -*-
 
 ### $Id: deffile.py,v 1.16 2008-09-30 23:50:02 lpoulson Exp $
 
@@ -8,17 +9,12 @@ deffile.py
 This module provides the class MatrixDef and supporting methods for validating,
 loading, and generating HTML from files defining pages in the matrixdef specification
 
+TODO: Think about pickling MatrixDef
+TODO: Modularize matrixdef files
 TODO: Think about either making constants for accessing indices of MatrixDef
-      or make the data of the deffile object oriented (and have accessors)
+      commands or make the commands object oriented (and have accessors)
 
 TODO:
-    * Choice saving
-        * Choice saving is broken!!!!!!
-        * Hitting save takes you back to the main page!!!!!
-        * Missing the following statements on the subpage:
-            print html_input(vr, 'hidden', 'section', section, False, '', '\n')
-            print html_input(vr, 'hidden', 'subpage', section, False, '', '\n')
-
     * Select options not selecting properly (empty option being selected)
         * empty option of select appearing checked by default... consider
         * Tense, Aspect, Situation, Mood supertypes not available on TAM page
@@ -28,8 +24,11 @@ TODO:
         * Wrong choice selected in MultiSelect (Morphology)
         * Wrong choice selected in Select (Morphology:features)
 
+    * Main page
+        * choices not displayed under the sections
+
     * Other issues
-        * UnicodeDecodeError: General, Sentential Negation, Information Structure,
+        * UnicodeEncodeError: General, Sentential Negation, Information Structure,
         * Adding debug into to the end of the page
 """
 
@@ -293,7 +292,7 @@ class MatrixDef:
           self.section_names[section_name] = line[2]
           if len(line) >= 4:
             self.doc_links[section_name] = line[3]
-            if len(line) >= 5:
+            if len(line) >= 6:
               self.hide_on_navigation.add(section_name)
     if last != len(self):
       self.sections[section_name] = self.tokenized_lines[last:]

@@ -1,3 +1,6 @@
+#!usr/bin/env python2.7
+# -*- coding: utf-8 -*-
+
 ### $Id: utils.py,v 1.8 2008-05-28 21:08:12 sfd Exp $
 
 def tokenize_def(str):
@@ -44,7 +47,7 @@ def TDLencode(string):
 
 def orth_encode(orthin):
   """
-  prepare an orth string in a way that 
+  prepare an orth string in a way that
   words with spaces are treated properly.
   """
   orthlist = orthin.split(' ')

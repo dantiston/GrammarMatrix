@@ -1,4 +1,6 @@
-### encoding: utf8
+#!usr/bin/env python2.7
+# -*- coding: utf-8 -*-
+
 ### $Id: validate.py,v 1.44 2008-09-30 23:50:02 lpoulson Exp $
 
 ######################################################################
@@ -22,6 +24,7 @@ import gmcs.linglib.lexicon
 # ValidationResult class
 
 class ValidationResult:
+
   def __init__(self):
     self.errors = {}
     self.warnings = {}
@@ -1498,4 +1501,3 @@ if __name__ == "__main__":
         column += len(w) + 1
     print
   print
-

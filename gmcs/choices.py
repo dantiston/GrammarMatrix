@@ -1,15 +1,21 @@
+#!usr/bin/env python2.7
+# -*- coding: utf-8 -*-
+
 ### $Id: choices.py,v 1.24 2008-09-30 23:50:02 lpoulson Exp $
+
+"""
+choices.py
+
+Definition of the choices data structure, methods for loading, saving, and
+    changing choices
+"""
 
 ######################################################################
 # imports
 
 import re
-#import sys
 from gmcs.util.misc import safe_int, get_valid_lines
 from gmcs.linglib import case
-
-######################################################################
-# globals
 
 ######################################################################
 # Errors
