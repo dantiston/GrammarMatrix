@@ -4,11 +4,12 @@
   This Jinja template extends base.html to define a subpage.
 
   Note this defines (at least) the following variables:
-    * onload
-    * section_name
-    * section_doc_link
-    * navigation
-    * form
+    * onload : a string of JavaScript which runs on page load
+    * section : the internal/developer facing name of the section
+    * section_name : the external/user facing name of the section
+    * section_doc_link : the matrix docs link for the section
+    * navigation : the navigation sidebar HTML
+    * form : the main UI content
 
 #}
 
@@ -25,8 +26,8 @@
     {# TODO: Make this a macro #}
     <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
       {# Keep track of where we are! #}
-      <input type="hidden" name="section" value="{{section_name}}"></input>
-      <input type="hidden" name="subpage" value="{{section_name}}"></input>
+      <input type="hidden" name="section" value="{{section}}"></input>
+      <input type="hidden" name="subpage" value="{{section}}"></input>
       {# UI content #}
       {{form|indent}}
     </form>

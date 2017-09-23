@@ -433,6 +433,7 @@ class MatrixDef:
         numbers=html.js_array(choices.numbers()),
         onload=tokenized_section_def[0][4] if len(tokenized_section_def[0]) > 4 else u"",
         cookie=cookie,
+        section=section,
         section_name=self.section_names[section],
         section_doc_link=self.doc_links[section],
         navigation=self.navigation(vr, choices_file, section=section),
