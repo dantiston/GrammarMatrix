@@ -9,45 +9,16 @@ from gmcs.choices import ChoicesFile
 from gmcs.deffile import MatrixDefSyntaxException
 
 from mock import mock_choices, mock_validation, mock_error, os_environ
+from test import load_testhtml, load_matrixdef, load_choices, remove_empty_lines
 
-
-def get_path(*path):
-  return os.path.abspath(os.path.join(os.path.dirname(__file__), *path))
-
-
-def load(file_name):
-  path = get_path("resources", "test_defs", file_name)
-  return deffile.MatrixDef(path)
-
-
-def load_expected(file_name):
-  path = get_path("resources", "test_html", file_name + ".html")
-  with open(path, 'r') as f:
-    return f.read()
-
-def load_choices(file_name):
-  # "gmcs/tests/resources/test_choices/iter_choices.txt"
-  path = get_path("resources", "test_choices", file_name)
-  return ChoicesFile(path)
-
-
-def remove_empty_lines(string):
-  return "\n".join((line.strip() for line in string.split("\n") if line.strip()))
-
-
-def print_both(actual, expected):
-  print("#"*50 + " ACTUAL " + "#"*50)
-  print(actual)
-  print
-  print("#"*50 + " EXPECTED " + "#"*50)
-  print(expected)
-
+# DELETEME
+from test import save_both
 
 ### TESTS
 class InitializerTests(unittest.TestCase):
 
   def testInitializer_Basic(self):
-    definition = load("testBasic")
+    definition = load_matrixdef("testBasic")
 
     self.assertEqual(definition.tokenized_lines, [['Section', 'test-basic', 'Test Basic', 'TestBasic'], ['Label', '<p>Test</p>'], ['Separator'], ['Label', '<p>Test</p>']])
     self.assertEqual(definition.sections, {'test-basic': [['Section', 'test-basic', 'Test Basic', 'TestBasic'], ['Label', '<p>Test</p>'], ['Separator'], ['Label', '<p>Test</p>']]})
@@ -56,7 +27,7 @@ class InitializerTests(unittest.TestCase):
 
 
   def testInitializer_MultipleSections(self):
-    definition = load("testMultipleSections")
+    definition = load_matrixdef("testMultipleSections")
 
     self.assertEqual(definition.tokenized_lines, [['Section', 'test-basic', 'Test Basic', 'TestBasic'], ['Label', '<p>Test</p>'], ['Section', 'test-basic-2', 'Test Basic 2', 'TestBasic2'], ['Label', '<p>Test2</p>']])
     self.assertEqual(definition.sections, {'test-basic': [['Section', 'test-basic', 'Test Basic', 'TestBasic'], ['Label', '<p>Test</p>']], 'test-basic-2': [['Section', 'test-basic-2', 'Test Basic 2', 'TestBasic2'], ['Label', '<p>Test2</p>']]})
@@ -191,6 +162,15 @@ class DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
+  def testDefsToHtml_select_selected(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # "Select test-select \"test select\" \"\" \"<br />\""
+      tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"test-select":"test-noun"}), mock_validation(), "", {})
+      expected = '\n<select name="test-select">\n<option value="test-noun" selected class="temp">test-noun</option>\n<option value="" selected class="temp"></option>\n</select><br />\n'
+      self.assertEqual(actual, expected)
+
+
   def testDefsToHtml_select_ends(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # Select supertypes "Noun type {i}" "Supertypes: " "<br />"
@@ -311,137 +291,138 @@ class SubPageTests(unittest.TestCase):
 
   def testBasic(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testBasic")
+      definition = load_matrixdef("testBasic")
       actual = definition.sub_page('test-basic', '7777', mock_validation())
-      expected = load_expected("testBasic")
+      expected = load_testhtml("testBasic")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testButton(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testButton")
+      definition = load_matrixdef("testButton")
       actual = definition.sub_page('test-button', '7777', mock_validation())
-      expected = load_expected("testButton")
+      expected = load_testhtml("testButton")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testCache(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testCache")
+      definition = load_matrixdef("testCache")
       actual = definition.sub_page('test-cache', '7777', mock_validation(), choices=mock_choices({"noun1":{"name":"test-noun"}, "verb1":{"name":"test-verb"}}))
-      expected = load_expected("testCache")
+      expected = load_testhtml("testCache")
+      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testCheck(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testCheck")
+      definition = load_matrixdef("testCheck")
       actual = definition.sub_page('test-check', '7777', mock_validation())
-      expected = load_expected("testCheck")
+      expected = load_testhtml("testCheck")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testFile(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testFile")
+      definition = load_matrixdef("testFile")
       actual = definition.sub_page('test-file', '7777', mock_validation())
-      expected = load_expected("testFile")
+      expected = load_testhtml("testFile")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testHidden(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testHidden")
+      definition = load_matrixdef("testHidden")
       actual = definition.sub_page('test-hidden', '7777', mock_validation())
-      expected = load_expected("testHidden")
+      expected = load_testhtml("testHidden")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testIter(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testIter")
+      definition = load_matrixdef("testIter")
       actual = definition.sub_page('test-iter', '7777', mock_validation())
-      expected = load_expected("testIter")
+      expected = load_testhtml("testIter")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testNestedIter(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testNestedIter")
+      definition = load_matrixdef("testNestedIter")
       actual = definition.sub_page('test-nested-iter', '7777', mock_validation())
-      expected = load_expected("testNestedIter")
+      expected = load_testhtml("testNestedIter")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testIterBroken(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      self.assertRaises(MatrixDefSyntaxException, load("testIterBroken").sub_page, 'test-iter', '7777', mock_validation())
+      self.assertRaises(MatrixDefSyntaxException, load_matrixdef("testIterBroken").sub_page, 'test-iter', '7777', mock_validation())
 
 
   def testSelect(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testSelect")
+      definition = load_matrixdef("testSelect")
       actual = definition.sub_page('test-select', '7777', mock_validation())
-      expected = load_expected("testSelect")
+      expected = load_testhtml("testSelect")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testMultiSelect(self):
     """ TODO: Verify this test """
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testMultiSelect")
+      definition = load_matrixdef("testMultiSelect")
       actual = definition.sub_page('test-multiselect', '7777', mock_validation())
-      expected = load_expected("testMultiSelect")
+      expected = load_testhtml("testMultiSelect")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testRadios(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testRadios")
+      definition = load_matrixdef("testRadios")
       actual = definition.sub_page('test-radios', '7777', mock_validation())
-      expected = load_expected("testRadios")
+      expected = load_testhtml("testRadios")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testRadiosWithText(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testRadiosWithText")
+      definition = load_matrixdef("testRadiosWithText")
       actual = definition.sub_page('test-radios-with-text', '7777', mock_validation())
-      expected = load_expected("testRadiosWithText")
+      expected = load_testhtml("testRadiosWithText")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testText(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testText")
+      definition = load_matrixdef("testText")
       actual = definition.sub_page('test-text', '7777', mock_validation())
-      expected = load_expected("testText")
+      expected = load_testhtml("testText")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testTextArea(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testTextArea")
+      definition = load_matrixdef("testTextArea")
       actual = definition.sub_page('test-textarea', '7777', mock_validation())
-      expected = load_expected("testTextArea")
+      expected = load_testhtml("testTextArea")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testJoinedLines(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testJoinedLines")
+      definition = load_matrixdef("testJoinedLines")
       actual = definition.sub_page('test-joined-lines', '7777', mock_validation())
-      expected = load_expected("testJoinedLines")
+      expected = load_testhtml("testJoinedLines")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testMultipleSections(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testMultipleSections")
+      definition = load_matrixdef("testMultipleSections")
       actual1 = definition.sub_page('test-basic', '7777', mock_validation())
       actual2 = definition.sub_page('test-basic-2', '7777', mock_validation())
-      expected1 = load_expected("testMultipleSections1")
-      expected2 = load_expected("testMultipleSections2")
+      expected1 = load_testhtml("testMultipleSections1")
+      expected2 = load_testhtml("testMultipleSections2")
       self.assertEqual(remove_empty_lines(actual1), remove_empty_lines(expected1))
       self.assertEqual(remove_empty_lines(actual2), remove_empty_lines(expected2))
 
@@ -454,24 +435,24 @@ class MainPageTests(unittest.TestCase):
 
   def testMainPage_basic(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testBasic")
+      definition = load_matrixdef("testBasic")
       actual = definition.main_page('7777', mock_validation())
-      expected = load_expected("testMainPage")
+      expected = load_testhtml("testMainPage")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testMainPage_error(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load("testBasic")
+      definition = load_matrixdef("testBasic")
       actual = definition.main_page('7777', mock_validation(errors={"test-basic":mock_error(message="error")}))
-      expected = load_expected("testMainPageError")
+      expected = load_testhtml("testMainPageError")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
 class NavigationTests(unittest.TestCase):
 
   def testNavigation_Basic(self):
-    definition = load("testBasic")
+    definition = load_matrixdef("testBasic")
     actual = definition.navigation(mock_validation(), "dummy_choices")
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
@@ -487,7 +468,7 @@ class NavigationTests(unittest.TestCase):
 
 
   def testNavigation_MultipleSections(self):
-    definition = load("testMultipleSections")
+    definition = load_matrixdef("testMultipleSections")
     actual = definition.navigation(mock_validation(), "dummy_choices")
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
@@ -504,7 +485,7 @@ class NavigationTests(unittest.TestCase):
 
 
   def testNavigation_Errors(self):
-    definition = load("testRadios")
+    definition = load_matrixdef("testRadios")
     actual = definition.navigation(mock_validation(errors={"test-radio":mock_error(message="error")}), "dummy_choices")
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
@@ -522,7 +503,7 @@ class NavigationTests(unittest.TestCase):
 
 
   def testNavigation_RadiosWarnings(self):
-    definition = load("testRadios")
+    definition = load_matrixdef("testRadios")
     actual = definition.navigation(mock_validation(warnings={"test-radio":mock_error(message="warning")}), "dummy_choices")
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
@@ -538,7 +519,7 @@ class NavigationTests(unittest.TestCase):
 
 
   def testNavigation_NestedIterErrors(self):
-    definition = load("testNestedIter")
+    definition = load_matrixdef("testNestedIter")
     actual = definition.navigation(mock_validation(errors={"test-nested1_test-nested-inner1_name":mock_error(message="errors")}), "dummy_choices")
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />

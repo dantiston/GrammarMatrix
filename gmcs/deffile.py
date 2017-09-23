@@ -10,6 +10,22 @@ loading, and generating HTML from files defining pages in the matrixdef specific
 
 TODO: Think about either making constants for accessing indices of MatrixDef
       or make the data of the deffile object oriented (and have accessors)
+
+TODO:
+    * Choice saving
+        * Choice saving is broken!!!!!!
+
+    * Select options not selecting properly (empty option being selected)
+        * empty option of select appearing checked by default... consider
+        * Tense, Aspect, Situation, Mood supertypes not available on TAM page
+        * Totally different options in "Use an existing value type"
+        * Feature not filled in (Coordination, information-structure meaning, Lexicon Argument Structure, Lexicon Copula, Lexicon Case Marking)
+
+    * Navigation
+        * Extra "Toolbox Lexicon" page in the nav... is it not being skipped??
+
+    * Other issues
+        * UnicodeDecodeError: General, Sentential Negation, Information Structure,
 """
 
 # imports
@@ -348,9 +364,6 @@ class MatrixDef:
         switch = instance
         values = False # set default
 
-    #   print(switch)
-    #   import pdb; pdb.set_trace()
-      # TODO: Morphology is hanging, in part here, when trying to get "adj-pc{i}_switching"
       results = choices.get_regex(switch)
       if results:
         # Found a match
@@ -1188,13 +1201,9 @@ class MatrixDef:
       # will be marked during option processing below
       result += html.html_select(vr, vn, multi, onchange=onchange) + '\n'
 
-    # Fill in values from fillers and get previously selected item
-    # This is necessary because the value is not in the deffile
-    sval = choices.get(vn)
-    if sval:
-        result += html.html_option(vr, sval, True, self.f(sval), True) + '\n'
-
     # Add individual bullets, if applicable
+    printed_selected = False
+    sval = choices.get(vn)
     if i < num_lines:
       for word, word_length, element in self.__get_words(tokenized_lines[i:], variables=variables, do_replace=do_replace):
         if element == BULLET:
@@ -1205,11 +1214,17 @@ class MatrixDef:
           # If there's anything in this slot, disable option
           if word_length >= 5: sstrike = True
           # Add option if not previously selected
-          if sval != oval:
-            result += html.html_option(vr, oval, False, ofrn, strike=sstrike) + '\n'
+          result += html.html_option(vr, oval, sval == oval, ofrn, strike=sstrike) + '\n'
+          if sval == oval:
+            printed_selected = True
           i += 1
         else:
           break
+
+    # Fill in values from fillers and get previously selected item
+    # This is necessary because the value is not in the deffile
+    if not printed_selected and sval:
+      result += html.html_option(vr, sval, False, self.f(sval), True) + '\n'
 
     # add empty option
     result += html.html_option(vr, '', False, '') + '\n'
