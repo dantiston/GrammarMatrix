@@ -801,12 +801,12 @@ class MatrixDef:
         # If marked hidden, don't show it in navigation
         if cur_sec not in self.hide_on_navigation:
           # disable the link if this is the page we're on
+          # TODO: Change how this span tag is being opened and closed
+          shortname = " data-short-name=\"%s\"" % self.short_names[cur_sec] if cur_sec in self.short_names else ""
           if cur_sec == section:
-            sec_links.append('</span><span class="navlinks">%s</span>' % self.section_names[cur_sec])
+            sec_links.append('</span><span data-name="%s"%s class="navlinks">%s</span>' % (cur_sec, shortname, self.section_names[cur_sec]))
           else:
-            shortname = " data-short-name=\"%s\"" % self.short_names[cur_sec] if cur_sec in self.short_names else ""
             sec_links.append('</span><a data-name="%s"%s class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, shortname, cur_sec, self.section_names[cur_sec]))
-            # sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, self.section_names[cur_sec]))
           n += 1
 
       elif element == BEGIN_ITER:
@@ -845,6 +845,7 @@ class MatrixDef:
     result.append('<a href="." onclick="submit_main()" class="navleft">Main page</a><br />')
     result.append('<hr />')
     for l in sec_links:
+      # TODO: Change how this span tag is being opened and closed
       result.append('<span style="color:#ff0000;" class="navleft">'+l+'<br />')
 
     result.append('<hr />')
