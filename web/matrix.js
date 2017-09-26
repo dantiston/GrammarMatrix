@@ -1269,43 +1269,33 @@ var scaled = 0;
 window.onresize=scalenav;
 
 function scalenav() {
-  // TODO: Redo this
-  
   // make smaller nav is below threshold
   var d = document.getElementById("navmenu");
-  // TODO: Load this from serverside!!!
-  var map = { "General Information":"Gen Info",
-              "Tense, Aspect and Mood":"TAM",
-              "Direct-inverse":"Dir-inv",
-              "Sentential Negation":"Neg",
-              "Matrix Yes/No Questions":"Y/N Qs",
-              "Information Structure": "Info Str",
-              "Argument Optionality":"Arg Opt",
-              "Toolbox Import":"Tb Import",
-              "Test Sentences":"Test S",
-              "Morphology":"Morph",
-              "Other Features":"Features",
-              "Coordination":"Coord" };
-  if (window.scaled==0 && d.clientWidth<150) {
-    window.scaled=1;
+  if (window.scaled == 0 && d.clientWidth < 150) {
+    // make navigation smaller
+    window.scaled = 1;
     var list = document.getElementsByClassName("navlinks");
-    for(var i=0;i<list.length;i++){
-      for(b in map){
-        if(list[i].innerHTML==b){
-          list[i].innerHTML=map[b];
-        }
-      }
+    for (var i = 0; i < list.length; i++) {
+      list[i].innerHTML = list[i].shortName;
+    //   for (b in map) {
+    //     if (list[i].innerHTML == b) {
+    //       list[i].innerHTML = map[b];
+    //     }
+    //   }
     }
-  } else if (scaled==1 && d.clientWidth>150){
-    window.scaled=0;
+  } else if (scaled == 1 && d.clientWidth > 150){
+    // make navigation normal
+    window.scaled = 0;
     var list = document.getElementsByClassName("navlinks");
-    for(var i=0;i<list.length;i++){
-      for(b in map){
-        if(list[i].innerHTML==map[b]){
-          list[i].innerHTML=b;
-        }
-      }
+    for (var i = 0; i<list.length; i++) {
+      list[i].innerHTML = list[i].name;
+    //   for (b in map) {
+    //     if (list[i].innerHTML == map[b]) {
+    //       list[i].innerHTML=b;
+    //     }
+    //   }
     }
+
   }
 }
 
