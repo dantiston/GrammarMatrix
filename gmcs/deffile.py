@@ -804,9 +804,9 @@ class MatrixDef:
           # TODO: Change how this span tag is being opened and closed
           shortname = " data-short-name=\"%s\"" % self.short_names[cur_sec] if cur_sec in self.short_names else ""
           if cur_sec == section:
-            sec_links.append('</span><span data-name="%s"%s class="navlinks">%s</span>' % (cur_sec, shortname, self.section_names[cur_sec]))
+            sec_links.append('</span><span data-name="%s"%s class="navlinks">%s</span>' % (self.section_names[cur_sec], shortname, self.section_names[cur_sec]))
           else:
-            sec_links.append('</span><a data-name="%s"%s class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, shortname, cur_sec, self.section_names[cur_sec]))
+            sec_links.append('</span><a data-name="%s"%s class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (self.section_names[cur_sec], shortname, cur_sec, self.section_names[cur_sec]))
           n += 1
 
       elif element == BEGIN_ITER:
