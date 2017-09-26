@@ -1276,12 +1276,10 @@ function scalenav() {
     window.scaled = 1;
     var list = document.getElementsByClassName("navlinks");
     for (var i = 0; i < list.length; i++) {
-      list[i].innerHTML = list[i].dataset.shortName;
-    //   for (b in map) {
-    //     if (list[i].innerHTML == b) {
-    //       list[i].innerHTML = map[b];
-    //     }
-    //   }
+      var element = list[i];
+      if (element.dataset.shortName !== undefined) {
+        element.innerHTML = element.dataset.shortName;
+      }
     }
   } else if (scaled == 1 && d.clientWidth > 150){
     // make navigation normal
@@ -1289,11 +1287,6 @@ function scalenav() {
     var list = document.getElementsByClassName("navlinks");
     for (var i = 0; i<list.length; i++) {
       list[i].innerHTML = list[i].dataset.name;
-    //   for (b in map) {
-    //     if (list[i].innerHTML == map[b]) {
-    //       list[i].innerHTML=b;
-    //     }
-    //   }
     }
 
   }
