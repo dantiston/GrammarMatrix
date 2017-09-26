@@ -305,7 +305,6 @@ class SubPageTests(unittest.TestCase):
       definition = load_matrixdef("testBasic")
       actual = definition.sub_page('test-basic', '7777', mock_validation())
       expected = load_testhtml("testBasic")
-      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -468,7 +467,7 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a data-name="test-basic" class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
@@ -484,13 +483,13 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go(\'test-basic\')">Test Basic</a><br />
-<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go(\'test-basic-2\')">Test Basic 2</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a data-name="test-basic" class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a data-name="test-basic-2" class="navlinks" href="#" onclick="submit_go('test-basic-2')">Test Basic 2</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
 <span class="navleft">Create grammar:</span><br />
-<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>
+<a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
 </div>"""
     self.assertEqual(actual, expected)
 
@@ -501,7 +500,7 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-section')">Test Section</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a data-name="test-section" class="navlinks" href="#" onclick="submit_go('test-section')">Test Section</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
@@ -517,7 +516,25 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft">*</span><a class="navlinks" href="#" onclick="submit_go('test-radios')">Test Radios</a><br />
+<span style="color:#ff0000;" class="navleft">*</span><a data-name="test-radios" class="navlinks" href="#" onclick="submit_go('test-radios')">Test Radios</a><br />
+<hr />
+<a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+<span class="navleft">Create grammar:
+<a href="" style="text-decoration:none"><span class="info" title="Resolve validation errors to enable grammar customization.">#</span></a>
+</span><br />
+<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>
+</div>"""
+    self.assertEqual(actual, expected)
+
+
+  def testNavigation_ShortName(self):
+    definition = load_matrixdef("testShortName")
+    actual = definition.navigation(mock_validation(errors={"test-radio":mock_error(message="error")}), "dummy_choices")
+    expected = """<div id="navmenu"><br />
+<a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+<hr />
+<span style="color:#ff0000;" class="navleft"></span><a data-name="test-basic" data-short-name="basic" class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
@@ -535,7 +552,7 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft">?</span><a class="navlinks" href="#" onclick="submit_go('test-radios')">Test Radios</a><br />
+<span style="color:#ff0000;" class="navleft">?</span><a data-name="test-radios" class="navlinks" href="#" onclick="submit_go('test-radios')">Test Radios</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
@@ -551,7 +568,7 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft">*</span><a class="navlinks" href="#" onclick="submit_go('test-nested-iter')">Test Nested Iter</a><br />
+<span style="color:#ff0000;" class="navleft">*</span><a data-name="test-nested-iter" class="navlinks" href="#" onclick="submit_go('test-nested-iter')">Test Nested Iter</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
@@ -561,6 +578,7 @@ class NavigationTests(unittest.TestCase):
 <span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>
 </div>"""
     self.assertEqual(actual, expected)
+
 
 
 class ReplaceVarsTests(unittest.TestCase):

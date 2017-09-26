@@ -224,10 +224,18 @@ class MatrixDef:
   on the contents, to produce HTML pages and save choices files.
   """
 
+  SECTION_VARIABLE_NAME = 1
+  SECTION_FRIENDLY_NAME = 2
+  SECTION_DOC_LINK = 3
+  SECTION_SHORT_FRIENDLY_NAME = 4
+  SECTION_ONLOAD = 5
+  SECTION_SKIP = 6
+
   def __init__(self, def_file):
     # Define members
     self.section_names = {}
     self.doc_links = {}
+    self.short_names = {}
 
     # Allow initialization of empty file for testing
     if def_file:
@@ -271,6 +279,7 @@ class MatrixDef:
     def_lines = merge_quoted_strings(f.readlines())
     def_lines = map(unicode.strip, def_lines) # Remove unimportant whitespace
     self.def_lines = [line for line in def_lines if line] # Remove empty lines
+    # TODO: Change this to also store element and length?
     self.tokenized_lines = [tokenize_def(line) for line in self.def_lines] # Tokenize ONCE
 
     # Keep track of which sections to not show on navigation
@@ -286,13 +295,15 @@ class MatrixDef:
           self.sections[section_name] = self.tokenized_lines[last:i]
         last = i
         # Prepare for the next
-        section_name = line[1]
+        section_name = line[self.SECTION_VARIABLE_NAME]
         # Support section definition syntax
         if len(line) >= 3:
-          self.section_names[section_name] = line[2]
-          if len(line) >= 4:
-            self.doc_links[section_name] = line[3]
-            if len(line) >= 6:
+          self.section_names[section_name] = line[self.SECTION_FRIENDLY_NAME]
+          self.doc_links[section_name] = line[self.SECTION_DOC_LINK]
+          if len(line) >= 5:
+            self.short_names[section_name] = line[self.SECTION_SHORT_FRIENDLY_NAME]
+            # Ignore onload for now
+            if len(line) >= 7:
               self.hide_on_navigation.add(section_name)
     if last != len(self):
       self.sections[section_name] = self.tokenized_lines[last:]
@@ -430,7 +441,7 @@ class MatrixDef:
         features=html.js_array4(choices.features()),
         verb_case_patterns=html.js_array([c for c in choices.patterns() if not c[2]]),
         numbers=html.js_array(choices.numbers()),
-        onload=tokenized_section_def[0][4] if len(tokenized_section_def[0]) > 4 else u"",
+        onload=self.get_onload(tokenized_section_def),
         cookie=cookie,
         section=section,
         section_name=self.section_names[section],
@@ -625,6 +636,13 @@ class MatrixDef:
       return u"[date unknown]"
 
 
+  def get_onload(self, tokenized_section_def):
+    result = u""
+    if len(tokenized_section_def[0]) > self.SECTION_ONLOAD:
+      result = tokenized_section_def[0][self.SECTION_ONLOAD]
+    return result
+
+
   def page_links(self, vr, choices_file, choices):
     """
     Get the page links for the main page with the specified
@@ -709,7 +727,6 @@ class MatrixDef:
   def download_links(self, vr):
     """
     the buttons after the subpages
-    TJT 2014-09-18: Converting these radios to new set up
     """
     result = []
     result.append(html.html_input(vr, 'hidden', 'customize', 'customize'))
@@ -787,14 +804,19 @@ class MatrixDef:
           if cur_sec == section:
             sec_links.append('</span><span class="navlinks">%s</span>' % self.section_names[cur_sec])
           else:
-            sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, self.section_names[cur_sec]))
+            shortname = " data-short-name=\"%s\"" % self.short_names[cur_sec] if cur_sec in self.short_names else ""
+            sec_links.append('</span><a data-name="%s"%s class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, shortname, cur_sec, self.section_names[cur_sec]))
+            # sec_links.append('</span><a class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (cur_sec, self.section_names[cur_sec]))
           n += 1
+
       elif element == BEGIN_ITER:
         if prefix:
           prefix += u'_'
         prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
+
       elif element == END_ITER:
         prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
+
       elif not (element == LABEL and len(word) < 3):
         pattern = u'^' + prefix
         if prefix:
@@ -817,6 +839,7 @@ class MatrixDef:
               break
 
 
+    # Generate the result
     result = []
     result.append('<div id="navmenu"><br />')
     result.append('<a href="." onclick="submit_main()" class="navleft">Main page</a><br />')
@@ -829,7 +852,6 @@ class MatrixDef:
     result.append('<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />')
     # TJT 2014-05-28: Not sure why the following doesn't work -- need to do more investigation
     #result.append('<a href="?subpage=%s" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />' % section)
-    #result.append('<a href="#clear" onclick="clear_form()" class="navleft">Clear form</a><br />')
 
     ## if there are errors, then we mark them on the links (the links in red and unclickable)
     if vr.has_errors():

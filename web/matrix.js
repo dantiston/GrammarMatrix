@@ -1269,6 +1269,8 @@ var scaled = 0;
 window.onresize=scalenav;
 
 function scalenav() {
+  // TODO: Redo this
+  
   // make smaller nav is below threshold
   var d = document.getElementById("navmenu");
   // TODO: Load this from serverside!!!

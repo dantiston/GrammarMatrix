@@ -15,8 +15,6 @@ from gmcs.deffile import MatrixDefSyntaxException
 from mock import mock_choices, mock_validation, mock_error, os_environ
 from test import load_subpage, remove_empty_lines
 
-from test import save_both
-
 
 ### TESTS
 class RegressionTests(unittest.TestCase):
@@ -44,7 +42,6 @@ class RegressionTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('tense-aspect-mood', '7777', mock_validation())
       expected = load_subpage("TAM")
-      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -52,7 +49,6 @@ class RegressionTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('general', '7777', mock_validation())
       expected = load_subpage("general")
-      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
