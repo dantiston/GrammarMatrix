@@ -410,7 +410,7 @@ class MatrixDef:
     that determines where to look for the choices file.
     """
 
-    choices, choices_file = self.get_choices_from_cookie(cookie, choices)
+    choices, choices_file = self.get_choices_from_session(cookie, choices)
 
     template = jinja.get_template('main.html')
     return template.render(
@@ -433,7 +433,7 @@ class MatrixDef:
 
     tokenized_section_def = self.sections[section]
 
-    choices, choices_file = self.get_choices_from_cookie(cookie, choices)
+    choices, choices_file = self.get_choices_from_session(cookie, choices)
 
     template = jinja.get_template('sub.html')
     return template.render(
@@ -611,18 +611,29 @@ class MatrixDef:
 
   ##############################################################################
   # Page components
-  def get_choices_from_cookie(self, cookie, choices):
+  def get_choices_from_session(self, session, choices):
     """
-    Load the choices file from the given cookie directory
+    Load the choices file from the given session directory
     """
-    # Get cookie
+    # Get session
     if not choices:
-      choices_file = u'sessions/' + cookie + '/choices'
+      choices_file = u'sessions/' + session + u'/choices'
       choices = ChoicesFile(choices_file)
     else:
       # In test mode
       choices_file = u''
     return choices, choices_file
+
+
+  def _save_choices_to_session(self, session, choices):
+    """
+    For testing
+    TODO: Move this to test.py?
+    """
+    location = u'sessions/' + session + '/choices'
+    with codecs.open(location, 'r', encoding="utf-8") as f:
+      # TODO: THIS IS WRONG; DON'T DO THIS; look at save_choices_section()
+      f.write(choices)
 
 
   def get_datestamp(self):
@@ -1222,7 +1233,6 @@ class MatrixDef:
       else:
         break
 
-
     if fillers:
       fillcmd = u"fill('%s', [].concat(%s));" % (vn, ','.join(fillers))
       result += html.html_select(vr, vn, multi, fillcmd+onfocus, onchange=onchange) + '\n'
@@ -1251,7 +1261,7 @@ class MatrixDef:
         else:
           break
 
-    # Fill in values from fillers and get previously selected item
+    # Get previously selected item
     # This is necessary because the value is not in the deffile
     if not printed_selected and sval:
       result += html.html_option(vr, sval, False, self.f(sval), True) + '\n'

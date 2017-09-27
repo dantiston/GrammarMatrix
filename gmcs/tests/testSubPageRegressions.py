@@ -12,9 +12,10 @@ from gmcs import deffile
 from gmcs.choices import ChoicesFile
 from gmcs.deffile import MatrixDefSyntaxException
 
-from mock import mock_choices, mock_validation, mock_error, os_environ
+from mock import mock_choices, mock_validation, mock_error, os_environ, environ_choices
 from test import load_subpage, remove_empty_lines
 
+from test import save_both
 
 ### TESTS
 class RegressionTests(unittest.TestCase):
@@ -119,6 +120,7 @@ class RegressionTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('arg-opt', '7777', mock_validation())
       expected = load_subpage("arg-opt")
+      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -126,6 +128,15 @@ class RegressionTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('lexicon', '7777', mock_validation())
       expected = load_subpage("lexicon")
+      save_both(actual, expected)
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testLexicon_Choices(self):
+    with os_environ(HTTP_COOKIE="session=7777"), environ_choices("lexicon_choices.txt"):
+      actual = self._definition.sub_page('lexicon', '7777', mock_validation())
+      expected = load_subpage("lexicon")
+      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 

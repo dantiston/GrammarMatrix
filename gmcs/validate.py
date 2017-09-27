@@ -590,13 +590,14 @@ def validate_information_structure_adp(ch, marker, values):
 # validate_information_structure(ch, vr)
 #   Validate the user's choices about information structure
 
+infostr_values = {
+  'focus-marker' : ['focus', 'semantic-focus', 'contrast-focus', 'focus-or-topic', 'contrast-or-focus', 'non-topic'],
+  'topic-marker' : ['topic', 'aboutness-topic', 'contrast-topic', 'frame-setting-topic', 'focus-or-topic', 'contrast-or-topic', 'non-focus'],
+  'c-focus-marker' : ['contrast', 'contrast-focus', 'contrast-or-focus'],
+  'c-topic-marker' : ['contrast', 'contrast-topic', 'contrast-or-topic']
+  }
+
 def validate_information_structure(ch, vr):
-  infostr_values = {
-    'focus-marker' : ['focus', 'semantic-focus', 'contrast-focus', 'focus-or-topic', 'contrast-or-focus', 'non-topic'],
-    'topic-marker' : ['topic', 'aboutness-topic', 'contrast-topic', 'frame-setting-topic', 'focus-or-topic', 'contrast-or-topic', 'non-focus'],
-    'c-focus-marker' : ['contrast', 'contrast-focus', 'contrast-or-focus'],
-    'c-topic-marker' : ['contrast', 'contrast-topic', 'contrast-or-topic']
-    }
 
   infostr_markers = []
   for marker in infostr_values.keys():

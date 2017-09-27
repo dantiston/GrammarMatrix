@@ -139,11 +139,11 @@ def html_option(vr, name, selected, html, temp=False, strike=False):
   # TODO: javascript cuts this out, need to change javascript
   if strike:
     strike = u' disabled'
-    html = u'<p style="display:inline;color:#ADADAD"> %s</p>' % html
+    html = u'<p style="display:inline; color:#ADADAD"> %s</p>' % html
   else: strike = u''
 
-  temp = u' class="temp"' or ''
-  selected = u' selected' or ''
+  temp = u' class="temp"' or u''
+  selected = u' selected' or u''
 
   return u'<option value="%s"%s%s%s>%s</option>' % \
          (name, selected, temp, strike, html)
