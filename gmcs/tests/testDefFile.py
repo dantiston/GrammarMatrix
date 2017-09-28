@@ -161,16 +161,36 @@ class DefsToHtmlTests(unittest.TestCase):
       # "Select test-select \"test select\" \"\" \"<br />\""
       tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
-      expected = '\n<select name="test-select">\n<option value="" selected class="temp"></option>\n</select><br />\n'
+      expected = '\n<select name="test-select">\n<option value=""></option>\n</select><br />\n'
       self.assertEqual(actual, expected)
 
 
-  def testDefsToHtml_select_selected(self):
+  def testDefsToHtml_select_selected_not_present(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Select test-select \"test select\" \"\" \"<br />\""
       tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"test-select":"test-noun"}), mock_validation(), "", {})
-      expected = '\n<select name="test-select">\n<option value="test-noun" selected class="temp">test-noun</option>\n<option value="" selected class="temp"></option>\n</select><br />\n'
+      expected = '\n<select name="test-select">\n<option value="test-noun" selected>test-noun</option>\n<option value=""></option>\n</select><br />\n'
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_select_selected_not_present_2(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # "Select test-select \"test select\" \"\" \"<br />\""
+      # . test-option "Test Option" "test option"
+      tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />'], ['.', 'test-option', 'Test Option', 'test option']]
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"test-select":"test-noun"}), mock_validation(), "", {})
+      expected = '\n<select name="test-select">\n<option value="test-option">Test Option</option>\n<option value="test-noun" selected>test-noun</option>\n<option value=""></option>\n</select><br />\n'
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_select_selected_present(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # "Select test-select \"test select\" \"\" \"<br />\""
+      # . test-option "Test Option" "test option"
+      tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />'], ['.', 'test-option', 'Test Option', 'test option']]
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"test-select":"test-option"}), mock_validation(), "", {})
+      expected = '\n<select name="test-select">\n<option value="test-option" selected>Test Option</option>\n<option value=""></option>\n</select><br />\n'
       self.assertEqual(actual, expected)
 
 
@@ -182,7 +202,7 @@ class DefsToHtmlTests(unittest.TestCase):
       # Label "Features:"
       tokenized_lines = [["Select", "supertypes", "Noun type {i}", "Supertypes: ", "<br />"], ["fillregex", "p=noun(?!{i}_)[0-9]+_name"], ["Label", "Features:"]]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
-      expected = 'Supertypes: \n<select name="supertypes" onfocus="fill(\'supertypes\', [].concat(fill_regex(\'noun(?!{i}_)[0-9]+_name\')));">\n<option value="" selected class="temp"></option>\n</select><br />\nFeatures:\n'
+      expected = 'Supertypes: \n<select name="supertypes" onfocus="fill(\'supertypes\', [].concat(fill_regex(\'noun(?!{i}_)[0-9]+_name\')));">\n<option value=""></option>\n</select><br />\nFeatures:\n'
       self.assertEqual(actual, expected)
 
 
@@ -192,7 +212,7 @@ class DefsToHtmlTests(unittest.TestCase):
       # fillverbpat
       tokenized_lines = [['MultiSelect', 'test-multiselect', 'Test multiselect', '', '<br />'], ['fillverbpat']]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
-      expected = '\n<select name="test-multiselect" class="multi"  multiple="multiple"  onfocus="fill(\'test-multiselect\', [].concat(fill_case_patterns(false)));">\n<option value="" selected class="temp"></option>\n</select><br />\n'
+      expected = '\n<select name="test-multiselect" class="multi"  multiple="multiple"  onfocus="fill(\'test-multiselect\', [].concat(fill_case_patterns(false)));">\n<option value=""></option>\n</select><br />\n'
       self.assertEqual(actual, expected)
 
 
@@ -204,7 +224,7 @@ class DefsToHtmlTests(unittest.TestCase):
       # Label "Features:"
       tokenized_lines = [["MultiSelect", "supertypes", "Noun type {i}", "Supertypes: ", "<br />"], ["fillregex", "p=noun(?!{i}_)[0-9]+_name"], ["Label", "Features:"]]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
-      expected = 'Supertypes: \n<select name="supertypes" class="multi"  multiple="multiple"  onfocus="fill(\'supertypes\', [].concat(fill_regex(\'noun(?!{i}_)[0-9]+_name\')));">\n<option value="" selected class="temp"></option>\n</select><br />\nFeatures:\n'
+      expected = 'Supertypes: \n<select name="supertypes" class="multi"  multiple="multiple"  onfocus="fill(\'supertypes\', [].concat(fill_regex(\'noun(?!{i}_)[0-9]+_name\')));">\n<option value=""></option>\n</select><br />\nFeatures:\n'
       self.assertEqual(actual, expected)
 
 
@@ -280,8 +300,8 @@ class DefsToHtmlTests(unittest.TestCase):
       choices = load_choices("select_choices.txt")
       actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
       expected = """\n<select name="test-select">
-<option value="common" selected class="temp">common</option>
-<option value="" selected class="temp"></option>\n</select><br />\n"""
+<option value="common" selected>common</option>
+<option value=""></option>\n</select><br />\n"""
       self.assertEqual(actual, expected)
 
 
@@ -298,6 +318,7 @@ class SubPageTests(unittest.TestCase):
   TODO: Tests for conditional skipping
   TODO: Tests for striking options from select and multiselect
   TODO: Additional tests for validations errors
+  TODO: Tests for section short name
   """
 
   def testBasic(self):
@@ -467,7 +488,7 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft"></span><a data-name="test-basic" class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a data-name="Test Basic" class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
@@ -483,8 +504,8 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft"></span><a data-name="test-basic" class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
-<span style="color:#ff0000;" class="navleft"></span><a data-name="test-basic-2" class="navlinks" href="#" onclick="submit_go('test-basic-2')">Test Basic 2</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a data-name="Test Basic" class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a data-name="Test Basic 2" class="navlinks" href="#" onclick="submit_go('test-basic-2')">Test Basic 2</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
@@ -500,7 +521,7 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft"></span><a data-name="test-section" class="navlinks" href="#" onclick="submit_go('test-section')">Test Section</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a data-name="Test Section" class="navlinks" href="#" onclick="submit_go('test-section')">Test Section</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
@@ -516,7 +537,7 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft">*</span><a data-name="test-radios" class="navlinks" href="#" onclick="submit_go('test-radios')">Test Radios</a><br />
+<span style="color:#ff0000;" class="navleft">*</span><a data-name="Test Radios" class="navlinks" href="#" onclick="submit_go('test-radios')">Test Radios</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
@@ -534,7 +555,7 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft"></span><a data-name="test-basic" data-short-name="basic" class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a data-name="Test Basic" data-short-name="basic" class="navlinks" href="#" onclick="submit_go('test-basic')">Test Basic</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
@@ -552,7 +573,7 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft">?</span><a data-name="test-radios" class="navlinks" href="#" onclick="submit_go('test-radios')">Test Radios</a><br />
+<span style="color:#ff0000;" class="navleft">?</span><a data-name="Test Radios" class="navlinks" href="#" onclick="submit_go('test-radios')">Test Radios</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
@@ -568,7 +589,7 @@ class NavigationTests(unittest.TestCase):
     expected = """<div id="navmenu"><br />
 <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
 <hr />
-<span style="color:#ff0000;" class="navleft">*</span><a data-name="test-nested-iter" class="navlinks" href="#" onclick="submit_go('test-nested-iter')">Test Nested Iter</a><br />
+<span style="color:#ff0000;" class="navleft">*</span><a data-name="Test Nested Iter" class="navlinks" href="#" onclick="submit_go('test-nested-iter')">Test Nested Iter</a><br />
 <hr />
 <a href="dummy_choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
 <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />

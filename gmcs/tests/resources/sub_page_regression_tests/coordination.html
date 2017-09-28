@@ -121,14 +121,14 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cs{i}_csap{j}')">
     <div class="iterframe">&nbsp;&nbsp;&nbsp;&nbsp;and uses the
     <select name="cs{i}_csap{j}_pat" onfocus="fill('cs{i}_csap{j}_pat', [].concat(fill_cache('pats')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     agreement pattern for
     <select name="cs{i}_csap{j}_target">
-    <option value="all" selected class="temp">all arguments</option>
-    <option value="subj" selected class="temp">subjects only</option>
-    <option value="obj" selected class="temp">objects only</option>
-    <option value="" selected class="temp"></option>
+    <option value="all">all arguments</option>
+    <option value="subj">subjects only</option>
+    <option value="obj">objects only</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -152,28 +152,28 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('fr{i}_feat{j}')">
     <div class="iterframe">Feature:
     <select name="fr{i}_feat{j}_name" onfocus="fill('fr{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     <div class="iterator" style="display: none" id="fr{i}_feat{j}_rule_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('fr{i}_feat{j}_rule{k}')">
     <div class="iterframe">Child 1:
     <select name="fr{i}_feat{j}_rule{k}_left" class="multi"  multiple="multiple"  onfocus="fill('fr{i}_feat{j}_rule{k}_left', [].concat(fill_feature_values('fr{i}_feat{j}_name')));">
-    <option value="any" selected class="temp">any</option>
-    <option value="same" selected class="temp">the same</option>
-    <option value="" selected class="temp"></option>
+    <option value="any">any</option>
+    <option value="same">the same</option>
+    <option value=""></option>
     </select>
     Child 2:
     <select name="fr{i}_feat{j}_rule{k}_right" onfocus="fill('fr{i}_feat{j}_rule{k}_right', [].concat(fill_feature_values('fr{i}_feat{j}_name')));">
-    <option value="any" selected class="temp">any</option>
-    <option value="same" selected class="temp">the same</option>
-    <option value="nonmatching" selected class="temp">any non-matching value in that list</option>
-    <option value="" selected class="temp"></option>
+    <option value="any">any</option>
+    <option value="same">the same</option>
+    <option value="nonmatching">any non-matching value in that list</option>
+    <option value=""></option>
     </select>
     Parent:
     <select name="fr{i}_feat{j}_rule{k}_par" onfocus="fill('fr{i}_feat{j}_rule{k}_par', [].concat(fill_feature_values('fr{i}_feat{j}_name')));">
-    <option value="any" selected class="temp">any</option>
-    <option value="same" selected class="temp">the same</option>
-    <option value="" selected class="temp"></option>
+    <option value="any">any</option>
+    <option value="same">the same</option>
+    <option value=""></option>
     </select>
     </div>
     </div>

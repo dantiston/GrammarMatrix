@@ -120,22 +120,22 @@ Set-cookie: session=7777
     <label><br/>Obligatorily occurs:<input type="checkbox"  name="noun-pc{i}_obligatory"></label>
     <br/>Appears as a prefix or suffix:
     <select name="noun-pc{i}_order">
-    <option value="prefix" selected class="temp">Prefix</option>
-    <option value="suffix" selected class="temp">Suffix</option>
-    <option value="" selected class="temp"></option>
+    <option value="prefix">Prefix</option>
+    <option value="suffix">Suffix</option>
+    <option value=""></option>
     </select>
     <br/>Possible inputs:
     <select name="noun-pc{i}_inputs" class="multi"  multiple="multiple"  onfocus="fill('noun-pc{i}_inputs', [].concat(fill_cache('nouns'),fill_regex('noun-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="noun" selected class="temp">Any noun</option>
-    <option value="" selected class="temp"></option>
+    <option value="noun">Any noun</option>
+    <option value=""></option>
     </select>
     <p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="noun-pc{i}_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_require{j}')">
     <div class="iterframe">Noun Position Class {i} requires one of the following:
     <select name="noun-pc{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun-pc{i}_require{j}_others', [].concat(fill_cache('nouns'),fill_regex('noun-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="noun" selected class="temp">Any noun</option>
-    <option value="" selected class="temp"></option>
+    <option value="noun">Any noun</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -145,8 +145,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_forbid{j}')">
     <div class="iterframe">Noun Position Class {i} forbids the following:
     <select name="noun-pc{i}_forbid{j}_others" onfocus="fill('noun-pc{i}_forbid{j}_others', [].concat(fill_cache('nouns'),fill_regex('noun-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="noun" selected class="temp">Any noun</option>
-    <option value="" selected class="temp"></option>
+    <option value="noun">Any noun</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -158,18 +158,18 @@ Set-cookie: session=7777
     <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="noun-pc{i}_lrt{j}_name" size="20" onchange="fill_display_name('noun-pc{i}_lrt{j}');">
     <br/>Supertypes:
     <select name="noun-pc{i}_lrt{j}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun-pc{i}_lrt{j}_supertypes', [].concat(fill_regex('noun-pc{i}_lrt[0-9]+_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     <p>Features:</p>
     <div class="iterator" style="display: none" id="noun-pc{i}_lrt{j}_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_lrt{j}_feat{k}')">
     <div class="iterframe">Name:
     <select name="noun-pc{i}_lrt{j}_feat{k}_name" onfocus="fill('noun-pc{i}_lrt{j}_feat{k}_name', [].concat(fill_feature_names('both')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Value:
     <select name="noun-pc{i}_lrt{j}_feat{k}_value" class="multi"  multiple="multiple"  onfocus="fill('noun-pc{i}_lrt{j}_feat{k}_value', [].concat(fill_feature_values('noun-pc{i}_lrt{j}_feat{k}_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -180,8 +180,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_lrt{j}_require{k}')">
     <div class="iterframe">Lexical Rule Type {j} requires one of the following:
     <select name="noun-pc{i}_lrt{j}_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('noun-pc{i}_lrt{j}_require{k}_others', [].concat(fill_cache('nouns'),fill_regex('noun-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="noun" selected class="temp">Any noun</option>
-    <option value="" selected class="temp"></option>
+    <option value="noun">Any noun</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -191,8 +191,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun-pc{i}_lrt{j}_forbid{k}')">
     <div class="iterframe">Lexical Rule Type {j} forbids the following:
     <select name="noun-pc{i}_lrt{j}_forbid{k}_others" onfocus="fill('noun-pc{i}_lrt{j}_forbid{k}_others', [].concat(fill_cache('nouns'),fill_regex('noun-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="noun" selected class="temp">Any noun</option>
-    <option value="" selected class="temp"></option>
+    <option value="noun">Any noun</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -235,28 +235,28 @@ Set-cookie: session=7777
     <label><br/>Obligatorily occurs:<input type="checkbox"  name="verb-pc{i}_obligatory"></label>
     <br/>Appears as a prefix or suffix:
     <select name="verb-pc{i}_order">
-    <option value="prefix" selected class="temp">Prefix</option>
-    <option value="suffix" selected class="temp">Suffix</option>
-    <option value="" selected class="temp"></option>
+    <option value="prefix">Prefix</option>
+    <option value="suffix">Suffix</option>
+    <option value=""></option>
     </select>
     <br/>Possible inputs:
     <select name="verb-pc{i}_inputs" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_inputs', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="verb" selected class="temp">Any verb</option>
-    <option value="iverb" selected class="temp">Any intransitive verb</option>
-    <option value="tverb" selected class="temp">Any transitive verb</option>
-    <option value="aux" selected class="temp">Any auxiliary verb</option>
-    <option value="" selected class="temp"></option>
+    <option value="verb">Any verb</option>
+    <option value="iverb">Any intransitive verb</option>
+    <option value="tverb">Any transitive verb</option>
+    <option value="aux">Any auxiliary verb</option>
+    <option value=""></option>
     </select>
     <p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="verb-pc{i}_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_require{j}')">
     <div class="iterframe">Verb Position Class {i} requires one of the following:
     <select name="verb-pc{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_require{j}_others', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="verb" selected class="temp">Any verb</option>
-    <option value="iverb" selected class="temp">Any intransitive verb</option>
-    <option value="tverb" selected class="temp">Any transitive verb</option>
-    <option value="aux" selected class="temp">Any auxiliary verb</option>
-    <option value="" selected class="temp"></option>
+    <option value="verb">Any verb</option>
+    <option value="iverb">Any intransitive verb</option>
+    <option value="tverb">Any transitive verb</option>
+    <option value="aux">Any auxiliary verb</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -266,11 +266,11 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_forbid{j}')">
     <div class="iterframe">Verb Position Class {i} forbids the following:
     <select name="verb-pc{i}_forbid{j}_others" onfocus="fill('verb-pc{i}_forbid{j}_others', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="verb" selected class="temp">Any verb</option>
-    <option value="iverb" selected class="temp">Any intransitive verb</option>
-    <option value="tverb" selected class="temp">Any transitive verb</option>
-    <option value="aux" selected class="temp">Any auxiliary verb</option>
-    <option value="" selected class="temp"></option>
+    <option value="verb">Any verb</option>
+    <option value="iverb">Any intransitive verb</option>
+    <option value="tverb">Any transitive verb</option>
+    <option value="aux">Any auxiliary verb</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -282,27 +282,27 @@ Set-cookie: session=7777
     <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="verb-pc{i}_lrt{j}_name" size="20" onchange="fill_display_name('verb-pc{i}_lrt{j}');">
     <br/>Supertypes:
     <select name="verb-pc{i}_lrt{j}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_lrt{j}_supertypes', [].concat(fill_regex('verb-pc{i}_lrt[0-9]+_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     <p>Features:</p>
     <div class="iterator" style="display: none" id="verb-pc{i}_lrt{j}_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt{j}_feat{k}')">
     <div class="iterframe">Name:
     <select name="verb-pc{i}_lrt{j}_feat{k}_name" onfocus="fill('verb-pc{i}_lrt{j}_feat{k}_name', [].concat(fill_feature_names('both')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Value:
     <select name="verb-pc{i}_lrt{j}_feat{k}_value" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_lrt{j}_feat{k}_value', [].concat(fill_feature_values('verb-pc{i}_lrt{j}_feat{k}_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Specified on:
     <select name="verb-pc{i}_lrt{j}_feat{k}_head">
-    <option value="verb" selected class="temp">The verb</option>
-    <option value="subj" selected class="temp">The subject</option>
-    <option value="obj" selected class="temp">The object</option>
-    <option value="higher" selected class="temp">Higher-ranked</option>
-    <option value="lower" selected class="temp">Lower-ranked</option>
-    <option value="" selected class="temp"></option>
+    <option value="verb">The verb</option>
+    <option value="subj">The subject</option>
+    <option value="obj">The object</option>
+    <option value="higher">Higher-ranked</option>
+    <option value="lower">Lower-ranked</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -315,25 +315,25 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt{j}_valchg{k}')">
     <div class="iterframe">Type:
     <select name="verb-pc{i}_lrt{j}_valchg{k}_operation">
-    <option value="subj-rem" selected class="temp">Subject-removing</option>
-    <option value="obj-rem" selected class="temp">Object-removing</option>
-    <option value="obj-add" selected class="temp">Object-adding</option>
-    <option value="" selected class="temp"></option>
+    <option value="subj-rem">Subject-removing</option>
+    <option value="obj-rem">Object-removing</option>
+    <option value="obj-add">Object-adding</option>
+    <option value=""></option>
     </select><br/>
     <p>Object-adding operations currently only support strict transitive verbs as inputs.<br/>
             For object-adding operations, also specify (ignored for other operations):</p>
     Predicate: <input type="text"  name="verb-pc{i}_lrt{j}_valchg{k}_predname" size="20"><br/>
     The added argument is at the:
     <select name="verb-pc{i}_lrt{j}_valchg{k}_argpos">
-    <option value="pre" selected class="temp">front</option>
-    <option value="post" selected class="temp">end</option>
-    <option value="" selected class="temp"></option>
+    <option value="pre">front</option>
+    <option value="post">end</option>
+    <option value=""></option>
     </select> of the complements list.<br/>
     The added argument must be a(n):
     <select name="verb-pc{i}_lrt{j}_valchg{k}_argtype">
-    <option value="np" selected class="temp">NP</option>
-    <option value="pp" selected class="temp">PP</option>
-    <option value="" selected class="temp"></option>
+    <option value="np">NP</option>
+    <option value="pp">PP</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -344,11 +344,11 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt{j}_require{k}')">
     <div class="iterframe">Lexical Rule Type {j} requires one of the following:
     <select name="verb-pc{i}_lrt{j}_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_lrt{j}_require{k}_others', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="verb" selected class="temp">Any verb</option>
-    <option value="iverb" selected class="temp">Any intransitive verb</option>
-    <option value="tverb" selected class="temp">Any transitive verb</option>
-    <option value="aux" selected class="temp">Any auxiliary verb</option>
-    <option value="" selected class="temp"></option>
+    <option value="verb">Any verb</option>
+    <option value="iverb">Any intransitive verb</option>
+    <option value="tverb">Any transitive verb</option>
+    <option value="aux">Any auxiliary verb</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -358,11 +358,11 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt{j}_forbid{k}')">
     <div class="iterframe">Lexical Rule Type {j} forbids the following:
     <select name="verb-pc{i}_lrt{j}_forbid{k}_others" onfocus="fill('verb-pc{i}_lrt{j}_forbid{k}_others', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="verb" selected class="temp">Any verb</option>
-    <option value="iverb" selected class="temp">Any intransitive verb</option>
-    <option value="tverb" selected class="temp">Any transitive verb</option>
-    <option value="aux" selected class="temp">Any auxiliary verb</option>
-    <option value="" selected class="temp"></option>
+    <option value="verb">Any verb</option>
+    <option value="iverb">Any intransitive verb</option>
+    <option value="tverb">Any transitive verb</option>
+    <option value="aux">Any auxiliary verb</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -397,27 +397,27 @@ Set-cookie: session=7777
     <div class="iterframe"><b>Lexical Rule Type 1</b>:<br/>Name: <input type="text"  name="verb-pc{i}_lrt1_name" size="20" onchange="fill_display_name('verb-pc{i}_lrt1');">
     <br/>Supertypes:
     <select name="verb-pc{i}_lrt1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_lrt1_supertypes', [].concat(fill_regex('verb-pc{i}_lrt[0-9]+_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     <p>Features:</p>
     <div class="iterator" style="display: none" id="verb-pc{i}_lrt1_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt1_feat{k}')">
     <div class="iterframe">Name:
     <select name="verb-pc{i}_lrt1_feat{k}_name" onfocus="fill('verb-pc{i}_lrt1_feat{k}_name', [].concat(fill_feature_names('both')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Value:
     <select name="verb-pc{i}_lrt1_feat{k}_value" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_lrt1_feat{k}_value', [].concat(fill_feature_values('verb-pc{i}_lrt1_feat{k}_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Specified on:
     <select name="verb-pc{i}_lrt1_feat{k}_head">
-    <option value="verb" selected class="temp">The verb</option>
-    <option value="subj" selected class="temp">The subject</option>
-    <option value="obj" selected class="temp">The object</option>
-    <option value="higher" selected class="temp">Higher-ranked</option>
-    <option value="lower" selected class="temp">Lower-ranked</option>
-    <option value="" selected class="temp"></option>
+    <option value="verb">The verb</option>
+    <option value="subj">The subject</option>
+    <option value="obj">The object</option>
+    <option value="higher">Higher-ranked</option>
+    <option value="lower">Lower-ranked</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -430,25 +430,25 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt1_valchg{k}')">
     <div class="iterframe">Type:
     <select name="verb-pc{i}_lrt1_valchg{k}_operation">
-    <option value="subj-rem" selected class="temp">Subject-removing</option>
-    <option value="obj-rem" selected class="temp">Object-removing</option>
-    <option value="obj-add" selected class="temp">Object-adding</option>
-    <option value="" selected class="temp"></option>
+    <option value="subj-rem">Subject-removing</option>
+    <option value="obj-rem">Object-removing</option>
+    <option value="obj-add">Object-adding</option>
+    <option value=""></option>
     </select><br/>
     <p>Object-adding operations currently only support strict transitive verbs as inputs.<br/>
             For object-adding operations, also specify (ignored for other operations):</p>
     Predicate: <input type="text"  name="verb-pc{i}_lrt1_valchg{k}_predname" size="20"><br/>
     The added argument is at the:
     <select name="verb-pc{i}_lrt1_valchg{k}_argpos">
-    <option value="pre" selected class="temp">front</option>
-    <option value="post" selected class="temp">end</option>
-    <option value="" selected class="temp"></option>
+    <option value="pre">front</option>
+    <option value="post">end</option>
+    <option value=""></option>
     </select> of the complements list.<br/>
     The added argument must be a(n):
     <select name="verb-pc{i}_lrt1_valchg{k}_argtype">
-    <option value="np" selected class="temp">NP</option>
-    <option value="pp" selected class="temp">PP</option>
-    <option value="" selected class="temp"></option>
+    <option value="np">NP</option>
+    <option value="pp">PP</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -459,11 +459,11 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt1_require{k}')">
     <div class="iterframe">Lexical Rule Type 1 requires one of the following:
     <select name="verb-pc{i}_lrt1_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('verb-pc{i}_lrt1_require{k}_others', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="verb" selected class="temp">Any verb</option>
-    <option value="iverb" selected class="temp">Any intransitive verb</option>
-    <option value="tverb" selected class="temp">Any transitive verb</option>
-    <option value="aux" selected class="temp">Any auxiliary verb</option>
-    <option value="" selected class="temp"></option>
+    <option value="verb">Any verb</option>
+    <option value="iverb">Any intransitive verb</option>
+    <option value="tverb">Any transitive verb</option>
+    <option value="aux">Any auxiliary verb</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -473,11 +473,11 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb-pc{i}_lrt1_forbid{k}')">
     <div class="iterframe">Lexical Rule Type 1 forbids the following:
     <select name="verb-pc{i}_lrt1_forbid{k}_others" onfocus="fill('verb-pc{i}_lrt1_forbid{k}_others', [].concat(fill_cache('verbs'),fill_cache('auxes'),fill_regex('verb-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="verb" selected class="temp">Any verb</option>
-    <option value="iverb" selected class="temp">Any intransitive verb</option>
-    <option value="tverb" selected class="temp">Any transitive verb</option>
-    <option value="aux" selected class="temp">Any auxiliary verb</option>
-    <option value="" selected class="temp"></option>
+    <option value="verb">Any verb</option>
+    <option value="iverb">Any intransitive verb</option>
+    <option value="tverb">Any transitive verb</option>
+    <option value="aux">Any auxiliary verb</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -519,14 +519,14 @@ Set-cookie: session=7777
     <label><br/>Obligatorily occurs:<input type="checkbox"  name="adj-pc{i}_obligatory"></label>
     <br/>Appears as a prefix or suffix:
     <select name="adj-pc{i}_order">
-    <option value="prefix" selected class="temp">Prefix</option>
-    <option value="suffix" selected class="temp">Suffix</option>
-    <option value="" selected class="temp"></option>
+    <option value="prefix">Prefix</option>
+    <option value="suffix">Suffix</option>
+    <option value=""></option>
     </select>
     <br/>Possible inputs:
     <select name="adj-pc{i}_inputs" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_inputs', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="adj" selected class="temp">Any Adjective</option>
-    <option value="" selected class="temp"></option>
+    <option value="adj">Any Adjective</option>
+    <option value=""></option>
     </select>
     <label><div>This position class constrains the syntactic behavior of its output: <input type="checkbox"  name="adj-pc{i}_switching"></div></label>
     <p>Morphotactic Constraints:</p>
@@ -534,8 +534,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_require{j}')">
     <div class="iterframe">Adjective Position Class {i} requires one of the following:
     <select name="adj-pc{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_require{j}_others', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="adj" selected class="temp">Any Adjective</option>
-    <option value="" selected class="temp"></option>
+    <option value="adj">Any Adjective</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -545,8 +545,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_forbid{j}')">
     <div class="iterframe">Adjective Position Class {i} forbids the following:
     <select name="adj-pc{i}_forbid{j}_others" onfocus="fill('adj-pc{i}_forbid{j}_others', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="adj" selected class="temp">Any Adjective</option>
-    <option value="" selected class="temp"></option>
+    <option value="adj">Any Adjective</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -558,26 +558,26 @@ Set-cookie: session=7777
     <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="adj-pc{i}_lrt{j}_name" size="20" onchange="fill_display_name('adj-pc{i}_lrt{j}');">
     <br/>Supertypes:
     <select name="adj-pc{i}_lrt{j}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_lrt{j}_supertypes', [].concat(fill_regex('adj-pc{i}_lrt[0-9]+_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     <p>Features:<br>  Specify agreement features of the adjective by selecting one of the argument choices;<br>  specify inflection for predicative adjectives by selecting a feature to be specified on "the adjective".<br></p>
     <div class="iterator" style="display: none" id="adj-pc{i}_lrt{j}_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt{j}_feat{k}')">
     <div class="iterframe">Name:
     <select name="adj-pc{i}_lrt{j}_feat{k}_name" onfocus="fill('adj-pc{i}_lrt{j}_feat{k}_name', [].concat(fill_feature_names('both')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Value:
     <select name="adj-pc{i}_lrt{j}_feat{k}_value" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_lrt{j}_feat{k}_value', [].concat(fill_feature_values('adj-pc{i}_lrt{j}_feat{k}_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Specified on:
     <select name="adj-pc{i}_lrt{j}_feat{k}_head" onchange="toggle_element.call(this, 'adj-pc{i}_lrt{j}_adj_pc_note', 'on', ['subj', 'mod'])">
-    <option value="adj" selected class="temp">The adjective</option>
-    <option value="subj" selected class="temp">The subject</option>
-    <option value="mod" selected class="temp">The modified noun</option>
-    <option value="xarg" selected class="temp">Both positions</option>
-    <option value="" selected class="temp"></option>
+    <option value="adj">The adjective</option>
+    <option value="subj">The subject</option>
+    <option value="mod">The modified noun</option>
+    <option value="xarg">Both positions</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -589,8 +589,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt{j}_require{k}')">
     <div class="iterframe">Lexical Rule Type {j} requires one of the following:
     <select name="adj-pc{i}_lrt{j}_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_lrt{j}_require{k}_others', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="adj" selected class="temp">Any adjective</option>
-    <option value="" selected class="temp"></option>
+    <option value="adj">Any adjective</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -600,8 +600,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt{j}_forbid{k}')">
     <div class="iterframe">Lexical Rule Type {j} forbids the following:
     <select name="adj-pc{i}_lrt{j}_forbid{k}_others" onfocus="fill('adj-pc{i}_lrt{j}_forbid{k}_others', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="adj" selected class="temp">Any adjective</option>
-    <option value="" selected class="temp"></option>
+    <option value="adj">Any adjective</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -636,26 +636,26 @@ Set-cookie: session=7777
     <div class="iterframe"><b>Lexical Rule Type 1</b>:<br/>Name: <input type="text"  name="adj-pc{i}_lrt1_name" size="20" onchange="fill_display_name('adj-pc{i}_lrt1');">
     <br/>Supertypes:
     <select name="adj-pc{i}_lrt1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_lrt1_supertypes', [].concat(fill_regex('adj-pc{i}_lrt[0-9]+_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     <p>Features:<br>  Specify agreement features of the adjective by selecting one of the argument choices;<br>  specify inflection for predicative adjectives by selecting a feature to be specified on "the adjective".<br></p>
     <div class="iterator" style="display: none" id="adj-pc{i}_lrt1_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt1_feat{k}')">
     <div class="iterframe">Name:
     <select name="adj-pc{i}_lrt1_feat{k}_name" onfocus="fill('adj-pc{i}_lrt1_feat{k}_name', [].concat(fill_feature_names('both')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Value:
     <select name="adj-pc{i}_lrt1_feat{k}_value" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_lrt1_feat{k}_value', [].concat(fill_feature_values('adj-pc{i}_lrt1_feat{k}_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Specified on:
     <select name="adj-pc{i}_lrt1_feat{k}_head" onchange="toggle_element.call(this, 'adj-pc{i}_lrt1_adj_pc_note', 'on', ['subj', 'mod'])">
-    <option value="adj" selected class="temp">The adjective</option>
-    <option value="subj" selected class="temp">The subject</option>
-    <option value="mod" selected class="temp">The modified noun</option>
-    <option value="xarg" selected class="temp">Both positions</option>
-    <option value="" selected class="temp"></option>
+    <option value="adj">The adjective</option>
+    <option value="subj">The subject</option>
+    <option value="mod">The modified noun</option>
+    <option value="xarg">Both positions</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -667,8 +667,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt1_require{k}')">
     <div class="iterframe">Lexical Rule Type 1 requires one of the following:
     <select name="adj-pc{i}_lrt1_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('adj-pc{i}_lrt1_require{k}_others', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="adj" selected class="temp">Any adjective</option>
-    <option value="" selected class="temp"></option>
+    <option value="adj">Any adjective</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -678,8 +678,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj-pc{i}_lrt1_forbid{k}')">
     <div class="iterframe">Lexical Rule Type 1 forbids the following:
     <select name="adj-pc{i}_lrt1_forbid{k}_others" onfocus="fill('adj-pc{i}_lrt1_forbid{k}_others', [].concat(fill_cache('adjs'),fill_regex('adj-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="adj" selected class="temp">Any adjective</option>
-    <option value="" selected class="temp"></option>
+    <option value="adj">Any adjective</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -721,22 +721,22 @@ Set-cookie: session=7777
     <label><br/>Obligatorily occurs:<input type="checkbox"  name="cop-pc{i}_obligatory"></label>
     <br/>Appears as a prefix or suffix:
     <select name="cop-pc{i}_order">
-    <option value="prefix" selected class="temp">Prefix</option>
-    <option value="suffix" selected class="temp">Suffix</option>
-    <option value="" selected class="temp"></option>
+    <option value="prefix">Prefix</option>
+    <option value="suffix">Suffix</option>
+    <option value=""></option>
     </select>
     <br/>Possible inputs:
     <select name="cop-pc{i}_inputs" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_inputs', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="cop" selected class="temp">Any Copula</option>
-    <option value="" selected class="temp"></option>
+    <option value="cop">Any Copula</option>
+    <option value=""></option>
     </select>
     <p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="cop-pc{i}_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_require{j}')">
     <div class="iterframe">Copula Position Class {i} requires one of the following:
     <select name="cop-pc{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_require{j}_others', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="cop" selected class="temp">Any Copula</option>
-    <option value="" selected class="temp"></option>
+    <option value="cop">Any Copula</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -746,8 +746,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_forbid{j}')">
     <div class="iterframe">Copula Position Class {i} forbids the following:
     <select name="cop-pc{i}_forbid{j}_others" onfocus="fill('cop-pc{i}_forbid{j}_others', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="cop" selected class="temp">Any Copula</option>
-    <option value="" selected class="temp"></option>
+    <option value="cop">Any Copula</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -759,25 +759,25 @@ Set-cookie: session=7777
     <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="cop-pc{i}_lrt{j}_name" size="20" onchange="fill_display_name('cop-pc{i}_lrt{j}');">
     <br/>Supertypes:
     <select name="cop-pc{i}_lrt{j}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_lrt{j}_supertypes', [].concat(fill_regex('cop-pc{i}_lrt[0-9]+_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     <p>Features:</p>
     <div class="iterator" style="display: none" id="cop-pc{i}_lrt{j}_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt{j}_feat{k}')">
     <div class="iterframe">Name:
     <select name="cop-pc{i}_lrt{j}_feat{k}_name" onfocus="fill('cop-pc{i}_lrt{j}_feat{k}_name', [].concat(fill_feature_names('both')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Value:
     <select name="cop-pc{i}_lrt{j}_feat{k}_value" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_lrt{j}_feat{k}_value', [].concat(fill_feature_values('cop-pc{i}_lrt{j}_feat{k}_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Specified on:
     <select name="cop-pc{i}_lrt{j}_feat{k}_head">
-    <option value="cop" selected class="temp">The copula</option>
-    <option value="subj" selected class="temp">The subject</option>
-    <option value="mod" selected class="temp">The complement</option>
-    <option value="" selected class="temp"></option>
+    <option value="cop">The copula</option>
+    <option value="subj">The subject</option>
+    <option value="mod">The complement</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -788,8 +788,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt{j}_require{k}')">
     <div class="iterframe">Lexical Rule Type {j} requires one of the following:
     <select name="cop-pc{i}_lrt{j}_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_lrt{j}_require{k}_others', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="cop" selected class="temp">Any copula</option>
-    <option value="" selected class="temp"></option>
+    <option value="cop">Any copula</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -799,8 +799,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt{j}_forbid{k}')">
     <div class="iterframe">Lexical Rule Type {j} forbids the following:
     <select name="cop-pc{i}_lrt{j}_forbid{k}_others" onfocus="fill('cop-pc{i}_lrt{j}_forbid{k}_others', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="cop" selected class="temp">Any copula</option>
-    <option value="" selected class="temp"></option>
+    <option value="cop">Any copula</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -835,25 +835,25 @@ Set-cookie: session=7777
     <div class="iterframe"><b>Lexical Rule Type 1</b>:<br/>Name: <input type="text"  name="cop-pc{i}_lrt1_name" size="20" onchange="fill_display_name('cop-pc{i}_lrt1');">
     <br/>Supertypes:
     <select name="cop-pc{i}_lrt1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_lrt1_supertypes', [].concat(fill_regex('cop-pc{i}_lrt[0-9]+_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     <p>Features:</p>
     <div class="iterator" style="display: none" id="cop-pc{i}_lrt1_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt1_feat{k}')">
     <div class="iterframe">Name:
     <select name="cop-pc{i}_lrt1_feat{k}_name" onfocus="fill('cop-pc{i}_lrt1_feat{k}_name', [].concat(fill_feature_names('both')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Value:
     <select name="cop-pc{i}_lrt1_feat{k}_value" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_lrt1_feat{k}_value', [].concat(fill_feature_values('cop-pc{i}_lrt1_feat{k}_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Specified on:
     <select name="cop-pc{i}_lrt1_feat{k}_head">
-    <option value="cop" selected class="temp">The copula</option>
-    <option value="subj" selected class="temp">The subject</option>
-    <option value="mod" selected class="temp">The complement</option>
-    <option value="" selected class="temp"></option>
+    <option value="cop">The copula</option>
+    <option value="subj">The subject</option>
+    <option value="mod">The complement</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -864,8 +864,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt1_require{k}')">
     <div class="iterframe">Lexical Rule Type 1 requires one of the following:
     <select name="cop-pc{i}_lrt1_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('cop-pc{i}_lrt1_require{k}_others', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="cop" selected class="temp">Any copula</option>
-    <option value="" selected class="temp"></option>
+    <option value="cop">Any copula</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -875,8 +875,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop-pc{i}_lrt1_forbid{k}')">
     <div class="iterframe">Lexical Rule Type 1 forbids the following:
     <select name="cop-pc{i}_lrt1_forbid{k}_others" onfocus="fill('cop-pc{i}_lrt1_forbid{k}_others', [].concat(fill_cache('cops'),fill_regex('cop-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="cop" selected class="temp">Any copula</option>
-    <option value="" selected class="temp"></option>
+    <option value="cop">Any copula</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -918,22 +918,22 @@ Set-cookie: session=7777
     <label><br/>Obligatorily occurs:<input type="checkbox"  name="det-pc{i}_obligatory"></label>
     <br/>Appears as a prefix or suffix:
     <select name="det-pc{i}_order">
-    <option value="prefix" selected class="temp">Prefix</option>
-    <option value="suffix" selected class="temp">Suffix</option>
-    <option value="" selected class="temp"></option>
+    <option value="prefix">Prefix</option>
+    <option value="suffix">Suffix</option>
+    <option value=""></option>
     </select>
     <br/>Possible inputs:
     <select name="det-pc{i}_inputs" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_inputs', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="det" selected class="temp">Any determiner</option>
-    <option value="" selected class="temp"></option>
+    <option value="det">Any determiner</option>
+    <option value=""></option>
     </select>
     <p>Morphotactic Constraints:</p>
     <div class="iterator" style="display: none" id="det-pc{i}_require_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_require{j}')">
     <div class="iterframe">Determiner Position Class {i} requires one of the following:
     <select name="det-pc{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_require{j}_others', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="det" selected class="temp">Any determiner</option>
-    <option value="" selected class="temp"></option>
+    <option value="det">Any determiner</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -943,8 +943,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_forbid{j}')">
     <div class="iterframe">Determiner Position Class {i} forbids the following:
     <select name="det-pc{i}_forbid{j}_others" onfocus="fill('det-pc{i}_forbid{j}_others', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="det" selected class="temp">Any determiner</option>
-    <option value="" selected class="temp"></option>
+    <option value="det">Any determiner</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -956,18 +956,18 @@ Set-cookie: session=7777
     <div class="iterframe"><b>Lexical Rule Type {j}</b>:<br/>Name: <input type="text"  name="det-pc{i}_lrt{j}_name" size="20" onchange="fill_display_name('det-pc{i}_lrt{j}');">
     <br/>Supertypes:
     <select name="det-pc{i}_lrt{j}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_lrt{j}_supertypes', [].concat(fill_regex('det-pc{i}_lrt[0-9]+_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     <p>Features:</p>
     <div class="iterator" style="display: none" id="det-pc{i}_lrt{j}_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt{j}_feat{k}')">
     <div class="iterframe">Name:
     <select name="det-pc{i}_lrt{j}_feat{k}_name" onfocus="fill('det-pc{i}_lrt{j}_feat{k}_name', [].concat(fill_feature_names('noun')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Value:
     <select name="det-pc{i}_lrt{j}_feat{k}_value" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_lrt{j}_feat{k}_value', [].concat(fill_feature_values('det-pc{i}_lrt{j}_feat{k}_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -978,8 +978,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt{j}_require{k}')">
     <div class="iterframe">Lexical Rule Type {j} requires one of the following:
     <select name="det-pc{i}_lrt{j}_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_lrt{j}_require{k}_others', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="det" selected class="temp">Any determiner</option>
-    <option value="" selected class="temp"></option>
+    <option value="det">Any determiner</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -989,8 +989,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt{j}_forbid{k}')">
     <div class="iterframe">Lexical Rule Type {j} forbids the following:
     <select name="det-pc{i}_lrt{j}_forbid{k}_others" onfocus="fill('det-pc{i}_lrt{j}_forbid{k}_others', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="det" selected class="temp">Any determiner</option>
-    <option value="" selected class="temp"></option>
+    <option value="det">Any determiner</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -1025,18 +1025,18 @@ Set-cookie: session=7777
     <div class="iterframe"><b>Lexical Rule Type 1</b>:<br/>Name: <input type="text"  name="det-pc{i}_lrt1_name" size="20" onchange="fill_display_name('det-pc{i}_lrt1');">
     <br/>Supertypes:
     <select name="det-pc{i}_lrt1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_lrt1_supertypes', [].concat(fill_regex('det-pc{i}_lrt[0-9]+_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     <p>Features:</p>
     <div class="iterator" style="display: none" id="det-pc{i}_lrt1_feat_TEMPLATE">
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt1_feat{k}')">
     <div class="iterframe">Name:
     <select name="det-pc{i}_lrt1_feat{k}_name" onfocus="fill('det-pc{i}_lrt1_feat{k}_name', [].concat(fill_feature_names('noun')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     Value:
     <select name="det-pc{i}_lrt1_feat{k}_value" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_lrt1_feat{k}_value', [].concat(fill_feature_values('det-pc{i}_lrt1_feat{k}_name')));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -1047,8 +1047,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt1_require{k}')">
     <div class="iterframe">Lexical Rule Type 1 requires one of the following:
     <select name="det-pc{i}_lrt1_require{k}_others" class="multi"  multiple="multiple"  onfocus="fill('det-pc{i}_lrt1_require{k}_others', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="det" selected class="temp">Any determiner</option>
-    <option value="" selected class="temp"></option>
+    <option value="det">Any determiner</option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -1058,8 +1058,8 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det-pc{i}_lrt1_forbid{k}')">
     <div class="iterframe">Lexical Rule Type 1 forbids the following:
     <select name="det-pc{i}_lrt1_forbid{k}_others" onfocus="fill('det-pc{i}_lrt1_forbid{k}_others', [].concat(fill_cache('dets'),fill_regex('det-pc[0-9]+(_lrt[0-9]+)?_name')));">
-    <option value="det" selected class="temp">Any determiner</option>
-    <option value="" selected class="temp"></option>
+    <option value="det">Any determiner</option>
+    <option value=""></option>
     </select>
     </div>
     </div>

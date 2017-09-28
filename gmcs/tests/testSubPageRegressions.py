@@ -120,7 +120,6 @@ class RegressionTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('arg-opt', '7777', mock_validation())
       expected = load_subpage("arg-opt")
-      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -128,14 +127,13 @@ class RegressionTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       actual = self._definition.sub_page('lexicon', '7777', mock_validation())
       expected = load_subpage("lexicon")
-      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testLexicon_Choices(self):
     with os_environ(HTTP_COOKIE="session=7777"), environ_choices("lexicon_choices.txt"):
       actual = self._definition.sub_page('lexicon', '7777', mock_validation())
-      expected = load_subpage("lexicon")
+      expected = load_subpage("lexicon_choices")
       save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 

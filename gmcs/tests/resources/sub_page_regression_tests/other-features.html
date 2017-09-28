@@ -105,7 +105,7 @@ Set-cookie: session=7777
 
 
     <select name="feature{i}_existing" onfocus="fill('feature{i}_existing', [].concat(fill_regex('(existing_value_type[0-9]+_name)',true),fill_feature_names_only_customized('both')));remove_element_all('feature{i}', 'value'); check_radio_button('feature{i}_new', 'no');">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select><br>
 
     <label><input type="radio"  name="feature{i}_new" value="yes" onclick="empty_value('feature{i}_existing', 0);"> define a new value type<br></label>
@@ -118,7 +118,7 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('feature{i}_value{j}_supertype{k}')">
     <div class="iterframe">Supertype:
     <select name="feature{i}_value{j}_supertype{k}_name" onfocus="fill('feature{i}_value{j}_supertype{k}_name', [].concat(fill_regex('(feature{i}_name|feature{i}_value[0-9]+_name)',true)));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     </div>
     </div>
@@ -127,7 +127,7 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('feature{i}_value{j}_supertype1')">
     <div class="iterframe">Supertype:
     <select name="feature{i}_value{j}_supertype1_name" onfocus="fill('feature{i}_value{j}_supertype1_name', [].concat(fill_regex('(feature{i}_name|feature{i}_value[0-9]+_name)',true)));">
-    <option value="" selected class="temp"></option>
+    <option value=""></option>
     </select>
     </div>
     </div>

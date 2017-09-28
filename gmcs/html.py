@@ -142,8 +142,8 @@ def html_option(vr, name, selected, html, temp=False, strike=False):
     html = u'<p style="display:inline; color:#ADADAD"> %s</p>' % html
   else: strike = u''
 
-  temp = u' class="temp"' or u''
-  selected = u' selected' or u''
+  temp = u' class="temp"' if temp else u''
+  selected = u' selected' if selected else u''
 
   return u'<option value="%s"%s%s%s>%s</option>' % \
          (name, selected, temp, strike, html)

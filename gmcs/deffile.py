@@ -29,6 +29,7 @@ TODO:
 
     * Other issues
         * UnicodeEncodeError: General, Sentential Negation, Information Structure,
+            * This may be because of components only used on that page?
         * Adding debug into to the end of the page
 """
 
@@ -1233,13 +1234,19 @@ class MatrixDef:
       else:
         break
 
+    # if fillers:
+    #   fillcmd = u"fill('%s', [].concat(%s));" % (vn, ','.join(fillers))
+    #   result += html.html_select(vr, vn, multi, onfocus=fillcmd+onfocus, onchange=onchange) + '\n'
+    # else:
+    #   # If not using fillers, previously selected value
+    #   # will be marked during option processing below
+    #    result += html.html_select(vr, vn, multi, onfocus=onfocus, onchange=onchange) + '\n'
     if fillers:
       fillcmd = u"fill('%s', [].concat(%s));" % (vn, ','.join(fillers))
-      result += html.html_select(vr, vn, multi, fillcmd+onfocus, onchange=onchange) + '\n'
-    else:
-      # If not using fillers, previously selected value
-      # will be marked during option processing below
-      result += html.html_select(vr, vn, multi, onchange=onchange) + '\n'
+      onfocus = fillcmd + onfocus
+
+    # Build the select element
+    result += html.html_select(vr, vn, multi, onfocus=onfocus, onchange=onchange) + '\n'
 
     # Add individual bullets, if applicable
     printed_selected = False
@@ -1250,10 +1257,9 @@ class MatrixDef:
           sstrike = False # Reset variable
           # select/multiselect options
           oval, ofrn, ohtml = word[1:4]
-          # TJT 2014-03-19: add disabled option to allow for always-disabled
+          # TJT 2014-03-19: add disabled option to allow for always-disabled option
           # If there's anything in this slot, disable option
           if word_length >= 5: sstrike = True
-          # Add option if not previously selected
           result += html.html_option(vr, oval, sval == oval, ofrn, strike=sstrike) + '\n'
           if sval == oval:
             printed_selected = True
@@ -1263,8 +1269,8 @@ class MatrixDef:
 
     # Get previously selected item
     # This is necessary because the value is not in the deffile
-    if not printed_selected and sval:
-      result += html.html_option(vr, sval, False, self.f(sval), True) + '\n'
+    if sval and not printed_selected:
+      result += html.html_option(vr, sval, True, self.f(sval)) + '\n'
 
     # add empty option
     result += html.html_option(vr, '', False, '') + '\n'
