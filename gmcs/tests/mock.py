@@ -118,8 +118,8 @@ class environ_choices(object):
   Helper wrapper to temporarily store choices file in session
   """
 
-  def __init__(self, choices_file):
-    self.choices = os.path.join("gmcs", "tests", "resources", "test_choices", choices_file)
+  def __init__(self, choices_file, path=["gmcs", "tests", "resources", "test_choices"]):
+    self.choices = os.path.join(*(path + [choices_file]))
 
 
   def __enter__(self):

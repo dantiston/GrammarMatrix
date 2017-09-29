@@ -919,7 +919,6 @@ class MatrixDef:
       word, word_length, element = self.__get_word(tokenized_lines, i, variables=variables, do_replace=do_replace)
       if word:
         if element in self.html_gens:
-          # TODO: Hanging involves jumping back out here???
           word, word_length, element, i, result = self.html_gens[element](
               tokenized_lines, choices, vr, cookie, prefix, variables,
               num_lines, word, word_length, element, i, do_replace=do_replace)
@@ -1205,6 +1204,14 @@ class MatrixDef:
 
 
   def select_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
+    """
+    Given the parameters, generate the html for a Select element
+
+    This method sets the "temp" value of the currently selected option, sending
+    the proper information to the JavaScript method on the client side.
+    The "temp" class signals that the option be removed prior to interacting with
+    the select element
+    """
     result = u""
     multi = element == MULTI_SELECT
     vn, fn, bf, af = word[1:5]
@@ -1263,7 +1270,8 @@ class MatrixDef:
     # Get previously selected item
     # This is necessary because the value is not in the deffile
     if sval and not printed_selected:
-      result += html.html_option(vr, sval, True, self.f(sval)) + '\n'
+      # TODO: Verify this temp=True
+      result += html.html_option(vr, sval, True, self.f(sval), temp=True) + '\n'
 
     # add empty option
     result += html.html_option(vr, '', False, '') + '\n'
