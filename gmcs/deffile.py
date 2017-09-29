@@ -439,7 +439,7 @@ class MatrixDef:
     template = jinja.get_template('sub.html')
     return template.render(
         title=self.section_names[section],
-        features=html.js_array4(choices.features()),
+        features=html.js_array4_skip3(choices.features()),
         verb_case_patterns=html.js_array([c for c in choices.patterns() if not c[2]]),
         numbers=html.js_array(choices.numbers()),
         onload=self.get_onload(tokenized_section_def),
@@ -1234,13 +1234,6 @@ class MatrixDef:
       else:
         break
 
-    # if fillers:
-    #   fillcmd = u"fill('%s', [].concat(%s));" % (vn, ','.join(fillers))
-    #   result += html.html_select(vr, vn, multi, onfocus=fillcmd+onfocus, onchange=onchange) + '\n'
-    # else:
-    #   # If not using fillers, previously selected value
-    #   # will be marked during option processing below
-    #    result += html.html_select(vr, vn, multi, onfocus=onfocus, onchange=onchange) + '\n'
     if fillers:
       fillcmd = u"fill('%s', [].concat(%s));" % (vn, ','.join(fillers))
       onfocus = fillcmd + onfocus

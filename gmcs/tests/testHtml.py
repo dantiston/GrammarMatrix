@@ -304,15 +304,15 @@ class JsArrayTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-  def testJsArray3(self):
-    actual = html.js_array3([["string1", "string2", "string3"]])
-    expected = '"string1:string2:string3"'
+  def testJsArray3_skip2(self):
+    actual = html.js_array3_skip3([["string1", "string2", "string3", "string4"]])
+    expected = '"string1:string2:string4"'
     self.assertEqual(actual, expected)
 
 
-  def testJsArray4(self):
-    actual = html.js_array4([["string1", "string2", "string3", "string4"]])
-    expected = '"string1:string2:string3:string4"'
+  def testJsArray4_skip2(self):
+    actual = html.js_array4_skip3([["string1", "string2", "string3", "string4", "string5"]])
+    expected = '"string1:string2:string4:string5"'
     self.assertEqual(actual, expected)
 
 

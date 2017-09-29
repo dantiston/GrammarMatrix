@@ -160,30 +160,32 @@ def html_delbutton(code):
            onclick="remove_element(\'%s\')" % code) + "\n"
 
 
-def js_array(items, N=2):
+def js_array(items, N=2, skip=tuple()):
   """
   From a list of triples of strings [string1, string2, ...], return
   a string containing a JavaScript-formatted list of strings of the
   form 'string1:string2'.
   """
-  return u",\n".join((u'"' + u":".join(item[:N]) + u'"' for item in items))
+  return u",\n".join(
+             (u'"' + u":".join(string for i, string in enumerate(item[:N+len(skip)]) if i not in skip)) + u'"'
+             for item in items)
 
 
-def js_array3(items):
+def js_array3_skip3(items):
   """
   # From a list of triples of strings [string1, string2, ...], return
   # a string containing a JavaScript-formatted list of strings of the
   # form 'string1:string2:string3'. This is used to convey features,
   # values and category (category of feature).
   """
-  return js_array(items, N=3)
+  return js_array(items, N=3, skip=(2,))
 
 
-def js_array4(items):
+def js_array4_skip3(items):
   """
   # From a list of triples of strings [string1, string2, ...], return
   # a string containing a JavaScript-formatted list of strings of the
   # form 'string1:string2:string3:string4'. This is used to convey features,
   # values, category (category of feature), a flag feature 'customized'.
   """
-  return js_array(items, N=4)
+  return js_array(items, N=4, skip=(2,))

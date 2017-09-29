@@ -1,12 +1,8 @@
 import unittest
 
-from gmcs.choices import ChoicesFile
-from gmcs.choices import ChoicesFileParseError
-from gmcs.choices import ChoiceCategory
-from gmcs.choices import ChoiceDict
-from gmcs.choices import ChoiceList
-from gmcs.choices import split_variable_key
-from gmcs.choices import get_next_key
+from gmcs.choices import ChoicesFile, ChoicesFileParseError, ChoiceCategory, ChoiceDict, ChoiceList
+from gmcs.choices import split_variable_key, get_next_key
+
 
 class TestChoiceCategoryClasses(unittest.TestCase):
 
@@ -17,6 +13,7 @@ class TestChoiceCategoryClasses(unittest.TestCase):
         self.assertEqual(c.full_key, '')
         c = ChoiceCategory(full_key='abc')
         self.assertEqual(c.full_key, 'abc')
+
 
     def test_choicedict(self):
         d = ChoiceDict()
@@ -39,6 +36,7 @@ class TestChoiceCategoryClasses(unittest.TestCase):
         self.assertEqual(d.iter_num(), None)
         d = ChoiceDict(full_key='abc1_def2')
         self.assertEqual(d.iter_num(), 2)
+
 
     def test_choicelist(self):
         l = ChoiceList()
@@ -73,6 +71,7 @@ class TestChoiceCategoryClasses(unittest.TestCase):
         self.assertEqual(xs[0]['attr'], 'val2')
         self.assertEqual(xs[1]['attr'], 'val3')
 
+
 class TestChoicesFileParsingFunctions(unittest.TestCase):
     def test_get(self):
         c = ChoicesFile() # no file loaded
@@ -91,9 +90,7 @@ class TestChoicesFileParsingFunctions(unittest.TestCase):
                 {'name':'testverb2', 'valence':'trans',
                     'stem':[{'orth':'test','pred':'test_v_2_rel'}]})
         self.assertEqual(c.get('verb3'), {})
-        # now we get an index error before the keyerror, so the following
-        # doesn't work
-        #self.assertEqual(c.get('verb3_NOSUCH'), '')
+
 
     def test_set(self):
         c = ChoicesFile() # no file loaded
@@ -107,6 +104,7 @@ class TestChoicesFileParsingFunctions(unittest.TestCase):
         c = ChoicesFile() # no file loaded
         c['rst_uvw'] = 2
         self.assertEqual(c.choices, {'rst_uvw': 2})
+
 
     def test_del(self):
         c = ChoicesFile() # no file loaded
@@ -130,35 +128,19 @@ class TestChoicesFileParsingFunctions(unittest.TestCase):
         del c['abc']
         self.assertEqual(c.choices, {})
 
+
     def test_delete(self):
         c = ChoicesFile() # no file loaded
         c['abc1_def'] = 5
         self.assertEqual(c.choices, {'abc':[{'def':5}]})
         c.delete('abc1_def', prune=False)
         self.assertEqual(c.choices, {'abc':[{}]})
-        # currently not using pruning
-        #c['abc1_def'] = 5
-        #c.delete('abc1_def', prune=True)
-        #self.assertEqual(c.choices, None)
-        #c['abc1_def'] = 5
-        #c['abc2_def'] = 6
-        #c.delete('abc1_def', prune=True)
-        #self.assertEqual(c.choices, {'abc':[{'def':6}]})
         c['abc1_def'] = 5
         c['abc1_ghi'] = 6
         c['abc2_ghi'] = 7
         c.delete('abc1', prune=False)
         self.assertEqual(c.choices, {'abc':[None,{'ghi':7}]})
-        #c['abc1_def'] = 5
-        #c['abc1_ghi'] = 6
-        #c['abc2_ghi'] = 7
-        #c.delete('abc1', prune=True)
-        #self.assertEqual(c.choices, {'abc':[{'ghi':7}]})
-        #c['abc1_def'] = 5
-        #c['abc1_ghi'] = 6
-        #c['abc2_ghi'] = 7
-        #c.delete('abc', prune=True)
-        #self.assertEqual(c.choices, None)
+
 
     def test_split_variable_key(self):
         self.assertEqual(split_variable_key(''), [])
@@ -175,6 +157,7 @@ class TestChoicesFileParsingFunctions(unittest.TestCase):
         self.assertEqual(split_variable_key('abc32_def1_ghi'),
                          ['abc', '32', 'def', '1', 'ghi'])
 
+
     def test_get_next_key(self):
         self.assertEqual(get_next_key(''), (None, None))
         self.assertEqual(get_next_key('abc'), ('abc', ''))
@@ -188,6 +171,7 @@ class TestChoicesFileParsingFunctions(unittest.TestCase):
         self.assertEqual(get_next_key('abc_def1'), ('abc_def', '1'))
         self.assertEqual(get_next_key('abc32_def1_ghi'), ('abc','32_def1_ghi'))
 
+
     def test_parse_choices(self):
         c = ChoicesFile() # no file loaded
         self.assertEqual(c.parse_choices([]), {})
@@ -199,9 +183,7 @@ class TestChoicesFileParsingFunctions(unittest.TestCase):
                          {'abc': [{'def':'DEF1'}, {'def':'DEF2'}]})
         self.assertEqual(c.parse_choices(['abc2_def=DEF2', 'abc1_def=DEF1']),
                          {'abc': [{'def':'DEF1'}, {'def':'DEF2'}]})
-        # not currently throwing this error, but it should be logged.
-        #self.assertRaises(ChoicesFileParseError,
-        #                  c.parse_choices, ['abc2_def=DEF2', 'abc2_def=DEF1'])
+
 
     def test_full_key(self):
         c = ChoicesFile()
@@ -212,68 +194,9 @@ class TestChoicesFileParsingFunctions(unittest.TestCase):
         for i, key in enumerate(c['abc']):
             self.assertEqual(key.full_key, 'abc' + str(i+1))
 
-    # no longer using prune
-    #def test_reset_full_keys(self):
-    #    c = ChoicesFile()
-    #    c['abc1_def'] = 1
-    #    c['abc2_def'] = 2
-    #    self.assertEqual(c['abc1'].full_key, 'abc1')
-    #    self.assertEqual(c['abc1_def'], 1)
-    #    self.assertEqual(c['abc2'].full_key, 'abc2')
-    #    self.assertEqual(c['abc2_def'], 2)
-    #    c.delete('abc1', prune=True)
-    #    self.assertEqual(c['abc1'].full_key, 'abc1')
-    #    self.assertEqual(c['abc1_def'], 2)
-    #    c['abc1_def'] = 1
-    #    c['abc2_def'] = 2
-    #    c['abc3_def'] = 3
-    #    c['abc4_def'] = 4
-    #    c.delete('abc2', prune=True)
-    #    self.assertEqual(c['abc1_def'], 1)
-    #    self.assertEqual(c['abc2_def'], 3)
-    #    self.assertEqual(c['abc3_def'], 4)
-    #    c['abc1_def'] = 1
-    #    c['abc2_def'] = 2
-    #    c['abc2_ghi1_klm'] = 3
-    #    c['abc2_ghi2_klm'] = 4
-    #    c.delete('abc1', prune=True)
-    #    self.assertEqual(c['abc1_def'], 2)
-    #    self.assertEqual(c['abc1_ghi1_klm'], 3)
-    #    self.assertEqual(c['abc1_ghi2_klm'], 4)
-    #    self.assertEqual(c['abc1_ghi1'].full_key, 'abc1_ghi1')
-    #    # also test when reassigning structures
-    #    c = ChoicesFile()
-    #    c['abc1_def1_ghi'] = 1
-    #    c['cba'] = c['abc']
-    #    self.assertEqual(c['cba1_def'].full_key, 'cba1_def')
-    #    self.assertEqual(c['cba1_def1_ghi'], 1)
-
-    # The following functionality is not included. There are difficulties
-    # with resetting values that prevent its feasibility at this time, such
-    # as "what if they named their language 'abc2'?".
-    #
-    #def test_reset_full_keys_and_values(self):
-    #    c = ChoicesFile()
-    #    c['abc1_def'] = 1
-    #    c['abc2_def'] = 2
-    #    c['abc3_def'] = 'abc2'
-    #    self.assertEqual(c['abc3_def'], 'abc2')
-    #    c.delete('abc1', prune=True)
-    #    self.assertEqual(c['abc1_def'], 2)
-    #    self.assertEqual(c['abc2_def'], 'abc1')
-    #    c = ChoicesFile()
-    #    c['abc1_def'] = 1
-    #    c['abc2_def'] = 'abc1' # will be removed
-    #    c['abc3_def'] = 'abc2'
-    #    c['abc4_def'] = 'abc2' # distance more than 1
-    #    c['ghi'] = 'abc2'      # different key
-    #    c.delete('abc1', prune=True)
-    #    self.assertEqual(c['abc1_def'], None)
-    #    self.assertEqual(c['abc2_def'], 'abc1')
-    #    self.assertEqual(c['abc3_def'], 'abc1')
-    #    self.assertEqual(c['ghi'], 'abc1')
 
 class TestChoicesDerivedValueFunctions(unittest.TestCase):
+
     def setUp(self):
         self.c = ChoicesFile()
 
@@ -323,27 +246,40 @@ class TestChoicesDerivedValueFunctions(unittest.TestCase):
 
     def test_persons(self):
         pass
+
     def test_pernums(self):
         pass
+
     def test_genders(self):
         pass
+
     def test_forms(self):
         pass
+
     def test_tenses(self):
         pass
+
     def test_aspects(self):
         pass
+
     def test_situations(self):
         pass
+
     def test_types(self):
         pass
-    def test_features(self):
-        pass
 
-class TestExampleChoicesFiles(unittest.TestCase):
-    def setUp(self):
-#        self.ch = ChoicesFile()
-        pass
+    def test_features(self):
+        choices = ChoicesFile("web/sample-choices/mini-english")
+        actual = choices.features()
+
+        expected = [['number', 'sg|sg;pl|pl', 'LOCAL.CONT.HOOK.INDEX.PNG.NUM', 'noun', 'y'],
+                    ['person', '1st|1st;2nd|2nd;3rd|3rd', 'LOCAL.CONT.HOOK.INDEX.PNG.PER', 'noun', 'y'],
+                    ['argument structure', 'intrans|intransitive;trans|transitive', '', 'verb', 'n'],
+                    ['negation', 'plus|plus;minus|minus', '', 'verb', 'y'],
+                    ['information-structure meaning', 'focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background', 'LOCAL.CONT.HOOK.ICONS-KEY', 'both', 'n']]
+
+        self.assertEqual(actual, expected)
+
 
 ##############################################################################
 #### Choices File Strings

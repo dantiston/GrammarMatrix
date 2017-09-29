@@ -1,6 +1,10 @@
 
 version=28
 
+section=number
+  number1_name=sg
+  number2_name=pl
+
 section=person
 person=1-2-3
 first-person=none
