@@ -16,12 +16,12 @@ def tokenize_def(str):
     while i < len(str) and str[i].isspace():
       i += 1
     # if it's quoted, read to the close quote, otherwise to a space
-    if i < len(str) and str[i] == '"':
+    if i < len(str) and str[i] == u'"':
       i += 1
       a = i
-      while i < len(str) and not (str[i] == '"' and str[i-1] != '\\'):
+      while i < len(str) and not (str[i] == u'"' and str[i-1] != '\\'):
         i += 1
-      result.append(str[a:i].replace('\\"', '"'))
+      result.append(str[a:i].replace(u'\\"', u'"'))
       i += 1
     elif i < len(str):
       a = i
@@ -38,8 +38,8 @@ def TDLencode(string):
   """
   val = ''
   for c in string:
-    if not (c.isalnum() or ord(c) > 127 or c in ['_', '-', '+', '*']):
-      val += '%' + '%2X' % (ord(c))
+    if not (c.isalnum() or ord(c) > 127 or c in (u'_', u'-', u'+', u'*')):
+      val += u'%' + u'%2X' % (ord(c))
     else:
       val += c
 
@@ -50,10 +50,10 @@ def orth_encode(orthin):
   prepare an orth string in a way that
   words with spaces are treated properly.
   """
-  orthlist = orthin.split(' ')
-  orthout = ''
+  orthlist = orthin.split(u' ')
+  orthout = u''
   if len(orthlist) > 1:
-    orthout = '","'.join(orthlist)
+    orthout = u'","'.join(orthlist)
   else:
     orthout = orthlist[0]
   return orthout
@@ -61,6 +61,7 @@ def orth_encode(orthin):
 
 def get_name(item):
   return item.get('name', None) or item.full_key
+
 
 def format_comment_block(comment_string, max_chars=70, prefix=';;;'):
   lines = []
@@ -74,6 +75,7 @@ def format_comment_block(comment_string, max_chars=70, prefix=';;;'):
         else:
             lines[-1] += ' ' + tok
   return '\n'.join(lines)
+
 
 def verify():
   return raw_input("  Do you want to continue? (y/n): ").lower() in ('y','yes')

@@ -1,4 +1,5 @@
 #!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
 
 ### $Id: matrix.cgi,v 1.27 2008-09-09 08:37:52 sfd Exp $
 
@@ -193,11 +194,11 @@ if form_data.has_key('customize'):
       matrixdef.custom_page(session_path, grammar_dir, arch_type)
 elif form_data.has_key('subpage'):
   if browser_cookie:
-    print(matrixdef.sub_page(form_data['subpage'].value, cookie, vr))
+    print(matrixdef.sub_page(form_data['subpage'].value, cookie, vr).encode('utf-8'))
   else:
     matrixdef.cookie_error_page()
 else:
-  print(matrixdef.main_page(cookie, vr))
+  print(matrixdef.main_page(cookie, vr).encode('utf-8'))
 
 
 if __name__ == "__main__":

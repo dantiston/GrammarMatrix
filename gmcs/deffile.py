@@ -1,8 +1,6 @@
 #!usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-### $Id: deffile.py,v 1.16 2008-09-30 23:50:02 lpoulson Exp $
-
 """
 deffile.py
 
@@ -15,15 +13,6 @@ TODO: Think about either making constants for accessing indices of MatrixDef
       commands or make the commands object oriented (and have accessors)
 
 TODO:
-    * Select options not selecting properly (empty option being selected)
-        * empty option of select appearing checked by default... consider
-        * Tense, Aspect, Situation, Mood supertypes not available on TAM page
-        * Totally different options in "Use an existing value type"
-        * Feature not filled in (Coordination, information-structure meaning, Lexicon Argument Structure, Lexicon Copula, Lexicon Case Marking)
-        * Existing choices not selected in Select (Morphology)
-        * Wrong choice selected in MultiSelect (Morphology)
-        * Wrong choice selected in Select (Morphology:features)
-
     * Main page
         * choices not displayed under the sections
 
@@ -31,7 +20,10 @@ TODO:
         * UnicodeEncodeError: General, Sentential Negation, Information Structure,
             * This may be because of components only used on that page?
         * Adding debug into to the end of the page
+
 """
+
+__authors__ = ["Joshua Crowgey", "Scott Drellishak", "Michael Goodman", "Daniel Mills", "T.J. Trimble"]
 
 # imports
 
@@ -326,7 +318,7 @@ class MatrixDef:
     self.f2v = {}
     for w in self.tokenized_lines:
       if len(w) >= 3:
-        ty, vn, fn = w[0:3]
+        ty, vn, fn = w[:3]
         if ty in (TEXT, TEXT_AREA, CHECK, RADIO,
                   SELECT, MULTI_SELECT, BULLET):
           self.v2f[vn] = fn
