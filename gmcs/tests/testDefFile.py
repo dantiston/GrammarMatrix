@@ -170,7 +170,7 @@ class DefsToHtmlTests(unittest.TestCase):
       # "Select test-select \"test select\" \"\" \"<br />\""
       tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"test-select":"test-noun"}), mock_validation(), "", {})
-      expected = '\n<select name="test-select">\n<option value="test-noun" selected>test-noun</option>\n<option value=""></option>\n</select><br />\n'
+      expected = '\n<select name="test-select">\n<option value="test-noun" selected class="temp">test-noun</option>\n<option value=""></option>\n</select><br />\n'
       self.assertEqual(actual, expected)
 
 
@@ -180,7 +180,7 @@ class DefsToHtmlTests(unittest.TestCase):
       # . test-option "Test Option" "test option"
       tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />'], ['.', 'test-option', 'Test Option', 'test option']]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"test-select":"test-noun"}), mock_validation(), "", {})
-      expected = '\n<select name="test-select">\n<option value="test-option">Test Option</option>\n<option value="test-noun" selected>test-noun</option>\n<option value=""></option>\n</select><br />\n'
+      expected = '\n<select name="test-select">\n<option value="test-option">Test Option</option>\n<option value="test-noun" selected class="temp">test-noun</option>\n<option value=""></option>\n</select><br />\n'
       self.assertEqual(actual, expected)
 
 
@@ -300,7 +300,7 @@ class DefsToHtmlTests(unittest.TestCase):
       choices = load_choices("select_choices.txt")
       actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
       expected = """\n<select name="test-select">
-<option value="common" selected>common</option>
+<option value="common" selected class="temp">common</option>
 <option value=""></option>\n</select><br />\n"""
       self.assertEqual(actual, expected)
 

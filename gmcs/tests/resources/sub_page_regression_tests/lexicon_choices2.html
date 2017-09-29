@@ -216,13 +216,12 @@ Set-cookie: session=7777
     <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_feat1')">
     <div class="iterframe">Name:
     <select name="noun1_feat1_name" onfocus="fill('noun1_feat1_name', [].concat(fill_feature_names('noun')));">
-    <option value="person" selected>Person</option>
-    <option value="number">Number</option>
+    <option value="person" selected class="temp">Person</option>
     <option value=""></option>
     </select>
     Value:
     <select name="noun1_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun1_feat1_value', [].concat(fill_feature_values('noun1_feat1_name')));">
-    <option value="3rd" selected>3rd</option>
+    <option value="3rd" selected class="temp">3rd</option>
     <option value=""></option>
     </select>
     </div>

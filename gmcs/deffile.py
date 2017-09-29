@@ -1270,7 +1270,7 @@ class MatrixDef:
     # Get previously selected item
     # This is necessary because the value is not in the deffile
     if sval and not printed_selected:
-      # TODO: Verify this temp=True
+      # This needs to be temp=True (the client side code uses this value and then deletes it)
       result += html.html_option(vr, sval, True, self.f(sval), temp=True) + '\n'
 
     # add empty option
