@@ -201,5 +201,5 @@ else:
   print(matrixdef.main_page(cookie, vr).encode('utf-8'))
 
 
-if __name__ == "__main__":
-  cgi.test()
+# if __name__ == "__main__":
+#   cgi.test()
