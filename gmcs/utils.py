@@ -1,4 +1,4 @@
-#!usr/bin/env python2.7
+#!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
 ### $Id: utils.py,v 1.8 2008-05-28 21:08:12 sfd Exp $

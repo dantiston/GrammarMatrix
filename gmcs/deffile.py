@@ -15,12 +15,6 @@ TODO: Think about either making constants for accessing indices of MatrixDef
 TODO:
     * Main page
         * choices not displayed under the sections
-
-    * Other issues
-        * UnicodeEncodeError: General, Sentential Negation, Information Structure,
-            * This may be because of components only used on that page?
-        * Adding debug into to the end of the page
-
 """
 
 __authors__ = ["Joshua Crowgey", "Scott Drellishak", "Michael Goodman", "Daniel Mills", "T.J. Trimble"]
@@ -160,16 +154,16 @@ def replace_vars(line, iter_vars):
   return line
 
 
-def replace_vars_tokenized(tokens, iter_vars):
+def replace_vars_tokenized(line, iter_vars):
   """
   Replace variables of the form "{name}" in line using the dict iter_vars
   """
   regexes = compile_string_keys(iter_vars)
-  result = list(tokens)
+  result = tuple(line)
   # modifying result in place, so don't iterate through its elements
-  for i in range(len(result)):
+  for i in range(len(result[0])):
     for k, v in iter_vars.items():
-      result[i] = regexes[k].sub(str(v), result[i])
+        result[0][i] = regexes[k].sub(str(v), result[0][i])
   return result
 
 
@@ -270,10 +264,13 @@ class MatrixDef:
     Load the matrixdef file into memory
     """
     def_lines = merge_quoted_strings(f.readlines())
-    def_lines = map(unicode.strip, def_lines) # Remove unimportant whitespace
-    self.def_lines = [line for line in def_lines if line] # Remove empty lines
-    # TODO: Change this to also store element and length?
-    self.tokenized_lines = [tokenize_def(line) for line in self.def_lines] # Tokenize ONCE
+    # Remove unimportant whitespace
+    def_lines = map(unicode.strip, def_lines)
+    # Remove empty lines and comments
+    self.def_lines = [line for line in def_lines if line and not line[0] == COMMENT_CHAR]
+    # Tokenize and count ONCE
+    tokenized_lines = [tokenize_def(line) for line in self.def_lines]
+    self.tokenized_lines = [(line, len(line), line[0]) for line in tokenized_lines]
 
     # Keep track of which sections to not show on navigation
     self.hide_on_navigation = set()
@@ -281,8 +278,8 @@ class MatrixDef:
     self.sections = {}
     last = -1
     section_name = None
-    for i, line in enumerate(self.tokenized_lines):
-      if line[0] == SECTION:
+    for i, (line, word_length, element) in enumerate(self.tokenized_lines):
+      if element == SECTION:
         # Save previous
         if last >= 0:
           self.sections[section_name] = self.tokenized_lines[last:i]
@@ -309,6 +306,8 @@ class MatrixDef:
   ######################################################################
   # Variable/friendly name mapping
 
+  FRIENDLY_NAME_ELEMENTS = (TEXT, TEXT_AREA, CHECK, RADIO, SELECT, MULTI_SELECT, BULLET)
+
   def make_name_map(self):
     """
     initialize the variable to friendly name (v2f) and
@@ -316,13 +315,12 @@ class MatrixDef:
     """
     self.v2f = {}
     self.f2v = {}
-    for w in self.tokenized_lines:
-      if len(w) >= 3:
-        ty, vn, fn = w[:3]
-        if ty in (TEXT, TEXT_AREA, CHECK, RADIO,
-                  SELECT, MULTI_SELECT, BULLET):
-          self.v2f[vn] = fn
-          self.f2v[fn] = vn
+    for word, word_length, element in self.tokenized_lines:
+      if len(word) >= 3:
+        variable_name, friendly_name = word[1:3]
+        if element in self.FRIENDLY_NAME_ELEMENTS:
+          self.v2f[variable_name] = friendly_name
+          self.f2v[friendly_name] = variable_name
 
 
   def f(self, v):
@@ -358,6 +356,7 @@ class MatrixDef:
     switches = switch.strip('"').split('|')
     # Switch contains choice name and value
     # split on the rightmost "=" just in case...
+    # TODO: This can be simplified
     switches = [switch.rsplit('=', 1) if "=" in switch else switch
                 for switch in switches]
     # Default to true
@@ -659,9 +658,9 @@ class MatrixDef:
     result = []
 
     prefix = u''
-    for word, word_length, element in self.__get_words(self.tokenized_lines):
-      if word_length < 2 or word[0][0] == COMMENT_CHAR:
-        pass
+    for word, word_length, element in self.tokenized_lines:
+      if word_length < 2:
+        continue
 
       elif element == SECTION:
         cur_sec = word[1]
@@ -669,10 +668,10 @@ class MatrixDef:
       elif element == BEGIN_ITER:
         if prefix:
           prefix += u'_'
-        prefix += re.sub('\\{.*\\}', '[0-9]+', word[1])
+        prefix += re.sub(u'\\{.*\\}', u'[0-9]+', word[1])
 
       elif element == END_ITER:
-        prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
+        prefix = re.sub(u'_?' + word[1] + u'[^_]*$', '', prefix)
 
       elif not (element == LABEL and word_length < 3):
         pat = u'^' + prefix
@@ -691,39 +690,34 @@ class MatrixDef:
             vr.warn(cur_sec, "This section contains one or more warnings. \nClicking this warning will link to the warning on the subpage.", anchor+"_warning", False)
             break
 
-    # now pass through again to actually emit the page
-    for word, word_length, element in self.__get_words(self.tokenized_lines):
-      if word_length == 0:
-        pass
-      # TODO: This != u'0' seems to be an undocumented feature of matrixdef... confirm
-      elif element == SECTION and (word_length != 4 or word[3] != u'0'):
-        result.append('<div class="section"><span id="' + word[1] + 'button" ' + \
-              'onclick="toggle_display(\'' + \
-              word[1] + '\',\'' + word[1] + 'button\')"' + \
-              '>&#9658;</span>\n')
-        result.append(html.validation_mark(vr, word[1], info=False))
-        result.append('<a href="matrix.cgi?subpage=%s">%s</a>\n' % (word[1], word[2]))
-        result.append('<div class="values" id="%s" style="display:none">' % word[1])
-        cur_sec = u''
-        printed_something = False
-        for c in choices:
-          try:
-            c = c.strip()
-            if c:
-              a, v = c.split('=', 1)
-              if a == u'section':
-                cur_sec = v.strip()
-              elif cur_sec == word[1]:
-                result.append(self.f(a) + ' = u' + self.f(v) + '<br>')
-                printed_something = True
-          except ValueError:
-            if cur_sec == word[1]:
-              result.append('(<i>Bad line in choices file: </i>"<tt>' + \
-                      c + '</tt>")<br>')
+    for section_name in self.sections:
+      result.append(u'<div class="section"><span id="' + section_name + u'button" ' + \
+            u'onclick="toggle_display(\'' + \
+            section_name + u'\',\'' + section_name + u'button\')"' + \
+            u'>&#9658;</span>\n')
+      result.append(html.validation_mark(vr, section_name, info=False))
+      result.append('<a href="matrix.cgi?subpage=%s">%s</a>\n' % (section_name, self.section_names[section_name]))
+      result.append('<div class="values" id="%s" style="display:none">' % section_name)
+      cur_sec = u''
+      printed_something = False
+      for c in choices:
+        try:
+          c = c.strip()
+          if c:
+            a, v = c.split('=', 1)
+            if a == u'section':
+              cur_sec = v.strip()
+            elif cur_sec == section_name:
+              result.append(self.f(a) + ' = u' + self.f(v) + '<br>')
               printed_something = True
-        if not printed_something:
-          result.append('&nbsp;')
-        result.append('</div></div>')
+        except ValueError:
+          if cur_sec == section_name:
+            result.append('(<i>Bad line in choices file: </i>"<tt>' + \
+                    c + '</tt>")<br>')
+            printed_something = True
+      if not printed_something:
+        result.append('&nbsp;')
+      result.append('</div></div>')
 
     return "".join(result)
 
@@ -795,10 +789,12 @@ class MatrixDef:
     sec_links = []
     n = -1
     printed = False
-    for word, word_length, element in self.__get_words(self.tokenized_lines):
+    for word, word_length, element in self.tokenized_lines:
       cur_sec = u''
-      if word_length < 2 or word[0][0] == COMMENT_CHAR:
-        pass
+
+      if word_length < 2:
+        continue
+
       elif element == SECTION:
         printed = False
         cur_sec = word[1]
@@ -1028,10 +1024,11 @@ class MatrixDef:
     # collect the lines that are between BeginIter and EndIter
     i += 1
     section_lines = []
-    for word, word_length, element in self.__get_words(tokenized_lines[i:]):
+    for word, word_length, element in tokenized_lines[i:]:
       if word_length and element == END_ITER and word[1] == iter_name:
         break
-      section_lines.append(word)
+      #section_lines.append(word)
+      section_lines.append((word, word_length, element))
       i += 1
     else:
       raise MatrixDefSyntaxException("Missing EndIter statement for Iter \"%s\"" % iter_orig)
@@ -1144,7 +1141,7 @@ class MatrixDef:
     This method is infinitely recursing
     """
     if word_length < 5:
-      raise MatrixDefSyntaxException("Radio button improperly defined: %s; expected at least 5 tokens, got %s: \"%s\"" % (word, word_length, " ".join(tokenized_lines[i])))
+      raise MatrixDefSyntaxException("Radio button improperly defined: %s; expected at least 5 tokens, got %s: \"%s\"" % (word, word_length, " ".join([line[0] for line in tokenized_lines[i]])))
     result = u""
     vn, fn, bf, af = word[1:5]
     vn = prefix + vn
@@ -1189,7 +1186,8 @@ class MatrixDef:
     else:
       # TJT 2014-08-28: skipping radio buttons,
       # so skip the button definitions
-      while i < num_lines and tokenized_lines[i][0] == BULLET:
+      #while i < num_lines and tokenized_lines[i][0] == BULLET:
+      while i < num_lines and tokenized_lines[i][2] == BULLET:
         i += 1
 
     return word, word_length, element, i, result
@@ -1296,7 +1294,8 @@ class MatrixDef:
     elif vn == u"orth":
       # If previous non-empty line a radio definition, add check radio
       # button function to onChange
-      if tokenized_lines[i-1][0] == BULLET:
+      #if tokenized_lines[i-1][0] == BULLET:
+      if tokenized_lines[i-1][2] == BULLET:
         oc = u"check_radio_button('"+prefix[:-1]+"_inflecting', 'yes'); " + oc
     vn = prefix + vn
     value = choices.get(vn, '') # If no choice existing, return ''
@@ -1315,20 +1314,21 @@ class MatrixDef:
         result[name.strip()] = value
     return result
 
-
+  ##### Variable replacement helpers
   def __get_word(self, tokenized_lines, i, variables={}, do_replace=False):
-    return self.__do_get(tokenized_lines[i], variables=variables, do_replace=do_replace)
+    word, word_length, element = tokenized_lines[i]
+    return self.__do_get(word, word_length, element, variables=variables, do_replace=do_replace)
 
 
   def __get_words(self, tokenized_lines, variables={}, do_replace=False):
-    for word in tokenized_lines:
-      yield self.__do_get(word, variables=variables, do_replace=do_replace)
+    for word, word_length, element in tokenized_lines:
+      yield self.__do_get(word, word_length, element, variables=variables, do_replace=do_replace)
 
 
-  def __do_get(self, word, variables={}, do_replace=False):
+  def __do_get(self, word, word_length, element, variables={}, do_replace=False):
     if do_replace:
       word = replace_vars_tokenized(word, variables)
-    return word, len(word), word[0]
+    return word, word_length, element
 
 
   ##############################################################################
@@ -1363,6 +1363,7 @@ class MatrixDef:
           if vn and val:
             f.write('  '*iter_level) # TJT 2014-09-01: Changing this to one write from loop
             f.write(prefix + vn + '=' + val + '\n')
+
       elif word[0] == BEGIN_ITER:
         iter_name, iter_var = word[1].replace('}', '').split('{', 1)
         i += 1

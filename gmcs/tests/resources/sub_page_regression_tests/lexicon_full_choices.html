@@ -1,0 +1,1449 @@
+Content-type: text/html;charset=UTF-8
+
+<!doctype html>
+<html>
+<head><meta charset="utf-8"/>
+
+<script type='text/javascript' src='web/draw.js'></script>
+<title>Lexicon</title>
+<script type="text/javascript" src="web/matrix.js">
+</script>
+
+<script type="text/javascript">
+// An array of strings, each of the form 'name:value|friendly value,...'
+var features = [
+'number:sg|sg;pl|pl:noun:y',
+'person:1st|1st;2nd|2nd;3rd|3rd:noun:y',
+'argument structure:intrans|intransitive;trans|transitive:verb:n',
+'negation:plus|plus;minus|minus:verb:y',
+'information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:both:n'
+];
+
+var verb_case_patterns = [
+'intrans:intransitive',
+'trans:transitive'
+];
+
+var numbers = [
+'sg:number',
+'pl:number'
+];
+</script>
+
+<link rel="stylesheet" href="web/matrix.css">
+</head>
+
+<body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors();scalenav();">
+
+<h2 style="display:inline">Lexicon</h2>
+<span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/Lexicon" target="matrixdoc">help</a>]</span><br />
+<div id="navmenu"><br />
+<a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+<hr />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('general')">General Information</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('word-order')">Word Order</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('number')">Number</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('person')">Person</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gender')">Gender</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('case')">Case</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('direct-inverse')">Direct-inverse</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('tense-aspect-mood')">Tense, Aspect and Mood</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('other-features')">Other Features</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('sentential-negation')">Sentential Negation</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('coordination')">Coordination</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('matrix-yes-no')">Matrix Yes/No Questions</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('info-str')">Information Structure</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('arg-opt')">Argument Optionality</a><br />
+<span style="color:#ff0000;" class="navleft"></span><span class="navlinks">Lexicon</span><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('toolbox-import')">Toolbox Import</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('test-sentences')">Test Sentences</a><br />
+<span style="color:#ff0000;" class="navleft"></span><a class="navlinks" href="#" onclick="submit_go('gen-options')">TbG Options</a><br />
+<hr />
+<a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+<a href="#clear" onclick="clear_form()" class="navleft">Clear form</a><br />
+<span class="navleft">Create grammar:</span><br />
+<a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+</div>
+<div id="form_holder">
+<form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+<input type="hidden"  name="section" value="lexicon">
+
+<input type="hidden"  name="subpage" value="lexicon">
+
+<script type="text/javascript">
+// A cache of choices from other subpages
+var nounlrs = [
+'num:noun-pc1',
+'singular:noun-pc1_lrt1',
+'plural:noun-pc1_lrt2',
+];
+</script><script type="text/javascript">
+// A cache of choices from other subpages
+var verbpcs = [
+'pernum:verb-pc1',
+];
+</script><script type="text/javascript">
+// A cache of choices from other subpages
+var verblrs = [
+'pernum:verb-pc1',
+'3sg:verb-pc1_lrt1',
+'pl:verb-pc1_lrt2',
+'non-3rd:verb-pc1_lrt3',
+];
+</script><script type="text/javascript">
+// A cache of choices from other subpages
+var adjlrs = [
+
+];
+</script><script type="text/javascript">
+// A cache of choices from other subpages
+var detlrs = [
+
+];
+</script><p>On this page you will define <span class="dfn">lexical
+types</span> and <span class="dfn">lexical items</span> within those
+types.  For most lexical items you must provide both the spelling of
+the stem and a <span class="dfn">predicate</span> (or <span
+class="dfn">relation</span>) that identifies the stem's semantic
+contribution (e.g. <span class="tt">_cat_n_rel</span> for the noun relation
+contributed by <i>cat</i> or <span class="tt">_sleep_v_rel</span> for the verb
+relation contributed by <i>sleep</i>).  If the predicate is empty
+upon adding a spelling the page will create a predicate value based
+on the <a href=http://wiki.delph-in.net/moin/RmrsPos>DELPH-IN</a>
+standards. If you completed the Argument
+Optionality page, be sure to specify whether each verb type allows
+subject and or object dropping by selecting the correct value for the
+<span class="feat">opt</span> feature.</p>
+<a id="toggle_all_lex_button" onclick="toggle_all_display_lex(1)">&#9660; all sections</a>
+<hr><h3 style='display:inline'>Noun Types</h3>
+<span>| <a href='javascript:void(0);' onclick="draw_hierarchy('noun')">visualize noun hierarchy</a> (experimental)</span><br />
+<label><p>Some nouns in this language take adjectives as incorporated affixes: <input type="checkbox"  name="adj_incorp"></p></label>
+<div class="iterator" style="display: none" id="noun_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun{i}')">
+<div class="iterframe"><b>Noun type {i}</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="noun{i}_name" size="20" onchange="fill_display_name('noun{i}');"><br /><br />
+Supertypes:
+<select name="noun{i}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun{i}_supertypes', [].concat(fill_regex('noun(?!{i}_)[0-9]+_name')));">
+<option value=""></option>
+</select><br />
+Features:
+<div class="iterator" style="display: none" id="noun{i}_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun{i}_feat{j}')">
+<div class="iterframe">Name:
+<select name="noun{i}_feat{j}_name" onfocus="fill('noun{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
+<option value=""></option>
+</select>
+Value:
+<select name="noun{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun{i}_feat{j}_value', [].concat(fill_feature_values('noun{i}_feat{j}_name')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="noun{i}_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Feature" onclick="clone_region('noun{i}_feat', 'j',false)"><p>For nouns of this type, a determiner is:
+<label><input type="radio"  name="noun{i}_det" value="obl"> obligatory</label>
+<label><input type="radio"  name="noun{i}_det" value="opt"> optional</label>
+<label><input type="radio"  name="noun{i}_det" value="imp"> impossible</label>
+</p>
+Stems:
+<div class="iterator" style="display: none" id="noun{i}_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun{i}_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="noun{i}_stem{j}_orth" size="30" onchange="fill_pred('noun{i}_stem{j}', 'n')">
+ Predicate: <input type="text"  name="noun{i}_stem{j}_pred" size="30">
+</div>
+</div>
+
+<div class="iterator" id="noun{i}_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun{i}_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="noun{i}_stem1_orth" size="30" onchange="fill_pred('noun{i}_stem1', 'n')">
+ Predicate: <input type="text"  name="noun{i}_stem1_pred" size="30">
+</div>
+</div>
+<div class="anchor" id="noun{i}_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Stem" onclick="clone_region('noun{i}_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="noun{i}_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun{i}_require{j}')">
+<div class="iterframe">Noun {i} requires one of the following:
+<select name="noun{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun{i}_require{j}_others', [].concat(fill_cache('nounlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="noun{i}_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('noun{i}_require', 'j',false)"><div class="iterator" style="display: none" id="noun{i}_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun{i}_forbid{j}')">
+<div class="iterframe">Noun {i} forbids the following position class:
+<select name="noun{i}_forbid{j}_others" onfocus="fill('noun{i}_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="noun{i}_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('noun{i}_forbid', 'j',false)"></div>
+</div>
+</div>
+
+<span id="noun1_errors" class="error" style="display: none"></span><a id="noun1button" onclick="toggle_display_lex('noun1','noun1button')">&#9660; common (noun1)</a><div class="iterator" id="noun1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun1')">
+<div class="iterframe"><b>Noun type 1</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="noun1_name" value="common" size="20" onchange="fill_display_name('noun1');"><br /><br />
+Supertypes:
+<select name="noun1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun1_supertypes', [].concat(fill_regex('noun(?!1_)[0-9]+_name')));">
+<option value=""></option>
+</select><br />
+Features:
+<div class="iterator" style="display: none" id="noun1_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun1_feat{j}')">
+<div class="iterframe">Name:
+<select name="noun1_feat{j}_name" onfocus="fill('noun1_feat{j}_name', [].concat(fill_feature_names('noun')));">
+<option value=""></option>
+</select>
+Value:
+<select name="noun1_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun1_feat{j}_value', [].concat(fill_feature_values('noun1_feat{j}_name')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="iterator" id="noun1_feat1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun1_feat1')">
+<div class="iterframe">Name:
+<select name="noun1_feat1_name" onfocus="fill('noun1_feat1_name', [].concat(fill_feature_names('noun')));">
+<option value="person" selected class="temp">Person</option>
+<option value=""></option>
+</select>
+Value:
+<select name="noun1_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun1_feat1_value', [].concat(fill_feature_values('noun1_feat1_name')));">
+<option value="3rd" selected class="temp">3rd</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+<div class="anchor" id="noun1_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Feature" onclick="clone_region('noun1_feat', 'j',false)"><p>For nouns of this type, a determiner is:
+<label><input type="radio"  name="noun1_det" value="obl" checked="checked"> obligatory</label>
+<label><input type="radio"  name="noun1_det" value="opt"> optional</label>
+<label><input type="radio"  name="noun1_det" value="imp"> impossible</label>
+</p>
+Stems:
+<div class="iterator" style="display: none" id="noun1_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun1_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="noun1_stem{j}_orth" size="30" onchange="fill_pred('noun1_stem{j}', 'n')">
+ Predicate: <input type="text"  name="noun1_stem{j}_pred" size="30">
+</div>
+</div>
+
+<div class="iterator" id="noun1_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun1_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="noun1_stem1_orth" value="cat" size="30" onchange="fill_pred('noun1_stem1', 'n')">
+ Predicate: <input type="text"  name="noun1_stem1_pred" value="_cat_n_rel" size="30">
+</div>
+</div>
+<div class="iterator" id="noun1_stem2">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun1_stem2')">
+<div class="iterframe">Spelling: <input type="text"  name="noun1_stem2_orth" value="dog" size="30" onchange="fill_pred('noun1_stem2', 'n')">
+ Predicate: <input type="text"  name="noun1_stem2_pred" value="_dog_n_rel" size="30">
+</div>
+</div>
+<div class="anchor" id="noun1_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Stem" onclick="clone_region('noun1_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="noun1_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun1_require{j}')">
+<div class="iterframe">Noun 1 requires one of the following:
+<select name="noun1_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun1_require{j}_others', [].concat(fill_cache('nounlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="noun1_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('noun1_require', 'j',false)"><div class="iterator" style="display: none" id="noun1_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun1_forbid{j}')">
+<div class="iterframe">Noun 1 forbids the following position class:
+<select name="noun1_forbid{j}_others" onfocus="fill('noun1_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="noun1_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('noun1_forbid', 'j',false)"></div>
+</div>
+</div>
+<span id="noun2_errors" class="error" style="display: none"></span><a id="noun2button" onclick="toggle_display_lex('noun2','noun2button')">&#9660; 1sg-pronoun (noun2)</a><div class="iterator" id="noun2">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun2')">
+<div class="iterframe"><b>Noun type 2</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="noun2_name" value="1sg-pronoun" size="20" onchange="fill_display_name('noun2');"><br /><br />
+Supertypes:
+<select name="noun2_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun2_supertypes', [].concat(fill_regex('noun(?!2_)[0-9]+_name')));">
+<option value=""></option>
+</select><br />
+Features:
+<div class="iterator" style="display: none" id="noun2_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun2_feat{j}')">
+<div class="iterframe">Name:
+<select name="noun2_feat{j}_name" onfocus="fill('noun2_feat{j}_name', [].concat(fill_feature_names('noun')));">
+<option value=""></option>
+</select>
+Value:
+<select name="noun2_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun2_feat{j}_value', [].concat(fill_feature_values('noun2_feat{j}_name')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="iterator" id="noun2_feat1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun2_feat1')">
+<div class="iterframe">Name:
+<select name="noun2_feat1_name" onfocus="fill('noun2_feat1_name', [].concat(fill_feature_names('noun')));">
+<option value="person" selected class="temp">Person</option>
+<option value=""></option>
+</select>
+Value:
+<select name="noun2_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun2_feat1_value', [].concat(fill_feature_values('noun2_feat1_name')));">
+<option value="1st" selected class="temp">1st</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+<div class="iterator" id="noun2_feat2">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun2_feat2')">
+<div class="iterframe">Name:
+<select name="noun2_feat2_name" onfocus="fill('noun2_feat2_name', [].concat(fill_feature_names('noun')));">
+<option value="number" selected class="temp">Subtype {i} number</option>
+<option value=""></option>
+</select>
+Value:
+<select name="noun2_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun2_feat2_value', [].concat(fill_feature_values('noun2_feat2_name')));">
+<option value="sg" selected class="temp">sg</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+<div class="anchor" id="noun2_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Feature" onclick="clone_region('noun2_feat', 'j',false)"><p>For nouns of this type, a determiner is:
+<label><input type="radio"  name="noun2_det" value="obl"> obligatory</label>
+<label><input type="radio"  name="noun2_det" value="opt"> optional</label>
+<label><input type="radio"  name="noun2_det" value="imp" checked="checked"> impossible</label>
+</p>
+Stems:
+<div class="iterator" style="display: none" id="noun2_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun2_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="noun2_stem{j}_orth" size="30" onchange="fill_pred('noun2_stem{j}', 'n')">
+ Predicate: <input type="text"  name="noun2_stem{j}_pred" size="30">
+</div>
+</div>
+
+<div class="iterator" id="noun2_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun2_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="noun2_stem1_orth" value="I" size="30" onchange="fill_pred('noun2_stem1', 'n')">
+ Predicate: <input type="text"  name="noun2_stem1_pred" value="_pronoun_n_rel" size="30">
+</div>
+</div>
+<div class="anchor" id="noun2_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Stem" onclick="clone_region('noun2_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="noun2_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun2_require{j}')">
+<div class="iterframe">Noun 2 requires one of the following:
+<select name="noun2_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun2_require{j}_others', [].concat(fill_cache('nounlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="noun2_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('noun2_require', 'j',false)"><div class="iterator" style="display: none" id="noun2_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('noun2_forbid{j}')">
+<div class="iterframe">Noun 2 forbids the following position class:
+<select name="noun2_forbid{j}_others" onfocus="fill('noun2_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="noun2_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('noun2_forbid', 'j',false)"></div>
+</div>
+</div>
+<div class="anchor" id="noun_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Noun Type" onclick="clone_region('noun', 'i',true)"><hr><h3 style='display:inline'>Verb Types</h3>
+<span>| <a href='javascript:void(0);' onclick="draw_hierarchy('verb')">visualize verb hierarchy</a> (experimental)</span><br />
+<div class="iterator" style="display: none" id="verb_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb{i}')">
+<div class="iterframe"><b>Verb type {i}</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="verb{i}_name" size="20" onchange="fill_display_name('verb{i}');"><br /><br />
+Supertypes:
+<select name="verb{i}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb{i}_supertypes', [].concat(fill_regex('verb(?!{i}_)[0-9]+_name')));">
+<option value=""></option>
+</select><br /><br />
+Features:
+<div class="iterator" style="display: none" id="verb{i}_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb{i}_feat{j}')">
+<div class="iterframe">Name:
+<select name="verb{i}_feat{j}_name" onfocus="fill('verb{i}_feat{j}_name', [].concat(fill_feature_names('both')));">
+<option value=""></option>
+</select>
+Value:
+<select name="verb{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('verb{i}_feat{j}_value', [].concat(fill_feature_values('verb{i}_feat{j}_name')));">
+<option value=""></option>
+</select>
+Specified on:
+<select name="verb{i}_feat{j}_head">
+<option value="verb">The verb</option>
+<option value="subj">The subject</option>
+<option value="obj">The object</option>
+<option value="higher">Higher-ranked</option>
+<option value="lower">Lower-ranked</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="verb{i}_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Feature" onclick="clone_region('verb{i}_feat', 'j',false)"><br /><br />Argument structure:
+<select name="verb{i}_valence" onfocus="fill('verb{i}_valence', [].concat(fill_case_patterns(false)));">
+<option value=""></option>
+</select><br />
+If this verb class includes bipartite stems, select the position class for the affix portion of the stems:
+<select name="verb{i}_bipartitepc" onfocus="fill('verb{i}_bipartitepc', [].concat(fill_cache('verbpcs')));">
+<option value=""></option>
+</select><br />
+Stems:
+<div class="iterator" style="display: none" id="verb{i}_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb{i}_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="verb{i}_stem{j}_orth" size="30" onchange="fill_pred('verb{i}_stem{j}', 'v')">
+ Predicate: <input type="text"  name="verb{i}_stem{j}_pred" size="30">
+</div>
+</div>
+
+<div class="iterator" id="verb{i}_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb{i}_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="verb{i}_stem1_orth" size="30" onchange="fill_pred('verb{i}_stem1', 'v')">
+ Predicate: <input type="text"  name="verb{i}_stem1_pred" size="30">
+</div>
+</div>
+<div class="anchor" id="verb{i}_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a simple Stem" onclick="clone_region('verb{i}_stem', 'j',false)"><div class="iterator" style="display: none" id="verb{i}_bistem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb{i}_bistem{j}')">
+<div class="iterframe">Root spelling: <input type="text"  name="verb{i}_bistem{j}_orth" size="30" onchange="fill_pred('verb{i}_bistem{j}', 'v')">
+Affix spelling: <input type="text"  name="verb{i}_bistem{j}_aff" size="30">
+ Predicate: <input type="text"  name="verb{i}_bistem{j}_pred" size="30">
+</div>
+</div>
+
+<div class="anchor" id="verb{i}_bistem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a bipartite Stem" onclick="clone_region('verb{i}_bistem', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="verb{i}_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb{i}_require{j}')">
+<div class="iterframe">Verb {i} requires one of the following position classes:
+<select name="verb{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('verb{i}_require{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="verb{i}_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('verb{i}_require', 'j',false)"><div class="iterator" style="display: none" id="verb{i}_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb{i}_forbid{j}')">
+<div class="iterframe">Verb {i} forbids the following position class:
+<select name="verb{i}_forbid{j}_others" onfocus="fill('verb{i}_forbid{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="verb{i}_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('verb{i}_forbid', 'j',false)"></div>
+</div>
+</div>
+
+<span id="verb1_errors" class="error" style="display: none"></span><a id="verb1button" onclick="toggle_display_lex('verb1','verb1button')">&#9660; itr (verb1)</a><div class="iterator" id="verb1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb1')">
+<div class="iterframe"><b>Verb type 1</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="verb1_name" value="itr" size="20" onchange="fill_display_name('verb1');"><br /><br />
+Supertypes:
+<select name="verb1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb1_supertypes', [].concat(fill_regex('verb(?!1_)[0-9]+_name')));">
+<option value=""></option>
+</select><br /><br />
+Features:
+<div class="iterator" style="display: none" id="verb1_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb1_feat{j}')">
+<div class="iterframe">Name:
+<select name="verb1_feat{j}_name" onfocus="fill('verb1_feat{j}_name', [].concat(fill_feature_names('both')));">
+<option value=""></option>
+</select>
+Value:
+<select name="verb1_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('verb1_feat{j}_value', [].concat(fill_feature_values('verb1_feat{j}_name')));">
+<option value=""></option>
+</select>
+Specified on:
+<select name="verb1_feat{j}_head">
+<option value="verb">The verb</option>
+<option value="subj">The subject</option>
+<option value="obj">The object</option>
+<option value="higher">Higher-ranked</option>
+<option value="lower">Lower-ranked</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="verb1_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Feature" onclick="clone_region('verb1_feat', 'j',false)"><br /><br />Argument structure:
+<select name="verb1_valence" onfocus="fill('verb1_valence', [].concat(fill_case_patterns(false)));">
+<option value="intrans" selected class="temp">intrans</option>
+<option value=""></option>
+</select><br />
+If this verb class includes bipartite stems, select the position class for the affix portion of the stems:
+<select name="verb1_bipartitepc" onfocus="fill('verb1_bipartitepc', [].concat(fill_cache('verbpcs')));">
+<option value=""></option>
+</select><br />
+Stems:
+<div class="iterator" style="display: none" id="verb1_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb1_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="verb1_stem{j}_orth" size="30" onchange="fill_pred('verb1_stem{j}', 'v')">
+ Predicate: <input type="text"  name="verb1_stem{j}_pred" size="30">
+</div>
+</div>
+
+<div class="iterator" id="verb1_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb1_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="verb1_stem1_orth" value="sleep" size="30" onchange="fill_pred('verb1_stem1', 'v')">
+ Predicate: <input type="text"  name="verb1_stem1_pred" value="_sleep_v_rel" size="30">
+</div>
+</div>
+<div class="anchor" id="verb1_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a simple Stem" onclick="clone_region('verb1_stem', 'j',false)"><div class="iterator" style="display: none" id="verb1_bistem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb1_bistem{j}')">
+<div class="iterframe">Root spelling: <input type="text"  name="verb1_bistem{j}_orth" size="30" onchange="fill_pred('verb1_bistem{j}', 'v')">
+Affix spelling: <input type="text"  name="verb1_bistem{j}_aff" size="30">
+ Predicate: <input type="text"  name="verb1_bistem{j}_pred" size="30">
+</div>
+</div>
+
+<div class="anchor" id="verb1_bistem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a bipartite Stem" onclick="clone_region('verb1_bistem', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="verb1_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb1_require{j}')">
+<div class="iterframe">Verb 1 requires one of the following position classes:
+<select name="verb1_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('verb1_require{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="verb1_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('verb1_require', 'j',false)"><div class="iterator" style="display: none" id="verb1_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb1_forbid{j}')">
+<div class="iterframe">Verb 1 forbids the following position class:
+<select name="verb1_forbid{j}_others" onfocus="fill('verb1_forbid{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="verb1_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('verb1_forbid', 'j',false)"></div>
+</div>
+</div>
+<span id="verb2_errors" class="error" style="display: none"></span><a id="verb2button" onclick="toggle_display_lex('verb2','verb2button')">&#9660; tr (verb2)</a><div class="iterator" id="verb2">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb2')">
+<div class="iterframe"><b>Verb type 2</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="verb2_name" value="tr" size="20" onchange="fill_display_name('verb2');"><br /><br />
+Supertypes:
+<select name="verb2_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb2_supertypes', [].concat(fill_regex('verb(?!2_)[0-9]+_name')));">
+<option value=""></option>
+</select><br /><br />
+Features:
+<div class="iterator" style="display: none" id="verb2_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb2_feat{j}')">
+<div class="iterframe">Name:
+<select name="verb2_feat{j}_name" onfocus="fill('verb2_feat{j}_name', [].concat(fill_feature_names('both')));">
+<option value=""></option>
+</select>
+Value:
+<select name="verb2_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('verb2_feat{j}_value', [].concat(fill_feature_values('verb2_feat{j}_name')));">
+<option value=""></option>
+</select>
+Specified on:
+<select name="verb2_feat{j}_head">
+<option value="verb">The verb</option>
+<option value="subj">The subject</option>
+<option value="obj">The object</option>
+<option value="higher">Higher-ranked</option>
+<option value="lower">Lower-ranked</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="verb2_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Feature" onclick="clone_region('verb2_feat', 'j',false)"><br /><br />Argument structure:
+<select name="verb2_valence" onfocus="fill('verb2_valence', [].concat(fill_case_patterns(false)));">
+<option value="trans" selected class="temp">trans</option>
+<option value=""></option>
+</select><br />
+If this verb class includes bipartite stems, select the position class for the affix portion of the stems:
+<select name="verb2_bipartitepc" onfocus="fill('verb2_bipartitepc', [].concat(fill_cache('verbpcs')));">
+<option value=""></option>
+</select><br />
+Stems:
+<div class="iterator" style="display: none" id="verb2_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb2_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="verb2_stem{j}_orth" size="30" onchange="fill_pred('verb2_stem{j}', 'v')">
+ Predicate: <input type="text"  name="verb2_stem{j}_pred" size="30">
+</div>
+</div>
+
+<div class="iterator" id="verb2_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb2_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="verb2_stem1_orth" value="chase" size="30" onchange="fill_pred('verb2_stem1', 'v')">
+ Predicate: <input type="text"  name="verb2_stem1_pred" value="_chase_v_rel" size="30">
+</div>
+</div>
+<div class="anchor" id="verb2_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a simple Stem" onclick="clone_region('verb2_stem', 'j',false)"><div class="iterator" style="display: none" id="verb2_bistem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb2_bistem{j}')">
+<div class="iterframe">Root spelling: <input type="text"  name="verb2_bistem{j}_orth" size="30" onchange="fill_pred('verb2_bistem{j}', 'v')">
+Affix spelling: <input type="text"  name="verb2_bistem{j}_aff" size="30">
+ Predicate: <input type="text"  name="verb2_bistem{j}_pred" size="30">
+</div>
+</div>
+
+<div class="anchor" id="verb2_bistem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a bipartite Stem" onclick="clone_region('verb2_bistem', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="verb2_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb2_require{j}')">
+<div class="iterframe">Verb 2 requires one of the following position classes:
+<select name="verb2_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('verb2_require{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="verb2_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('verb2_require', 'j',false)"><div class="iterator" style="display: none" id="verb2_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('verb2_forbid{j}')">
+<div class="iterframe">Verb 2 forbids the following position class:
+<select name="verb2_forbid{j}_others" onfocus="fill('verb2_forbid{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="verb2_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('verb2_forbid', 'j',false)"></div>
+</div>
+</div>
+<div class="anchor" id="verb_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Verb Type" onclick="clone_region('verb', 'i',true)"><hr><h3 style='display:inline'>Adjective Types</h3>
+<span>| <a href='javascript:void(0);' onclick="draw_hierarchy('adj')">visualize adjective hierarchy</a> (experimental)</span><br />
+<div class="iterator" style="display: none" id="adj_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj{i}')">
+<div class="iterframe"><b>Adjective type {i}</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="adj{i}_name" size="20" onchange="fill_display_name('adj{i}');"><br /><br />
+Supertypes:
+<select name="adj{i}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('adj{i}_supertypes', [].concat(fill_regex('adj(?!{i})[0-9]+_name')));">
+<option value=""></option>
+</select><br />
+<p>Adjectives in constructions are described as <span class="dfn">attributive</span>:
+  those that modify nouns (e.g. "the <b>big</b> dog"); <br>
+  and <span class="dfn">predicative</span>, those that predicate their subject (e.g. "the dog is <b>big</b>").
+  <br>Many adjectives in many languages can be both predicative or attributive.</p>
+<p>This type of adjective is
+<label><input type="radio"  name="adj{i}_mod" value="attr">attributive </label>
+<label><input type="radio"  name="adj{i}_mod" value="pred">predicative </label>
+<label><input type="radio"  name="adj{i}_mod" value="both">both </label>
+<label><input type="radio"  name="adj{i}_mod" value="none">unspecified</label>
+</p>
+<p>Features:<br>  Specify agreement features of the adjective by selecting one of the argument choices;<br>  specify inflection for predicative adjectives by selecting a feature to be specified on "the adjective".<br></p>
+<div class="iterator" style="display: none" id="adj{i}_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj{i}_feat{j}')">
+<div class="iterframe">Name:
+<select name="adj{i}_feat{j}_name" onfocus="fill('adj{i}_feat{j}_name', [].concat(fill_feature_names('both')));">
+<option value=""></option>
+</select>
+Value:
+<select name="adj{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('adj{i}_feat{j}_value', [].concat(fill_feature_values('adj{i}_feat{j}_name')));">
+<option value=""></option>
+</select>
+Specified on:
+<select name="adj{i}_feat{j}_head" onchange="toggle_element.call(this, 'adj{i}_adj_pc_note', 'on', ['subj', 'mod']); check_radio_button.call(this, 'adj{i}_mod', 'last', ['subj', 'mod']);">
+<option value="adj">The adjective</option>
+<option value="subj">The subject</option>
+<option value="mod">The modified noun</option>
+<option value="xarg">Both positions</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="adj{i}_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Feature" onclick="clone_region('adj{i}_feat', 'j',false)"><p id='adj{i}_adj_pc_note' style='display:none;'>  NOTE: Specifying agreement features on "the subject" or "the modified noun" will create a new<br>  position class on the Morphology page with specified features on "both positions" and without an affix<br>  to facilitate this functionality.<br>  The type of this adjective has also been changed to 'unspecified' to support this. Specify adjective types<br>  on the Morphology page when using this feature.<br></p>
+<p>This type of adjective behaving
+  attributively modifies items immediately <br>
+<label><input type="radio"  name="adj{i}_modpos" value="after"> after the adjective <br></label>
+<label><input type="radio"  name="adj{i}_modpos" value="before"> before the adjective <br></label>
+<label><input type="radio"  name="adj{i}_modpos" value="either"> either position <br></label>
+<label><input type="radio"  name="adj{i}_modpos" value="other" disabled="disabled"> some other position: this option is not currently supported</label>
+</p>
+<label><input type="checkbox"  name="adj{i}_modunique"> This type of adjective behaving
+  attributively must be the only modifier of its modificand</label>
+<p>Adjectives of this type behaving predicatively appear as the complement of a copula:<br>
+<label><input type="radio"  name="adj{i}_predcop" value="obl"> obligatorily<br></label>
+<label><input type="radio"  name="adj{i}_predcop" value="opt" onclick="toggle_element.call(this, 'adj{i}_opt_note', 'on')"> optionally<br></label>
+<label><input type="radio"  name="adj{i}_predcop" value="imp"> impossibly<br></label>
+</p>
+<p id='adj{i}_opt_note' style='display:none;'>  NOTE: Specifying adjectives as optionally appearing as a copula complement will create a<br>  new position class on the Morphology page with a "copula complement" lexical rule and <br>"stative predicate" lexical rule to facilitate this functionality.<br></p>
+Stems:
+<div class="iterator" style="display: none" id="adj{i}_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj{i}_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="adj{i}_stem{j}_orth" size="30" onchange="fill_pred('adj{i}_stem{j}', 'a')">
+ Predicate: <input type="text"  name="adj{i}_stem{j}_pred" size="30">
+</div>
+</div>
+
+<div class="iterator" id="adj{i}_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj{i}_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="adj{i}_stem1_orth" size="30" onchange="fill_pred('adj{i}_stem1', 'a')">
+ Predicate: <input type="text"  name="adj{i}_stem1_pred" size="30">
+</div>
+</div>
+<div class="anchor" id="adj{i}_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Stem" onclick="clone_region('adj{i}_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="adj{i}_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj{i}_require{j}')">
+<div class="iterframe">Adjective {i} requires one of the following position classes:
+<select name="adj{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('adj{i}_require{j}_others', [].concat(fill_cache('adjlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="adj{i}_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('adj{i}_require', 'j',false)"><div class="iterator" style="display: none" id="adj{i}_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj{i}_forbid{j}')">
+<div class="iterframe">Adjective {i} forbids the following position class:
+<select name="adj{i}_forbid{j}_others" onfocus="fill('adj{i}_forbid{j}_others', [].concat(fill_cache('adjlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="adj{i}_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('adj{i}_forbid', 'j',false)"></div>
+</div>
+</div>
+
+<span id="adj1_errors" class="error" style="display: none"></span><a id="adj1button" onclick="toggle_display_lex('adj1','adj1button')">&#9660; regular (adj1)</a><div class="iterator" id="adj1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj1')">
+<div class="iterframe"><b>Adjective type 1</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="adj1_name" value="regular" size="20" onchange="fill_display_name('adj1');"><br /><br />
+Supertypes:
+<select name="adj1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('adj1_supertypes', [].concat(fill_regex('adj(?!1)[0-9]+_name')));">
+<option value=""></option>
+</select><br />
+<p>Adjectives in constructions are described as <span class="dfn">attributive</span>:
+  those that modify nouns (e.g. "the <b>big</b> dog"); <br>
+  and <span class="dfn">predicative</span>, those that predicate their subject (e.g. "the dog is <b>big</b>").
+  <br>Many adjectives in many languages can be both predicative or attributive.</p>
+<p>This type of adjective is
+<label><input type="radio"  name="adj1_mod" value="attr">attributive </label>
+<label><input type="radio"  name="adj1_mod" value="pred">predicative </label>
+<label><input type="radio"  name="adj1_mod" value="both" checked="checked">both </label>
+<label><input type="radio"  name="adj1_mod" value="none">unspecified</label>
+</p>
+<p>Features:<br>  Specify agreement features of the adjective by selecting one of the argument choices;<br>  specify inflection for predicative adjectives by selecting a feature to be specified on "the adjective".<br></p>
+<div class="iterator" style="display: none" id="adj1_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj1_feat{j}')">
+<div class="iterframe">Name:
+<select name="adj1_feat{j}_name" onfocus="fill('adj1_feat{j}_name', [].concat(fill_feature_names('both')));">
+<option value=""></option>
+</select>
+Value:
+<select name="adj1_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('adj1_feat{j}_value', [].concat(fill_feature_values('adj1_feat{j}_name')));">
+<option value=""></option>
+</select>
+Specified on:
+<select name="adj1_feat{j}_head" onchange="toggle_element.call(this, 'adj1_adj_pc_note', 'on', ['subj', 'mod']); check_radio_button.call(this, 'adj1_mod', 'last', ['subj', 'mod']);">
+<option value="adj">The adjective</option>
+<option value="subj">The subject</option>
+<option value="mod">The modified noun</option>
+<option value="xarg">Both positions</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="adj1_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Feature" onclick="clone_region('adj1_feat', 'j',false)"><p id='adj1_adj_pc_note' style='display:none;'>  NOTE: Specifying agreement features on "the subject" or "the modified noun" will create a new<br>  position class on the Morphology page with specified features on "both positions" and without an affix<br>  to facilitate this functionality.<br>  The type of this adjective has also been changed to 'unspecified' to support this. Specify adjective types<br>  on the Morphology page when using this feature.<br></p>
+<p>This type of adjective behaving
+  attributively modifies items immediately <br>
+<label><input type="radio"  name="adj1_modpos" value="after" checked="checked"> after the adjective <br></label>
+<label><input type="radio"  name="adj1_modpos" value="before"> before the adjective <br></label>
+<label><input type="radio"  name="adj1_modpos" value="either"> either position <br></label>
+<label><input type="radio"  name="adj1_modpos" value="other" disabled="disabled"> some other position: this option is not currently supported</label>
+</p>
+<label><input type="checkbox"  name="adj1_modunique"> This type of adjective behaving
+  attributively must be the only modifier of its modificand</label>
+<p>Adjectives of this type behaving predicatively appear as the complement of a copula:<br>
+<label><input type="radio"  name="adj1_predcop" value="obl" checked="checked"> obligatorily<br></label>
+<label><input type="radio"  name="adj1_predcop" value="opt" onclick="toggle_element.call(this, 'adj1_opt_note', 'on')"> optionally<br></label>
+<label><input type="radio"  name="adj1_predcop" value="imp"> impossibly<br></label>
+</p>
+<p id='adj1_opt_note' style='display:none;'>  NOTE: Specifying adjectives as optionally appearing as a copula complement will create a<br>  new position class on the Morphology page with a "copula complement" lexical rule and <br>"stative predicate" lexical rule to facilitate this functionality.<br></p>
+Stems:
+<div class="iterator" style="display: none" id="adj1_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj1_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="adj1_stem{j}_orth" size="30" onchange="fill_pred('adj1_stem{j}', 'a')">
+ Predicate: <input type="text"  name="adj1_stem{j}_pred" size="30">
+</div>
+</div>
+
+<div class="iterator" id="adj1_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj1_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="adj1_stem1_orth" value="big" size="30" onchange="fill_pred('adj1_stem1', 'a')">
+ Predicate: <input type="text"  name="adj1_stem1_pred" value="_big_a_rel" size="30">
+</div>
+</div>
+<div class="iterator" id="adj1_stem2">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj1_stem2')">
+<div class="iterframe">Spelling: <input type="text"  name="adj1_stem2_orth" value="small" size="30" onchange="fill_pred('adj1_stem2', 'a')">
+ Predicate: <input type="text"  name="adj1_stem2_pred" value="_small_a_rel" size="30">
+</div>
+</div>
+<div class="anchor" id="adj1_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Stem" onclick="clone_region('adj1_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="adj1_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj1_require{j}')">
+<div class="iterframe">Adjective 1 requires one of the following position classes:
+<select name="adj1_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('adj1_require{j}_others', [].concat(fill_cache('adjlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="adj1_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('adj1_require', 'j',false)"><div class="iterator" style="display: none" id="adj1_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adj1_forbid{j}')">
+<div class="iterframe">Adjective 1 forbids the following position class:
+<select name="adj1_forbid{j}_others" onfocus="fill('adj1_forbid{j}_others', [].concat(fill_cache('adjlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="adj1_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('adj1_forbid', 'j',false)"></div>
+</div>
+</div>
+<div class="anchor" id="adj_ANCHOR"></div>
+<p><input type="button" name="" value="Add an Adjective Type" onclick="clone_region('adj', 'i',true)"><hr><h3>
+Auxiliary Verb and Copula Types</h3>
+<p>Auxiliaries may contribute an independent predicate, e.g.,
+  English modal <i>can</i>. If you define a type that contributes a
+  predicate, you may also specify semantic feature values on the
+  auxiliary, if desired. Alternatively, auxiliaries may contribute no
+  predicate of their own, e.g., English auxiliary <i>be</i>. In this
+  case, they do not directly contribute semantic values; instead, they
+  may contribute indirectly by placing constraints on their
+  complements.  Note that auxiliary features defined here place no
+  constraints on the semantic values of the complement; constraints on
+  the complement should be defined as complement features.</p>
+<div class="iterator" style="display: none" id="aux_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('aux{i}')">
+<div class="iterframe"><b>Auxiliary type {i}</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="aux{i}_name" size="30" onchange="fill_display_name('aux{i}');"><br>
+<br>This auxiliary type contributes:
+<div style="padding-left: 25px">
+
+<label><input type="radio"  name="aux{i}_sem" value="no-pred">No predicate.<br></label>
+<label><input type="radio"  name="aux{i}_sem" value="add-pred">An independent predicate.</label>
+
+</div>
+<br>Auxiliary features:
+<div class="iterator" style="display: none" id="aux{i}_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('aux{i}_feat{j}')">
+<div class="iterframe">Name:
+<select name="aux{i}_feat{j}_name" onfocus="fill('aux{i}_feat{j}_name', [].concat(fill_feature_names('verb')));">
+<option value=""></option>
+</select>
+Value:
+<select name="aux{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('aux{i}_feat{j}_value', [].concat(fill_feature_values('aux{i}_feat{j}_name')));">
+<option value=""></option>
+</select>
+Specified on:
+<select name="aux{i}_feat{j}_head">
+<option value="verb">The auxiliary</option>
+<option value="subj">The subject</option>
+<option value="obj">The object</option>
+<option value="higher">Higher-ranked</option>
+<option value="lower">Lower-ranked</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="aux{i}_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add an auxiliary feature" onclick="clone_region('aux{i}_feat', 'j',false)"><br><br>
+If this auxiliary type takes a VP or V complement, select the subject type:<br>
+<label><input type="radio"  name="aux{i}_subj" value="np">noun phrase without case restrictions <br></label>
+<label><input type="radio"  name="aux{i}_subj" value="np-comp-case">noun phrase bearing the case the verbal complement assigns to its subject <br></label>
+<label><input type="radio"  name="aux{i}_subj" value="np-aux-case">noun phrase, receiving the following case from its auxiliary: </label>
+
+
+<select name="aux{i}_subj_case" onfocus="fill('aux{i}_subj_case', [].concat(fill_feature_values('case',true)));">
+<option value=""></option>
+</select>
+
+<label><br><input type="radio"  name="aux{i}_subj" value="adp">adpositional phrase<br><br></label>
+
+Complement Features:&nbsp; &nbsp; &nbsp; &nbsp; (Note: A
+  value for the feature FORM is required.)<br>
+<div class="iterator" style="display: none" id="aux{i}_compfeature_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('aux{i}_compfeature{j}')">
+<div class="iterframe">Name:
+<select name="aux{i}_compfeature{j}_name" onfocus="fill('aux{i}_compfeature{j}_name', [].concat(fill_feature_names('verb')));">
+<option value=""></option>
+</select>
+Value:
+<select name="aux{i}_compfeature{j}_value" class="multi"  multiple="multiple"  onfocus="fill('aux{i}_compfeature{j}_value', [].concat(fill_feature_values('aux{i}_compfeature{j}_name')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="iterator" id="aux{i}_compfeature1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('aux{i}_compfeature1')">
+<div class="iterframe">Name:
+<select name="aux{i}_compfeature1_name" onfocus="fill('aux{i}_compfeature1_name', [].concat(fill_feature_names('verb')));">
+<option value=""></option>
+</select>
+Value:
+<select name="aux{i}_compfeature1_value" class="multi"  multiple="multiple"  onfocus="fill('aux{i}_compfeature1_value', [].concat(fill_feature_values('aux{i}_compfeature1_name')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+<div class="anchor" id="aux{i}_compfeature_ANCHOR"></div>
+<p><input type="button" name="" value="Add a complement feature" onclick="clone_region('aux{i}_compfeature', 'j',false)"><br><br>Stems:
+<div class="iterator" style="display: none" id="aux{i}_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('aux{i}_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="aux{i}_stem{j}_orth" size="30" onchange="aux_fill_pred('aux{i}', 'stem{j}', 'v')">
+&nbsp;&nbsp;&nbsp;&nbsp;Predicate (if applicable): <input type="text"  name="aux{i}_stem{j}_pred" size="30">
+</div>
+</div>
+
+<div class="iterator" id="aux{i}_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('aux{i}_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="aux{i}_stem1_orth" size="30" onchange="aux_fill_pred('aux{i}', 'stem1', 'v')">
+&nbsp;&nbsp;&nbsp;&nbsp;Predicate (if applicable): <input type="text"  name="aux{i}_stem1_pred" size="30">
+</div>
+</div>
+<div class="anchor" id="aux{i}_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Stem" onclick="clone_region('aux{i}_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="aux{i}_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('aux{i}_require{j}')">
+<div class="iterframe">Aux {i} requires one of the following position classes:
+<select name="aux{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('aux{i}_require{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="aux{i}_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('aux{i}_require', 'j',false)"><div class="iterator" style="display: none" id="aux{i}_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('aux{i}_forbid{j}')">
+<div class="iterframe">Aux {i} forbids the following position class:
+<select name="aux{i}_forbid{j}_others" onfocus="fill('aux{i}_forbid{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="aux{i}_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('aux{i}_forbid', 'j',false)"></div>
+</div>
+</div>
+
+<div class="anchor" id="aux_ANCHOR"></div>
+<p><input type="button" name="" value="Add an Auxiliary Type" onclick="clone_region('aux', 'i',true)"><p>Define a copula to introduce complements.</p>
+<span><a href='javascript:void(0);' onclick="draw_hierarchy('cop')">visualize copula hierarchy</a> (experimental)</span><br /><br />
+<div class="iterator" style="display: none" id="cop_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop{i}')">
+<div class="iterframe"><b>Copula type {i}</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="cop{i}_name" size="30" onchange="fill_display_name('cop{i}');"><br>
+<br />
+Supertypes:
+<select name="cop{i}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('cop{i}_supertypes', [].concat(fill_regex('cop(?!{i})[0-9]+_name')));">
+<option value=""></option>
+</select><br />
+<br />Complement Type: What kind of complements does this copula allow?<br />
+Type:
+<select name="cop{i}_comptype" class="multi"  multiple="multiple"  onfocus="fill('cop{i}_comptype', [].concat(fill_feature_values('cop{i}_feat{j}_name')));">
+<option value="np" disabled><p style="display:inline;color:#ADADAD"> NPs</p></option>
+<option value="pp" disabled><p style="display:inline;color:#ADADAD"> PPs</p></option>
+<option value="ap">APs</option>
+<option value=""></option>
+</select>
+<br /><br />Copula features:
+<div class="iterator" style="display: none" id="cop{i}_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop{i}_feat{j}')">
+<div class="iterframe">Name:
+<select name="cop{i}_feat{j}_name" onfocus="fill('cop{i}_feat{j}_name', [].concat(fill_feature_names('both')));">
+<option value=""></option>
+</select>
+Value:
+<select name="cop{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('cop{i}_feat{j}_value', [].concat(fill_feature_values('cop{i}_feat{j}_name')));">
+<option value=""></option>
+</select>
+Specified on:
+<select name="cop{i}_feat{j}_head">
+<option value="cop">The copula</option>
+<option value="subj">The subject</option>
+<option value="comp">The complement</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="cop{i}_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a copula feature" onclick="clone_region('cop{i}_feat', 'j',false)"><br><br>Stems:
+<div class="iterator" style="display: none" id="cop{i}_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop{i}_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="cop{i}_stem{j}_orth" size="30" onchange="aux_fill_pred('cop{i}', 'stem{j}', 'v')">
+</div>
+</div>
+
+<div class="iterator" id="cop{i}_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop{i}_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="cop{i}_stem1_orth" size="30" onchange="aux_fill_pred('cop{i}', 'stem1', 'v')">
+</div>
+</div>
+<div class="anchor" id="cop{i}_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Stem" onclick="clone_region('cop{i}_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="cop{i}_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop{i}_require{j}')">
+<div class="iterframe">Copula {i} requires one of the following position classes:
+<select name="cop{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('cop{i}_require{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="cop{i}_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('cop{i}_require', 'j',false)"><div class="iterator" style="display: none" id="cop{i}_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop{i}_forbid{j}')">
+<div class="iterframe">Copula {i} forbids the following position class:
+<select name="cop{i}_forbid{j}_others" onfocus="fill('cop{i}_forbid{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="cop{i}_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('cop{i}_forbid', 'j',false)"></div>
+</div>
+</div>
+
+<span id="cop1_errors" class="error" style="display: none"></span><a id="cop1button" onclick="toggle_display_lex('cop1','cop1button')">&#9660; 3rd-sg (cop1)</a><div class="iterator" id="cop1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop1')">
+<div class="iterframe"><b>Copula type 1</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="cop1_name" value="3rd-sg" size="30" onchange="fill_display_name('cop1');"><br>
+<br />
+Supertypes:
+<select name="cop1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('cop1_supertypes', [].concat(fill_regex('cop(?!1)[0-9]+_name')));">
+<option value=""></option>
+</select><br />
+<br />Complement Type: What kind of complements does this copula allow?<br />
+Type:
+<select name="cop1_comptype" class="multi"  multiple="multiple"  onfocus="fill('cop1_comptype', [].concat(fill_feature_values('cop1_feat{j}_name')));">
+<option value="ap" selected class="temp">APs</option>
+<option value="np" disabled><p style="display:inline;color:#ADADAD"> NPs</p></option>
+<option value="pp" disabled><p style="display:inline;color:#ADADAD"> PPs</p></option>
+<option value="ap" selected>APs</option>
+<option value=""></option>
+</select>
+<br /><br />Copula features:
+<div class="iterator" style="display: none" id="cop1_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop1_feat{j}')">
+<div class="iterframe">Name:
+<select name="cop1_feat{j}_name" onfocus="fill('cop1_feat{j}_name', [].concat(fill_feature_names('both')));">
+<option value=""></option>
+</select>
+Value:
+<select name="cop1_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('cop1_feat{j}_value', [].concat(fill_feature_values('cop1_feat{j}_name')));">
+<option value=""></option>
+</select>
+Specified on:
+<select name="cop1_feat{j}_head">
+<option value="cop">The copula</option>
+<option value="subj">The subject</option>
+<option value="comp">The complement</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="iterator" id="cop1_feat1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop1_feat1')">
+<div class="iterframe">Name:
+<select name="cop1_feat1_name" onfocus="fill('cop1_feat1_name', [].concat(fill_feature_names('both')));">
+<option value="number" selected class="temp">Subtype {i} number</option>
+<option value=""></option>
+</select>
+Value:
+<select name="cop1_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('cop1_feat1_value', [].concat(fill_feature_values('cop1_feat1_name')));">
+<option value="sg" selected class="temp">sg</option>
+<option value=""></option>
+</select>
+Specified on:
+<select name="cop1_feat1_head">
+<option value="cop">The copula</option>
+<option value="subj" selected>The subject</option>
+<option value="comp">The complement</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+<div class="iterator" id="cop1_feat2">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop1_feat2')">
+<div class="iterframe">Name:
+<select name="cop1_feat2_name" onfocus="fill('cop1_feat2_name', [].concat(fill_feature_names('both')));">
+<option value="person" selected class="temp">Person</option>
+<option value=""></option>
+</select>
+Value:
+<select name="cop1_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('cop1_feat2_value', [].concat(fill_feature_values('cop1_feat2_name')));">
+<option value="3rd" selected class="temp">3rd</option>
+<option value=""></option>
+</select>
+Specified on:
+<select name="cop1_feat2_head">
+<option value="cop">The copula</option>
+<option value="subj" selected>The subject</option>
+<option value="comp">The complement</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+<div class="anchor" id="cop1_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a copula feature" onclick="clone_region('cop1_feat', 'j',false)"><br><br>Stems:
+<div class="iterator" style="display: none" id="cop1_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop1_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="cop1_stem{j}_orth" size="30" onchange="aux_fill_pred('cop1', 'stem{j}', 'v')">
+</div>
+</div>
+
+<div class="iterator" id="cop1_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop1_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="cop1_stem1_orth" value="is" size="30" onchange="aux_fill_pred('cop1', 'stem1', 'v')">
+</div>
+</div>
+<div class="anchor" id="cop1_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Stem" onclick="clone_region('cop1_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="cop1_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop1_require{j}')">
+<div class="iterframe">Copula 1 requires one of the following position classes:
+<select name="cop1_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('cop1_require{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="cop1_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('cop1_require', 'j',false)"><div class="iterator" style="display: none" id="cop1_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop1_forbid{j}')">
+<div class="iterframe">Copula 1 forbids the following position class:
+<select name="cop1_forbid{j}_others" onfocus="fill('cop1_forbid{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="cop1_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('cop1_forbid', 'j',false)"></div>
+</div>
+</div>
+<span id="cop2_errors" class="error" style="display: none"></span><a id="cop2button" onclick="toggle_display_lex('cop2','cop2button')">&#9660; pl (cop2)</a><div class="iterator" id="cop2">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop2')">
+<div class="iterframe"><b>Copula type 2</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="cop2_name" value="pl" size="30" onchange="fill_display_name('cop2');"><br>
+<br />
+Supertypes:
+<select name="cop2_supertypes" class="multi"  multiple="multiple"  onfocus="fill('cop2_supertypes', [].concat(fill_regex('cop(?!2)[0-9]+_name')));">
+<option value=""></option>
+</select><br />
+<br />Complement Type: What kind of complements does this copula allow?<br />
+Type:
+<select name="cop2_comptype" class="multi"  multiple="multiple"  onfocus="fill('cop2_comptype', [].concat(fill_feature_values('cop2_feat{j}_name')));">
+<option value="ap" selected class="temp">APs</option>
+<option value="np" disabled><p style="display:inline;color:#ADADAD"> NPs</p></option>
+<option value="pp" disabled><p style="display:inline;color:#ADADAD"> PPs</p></option>
+<option value="ap" selected>APs</option>
+<option value=""></option>
+</select>
+<br /><br />Copula features:
+<div class="iterator" style="display: none" id="cop2_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop2_feat{j}')">
+<div class="iterframe">Name:
+<select name="cop2_feat{j}_name" onfocus="fill('cop2_feat{j}_name', [].concat(fill_feature_names('both')));">
+<option value=""></option>
+</select>
+Value:
+<select name="cop2_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('cop2_feat{j}_value', [].concat(fill_feature_values('cop2_feat{j}_name')));">
+<option value=""></option>
+</select>
+Specified on:
+<select name="cop2_feat{j}_head">
+<option value="cop">The copula</option>
+<option value="subj">The subject</option>
+<option value="comp">The complement</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="iterator" id="cop2_feat1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop2_feat1')">
+<div class="iterframe">Name:
+<select name="cop2_feat1_name" onfocus="fill('cop2_feat1_name', [].concat(fill_feature_names('both')));">
+<option value="number" selected class="temp">Subtype {i} number</option>
+<option value=""></option>
+</select>
+Value:
+<select name="cop2_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('cop2_feat1_value', [].concat(fill_feature_values('cop2_feat1_name')));">
+<option value="pl" selected class="temp">pl</option>
+<option value=""></option>
+</select>
+Specified on:
+<select name="cop2_feat1_head">
+<option value="cop">The copula</option>
+<option value="subj" selected>The subject</option>
+<option value="comp">The complement</option>
+<option value=""></option>
+</select>
+</div>
+</div>
+<div class="anchor" id="cop2_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a copula feature" onclick="clone_region('cop2_feat', 'j',false)"><br><br>Stems:
+<div class="iterator" style="display: none" id="cop2_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop2_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="cop2_stem{j}_orth" size="30" onchange="aux_fill_pred('cop2', 'stem{j}', 'v')">
+</div>
+</div>
+
+<div class="iterator" id="cop2_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop2_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="cop2_stem1_orth" value="are" size="30" onchange="aux_fill_pred('cop2', 'stem1', 'v')">
+</div>
+</div>
+<div class="anchor" id="cop2_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Stem" onclick="clone_region('cop2_stem', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="cop2_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop2_require{j}')">
+<div class="iterframe">Copula 2 requires one of the following position classes:
+<select name="cop2_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('cop2_require{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="cop2_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('cop2_require', 'j',false)"><div class="iterator" style="display: none" id="cop2_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('cop2_forbid{j}')">
+<div class="iterframe">Copula 2 forbids the following position class:
+<select name="cop2_forbid{j}_others" onfocus="fill('cop2_forbid{j}_others', [].concat(fill_cache('verblrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="cop2_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('cop2_forbid', 'j',false)"></div>
+</div>
+</div>
+<div class="anchor" id="cop_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Copula Type" onclick="clone_region('cop', 'i',true)"><hr><h3>Determiners</h3>
+<div class="iterator" style="display: none" id="det_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('det{i}')">
+<div class="iterframe"><b>Determiner type {i}</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="det{i}_name" size="20" onchange="fill_display_name('det{i}');"><br>
+<div class="iterator" style="display: none" id="det{i}_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('det{i}_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="det{i}_stem{j}_orth" size="30" onchange="fill_pred('det{i}_stem{j}', 'q')">
+ Predicate: <input type="text"  name="det{i}_stem{j}_pred" size="30"><br>
+</div>
+</div>
+
+<div class="iterator" id="det{i}_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('det{i}_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="det{i}_stem1_orth" size="30" onchange="fill_pred('det{i}_stem1', 'q')">
+ Predicate: <input type="text"  name="det{i}_stem1_pred" size="30"><br>
+</div>
+</div>
+<div class="anchor" id="det{i}_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Stem" onclick="clone_region('det{i}_stem', 'j',false)"><br><br>Features:
+<div class="iterator" style="display: none" id="det{i}_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('det{i}_feat{j}')">
+<div class="iterframe">Name:
+<select name="det{i}_feat{j}_name" onfocus="fill('det{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
+<option value=""></option>
+</select>
+Value:
+<select name="det{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('det{i}_feat{j}_value', [].concat(fill_feature_values('det{i}_feat{j}_name')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="det{i}_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Feature" onclick="clone_region('det{i}_feat', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="det{i}_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('det{i}_require{j}')">
+<div class="iterframe">Determiner {i} requires one of the following position classes:
+<select name="det{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('det{i}_require{j}_others', [].concat(fill_cache('detlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="det{i}_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('det{i}_require', 'j',false)"><div class="iterator" style="display: none" id="det{i}_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('det{i}_forbid{j}')">
+<div class="iterframe">Determiner {i} requires one of the following position classes:
+<select name="det{i}_forbid{j}_others" class="multi"  multiple="multiple"  onfocus="fill('det{i}_forbid{j}_others', [].concat(fill_cache('detlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="det{i}_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('det{i}_forbid', 'j',false)"></div>
+</div>
+</div>
+
+<span id="det1_errors" class="error" style="display: none"></span><a id="det1button" onclick="toggle_display_lex('det1','det1button')">&#9660; det1</a><div class="iterator" id="det1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('det1')">
+<div class="iterframe"><b>Determiner type 1</b>:
+<div style="padding-left: 16px">
+Type name: <input type="text"  name="det1_name" size="20" onchange="fill_display_name('det1');"><br>
+<div class="iterator" style="display: none" id="det1_stem_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('det1_stem{j}')">
+<div class="iterframe">Spelling: <input type="text"  name="det1_stem{j}_orth" size="30" onchange="fill_pred('det1_stem{j}', 'q')">
+ Predicate: <input type="text"  name="det1_stem{j}_pred" size="30"><br>
+</div>
+</div>
+
+<div class="iterator" id="det1_stem1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('det1_stem1')">
+<div class="iterframe">Spelling: <input type="text"  name="det1_stem1_orth" value="the" size="30" onchange="fill_pred('det1_stem1', 'q')">
+ Predicate: <input type="text"  name="det1_stem1_pred" value="_def_q_rel" size="30"><br>
+</div>
+</div>
+<div class="anchor" id="det1_stem_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Stem" onclick="clone_region('det1_stem', 'j',false)"><br><br>Features:
+<div class="iterator" style="display: none" id="det1_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('det1_feat{j}')">
+<div class="iterframe">Name:
+<select name="det1_feat{j}_name" onfocus="fill('det1_feat{j}_name', [].concat(fill_feature_names('noun')));">
+<option value=""></option>
+</select>
+Value:
+<select name="det1_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('det1_feat{j}_value', [].concat(fill_feature_values('det1_feat{j}_name')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="det1_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Feature" onclick="clone_region('det1_feat', 'j',false)"><p>Morphotactic Constraints:</p>
+<div class="iterator" style="display: none" id="det1_require_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('det1_require{j}')">
+<div class="iterframe">Determiner 1 requires one of the following position classes:
+<select name="det1_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('det1_require{j}_others', [].concat(fill_cache('detlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="det1_require_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Require constraint" onclick="clone_region('det1_require', 'j',false)"><div class="iterator" style="display: none" id="det1_forbid_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('det1_forbid{j}')">
+<div class="iterframe">Determiner 1 requires one of the following position classes:
+<select name="det1_forbid{j}_others" class="multi"  multiple="multiple"  onfocus="fill('det1_forbid{j}_others', [].concat(fill_cache('detlrs')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="anchor" id="det1_forbid_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Forbid constraint" onclick="clone_region('det1_forbid', 'j',false)"></div>
+</div>
+</div>
+<div class="anchor" id="det_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Determiner" onclick="clone_region('det', 'i',true)"><hr><h3>Case-marking and/or Information Structural Adpositions</h3>
+<div class="iterator" style="display: none" id="adp_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adp{i}')">
+<div class="iterframe">Spelling: <input type="text"  name="adp{i}_orth" size="20">
+<label>, which is <input type="checkbox"  name="adp{i}_opt"> optional</label>
+ and appears
+<select name="adp{i}_order">
+<option value="after">After</option>
+<option value="before">Before</option>
+<option value=""></option>
+</select> a noun phrase<br><br>Features:<br>
+<div class="iterator" style="display: none" id="adp{i}_feat_TEMPLATE">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adp{i}_feat{j}')">
+<div class="iterframe">Name:
+<select name="adp{i}_feat{j}_name" onfocus="fill('adp{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
+<option value=""></option>
+</select>
+Value:
+<select name="adp{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('adp{i}_feat{j}_value', [].concat(fill_feature_values('adp{i}_feat{j}_name')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+
+<div class="iterator" id="adp{i}_feat1">
+<input type="button" class="delbutton" value="X" name="" title="Delete" onclick="remove_element('adp{i}_feat1')">
+<div class="iterframe">Name:
+<select name="adp{i}_feat1_name" onfocus="fill('adp{i}_feat1_name', [].concat(fill_feature_names('noun')));">
+<option value=""></option>
+</select>
+Value:
+<select name="adp{i}_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('adp{i}_feat1_value', [].concat(fill_feature_values('adp{i}_feat1_name')));">
+<option value=""></option>
+</select>
+</div>
+</div>
+<div class="anchor" id="adp{i}_feat_ANCHOR"></div>
+<p><input type="button" name="" value="Add a Feature" onclick="clone_region('adp{i}_feat', 'j',false)"></div>
+</div>
+
+<div class="anchor" id="adp_ANCHOR"></div>
+<p><input type="button" name="" value="Add an Adposition" onclick="clone_region('adp', 'i',true)">
+</form>
+</div>
+</body>
+
+</html>

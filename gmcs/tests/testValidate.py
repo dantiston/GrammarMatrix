@@ -1,3 +1,4 @@
+#!/bin/usr/env python2.7
 # -*- coding: utf-8 -*-
 
 import unittest
@@ -11,11 +12,13 @@ class TestValidate(unittest.TestCase):
 
   def assertErrorsOrWarnings(self, c, variables, errors):
     vr = validate(c)
+    d = vr.errors if errors else vr.warnings
     for v in variables:
-      if errors:
-        self.assertTrue(v in vr.errors)
-      else:
-        self.assertTrue(v in vr.warnings)
+      self.assertTrue(v in d)
+      #if errors:
+      #  self.assertTrue(v in vr.errors)
+      #else:
+      #  self.assertTrue(v in vr.warnings)
 
 
   def assertWarning(self, c, warning):

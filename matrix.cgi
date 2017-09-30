@@ -199,7 +199,3 @@ elif form_data.has_key('subpage'):
     matrixdef.cookie_error_page()
 else:
   print(matrixdef.main_page(cookie, vr).encode('utf-8'))
-
-
-# if __name__ == "__main__":
-#   cgi.test()
