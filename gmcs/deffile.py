@@ -7,6 +7,9 @@ deffile.py
 This module provides the class MatrixDef and supporting methods for validating,
 loading, and generating HTML from files defining pages in the matrixdef specification
 
+# TJT 10-1-17 Significantly rewritten and refactored, focused on speed, testability,
+  standards compliance, and organization
+
 TODO: Think about pickling MatrixDef
 TODO: Modularize matrixdef files
 TODO: Think about either making constants for accessing indices of MatrixDef
@@ -35,7 +38,7 @@ from collections import defaultdict
 from gmcs import choices
 from gmcs import html
 from gmcs import generate
-from gmcs.utils import tokenize_def, get_name
+from gmcs.utils import get_name, make_tgz, make_zip
 from gmcs.choices import ChoicesFile
 from gmcs.validate import ValidationMessage
 
@@ -79,40 +82,38 @@ jinja = Environment(loader=PackageLoader('gmcs', 'html'))
 
 ######################################################################
 # Archive helper functions
-#   make_tgz(dir) and make_zip(dir) create an archive called
-#   dir.(tar.gz|zip) that contains the contents of dir
 
-def make_tgz(directory):
-  # ERB First get rid of existing file because gzip won't
-  # overwrite existing .tgz meaning you can only customize
-  # grammar once per session.
-  if os.path.exists('matrix.tar.gz'):
-    os.remove('matrix.tar.gz')
+def tokenize_def(str):
+  """
+  Split a string into words, treating double-quoted strings as
+  single words.
 
-  archive = directory + '.tar'
-  with tarfile.open(archive, 'w') as t:
-    t.add(directory)
+  TODO: Get the length once
+  TODO: Change str to line
+  TODO: Write unit tests for this
+  """
+  i = 0
+  result = []
 
-  with gzip.open(archive + '.gz', 'wb') as g:
-    with open(archive, 'rb') as f:
-      g.write(f.read())
+  while i < len(str):
+    # skip whitespace
+    while i < len(str) and str[i].isspace():
+      i += 1
+    # if it's quoted, read to the close quote, otherwise to a space
+    if i < len(str) and str[i] == u'"':
+      i += 1
+      a = i
+      while i < len(str) and not (str[i] == u'"' and str[i-1] != '\\'):
+        i += 1
+      result.append(str[a:i].replace(u'\\"', u'"'))
+      i += 1
+    elif i < len(str):
+      a = i
+      while i < len(str) and not str[i].isspace():
+        i += 1
+      result.append(str[a:i])
 
-  os.remove(archive)
-
-
-def add_zip_files(z, directory):
-  files = os.listdir(directory)
-  for f in files:
-    cur = os.path.join(directory, f)
-    if os.path.isdir(cur):
-      add_zip_files(z, cur)
-    else:
-      z.write(cur, cur)
-
-
-def make_zip(directory):
-  with zipfile.ZipFile(directory + '.zip', 'w') as z:
-    add_zip_files(z, directory)
+  return result
 
 
 ################################################################################
@@ -159,7 +160,7 @@ def replace_vars_tokenized(line, iter_vars):
   Replace variables of the form "{name}" in line using the dict iter_vars
   """
   regexes = compile_string_keys(iter_vars)
-  result = tuple(line)
+  result = (list(line[0]), line[1], line[2])
   # modifying result in place, so don't iterate through its elements
   for i in range(len(result[0])):
     for k, v in iter_vars.items():
@@ -269,7 +270,7 @@ class MatrixDef:
     # Remove empty lines and comments
     self.def_lines = [line for line in def_lines if line and not line[0] == COMMENT_CHAR]
     # Tokenize and count ONCE
-    tokenized_lines = [tokenize_def(line) for line in self.def_lines]
+    tokenized_lines = (tokenize_def(line) for line in self.def_lines)
     self.tokenized_lines = [(line, len(line), line[0]) for line in tokenized_lines]
 
     # Keep track of which sections to not show on navigation
@@ -601,6 +602,63 @@ class MatrixDef:
     print HTML_postbody
 
 
+  def choices_error_page(self, choices_file, exc=None):
+    print HTTP_header + '\n'
+    print HTML_pretitle
+    print '<title>Invalid Choices File</title>'
+    print HTML_posttitle % ('', '', '')
+    print HTML_toggle_visible_js
+    print HTML_prebody
+
+    print '<div style="position:absolute; top:15%; width:60%">\n' + \
+          '<p style="color:red; text-align:center; font-size:12pt">' + \
+          'The provided choices file is invalid. If you have edited the ' +\
+          'file by hand, please review the changes you made to make sure ' +\
+          'they follow the choices file file format. If you did not make ' +\
+          'any manual changes, please email the choices file to the Matrix ' +\
+          'developers. You may download the choices file to try and fix ' +\
+          'any errors.</p>\n'
+
+    print '<p style="text-align:center"><a href="' + choices_file + '">' +\
+          'View Choices File</a> (right-click to download)</p>'
+
+    print '<p style="text-align:center">In most cases, you can go back ' +\
+          'in your browser and fix the problems, but if not you may ' +\
+          '<a href="matrix.cgi?choices=empty">reload an empty ' +\
+          'questionnaire</a> (this will erase your changes, so be sure to ' +\
+          'save your choices (above) first).'
+    exception_html(exc)
+    print HTML_postbody
+
+
+  def customize_error_page(self, choices_file, exc=None):
+    print HTTP_header + '\n'
+    print HTML_pretitle
+    print '<title>Problem Customizing Grammar</title>'
+    print HTML_posttitle % ('', '', '')
+    print HTML_toggle_visible_js
+    print HTML_prebody
+
+    print '<div style="position:absolute; top:15%; width:60%">\n' +\
+          '<p style="color:red; text-align:center; font-size:12pt">' +\
+          'The Grammar Matrix Customization System was unable to create ' +\
+          'a grammar with the provided choices file. You may go back in ' +\
+          'your browser to try and fix the problem, or if you think ' +\
+          'there is a bug in the system you may email the choices file ' +\
+          'to the developers</p>\n'
+
+    print '<p style="text-align:center"><a href="' + choices_file + '">' +\
+          'View Choices File</a> (right-click to download)</p>'
+
+    print '<p style="text-align:center">In most cases, you can go back ' +\
+          'in your browser and fix the problems, but if not you may ' +\
+          '<a href="matrix.cgi?choices=empty">reload an empty ' +\
+          'questionnaire</a> (this will erase your changes, so be sure to ' +\
+          'save your choices (above) first).'
+    exception_html(exc)
+    print HTML_postbody
+
+
   ##############################################################################
   # Page components
   def get_choices_from_session(self, session, choices):
@@ -617,17 +675,6 @@ class MatrixDef:
     return choices, choices_file
 
 
-  def _save_choices_to_session(self, session, choices):
-    """
-    For testing
-    TODO: Move this to test.py?
-    """
-    location = u'sessions/' + session + '/choices'
-    with codecs.open(location, 'r', encoding="utf-8") as f:
-      # TODO: THIS IS WRONG; DON'T DO THIS; look at save_choices_section()
-      f.write(choices)
-
-
   def get_datestamp(self):
     """
     Load the datestamp
@@ -641,8 +688,8 @@ class MatrixDef:
 
   def get_onload(self, tokenized_section_def):
     result = u""
-    if len(tokenized_section_def[0]) > self.SECTION_ONLOAD:
-      result = tokenized_section_def[0][self.SECTION_ONLOAD]
+    if tokenized_section_def[0][1] > self.SECTION_ONLOAD:
+      result = tokenized_section_def[0][0][self.SECTION_ONLOAD]
     return result
 
 
@@ -696,8 +743,8 @@ class MatrixDef:
             section_name + u'\',\'' + section_name + u'button\')"' + \
             u'>&#9658;</span>\n')
       result.append(html.validation_mark(vr, section_name, info=False))
-      result.append('<a href="matrix.cgi?subpage=%s">%s</a>\n' % (section_name, self.section_names[section_name]))
-      result.append('<div class="values" id="%s" style="display:none">' % section_name)
+      result.append(u'<a href="matrix.cgi?subpage=%s">%s</a>\n' % (section_name, self.section_names[section_name]))
+      result.append(u'<div class="values" id="%s" style="display:none">' % section_name)
       cur_sec = u''
       printed_something = False
       for c in choices:
@@ -708,18 +755,18 @@ class MatrixDef:
             if a == u'section':
               cur_sec = v.strip()
             elif cur_sec == section_name:
-              result.append(self.f(a) + ' = u' + self.f(v) + '<br>')
+              result.append(self.f(a) + u' = u' + self.f(v) + u'<br>')
               printed_something = True
         except ValueError:
           if cur_sec == section_name:
-            result.append('(<i>Bad line in choices file: </i>"<tt>' + \
-                    c + '</tt>")<br>')
+            result.append(u'(<i>Bad line in choices file: </i>"<tt>' + \
+                          c + u'</tt>")<br>')
             printed_something = True
       if not printed_something:
-        result.append('&nbsp;')
-      result.append('</div></div>')
+        result.append(u'&nbsp;')
+      result.append(u'</div></div>')
 
-    return "".join(result)
+    return u"".join(result)
 
 
   def download_links(self, vr):
@@ -731,12 +778,12 @@ class MatrixDef:
     result.append(html.html_input(vr, 'radio', 'delivery', 'tgz',
                              checked=True, before='Archive type: ', after=' .tar.gz'))
     result.append(html.html_input(vr, 'radio', 'delivery', 'zip', after=' .zip'))
-    result.append("<br>")
+    result.append(u"<br>")
     result.append(html.html_input(vr, 'submit', 'create_grammar_submit', 'Create Grammar',
                              disabled=vr.has_errors()))
     result.append(html.html_input(vr, 'submit', 'sentences', 'Test by Generation',
                              disabled=vr.has_errors()))
-    return "\n".join(result)
+    return u"\n".join(result)
 
 
   def upload_links(self, vr):
@@ -746,7 +793,7 @@ class MatrixDef:
     result = []
     result.append(html.html_input(vr, 'submit', '', 'Upload Choices File:', False, '<p>', ''))
     result.append(html.html_input(vr, 'file', 'choices', '', False, '', '</p>', ''))
-    return "".join(result)
+    return u"".join(result)
 
 
   def sample_grammars(self):
@@ -755,24 +802,24 @@ class MatrixDef:
     """
     result = []
     if os.path.exists('web/sample-choices'):
-      result.append('<h3>Sample Grammars:</h3>\n')
-      result.append('<p>Click a link below to have the questionnaire ' + \
-                    'filled out automatically.</p>\n')
-      result.append('<p>\n')
+      result.append(u'<h3>Sample Grammars:</h3>\n')
+      result.append(u'<p>Click a link below to have the questionnaire ' + \
+                    u'filled out automatically.</p>\n')
+      result.append(u'<p>\n')
 
       linklist = {}
 
-      for f in glob.iglob('web/sample-choices/*'):
-        f = f.replace('\\', '/')
-        lang = choices.get_choice('language', f) or '(empty questionnaire)'
+      for path in glob.iglob('web/sample-choices/*'):
+        path = path.replace(u'\\', u'/')
+        lang = choices.get_choice('language', path) or u'(empty questionnaire)'
         if lang == u'minimal-grammar': lang = u'(minimal grammar)'
-        linklist[lang] = f
+        linklist[lang] = path
 
       for k in sorted(linklist.keys(), lambda x, y: cmp(x.lower(), y.lower())):
-        result.append('<a href="matrix.cgi?choices=%s">%s</a><br />\n' % (linklist[k], k))
+        result.append(u'<a href="matrix.cgi?choices=%s">%s</a><br />\n' % (linklist[k], k))
 
-      result.append('</p>')
-    return "".join(result)
+      result.append(u'</p>')
+    return u"".join(result)
 
 
   def navigation(self, vr, choices_file, section=None):
@@ -802,11 +849,11 @@ class MatrixDef:
         if cur_sec not in self.hide_on_navigation:
           # disable the link if this is the page we're on
           # TODO: Change how this span tag is being opened and closed
-          shortname = " data-short-name=\"%s\"" % self.short_names[cur_sec] if cur_sec in self.short_names else ""
+          shortname = u" data-short-name=\"%s\"" % self.short_names[cur_sec] if cur_sec in self.short_names else u""
           if cur_sec == section:
-            sec_links.append('</span><span data-name="%s"%s class="navlinks">%s</span>' % (self.section_names[cur_sec], shortname, self.section_names[cur_sec]))
+            sec_links.append(u'</span><span data-name="%s"%s class="navlinks">%s</span>' % (self.section_names[cur_sec], shortname, self.section_names[cur_sec]))
           else:
-            sec_links.append('</span><a data-name="%s"%s class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (self.section_names[cur_sec], shortname, cur_sec, self.section_names[cur_sec]))
+            sec_links.append(u'</span><a data-name="%s"%s class="navlinks" href="#" onclick="submit_go(\'%s\')">%s</a>' % (self.section_names[cur_sec], shortname, cur_sec, self.section_names[cur_sec]))
           n += 1
 
       elif element == BEGIN_ITER:
@@ -817,11 +864,11 @@ class MatrixDef:
       elif element == END_ITER:
         prefix = re.sub('_?' + word[1] + '[^_]*$', '', prefix)
 
-      elif not (element == LABEL and len(word) < 3):
+      elif not (element == LABEL and word_length < 3):
         pattern = u'^' + prefix
         if prefix:
           pattern += u'_'
-        pattern += word[1] + '$'
+        pattern += word[1] + u'$'
 
         # TODO: This could be made more efficient
         # Add errors to the links
@@ -841,38 +888,37 @@ class MatrixDef:
 
     # Generate the result
     result = []
-    result.append('<div id="navmenu"><br />')
-    result.append('<a href="." onclick="submit_main()" class="navleft">Main page</a><br />')
-    result.append('<hr />')
+    result.append(u'<div id="navmenu"><br />')
+    result.append(u'<a href="." onclick="submit_main()" class="navleft">Main page</a><br />')
+    result.append(u'<hr />')
     for l in sec_links:
       # TODO: Change how this span tag is being opened and closed
-      result.append('<span style="color:#ff0000;" class="navleft">'+l+'<br />')
+      result.append(u'<span style="color:#ff0000;" class="navleft">'+l+'<br />')
 
-    result.append('<hr />')
-    result.append('<a href="' + choices_file + '" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>')
-    result.append('<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />')
+    result.append(u'<hr />')
+    result.append(u'<a href="' + choices_file + u'" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>')
+    result.append(u'<a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />')
     # TJT 2014-05-28: Not sure why the following doesn't work -- need to do more investigation
     #result.append('<a href="?subpage=%s" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />' % section)
 
     ## if there are errors, then we mark them on the links (the links in red and unclickable)
     if vr.has_errors():
-      result.append('<span class="navleft">Create grammar:')
-      result.append(html.html_info_mark(ValidationMessage('', 'Resolve validation errors to enable grammar customization.', '')))
-      result.append('</span><br />')
-      result.append('<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>')
+      result.append(u'<span class="navleft">Create grammar:')
+      result.append(html.html_info_mark(ValidationMessage(u'', u'Resolve validation errors to enable grammar customization.', u'')))
+      result.append(u'</span><br />')
+      result.append(u'<span class="navleft" style="padding-left:15px">tgz</span>, <span class="navleft">zip</span>')
     else:
-      result.append('<span class="navleft">Create grammar:</span><br />')
-      result.append('<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>')
+      result.append(u'<span class="navleft">Create grammar:</span><br />')
+      result.append(u'<a href="#" onclick="nav_customize(\'tgz\')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize(\'zip\')" class="navleft">zip</a>')
 
-    result.append('</div>')
-    return "\n".join(result)
+    result.append(u'</div>')
+    return u"\n".join(result)
 
 
 
   ##############################################################################
   # matrixdef to HTML methods
 
-  # TJT 2014-08-26: Moving this out of while loop for efficiency's sake
   # TJT 2017-09-09: Defining this once for efficiency's sake
   fillstrings = {'fillregex':'fill_regex(%(args)s)',
                  'fillnames':'fill_feature_names(%(args)s)',
@@ -918,6 +964,9 @@ class MatrixDef:
 
 
   def check_syntax(self, tokenized_lines):
+    """
+    Simple tool to load in tokenized lines and see if they are valid or not
+    """
     try:
       self.defs_to_html(tokenized_lines, choices, vr, prefix, variables)
     except MatrixDefSyntaxException as e:
@@ -1022,16 +1071,16 @@ class MatrixDef:
       skip_this_iter = self.check_choice_switch(switch, choices)
 
     # collect the lines that are between BeginIter and EndIter
-    i += 1
-    section_lines = []
-    for word, word_length, element in tokenized_lines[i:]:
-      if word_length and element == END_ITER and word[1] == iter_name:
-        break
-      #section_lines.append(word)
-      section_lines.append((word, word_length, element))
-      i += 1
-    else:
-      raise MatrixDefSyntaxException("Missing EndIter statement for Iter \"%s\"" % iter_orig)
+    i, section_lines = self.get_iter_lines(iter_name, i, tokenized_lines, iter_orig)
+    # i += 1
+    # section_lines = []
+    # for word, word_length, element in tokenized_lines[i:]:
+    #   if word_length and element == END_ITER and word[1] == iter_name:
+    #     break
+    #   section_lines.append((word, word_length, element))
+    #   i += 1
+    # else:
+    #   raise MatrixDefSyntaxException("Missing EndIter statement for Iter \"%s\"" % iter_orig)
 
 
     # TJT 2014-08-20: if skipping iter, skip this whole section
@@ -1066,11 +1115,12 @@ class MatrixDef:
           iter_num = str(chlist[c].iter_num())
           show_name = chlist[c]["name"]
         else:
-          iter_num = str(int(iter_num)+1)
+          iter_num = str(int(iter_num) + 1)
         new_prefix = prefix + iter_name + iter_num + '_'
         variables[iter_var] = iter_num
 
         # Set the variables for this iter
+        # TODO: This is mutating word
         iter_lines = [replace_vars_tokenized(word, variables) for word in section_lines]
 
         # the show/hide button gets placed before each iterator
@@ -1103,11 +1153,11 @@ class MatrixDef:
         # It looks like each iteration changes "variables"... think more about this
         # Additionally, some choices are loaded into the block via their prefix
         result += self.defs_to_html(
-                                  iter_lines,
-                                  choices,
-                                  vr,
-                                  new_prefix,
-                                  variables
+              iter_lines,
+              choices,
+              vr,
+              new_prefix,
+              variables
         )
         result += u'</div>\n</div>\n' # close iterator, iterframe
 
@@ -1137,9 +1187,6 @@ class MatrixDef:
 
 
   def radio_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
-    """
-    This method is infinitely recursing
-    """
     if word_length < 5:
       raise MatrixDefSyntaxException("Radio button improperly defined: %s; expected at least 5 tokens, got %s: \"%s\"" % (word, word_length, " ".join([line[0] for line in tokenized_lines[i]])))
     result = u""
@@ -1276,7 +1323,7 @@ class MatrixDef:
 
 
   def separator_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
-    return word, word_length, element, i, "<hr>\n"
+    return word, word_length, element, i, u"<hr>\n"
 
 
   def text_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
@@ -1306,6 +1353,23 @@ class MatrixDef:
     return word, word_length, element, i, result
 
 
+  ##############################################################################
+  # Helpers
+
+  def get_iter_lines(self, iter_name, i, tokenized_lines, iter_orig):
+    i += 1
+    section_lines = []
+    for word, word_length, element in tokenized_lines[i:]:
+      if word_length and element == END_ITER and word[1] == iter_name:
+        break
+      section_lines.append((word, word_length, element))
+      i += 1
+    else:
+      raise MatrixDefSyntaxException("Missing EndIter statement for Iter \"%s\"" % iter_orig)
+
+    return i, section_lines
+
+
   def get_cookie(self, http_cookie=os.getenv(HTTP_COOKIE)):
     result = {}
     if http_cookie:
@@ -1314,7 +1378,7 @@ class MatrixDef:
         result[name.strip()] = value
     return result
 
-  ##### Variable replacement helpers
+
   def __get_word(self, tokenized_lines, i, variables={}, do_replace=False):
     word, word_length, element = tokenized_lines[i]
     return self.__do_get(word, word_length, element, variables=variables, do_replace=do_replace)
@@ -1326,63 +1390,53 @@ class MatrixDef:
 
 
   def __do_get(self, word, word_length, element, variables={}, do_replace=False):
-    if do_replace:
+    if do_replace and variables:
       word = replace_vars_tokenized(word, variables)
     return word, word_length, element
 
 
   ##############################################################################
   # Choice saving methods
-  # TODO: Move these to choices.py?
-  # TODO: Modularize these
-  # TODO: Unit test these
-  def save_choices_section(self, lines, f, choices,
-                           iter_level = 0, prefix = u''):
-    """
-    Based on a section of a matrix definition file in lines, save the
-    values from choices into the file handle f.  The section in lines
-    need not correspond to a whole named section (e.g. "Language"), but
-    can be any part of the file not containing a section line.
-    """
-    already_saved = {}  # don't save a variable more than once
-    i = 0
-    while i < len(lines):
-      word = tokenize_def(lines[i]) # TODO: Replace this
-      if len(word) == 0:
-        pass
-      elif word[0] in (CHECK, TEXT, TEXT_AREA,
-                       RADIO, SELECT, MULTI_SELECT, FILE, HIDDEN):
-        vn = word[1]
-        if prefix + vn not in already_saved:
-          already_saved[prefix + vn] = True
-          val = u''
-          if choices.get(prefix + vn):
-            val = choices.get(prefix + vn)
-            if word[0] == TEXT_AREA:
-                val = u'\\n'.join(val.splitlines())
-          if vn and val:
-            f.write('  '*iter_level) # TJT 2014-09-01: Changing this to one write from loop
-            f.write(prefix + vn + '=' + val + '\n')
 
-      elif word[0] == BEGIN_ITER:
+  def save_choices_section(self, tokenized_lines, f, choices,
+                           iter_level=0, prefix=u''):
+    """
+    Based on a section of a matrix definition file in tokenized_lines, save the
+    values from choices into the file handle f.  The section in tokenized_lines
+    need not correspond to a whole named section (e.g. "Lexicon"), but
+    can be any part of the file not containing a section line.
+
+    # TODO: Move this to choices.py
+    # TODO: Unit test this
+    """
+    saved = set()
+    i = 0
+    while i < len(tokenized_lines):
+      word, word_length, element = tokenized_lines[i]
+      if element in (CHECK, TEXT, TEXT_AREA, RADIO,
+                     SELECT, MULTI_SELECT, FILE, HIDDEN):
+        vn = word[1]
+        name = prefix + vn
+        if vn and name not in saved:
+          saved.add(name)
+          val = choices.get(name, u'')
+          if val and element == TEXT_AREA:
+            val = u'\\n'.join(val.splitlines())
+          f.write('  '*iter_level)
+          f.write(prefix + vn + '=' + val + '\n')
+
+      elif element == BEGIN_ITER:
+        # Recurse
         iter_name, iter_var = word[1].replace('}', '').split('{', 1)
-        i += 1
-        beg = i
-        while True:
-          word = tokenize_def(lines[i]) # TODO: Replace this
-          if len(word) == 0:
-            pass
-          elif word[0] == END_ITER and word[1] == iter_name:
-            break
-          i += 1
-        end = i
+        i, section_lines = self.get_iter_lines(iter_name, i, tokenized_lines, word[1])
 
         for var in choices.get(prefix + iter_name):
-          self.save_choices_section(lines[beg:end], f, choices,
-                                    iter_level = iter_level + 1,
-                                    prefix =
-                                      prefix + iter_name +\
-                                      str(var.iter_num()) + '_')
+          self.save_choices_section(
+            section_lines,
+            f,
+            choices,
+            iter_level = iter_level + 1,
+            prefix = prefix + iter_name + str(var.iter_num()) + '_')
 
       i += 1
 
@@ -1394,16 +1448,16 @@ class MatrixDef:
     values in form_data.  Use self.def_file to keep the choices file
     in order.
 
-    TODO: MOVE THIS SOMEWHERE ELSE
+    TODO: Move this to choices.py
     TODO: Modularize this
+    TODO: Unit test this
     """
-    # The section isn't really a form field, but save it for later
     # section is page user is leaving (or clicking "save and stay" on)
     section = form_data['section'].value
 
     ## New choices vs Old choices
-    # old_choices is saved to pages other than "section" variable above
-    # new_choices is saved to the "section" variable above's page
+    # old_choices is from pages other than "section"
+    # new_choices is from the "section"'s page
 
     # Copy the form_data into a choices object
     new_choices = ChoicesFile('')
@@ -1424,7 +1478,8 @@ class MatrixDef:
     old_choices = ChoicesFile(choices_file)
 
     # Keep track of features
-    if section in ('lexicon', 'morphology'): feats_to_add = defaultdict(list)
+    if section in ('lexicon', 'morphology'):
+      feats_to_add = defaultdict(list)
 
     # TJT: 2014-08-26: If optionally copula complement,
     # add zero rules to choices
@@ -1567,12 +1622,26 @@ class MatrixDef:
           for nfs in nfss:
             if nfs['name'] == u'negform':
               found_negform = True
+              # break # TODO: verify this added break
         if not found_negform:
           old_choices['nf-subform%d_name' % next_n ] = u'negform'
 
+    # TODO: Verify these changes, remove the commented out code and comments
     # Now pass through the def file, writing out either the old choices
     # for each section or, for the section we're saving, the new choices
+    # Write out the choices
     with codecs.open(choices_file, 'w', encoding="utf-8") as f:
+        # TODO: This breaks one of the tests
+    #   f.write(u'\n') # blank line in case an editor inserts a BOM
+    #   f.write(u'version=' + unicode(old_choices.current_version()) + u'\n\n')
+      #
+    #   # TODO: Verify these changes
+    #   for section_name in self.sections:
+    #     choices = new_choices if section_name == section else old_choices
+    #     f.write(u'section=' + section_name + u'\n')
+    #     self.save_choices_section(self.sections[section_name], f, choices)
+    #     f.write(u'\n')
+
       f.write('\n') # blank line in case an editor inserts a BOM
       f.write('version=' + str(old_choices.current_version()) + '\n\n')
 
@@ -1606,7 +1675,8 @@ class MatrixDef:
     lexical item into the choices file object unless they are
     already there. returns a ChoicesFile instance, and an int
     which is the index number of the created neg-aux
-    TODO: Move this elsewhere
+
+    TODO: Move this to choices.py
     """
 
     # get the next aux number
@@ -1632,7 +1702,7 @@ class MatrixDef:
 
   def create_infl_neg_choices(self, old_choices, new_choices):
     """
-    TODO: Move this elsewhere
+    TODO: Move this to choices.py
     """
     vpc = new_choices['vpc-0-neg']
     lrt = u''
@@ -1656,63 +1726,6 @@ class MatrixDef:
     lrt['feat1_head'] = u'verb'
     lrt['lri1_inflecting'] = u'no'
     return old_choices, new_choices
-
-
-  def choices_error_page(self, choices_file, exc=None):
-    print HTTP_header + '\n'
-    print HTML_pretitle
-    print '<title>Invalid Choices File</title>'
-    print HTML_posttitle % ('', '', '')
-    print HTML_toggle_visible_js
-    print HTML_prebody
-
-    print '<div style="position:absolute; top:15%; width:60%">\n' + \
-          '<p style="color:red; text-align:center; font-size:12pt">' + \
-          'The provided choices file is invalid. If you have edited the ' +\
-          'file by hand, please review the changes you made to make sure ' +\
-          'they follow the choices file file format. If you did not make ' +\
-          'any manual changes, please email the choices file to the Matrix ' +\
-          'developers. You may download the choices file to try and fix ' +\
-          'any errors.</p>\n'
-
-    print '<p style="text-align:center"><a href="' + choices_file + '">' +\
-          'View Choices File</a> (right-click to download)</p>'
-
-    print '<p style="text-align:center">In most cases, you can go back ' +\
-          'in your browser and fix the problems, but if not you may ' +\
-          '<a href="matrix.cgi?choices=empty">reload an empty ' +\
-          'questionnaire</a> (this will erase your changes, so be sure to ' +\
-          'save your choices (above) first).'
-    exception_html(exc)
-    print HTML_postbody
-
-
-  def customize_error_page(self, choices_file, exc=None):
-    print HTTP_header + '\n'
-    print HTML_pretitle
-    print '<title>Problem Customizing Grammar</title>'
-    print HTML_posttitle % ('', '', '')
-    print HTML_toggle_visible_js
-    print HTML_prebody
-
-    print '<div style="position:absolute; top:15%; width:60%">\n' +\
-          '<p style="color:red; text-align:center; font-size:12pt">' +\
-          'The Grammar Matrix Customization System was unable to create ' +\
-          'a grammar with the provided choices file. You may go back in ' +\
-          'your browser to try and fix the problem, or if you think ' +\
-          'there is a bug in the system you may email the choices file ' +\
-          'to the developers</p>\n'
-
-    print '<p style="text-align:center"><a href="' + choices_file + '">' +\
-          'View Choices File</a> (right-click to download)</p>'
-
-    print '<p style="text-align:center">In most cases, you can go back ' +\
-          'in your browser and fix the problems, but if not you may ' +\
-          '<a href="matrix.cgi?choices=empty">reload an empty ' +\
-          'questionnaire</a> (this will erase your changes, so be sure to ' +\
-          'save your choices (above) first).'
-    exception_html(exc)
-    print HTML_postbody
 
 
 class MatrixDefSyntaxException(Exception):

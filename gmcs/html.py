@@ -5,7 +5,7 @@
 """
 html.py
 
-Utilities for HTML formatting
+Utilities for HTML formatting. Much of this used to be in deffile.py
 """
 
 ################################################################################
@@ -20,6 +20,8 @@ INFO = u"#"
 def validation_mark(vr, name, info=True):
   """
   Check if there's an error and generate the appropriate error mark
+  TODO: Make this display ALL of the errors, warnings, and infos,
+        instead of just the first
   """
   result = u''
   if name in vr.errors:
@@ -60,6 +62,7 @@ def html_input(vr, sort, name, value, checked=False,
   """
   Return an HTML <input> tag with the specified attributes and
     surrounding text
+
   TJT 2014-05-07 Adding randid to html_input to pass random number
     matching radio buttons to their labels along
   TJT 2014-09-05 Getting rid of randid to wrap entire radio option in label
@@ -112,10 +115,11 @@ def html_input(vr, sort, name, value, checked=False,
     return output
 
 
-# TJT 2014-08-26: Adding onchange
 def html_select(vr, name, multi=False, onfocus='', onchange=''):
   """
   Return an HTML <select> tag with the specified name
+
+  # TJT 2014-08-26: Adding onchange
   """
   mark = validation_mark(vr, name)
 
@@ -134,8 +138,9 @@ def html_option(vr, name, selected, html, temp=False, strike=False):
   """
   Return an HTML <option> tag with the specified attributes and
   surrounding text
-  """
+
   # TJT 2014-03-19: adding disabled option for always-disabled "future work"
+  """
   # TODO: javascript cuts this out, need to change javascript
   if strike:
     strike = u' disabled'
@@ -153,8 +158,9 @@ def html_delbutton(code):
   """
   return the HTML for an iterator delete button that will delete
   iterator "code"
-  """
+
   # TJT 2014-5-27 Regular capital X looks the best + most compliant
+  """
   return html_input(None, "button", "", "X",
            html_class="delbutton", title="Delete",
            onclick="remove_element(\'%s\')" % code) + "\n"
@@ -167,7 +173,7 @@ def js_array(items, N=2, skip=tuple()):
   form 'string1:string2'.
   """
   return u",\n".join(
-             (u'"' + u":".join(string for i, string in enumerate(item[:N+len(skip)]) if i not in skip)) + u'"'
+             u'"' + u":".join(string for i, string in enumerate(item[:N+len(skip)]) if i not in skip) + u'"'
              for item in items)
 
 

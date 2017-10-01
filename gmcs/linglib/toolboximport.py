@@ -1,3 +1,30 @@
+#!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
+
+"""
+toolboximport.py
+
+ERB 2011-04-25
+These functions enable the import of information from
+Toolbox lexicons into a choices file.  Because Toolbox
+does not constrain the tags that are used, the user must
+specify which Toolbox tags the system will attend to,
+both to find lexical items in general and to map entries
+in the Toolbox lexicon to lexical classes in the Toolbox
+file.  The result of calling import_toolbox_lexicon()
+is that any previously imported entries are dropped, and
+new entries are recorded in the choices file.  These are
+stored in a separate part of the choices file to a) enable
+that dropping and b) keep the Lexicon page from becoming
+unmanageable.  Ideally, the UI will eventually let the
+user explore the imported entries on demand (through clicking
+a link and bringing up a separate window, for example).
+The result of running the script should also provide the user
+with feedback about about the number of entries that were
+imported to each lexical class and the number of entries
+that matched no lexical classes.
+"""
+
 ######################################################################
 # imports
 
@@ -7,25 +34,6 @@ from gmcs.utils import TDLencode
 from gmcs.choices import ChoicesFile, FormData
 from gmcs.deffile import MatrixDef
 
-# ERB 2011-04-25
-# These functions enable the import of information from
-# Toolbox lexicons into a choices file.  Because Toolbox
-# does not constrain the tags that are used, the user must
-# specify which Toolbox tags the system will attend to,
-# both to find lexical items in general and to map entries
-# in the Toolbox lexicon to lexical classes in the Toolbox
-# file.  The result of calling import_toolbox_lexicon()
-# is that any previously imported entries are dropped, and
-# new entries are recorded in the choices file.  These are
-# stored in a separate part of the choices file to a) enable
-# that dropping and b) keep the Lexicon page from becoming
-# unmanageable.  Ideally, the UI will eventually let the
-# user explore the imported entries on demand (through clicking
-# a link and bringing up a separate window, for example).
-# The result of running the script should also provide the user
-# with feedback about about the number of entries that were
-# imported to each lexical class and the number of entries
-# that matched no lexical classes.
 
 def make_pred(tbentry,stemtag,glosstag,predchoice,lextype):
     '''
@@ -80,25 +88,17 @@ def process_tb_entry(tbentry,lexclasses,stemtag,
                 match += 1
 
         if match == len(tvps):
-#            if choices['imported-entry']:
-#                n = choices['imported-entry'].next_iter_num()
-#            else:
-#                n = 1
             prefix = 'imported-entry' + str(n)
             pred = make_pred(tbentry,stemtag,glosstag,predchoice,lextype)
             if stemtag in tbentry.keys():
-#                choices[prefix + '_orth'] = tbentry[stemtag]
                 formdata[prefix + '_orth'].value = tbentry[stemtag]
                 if bistemtag in tbentry.keys():
-#                    choices[prefix + '_aff'] = tbentry[bistemtag]
                     formdata[prefix + '_aff'].value = tbentry[bistemtag]
                     affixes.append(tbentry[bistemtag])
-#                choices[prefix + '_pred'] = pred
-#                choices[prefix + '_lextype'] = lextype
                 formdata[prefix + '_pred'].value = pred
                 formdata[prefix + '_lextype'].value = lextype
             else:
-                # Throw an error or warning here?
+                # TODO: Throw an error or warning here?
                 continue
 
     return affixes
@@ -111,8 +111,6 @@ def get_affix_from_entry(tbentry,idtag,stemtag,affixes,affix_strings):
     the affix_strings dictionary.
     '''
     if idtag not in tbentry.keys():
-        #print tbentry
-        #print "Error: tbentry without tbid"
         tbid = 0
     else:
         tbid = tbentry[idtag]
@@ -123,6 +121,7 @@ def get_affix_from_entry(tbentry,idtag,stemtag,affixes,affix_strings):
             break
     return [affixes, affix_strings]
 
+
 def insert_affixes(form_data, affix_strings, number):
     '''
     Given a dictionary mapping affix ids to affix forms,
@@ -131,9 +130,9 @@ def insert_affixes(form_data, affix_strings, number):
     '''
     for entry in range(1,number):
         affix_id = form_data['imported-entry'+str(entry)+'_aff'].value
-#        full_key = entry.full_key
         if affix_id in affix_strings.keys():
             form_data['imported-entry'+str(entry)+'_aff'].value = affix_strings[affix_id]
+
 
 def import_toolbox_lexicon(choicesfile):
     '''
@@ -151,9 +150,9 @@ def import_toolbox_lexicon(choicesfile):
     choices = ChoicesFile(choicesfile)
     # Counters
     tbentries = 0
-    form_data_entries = 1;
+    form_data_entries = 1
 
-    form_data = FormData();
+    form_data = FormData()
     form_data['section'].value = 'ToolboxLexicon'
 
     for config in choices['toolboximportconfig']:
@@ -210,6 +209,7 @@ def import_toolbox_lexicon(choicesfile):
                 for affix in affixes:
                     if not re.search(r'^[0-9]+$',affix):
                         affixids = False
+                        break
 
             if affixids and affixes:
                 tblex = open(tbfile.get('tbfilename'),'r')
@@ -218,7 +218,7 @@ def import_toolbox_lexicon(choicesfile):
                     words = line.rstrip().split()
                     if words:
                         if words[0] == starttag and affixes:
-                            [affixes, affix_strings] = get_affix_from_entry(tbentry,idtag,stemtag,affixes,affix_strings)
+                            affixes, affix_strings = get_affix_from_entry(tbentry,idtag,stemtag,affixes,affix_strings)
                             tbentry = {}
                         tbentry[words[0]] = ' '.join(words[1:])
                 insert_affixes(form_data, affix_strings, form_data_entries)
@@ -229,15 +229,9 @@ def import_toolbox_lexicon(choicesfile):
 
     # Print new choices file by concatenating input choices
     # with output choices.  FIXME: What about section=?
-    # TODO: Definitely make this not use the def file
     # TODO: Make the deffile a parameter
     # TODO: Make sure to change this when moving save_choices
     matrixdef = MatrixDef("web/matrixdef").save_choices(form_data, choicesfile)
-#    fout = open(choicesfile+"new", 'w')
-#    choices['version'] = str(choices.current_version())
-#    fout.write(str(choices))
-#    fout.write('Toolbox entries processed: ' + str(tbentries))
-#    fout.write('Total entries imported: ' + str(choices['imported-entry'].next_iter_num() - 1))
 
 
 def integrate_imported_entries(choices):

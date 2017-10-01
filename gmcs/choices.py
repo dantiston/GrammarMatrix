@@ -8,12 +8,16 @@ choices.py
 
 Definition of the choices data structure, methods for loading, saving, and
     changing choices
+
+TODO: Parsing the choices file is taking quite some time
 """
 
 ######################################################################
 # imports
 
 import re
+import codecs
+
 from gmcs.util.misc import safe_int, get_valid_lines
 from gmcs.linglib import case
 
@@ -283,15 +287,17 @@ def get_choice(choice, choices):
   Return the value of a choice from choice lines or a choices file.
   The choice must be fully specified choice (not a sub-structure).
   Returns None if the choice does not result in a value.
-  TODO: This is extremely slow
+  TODO: This is slow
   """
   choice_lines = choices
-  if type(choices) is str:
-    choice_lines = open(choices).readlines()
-  elif type(choices) is file:
+  if isinstance(choices, basestring):
+    with codecs.open(choices, 'r', encoding="utf-8") as f:
+      choice_lines = f.readlines()
+  elif isinstance(choices, file):
     choice_lines = choices.readlines()
 
-  for line in [l.strip() for l in choice_lines if '=' in l]:
+  # TJT 10-1-17: Changed from list comprehension to generator; TODO: verify
+  for line in (l.strip() for l in choice_lines if '=' in l):
     key, val = line.split('=')
     if key == choice:
       return val
@@ -348,12 +354,14 @@ class ChoicesFile:
     if choices_file is not None:
       try:
         f = choices_file
+        # if type(choices_file) is str:
         if isinstance(choices_file, basestring):
           f = open(choices_file, 'r')
         f.seek(0)
         lines = get_valid_lines(f.readlines())
         self.load_choices(lines)
-        if type(choices_file) == str:
+        # if type(choices_file) is str:
+        if isinstance(choices_file, basestring):
           f.close()
       except IOError:
         pass # TODO: we should really be logging these
@@ -396,18 +404,20 @@ class ChoicesFile:
     self.choices = self.parse_choices(choice_lines)
     self.postparse_uprev()
 
+
+  ELEMENTS_TO_SKIP = ('section', 'version')
   def parse_choices(self, choice_lines):
     """
     Get the data structure for each choice in the choices file, then
     merge them all together into one data structure.
     """
     choices = ChoiceDict()
-    for line in [l.strip() for l in choice_lines if l.strip() != '']:
+    for line in (l for l in (l.strip() for l in choice_lines) if l):
       try:
-        (key, value) = line.split('=',1)
-        if key.strip() in ('section', 'version'):
-            continue
-        choices[key.strip()] = value
+        key, value = line.split('=', 1)
+        key = key.strip()
+        if not key in self.ELEMENTS_TO_SKIP:
+          choices[key] = value
       except ValueError:
         pass # TODO: log this!
       except AttributeError:
@@ -416,25 +426,32 @@ class ChoicesFile:
         pass # TODO: log this!
     return choices
 
+
   ############################################################################
   ### Choices access functions
 
   def get(self, key, default=None):
     return self.choices.get(key, default)
 
+
   def get_regex(self, pattern):
     pat = re.compile(pattern)
-    return [(key, val) for (key, val) in self.walk(intermediates=True)
+    return [(key, val) for key, val in self.walk(intermediates=True)
             if pat.match(key)]
 
-  # A __getitem__ method so that ChoicesFile can be used with brackets,
-  # e.g., ch['language'].
+
   def __getitem__(self, key):
+    """
+    # A __getitem__ method so that ChoicesFile can be used with brackets,
+    # e.g., ch['language'].
+    """
     return self.get(key)
+
 
   def __setitem__(self, key, value):
     self.choices[key] = value
     self.__reset_full_keys(key)
+
 
   def delete(self, key, prune=False):
     del self[key]
@@ -444,23 +461,27 @@ class ChoicesFile:
         self.__renumber_full_keys(k)
         self.__reset_full_keys(k)
 
+
   def __delitem__(self, key):
     del self.choices[key]
 
+
   def __contains__(self, key):
-    if self.get(key):
-      return True
-    return False
+    return bool(self.get(key))
+
 
   def __iter__(self):
     return self.choices.__iter__()
+
 
   def walk(self, intermediates=False):
     for result in self.choices.walk(intermediates):
       yield result
 
+
   def __len__(self):
     return len(self.choices)
+
 
   def __renumber_full_keys(self, key):
     """
@@ -483,6 +504,7 @@ class ChoicesFile:
         continue
       self.__renumber_full_keys(c.full_key)
 
+
   def __reset_full_keys(self, key):
     """
     Starting at the given key, reset the full_key values of all
@@ -500,8 +522,10 @@ class ChoicesFile:
         idx = split_variable_key(d.full_key)[-1]
         self.__reset_full_keys(key + str(idx))
 
+
   def keys(self):
     return self.choices.keys()
+
 
   def full_keys(self):
     return self.choices.full_keys()
@@ -536,6 +560,7 @@ class ChoicesFile:
         raise ChoicesFileParseError('Variable is multiply defined: %s' % key)
 
     return new_lines
+
 
   def postparse_uprev(self):
     if self.version < 1:
@@ -762,25 +787,26 @@ class ChoicesFile:
     return result
 
 
-  # patterns()
-  #   Create and return a list containing information about the
-  #   case-marking patterns implied by the current case choices.
-  #   This list consists of tuples:
-  #       [ canonical pattern name,
-  #         friendly pattern name,
-  #         rule?,
-  #         direct-inverse? ]
-  #   A pattern name is:
-  #       (in)?transitive \(subject case-object case)
-  #   In a canonical name (which is used in the choices file), the
-  #   case names are the same as those used in the choices variable
-  #   names.  The friendly name uses the names supplied by the
-  #   user.  The third element is either True if the case pattern
-  #   is one that should be used in lexical rules or False if it
-  #   should be used on lexical types (subtypes of verb-lex).  The
-  #   fourth argument is true if the verb follows a direct-inverse
-  #   marking pattern.
   def patterns(self):
+    """
+    Create and return a list containing information about the
+    case-marking patterns implied by the current case choices.
+    This list consists of tuples:
+        [ canonical pattern name,
+          friendly pattern name,
+          rule?,
+          direct-inverse? ]
+    A pattern name is:
+        (in)?transitive \(subject case-object case)
+    In a canonical name (which is used in the choices file), the
+    case names are the same as those used in the choices variable
+    names.  The friendly name uses the names supplied by the
+    user.  The third element is either True if the case pattern
+    is one that should be used in lexical rules or False if it
+    should be used on lexical types (subtypes of verb-lex).  The
+    fourth argument is true if the verb follows a direct-inverse
+    marking pattern.
+    """
     cm = self.get('case-marking')
     cases = case.case_names(self)
 
@@ -824,7 +850,7 @@ class ChoicesFile:
 
     # Fill in the friendly names based on the canonical names
     for i in range(0, len(patterns)):
-      if patterns[i][0] in ['trans', 'intrans']:
+      if patterns[i][0] in ('trans', 'intrans'):
         patterns[i][1] = patterns[i][0] + 'itive'
         if cm != 'none':
           patterns[i][1] += ' (case unspecified)'
@@ -850,12 +876,13 @@ class ChoicesFile:
     return patterns
 
 
-  # numbers()
-  #   Create and return a list containing information about the values
-  #   of the number feature implied by the current choices.
-  #   This list consists of tuples:
-  #     [name, supertype;supertype;...]
   def numbers(self):
+    """
+    Create and return a list containing information about the values
+    of the number feature implied by the current choices.
+      This list consists of tuples:
+        [name, supertype;supertype;...]
+    """
     numbers = []
 
     for n in self.get('number'):
@@ -866,12 +893,13 @@ class ChoicesFile:
     return numbers
 
 
-  # persons()
-  #   Create and return a list containing information about the values
-  #   of the person feature implied by the current choices.
-  #   This list consists of tuples:
-  #     [name, supertype]
   def persons(self):
+    """
+    Create and return a list containing information about the values
+    of the person feature implied by the current choices.
+    This list consists of tuples:
+      [name, supertype]
+    """
     persons = []
 
     person = self.get('person')
@@ -897,14 +925,15 @@ class ChoicesFile:
     return persons
 
 
-  # pernums()
-  #   Create and return a list containing information about the values
-  #   of the pernum feature implied by the current choices.  A pernum
-  #   feature is implied when the user has specified that the
-  #   first-person plural has sub-types.
-  #   This list consists of tuples:
-  #     [name, supertype;supertype;...]
   def pernums(self):
+    """
+    Create and return a list containing information about the values
+    of the pernum feature implied by the current choices.  A pernum
+    feature is implied when the user has specified that the
+    first-person plural has sub-types.
+    This list consists of tuples:
+      [name, supertype;supertype;...]
+    """
     pernums = []
 
     fp = self.get('first-person')
@@ -954,12 +983,13 @@ class ChoicesFile:
     return pernums
 
 
-  # genders()
-  #   Create and return a list containing information about the
-  #   genders implied by the current choices.
-  #   This list consists of tuples:
-  #     [name, supertype;supertype;...]
   def genders(self):
+    """
+    Create and return a list containing information about the
+    genders implied by the current choices.
+    This list consists of tuples:
+      [name, supertype;supertype;...]Q
+    """
     genders = []
 
     for g in self.get('gender'):
@@ -969,13 +999,15 @@ class ChoicesFile:
 
     return genders
 
-  # forms()
-  #   Create and return a list containing the values of the FORM
-  #   feature that constrains the form of auxiliary complements as
-  #   defined in the current choices.
-  #   This list consists of tuples:
-  #     [form name]
+
   def forms(self):
+    """
+    Create and return a list containing the values of the FORM
+    feature that constrains the form of auxiliary complements as
+    defined in the current choices.
+    This list consists of tuples:
+      [form name]
+    """
     forms = []
 
     if self.get('has-aux') == 'yes' or self.get('noaux-fin-nf') == 'on':
@@ -986,12 +1018,14 @@ class ChoicesFile:
 
     return forms
 
-  # tenses()
-  #   Create and return a list containing information about the values
-  #   of the TENSE feature implied by the current choices.
-  #   This list consists of tuples:
-  #     [tense name]
+
   def tenses(self):
+    """
+    Create and return a list containing information about the values
+    of the TENSE feature implied by the current choices.
+    This list consists of tuples:
+      [tense name]
+    """
     tenses = []
 
     tdefn = self.get('tense-definition')
@@ -1008,12 +1042,14 @@ class ChoicesFile:
 
     return tenses
 
-  # aspects()
-  #   Create and return a list containing information about the values
-  #   of the viewpoint ASPECT feature implied by the current choices.
-  #   This list consists of tuples:
-  #     [aspect name]
+
   def aspects(self):
+    """
+    Create and return a list containing information about the values
+    of the viewpoint ASPECT feature implied by the current choices.
+    This list consists of tuples:
+      [aspect name]
+    """
     aspects = []
 
     for asp in self.get('aspect'):
@@ -1025,20 +1061,24 @@ class ChoicesFile:
 
     return aspects
 
-  # situations()
-  #   Create and return a list containing information about the values
-  #   of the SITUATION aspect feature implied by the current choices.
-  #   This list consists of tuples:
-  #     [situation name]
+
   def situations(self):
+    """
+    Create and return a list containing information about the values
+    of the SITUATION aspect feature implied by the current choices.
+    This list consists of tuples:
+      [situation name]
+    """
     return [[situation['name']] for situation in self.get('situation')]
 
-  # moods()
-  #   Create and return a list containing information about the values
-  #   of the MOOD feature implied by the current choices.
-  #   This list consists of tuples:
-  #      [mood name]
+
   def moods(self):
+    """
+    Create and return a list containing information about the values
+    of the MOOD feature implied by the current choices.
+    This list consists of tuples:
+       [mood name]
+    """
     moods = []
 
     for md in self.get('mood'):
@@ -1060,6 +1100,7 @@ class ChoicesFile:
             for t in ('noun', 'verb', 'aux', 'det')
             if t in self.choices and 'name' in self.choices[t]]
 
+
   def __get_features(self, feat_list, i1, i2, label, tdl, cat, customized):
     """
     If there are values available for the given feature, construct a
@@ -1070,6 +1111,7 @@ class ChoicesFile:
       return [ [label, values, tdl, cat, customized] ]
     return []
 
+
   def index_features(self):
     """
     Return the list of features that are marked on INDEX.
@@ -1077,24 +1119,25 @@ class ChoicesFile:
     return ['person','number','gender'] \
            + [f['name'] for f in self['feature'] if f['type'] == 'index']
 
-  # features()
-  #   Create and return a list containing information about the
-  #   features in the language described by the current choices.  This
-  #   list consists of tuples with four strings:
-  #       [feature name, list of values, feature geometry, category]
-  #   Note that the feature geometry is empty if the feature requires
-  #   more complex treatment that just FEAT=VAL (e.g. negation).
-  #   The list of values is separated by semicolons, and each item in the
-  #   list of values is a pair of the form 'name|friendly name'.
-  #   The category string can have the values 'noun' or 'verb' or 'both' depending
-  #   whether the features are appropriate for "nouny" or "verby" things.
-
-  #   SSH (2012-06-20)
-  #   A flag feature 'customized' is added, which indicates whether the feature
-  #   is created in the customization system by users. A feature is specified as
-  #   either 'customized=y' or 'customized=n'.
 
   def features(self):
+    """
+    Create and return a list containing information about the
+    features in the language described by the current choices.  This
+    list consists of tuples with four strings:
+        [feature name, list of values, feature geometry, category]
+    Note that the feature geometry is empty if the feature requires
+    more complex treatment that just FEAT=VAL (e.g. negation).
+    The list of values is separated by semicolons, and each item in the
+    list of values is a pair of the form 'name|friendly name'.
+    The category string can have the values 'noun' or 'verb' or 'both' depending
+    whether the features are appropriate for "nouny" or "verby" things.
+
+    SSH (2012-06-20)
+    A flag feature 'customized' is added, which indicates whether the feature
+    is created in the customization system by users. A feature is specified as
+    either 'customized=y' or 'customized=n'.
+    """
     features = []
 
     # Case
@@ -1208,7 +1251,7 @@ class ChoicesFile:
          self.get('subj-mark-no-drop') == 'subj-mark-no-drop-req':
       features += [['dropped-arg', perm_notperm_string,'', '', '']]
 
- #elif self.get('subj-mark-drop') == 'subj-mark-drop-opt') and self.get('subj-mark-no-drop') == 'subj-mark-no-drop-req': features += [['dropped-arg', perm_notperm_string, '']]
+    #elif self.get('subj-mark-drop') == 'subj-mark-drop-opt') and self.get('subj-mark-no-drop') == 'subj-mark-no-drop-req': features += [['dropped-arg', perm_notperm_string, '']]
 
     for feature in self.get('feature'):
       feat_name = feature['name']
@@ -1248,6 +1291,7 @@ class ChoicesFile:
   # The mehods should consist of a sequence of calls to
   # convert_value(), followed by a sequence of calls to convert_key().
   # That way the calls always contain an old name and a new name.
+
   def current_version(self):
     return 28
 
@@ -1418,6 +1462,7 @@ class ChoicesFile:
       if ques != 'int':
         self[ques] = 'on'
 
+
   def convert_2_to_3(self):
     # Added a fuller implementation of case marking on core arguments,
     # so convert the old case-marking adposition stuff to the new
@@ -1455,6 +1500,7 @@ class ChoicesFile:
         self['acc-case-order'] = Oorder
       else:
         self['acc-case-pat'] = 'none'
+
     elif Sorth != Aorth and Sorth == Oorth:
       self['case-marking'] = 'erg-asb'
       self['erg-case-label'] = 'ergative'
@@ -1469,6 +1515,7 @@ class ChoicesFile:
         self['abs-case-order'] = Oorder
       else:
         self['abs-case-pat'] = 'none'
+
     else:
       self['case-marking'] = 'tripartite'
       self['s-case-label'] = 'subjective'
@@ -1498,6 +1545,7 @@ class ChoicesFile:
     self.delete('obj-adp-orth')
     self.delete('obj-adp-order')
 
+
   def convert_3_to_4(self):
     # Added a fuller implementation of case marking on core arguments,
     # so convert the old case-marking adposition stuff to the new
@@ -1517,6 +1565,7 @@ class ChoicesFile:
     # the following were converted in preparse_uprev
     for key in ('noun1', 'noun2', 'det1', 'det2'):
       self.convert_key(key + '_value', key + '_orth')
+
 
   def convert_4_to_5(self):
     # An even fuller implementation of case marking, with some of the
@@ -1637,6 +1686,7 @@ class ChoicesFile:
         elif cm == 'tripartite':
           verb['valence'] = 'a-o'
 
+
   def convert_5_to_6(self):
     self.convert_key('aux-order', 'aux-comp-order')
     self.convert_key('aux-verb', 'aux1_orth')
@@ -1653,6 +1703,7 @@ class ChoicesFile:
     for verb in self['verb']:
       self.delete('_'.join([verb.full_key, 'non-finite']))
 
+
   def convert_6_to_7(self):
     # Lexical types now have multiple stems
     for lextype in ['noun', 'verb', 'det']:
@@ -1663,6 +1714,7 @@ class ChoicesFile:
     if not self.get('person') and len(self):
       self['person'] = 'none'
 
+
   def convert_7_to_8(self):
     # Other features no longer use the magic word 'root', they instead
     # use the name of the feature.
@@ -1671,6 +1723,7 @@ class ChoicesFile:
       for value in feature.get('value',[]):
         for st in value.get('supertype',[]):
           self.convert_value(st.full_key + '_name', 'root', fname)
+
 
   def convert_8_to_9(self):
     # finite and nonfinite feature value name changes
@@ -1685,6 +1738,7 @@ class ChoicesFile:
           for feat in morph.get('feat',[]):
             self.convert_value(feat.full_key + '_value','fin','finite')
             self.convert_value(feat.full_key + '_value','nf','nonfinite')
+
 
   def convert_9_to_10(self):
     """
@@ -1709,6 +1763,7 @@ class ChoicesFile:
         self[k] = v
         self.delete(aux.full_key + '_nonfincompform')
 
+
   def convert_10_to_11(self):
     """
     Previous versions allowed only one stem per auxiliary type.
@@ -1717,6 +1772,7 @@ class ChoicesFile:
     for aux in self['aux']:
       self.convert_key('orth', 'stem1_orth', key_prefix=aux.full_key)
       self.convert_key('pred', 'stem1_pred', key_prefix=aux.full_key)
+
 
   def convert_11_to_12(self):
     """
@@ -1733,17 +1789,19 @@ class ChoicesFile:
       for aux in self['aux']:
           self.delete(aux.full_key + '_comp')
 
+
   def convert_12_to_13(self):
     """
     ERB: stupidly used "+" as a feature value.  Updating this
     to "plus".  Feature name was "negation".
     """
-    for lextype in ['aux','det','verb','noun']:
+    for lextype in ('aux', 'det', 'verb', 'noun'):
       for lt in self[lextype + '-slot']:
         for morph in lt.get('morph',[]):
           for feat in morph.get('feat',[]):
             if feat['name'] == 'negation':
               self.convert_value(feat.full_key + '_value','+','plus')
+
 
   def convert_13_to_14(self):
     """
@@ -1774,6 +1832,7 @@ class ChoicesFile:
           person_subtype['name'] = st
           person_subtype['number'] = number
 
+
   def convert_14_to_15(self):
     """
     Revised slot co-occurrence constraints in the Lexicon subpage.
@@ -1797,6 +1856,7 @@ class ChoicesFile:
           constraint_key = slot.full_key + '_constraint%d' % (i+1)
           self[constraint_key + '_type'] = c[0]
           self[constraint_key + '_other-slot'] = c[1]
+
 
   def convert_15_to_16(self):
     """
@@ -1823,6 +1883,7 @@ class ChoicesFile:
       self[feat_key + val_key + '_name'] = mv
       self[feat_key + val_key + '_supertype1_name'] = 'mark'
 
+
   def convert_16_to_17(self):
     """
     Relates to Auxiliary complement feature definition:
@@ -1839,6 +1900,7 @@ class ChoicesFile:
       self[new_key + '_value'] = complementform
       #self.delete(aux.full_key + '_compform', prune=True)
       self.delete(aux.full_key + '_compform')
+
 
   def convert_17_to_18(self):
     """
@@ -1872,6 +1934,7 @@ class ChoicesFile:
       self[pref + '_morph1_feat1_head'] = 'verb'
       self[pref + '_opt'] = 'on'
 
+
   def convert_18_to_19(self):
     """
     sentence1, sentence2, etc. were converted in preparse_uprev to be
@@ -1879,6 +1942,7 @@ class ChoicesFile:
     """
     for sent in self.get('sentence', []):
       self.convert_key(sent.full_key + '_value', sent.full_key + '_orth')
+
 
   def convert_19_to_20(self):
     """
@@ -1897,8 +1961,9 @@ class ChoicesFile:
             self.convert_value('aux-comp','v','vp')
     else:
       pass
-#if v-comp if free word order if v-cluster more than one aux, if no cluster 1max
-    # if svo,ovs do nothing, else v-comp is vp-comp
+    #if v-comp if free word order if v-cluster more than one aux, if no cluster 1max
+        # if svo,ovs do nothing, else v-comp is vp-comp
+
 
   def convert_20_to_21(self):
     """
@@ -1924,6 +1989,7 @@ class ChoicesFile:
         else:
           slot['obligatory'] = 'on'
 
+
   def convert_21_to_22(self):
     """
     Constraints are no longer generic and specifying a type, but are
@@ -1946,6 +2012,7 @@ class ChoicesFile:
           for i, fbd in enumerate(constraints['forbid']):
             key = slot.full_key + '_forbid' + str(i + 1) + '_other-slot'
             self[key] = fbd
+
 
   def convert_22_to_23(self):
     """
@@ -1992,6 +2059,7 @@ class ChoicesFile:
       # finally, change -slot keys to -pc
       self.convert_key(lex_cat + '-slot', lex_cat + '-pc')
 
+
   def convert_23_to_24(self):
     """
     This uprev only fixes test sentences marked ungrammatical with a * at
@@ -2002,6 +2070,7 @@ class ChoicesFile:
       if sentence.get('orth','').startswith('*'):
         sentence['star'] = 'on'
         sentence['orth'] = sentence['orth'].lstrip('*')
+
 
   def convert_24_to_25(self):
     """
@@ -2015,6 +2084,7 @@ class ChoicesFile:
     if self.get('punctuation-chars'):
       self.convert_key('punctuation-chars', 'punctuation-chars-list')
       self['punctuation-chars'] = 'keep-list'
+
 
   def convert_25_to_26(self):
     """
@@ -2114,6 +2184,7 @@ class ChoicesFile:
         feature['new'] = 'yes'
         feature['cat'] = 'both'
 
+
   def convert_26_to_27(self):
     """
     This uprev converts the names involving topicality in other features.
@@ -2141,12 +2212,15 @@ class ChoicesFile:
             self.convert_value(feat.full_key + '_value', 'topic', '_topic')
             self.convert_value(feat.full_key + '_value', 'non-topic', '_non-topic')
 
+
   def convert_27_to_28(self):
     """
     This uprev converts uppercase affixes into lowercase ones, because
     ACE does not handle uppercase suffixes.
+
+    TJT 10-1-17: Adding adj and cop here
     """
-    for lex_cat in ['det','verb','noun',]:
+    for lex_cat in ('det','verb','noun','adj','cop'):
       for pc in self[lex_cat + '-pc']:
         for lrt in pc['lrt']:
           for lri in lrt['lri']:
@@ -2156,11 +2230,14 @@ class ChoicesFile:
 
 
 ########################################################################
-# FormData Class
-# This Class acts like form data which would normally
-# be sent from the server. Used for testing purposes.
+# Test classes
 
 class FormData:
+  """
+  This Class acts like form data which would normally
+  be sent from the server. Used for testing purposes.
+  """
+
   def __init__(self):
     self.data = {}
 
@@ -2183,7 +2260,9 @@ class FormData:
   def keys(self):
     return self.data.keys()
 
+
 class FormInfo:
+
   def __init__(self, key, value):
     self.key = key
     self.value = value

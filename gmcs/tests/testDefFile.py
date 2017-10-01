@@ -82,10 +82,11 @@ class DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
-  @unittest.skip("'NoneType' object is not iterable")
+  @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
   def testDefsToHtml_iter(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
+      # tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
+      tokenized_lines = [(['BeginIter', 'test{i}', '"test-iter"'], 3, 'BeginIter'), (['Text', 'name', 'Test variable: {i}', "", "", "20"], 6, 'Text'), (['EndIter', 'test'], 2, 'EndIter')]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({}), mock_validation(), "", {})
       expected = ''
       self.assertEqual(actual, expected)
@@ -304,49 +305,53 @@ class DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
-#   def testDefsToHtml_iter_example2(self):
-#     with os_environ(HTTP_COOKIE="session=7777"):
-#       tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Label', 'Test variable: {i}'], ['EndIter', 'test']]
-#       choices = load_choices("iter_choices2.txt")
-#       actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
-#       expected = """<div class="iterator" style="display: none" id="test_TEMPLATE">
-# <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test{i}')">
-# <div class="iterframe">Test variable: {i}
-# </div>
-# </div>
-#
-# <div class="iterator" id="test1">
-# <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test1')">
-# <div class="iterframe">Test variable: 1
-# </div>
-# </div>
-# <div class="iterator" id="test2">
-# <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test2')">
-# <div class="iterframe">Test variable: 2
-# </div>
-# </div>
-# <div class="anchor" id="test_ANCHOR"></div>
-# <p><input type="button"  value="Add "test-iter"" onclick="clone_region('test', 'i', false)">"""
-#       self.assertEqual(actual, expected)
-#
-#
-#   def testDefsToHtml_select_example(self):
-#     with os_environ(HTTP_COOKIE="session=7777"):
-#       tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
-#       choices = load_choices("select_choices.txt")
-#       actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
-#       expected = """\n<select name="test-select">
-# <option value="common" selected class="temp">common</option>
-# <option value=""></option>\n</select><br />\n"""
-#       self.assertEqual(actual, expected)
-#
-#
-#   def testDefsToHtml_section(self):
-#     with os_environ(HTTP_COOKIE="session=7777"):
-#       tokenized_lines = [['Section', 'Test', 'test section', 'testSection'], ['Label', 'test-label', 'test label']]
-#       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({}), mock_validation(), "", {})
-#       expected = "test label\n"
-#       self.assertEqual(actual, expected)
+  def testDefsToHtml_iter_example2(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Label', 'Test variable: {i}'], ['EndIter', 'test']]
+      tokenized_lines = [(['BeginIter', 'test{i}', '"test-iter"'], 3, 'BeginIter'), (['Label', 'Test variable: {i}'], 2, 'Label'), (['EndIter', 'test'], 2, 'EndIter')]
+      choices = load_choices("iter_choices2.txt")
+      actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
+      expected = """<div class="iterator" style="display: none" id="test_TEMPLATE">
+<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test{i}')">
+<div class="iterframe">Test variable: {i}
+</div>
+</div>
+
+<div class="iterator" id="test1">
+<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test1')">
+<div class="iterframe">Test variable: 1
+</div>
+</div>
+<div class="iterator" id="test2">
+<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('test2')">
+<div class="iterframe">Test variable: 2
+</div>
+</div>
+<div class="anchor" id="test_ANCHOR"></div>
+<p><input type="button"  value="Add "test-iter"" onclick="clone_region('test', 'i', false)">"""
+      save_both(actual, expected)
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_select_example(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
+      tokenized_lines = [(['Select', 'test-select', 'test select', '', '<br />'], 4, 'Select')]
+      choices = load_choices("select_choices.txt")
+      actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
+      expected = """\n<select name="test-select">
+<option value="common" selected class="temp">common</option>
+<option value=""></option>\n</select><br />\n"""
+      self.assertEqual(actual, expected)
+
+
+  def testDefsToHtml_section(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      # tokenized_lines = [['Section', 'Test', 'test section', 'testSection'], ['Label', 'test-label', 'test label']]
+      tokenized_lines = [(['Section', 'Test', 'test section', 'testSection'], 4, 'Section'), (['Label', 'test-label', 'test label'], 3, 'Label')]
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({}), mock_validation(), "", {})
+      expected = "test label\n"
+      self.assertEqual(actual, expected)
 
 
 class SubPageTests(unittest.TestCase):
@@ -405,20 +410,20 @@ class SubPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-  # def testIter(self):
-  #   with os_environ(HTTP_COOKIE="session=7777"):
-  #     definition = load_matrixdef("testIter")
-  #     actual = definition.sub_page('test-iter', '7777', mock_validation())
-  #     expected = load_testhtml("testIter")
-  #     self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
-  #
-  #
-  # def testNestedIter(self):
-  #   with os_environ(HTTP_COOKIE="session=7777"):
-  #     definition = load_matrixdef("testNestedIter")
-  #     actual = definition.sub_page('test-nested-iter', '7777', mock_validation())
-  #     expected = load_testhtml("testNestedIter")
-  #     self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+  def testIter(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load_matrixdef("testIter")
+      actual = definition.sub_page('test-iter', '7777', mock_validation())
+      expected = load_testhtml("testIter")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testNestedIter(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load_matrixdef("testNestedIter")
+      actual = definition.sub_page('test-nested-iter', '7777', mock_validation())
+      expected = load_testhtml("testNestedIter")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
   def testIterBroken(self):
@@ -637,9 +642,24 @@ class NavigationTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
+class GetOnLoadTests(unittest.TestCase):
+
+  @classmethod
+  def setUpClass(cls):
+    cls._definition = deffile.MatrixDef(None)
+
+  def testBasic_Onload(self):
+    actual = self._definition.get_onload([([u'Section', u'test-basic', u'Test Basic', u'TestBasic', u'testBasic', u'unload();'], 6, u'Section')])
+    expected = u'unload();'
+    self.assertEqual(actual, expected)
+
+  def testBasic_None(self):
+    actual = self._definition.get_onload([([u'Section', u'test-basic', u'Test Basic', u'TestBasic', u'testBasic'], 5, u'Section')])
+    expected = u''
+    self.assertEqual(actual, expected)
+
 
 class ReplaceVarsTests(unittest.TestCase):
-
 
   def testReplaceVars_Multiple(self):
     actual = deffile.replace_vars("BeginIter test-iter-{i} \"hello\" \"\"", {"i":1})
@@ -648,32 +668,37 @@ class ReplaceVarsTests(unittest.TestCase):
 
 
   def testReplaceVarsTokenized(self):
-    # actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}", '"hello"', ""], {"i":1})
-    # expected = ["BeginIter", "test-iter-1", '"hello"', ""]
     actual = deffile.replace_vars_tokenized((['BeginIter', 'test-iter-{i}', '"hello"', ''], 4, 'BeginIter'), {"i":1})
     expected = (['BeginIter', 'test-iter-1', '"hello"', ''], 4, 'BeginIter')
     self.assertEqual(actual, expected)
 
 
   def testReplaceVarsTokenized_non1(self):
-    # actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}", '"hello"', ""], {"i":2})
-    # expected = ["BeginIter", "test-iter-2", '"hello"', ""]
     actual = deffile.replace_vars_tokenized((['BeginIter', 'test-iter-{i}', '"hello"', ''], 4, 'BeginIter'), {"i":2})
     expected = (['BeginIter', 'test-iter-2', '"hello"', ''], 4, 'BeginIter')
     self.assertEqual(actual, expected)
 
 
   def testReplaceVarsTokenized_Multiple(self):
-    # actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}-{j}", '"hello"', ""], {"i":1, "j":2})
-    # expected = ["BeginIter", "test-iter-1-2", '"hello"', ""]
     actual = deffile.replace_vars_tokenized((['BeginIter', 'test-iter-{i}-{j}', '"hello"', ''], 4, 'BeginIter'), {"i":1, "j":2})
     expected = (['BeginIter', 'test-iter-1-2', '"hello"', ''], 4, 'BeginIter')
     self.assertEqual(actual, expected)
 
 
+  def testReplaceVarsTokenized_NoMutation(self):
+    line = (['BeginIter', 'test-iter-{i}', '"hello"', ''], 4, 'BeginIter')
+    line_copy = (['BeginIter', 'test-iter-{i}', '"hello"', ''], 4, 'BeginIter')
+    actual = deffile.replace_vars_tokenized(line, {"i":1})
+    expected = (['BeginIter', 'test-iter-1', '"hello"', ''], 4, 'BeginIter')
+    self.assertEqual(line, line_copy)
+    self.assertEqual(actual, expected)
+    actual = deffile.replace_vars_tokenized(line, {"i":2})
+    expected = (['BeginIter', 'test-iter-2', '"hello"', ''], 4, 'BeginIter')
+    self.assertEqual(line, line_copy)
+    self.assertEqual(actual, expected)
+
+
   def testReplaceVarsTokenized_Missing(self):
-    # actual = deffile.replace_vars_tokenized(["BeginIter", "test-iter-{i}-{j}", '"hello"', ""], {"i":1, "k":2})
-    # expected = ["BeginIter", "test-iter-1-{j}", '"hello"', ""]
     actual = deffile.replace_vars_tokenized((['BeginIter', 'test-iter-{i}-{j}', '"hello"', ''], 4, 'BeginIter'), {"i":1, "k":2})
     expected = (['BeginIter', 'test-iter-1-{j}', '"hello"', ''], 4, 'BeginIter')
     self.assertEqual(actual, expected)

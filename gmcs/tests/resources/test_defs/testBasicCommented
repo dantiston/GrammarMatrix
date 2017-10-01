@@ -1,0 +1,9 @@
+# This is a comment
+Section test-basic "Test Basic" TestBasic
+
+Label "<p>Test</p>"
+
+# This is also comment
+Separator
+
+Label "<p>Test</p>"

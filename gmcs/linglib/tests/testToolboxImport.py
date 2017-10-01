@@ -1,3 +1,4 @@
+#!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 import unittest
 import tempfile
@@ -7,6 +8,7 @@ from gmcs.linglib import toolboximport
 from gmcs.deffile import MatrixDef
 
 class TestToolboxImport(unittest.TestCase):
+
 
   def setUp(self):
     try:
@@ -44,7 +46,7 @@ class TestToolboxImport(unittest.TestCase):
       for j in range(len(tb_strings[i])):
         fout = tempfile.NamedTemporaryFile()
         fout.write(str(tb_strings[i][j]))
-        self.toolbox_files.append(fout);
+        self.toolbox_files.append(fout)
         choices["toolboximportconfig"+str(i+1)+"_toolboxfile"+str(j+1)+"_tbfilename"] = fout.name
     return self.save_choices(choices)
 
@@ -71,16 +73,10 @@ class TestToolboxImport(unittest.TestCase):
     toolboximport.import_toolbox_lexicon(choices.name)
     self.c = ChoicesFile(choices.name)
     choices.close()
+    # import pdb; pdb.set_trace()
     self.c["toolboximportconfig1_toolboxfile1_tbfilename"] = ''
-#    self.c["version"] = str(self.c.current_version())
     self.gold.load_choices(test_gold_file.splitlines())
-#    self.gold["version"] = str(self.gold.current_version())
-#    try:
     self.assertEqual(self.c, self.gold)
-#    except:
-#      print "diffs"
-#      diffs = list(set(self.c) - set(self.gold))
-#      print diffs
 
 
 ##############################################################################

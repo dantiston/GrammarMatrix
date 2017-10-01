@@ -3,33 +3,38 @@
 
 ### $Id: utils.py,v 1.8 2008-05-28 21:08:12 sfd Exp $
 
-def tokenize_def(str):
-  """
-  Split a string into words, treating double-quoted strings as
-  single words.
-  """
-  i = 0
-  result = []
 
-  while i < len(str):
-    # skip whitespace
-    while i < len(str) and str[i].isspace():
-      i += 1
-    # if it's quoted, read to the close quote, otherwise to a space
-    if i < len(str) and str[i] == u'"':
-      i += 1
-      a = i
-      while i < len(str) and not (str[i] == u'"' and str[i-1] != '\\'):
-        i += 1
-      result.append(str[a:i].replace(u'\\"', u'"'))
-      i += 1
-    elif i < len(str):
-      a = i
-      while i < len(str) and not str[i].isspace():
-        i += 1
-      result.append(str[a:i])
+def make_tgz(directory):
+  # ERB First get rid of existing file because gzip won't
+  # overwrite existing .tgz meaning you can only customize
+  # grammar once per session.
+  if os.path.exists('matrix.tar.gz'):
+    os.remove('matrix.tar.gz')
 
-  return result
+  archive = directory + '.tar'
+  with tarfile.open(archive, 'w') as t:
+    t.add(directory)
+
+  with gzip.open(archive + '.gz', 'wb') as g:
+    with open(archive, 'rb') as f:
+      g.write(f.read())
+
+  os.remove(archive)
+
+
+def add_zip_files(z, directory):
+  files = os.listdir(directory)
+  for f in files:
+    cur = os.path.join(directory, f)
+    if os.path.isdir(cur):
+      add_zip_files(z, cur)
+    else:
+      z.write(cur, cur)
+
+
+def make_zip(directory):
+  with zipfile.ZipFile(directory + '.zip', 'w') as z:
+    add_zip_files(z, directory)
 
 
 def TDLencode(string):
@@ -44,6 +49,7 @@ def TDLencode(string):
       val += c
 
   return val
+
 
 def orth_encode(orthin):
   """
