@@ -2,7 +2,8 @@ import unittest
 
 from gmcs import html
 
-from mock import mock_choices, mock_validation, mock_error, os_environ
+from mock import mock_choices, mock_validation, mock_error
+from test import os_environ
 
 class HtmlSelectTests(unittest.TestCase):
 

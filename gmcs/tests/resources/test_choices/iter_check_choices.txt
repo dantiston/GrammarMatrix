@@ -1,0 +1,6 @@
+
+version=28
+
+section=lexicon
+  test-check=on
+  test1_name=common

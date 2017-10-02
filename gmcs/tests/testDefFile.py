@@ -6,13 +6,14 @@ import unittest
 import os
 import re
 
+import StringIO
+
 from gmcs import html
 from gmcs import deffile
-from gmcs.choices import ChoicesFile
 from gmcs.deffile import MatrixDefSyntaxException
 
-from mock import mock_choices, mock_validation, mock_error, os_environ
-from test import load_testhtml, load_matrixdef, load_choices, remove_empty_lines
+from mock import mock_choices, mock_validation, mock_error
+from test import load_testhtml, load_matrixdef, load_choices, remove_empty_lines, load_file, os_environ, choice_environ
 
 from test import save_both
 
@@ -85,7 +86,6 @@ class DefsToHtmlTests(unittest.TestCase):
   @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
   def testDefsToHtml_iter(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      # tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
       tokenized_lines = [(['BeginIter', 'test{i}', '"test-iter"'], 3, 'BeginIter'), (['Text', 'name', 'Test variable: {i}', "", "", "20"], 6, 'Text'), (['EndIter', 'test'], 2, 'EndIter')]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({}), mock_validation(), "", {})
       expected = ''
@@ -116,7 +116,6 @@ class DefsToHtmlTests(unittest.TestCase):
   def testDefsToHtml_label(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # Label "<p>Test</p>"
-      # tokenized_lines = [['Label', '<p>Test</p>']]
       tokenized_lines = [(['Label', '<p>Test</p>'], 2, 'Label')]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>Test</p>\n'
@@ -126,7 +125,6 @@ class DefsToHtmlTests(unittest.TestCase):
   def testDefsToHtml_separator(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # Separator
-      # tokenized_lines = [['Separator']]
       tokenized_lines = [(['Separator'], 1, 'Separator')]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<hr>\n'
@@ -136,7 +134,6 @@ class DefsToHtmlTests(unittest.TestCase):
   def testDefsToHtml_button(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # Button test-button "<p>Test Button: " "</p>" ""
-      # tokenized_lines = [['Button', 'test-button', '<p>Test Button: ', '</p>', '']]
       tokenized_lines = [(['Button', 'test-button', '<p>Test Button: ', '</p>', ''], 5, 'Button')]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>Test Button: <input type="button"  value="test-button"></p>\n'
@@ -146,7 +143,6 @@ class DefsToHtmlTests(unittest.TestCase):
   def testDefsToHtml_check(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # Check test-check "test-check" "check: " "" "testMe();"
-      # tokenized_lines = [['Check', 'test-check', 'test-check', 'check: ', '', 'testMe();']]
       tokenized_lines = [(['Check', 'test-check', 'test-check', 'check: ', '', 'testMe();'], 6, 'Check')]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<label>check: <input type="checkbox"  name="test-check" onclick="testMe();"></label>\n'
@@ -156,7 +152,6 @@ class DefsToHtmlTests(unittest.TestCase):
   def testDefsToHtml_file(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # File test-file "test file" "<p>Test file: </p>" ""
-      # tokenized_lines = [['File', 'test-file', 'test file', '<p>Test file: </p>', '']]
       tokenized_lines = [(['File', 'test-file', 'test file', '<p>Test file: </p>', ''], 5, 'File')]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>Test file: </p><input type="file"  name="test-file">\n'
@@ -166,7 +161,6 @@ class DefsToHtmlTests(unittest.TestCase):
   def testDefsToHtml_hidden(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # Hidden test-hidden "test hidden"
-      # tokenized_lines = [['Hidden', 'test-hidden', 'test hidden']]
       tokenized_lines = [(['Hidden', 'test-hidden', 'test hidden'], 3, 'Hidden')]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<input type="hidden"  name="test-hidden">\n'
@@ -176,7 +170,6 @@ class DefsToHtmlTests(unittest.TestCase):
   def testDefsToHtml_radio(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Radio test-radio \"test radio\" \"\" \"\"", ". test-bullet1 \"hello\" \"\" \"\" \"\"", ". test-bullet2 \"world\" \"\" \"\" \"\""
-      # tokenized_lines = [['Radio', 'test-radio', 'test radio', '', ''], ['.', 'test-bullet1', 'hello', '', '', ''], ['.', 'test-bullet2', 'world', '', '', '']]
       tokenized_lines = [(['Radio', 'test-radio', 'test radio', '', ''], 5, 'Radio'), (['.', 'test-bullet1', 'hello', '', '', ''], 6, '.'), (['.', 'test-bullet2', 'world', '', '', ''], 6, '.')]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '\n<label><input type="radio"  name="test-radio" value="test-bullet1"></label>\n<label><input type="radio"  name="test-radio" value="test-bullet2"></label>\n\n'
@@ -186,7 +179,6 @@ class DefsToHtmlTests(unittest.TestCase):
   def testDefsToHtml_select(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Select test-select \"test select\" \"\" \"<br />\""
-      # tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
       tokenized_lines = [(['Select', 'test-select', 'test select', '', '<br />'], 5, 'Select')]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '\n<select name="test-select">\n<option value=""></option>\n</select><br />\n'
@@ -196,7 +188,6 @@ class DefsToHtmlTests(unittest.TestCase):
   def testDefsToHtml_select_selected_not_present(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Select test-select \"test select\" \"\" \"<br />\""
-      # tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
       tokenized_lines = [(['Select', 'test-select', 'test select', '', '<br />'], 5, 'Select')]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"test-select":"test-noun"}), mock_validation(), "", {})
       expected = '\n<select name="test-select">\n<option value="test-noun" selected class="temp">test-noun</option>\n<option value=""></option>\n</select><br />\n'
@@ -207,7 +198,6 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Select test-select \"test select\" \"\" \"<br />\""
       # . test-option "Test Option" "test option"
-      # tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />'], ['.', 'test-option', 'Test Option', 'test option']]
       tokenized_lines = [(['Select', 'test-select', 'test select', '', '<br />'], 5, 'Select'), (['.', 'test-option', 'Test Option', 'test option'], 4, '.')]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"test-select":"test-noun"}), mock_validation(), "", {})
       expected = '\n<select name="test-select">\n<option value="test-option">Test Option</option>\n<option value="test-noun" selected class="temp">test-noun</option>\n<option value=""></option>\n</select><br />\n'
@@ -218,7 +208,6 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Select test-select \"test select\" \"\" \"<br />\""
       # . test-option "Test Option" "test option"
-      # tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />'], ['.', 'test-option', 'Test Option', 'test option']]
       tokenized_lines = [(['Select', 'test-select', 'test select', '', '<br />'], 5, 'Select'), (['.', 'test-option', 'Test Option', 'test option'], 4, '.')]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"test-select":"test-option"}), mock_validation(), "", {})
       expected = '\n<select name="test-select">\n<option value="test-option" selected>Test Option</option>\n<option value=""></option>\n</select><br />\n'
@@ -231,7 +220,6 @@ class DefsToHtmlTests(unittest.TestCase):
       # fillregex p=noun(?!{i}_)[0-9]+_name
       #
       # Label "Features:"
-      # tokenized_lines = [["Select", "supertypes", "Noun type {i}", "Supertypes: ", "<br />"], ["fillregex", "p=noun(?!{i}_)[0-9]+_name"], ["Label", "Features:"]]
       tokenized_lines = [(['Select', 'supertypes', 'Noun type {i}', 'Supertypes: ', '<br />'], 5, 'Select'), (['fillregex', 'p=noun(?!{i}_)[0-9]+_name'], 2, 'fillregex'), (['Label', 'Features:'], 2, 'Label')]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
       expected = 'Supertypes: \n<select name="supertypes" onfocus="fill(\'supertypes\', [].concat(fill_regex(\'noun(?!{i}_)[0-9]+_name\')));">\n<option value=""></option>\n</select><br />\nFeatures:\n'
@@ -242,7 +230,6 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       # MultiSelect test-multiselect "Test multiselect" "" "<br />"
       # fillverbpat
-    #   tokenized_lines = [['MultiSelect', 'test-multiselect', 'Test multiselect', '', '<br />'], ['fillverbpat']]
       tokenized_lines = [(['MultiSelect', 'test-multiselect', 'Test multiselect', '', '<br />'], 5, 'MultiSelect'), (['fillverbpat'], 1, 'fillverbpat')]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '\n<select name="test-multiselect" class="multi"  multiple="multiple"  onfocus="fill(\'test-multiselect\', [].concat(fill_case_patterns(false)));">\n<option value=""></option>\n</select><br />\n'
@@ -255,7 +242,6 @@ class DefsToHtmlTests(unittest.TestCase):
       # fillregex p=noun(?!{i}_)[0-9]+_name
       #
       # Label "Features:"
-      # tokenized_lines = [["MultiSelect", "supertypes", "Noun type {i}", "Supertypes: ", "<br />"], ["fillregex", "p=noun(?!{i}_)[0-9]+_name"], ["Label", "Features:"]]
       tokenized_lines = [(['MultiSelect', 'supertypes', 'Noun type {i}', 'Supertypes: ', '<br />'], 5, 'MultiSelect'), (['fillregex', 'p=noun(?!{i}_)[0-9]+_name'], 2, 'fillregex'), (['Label', 'Features:'], 2, 'Label')]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
       expected = 'Supertypes: \n<select name="supertypes" class="multi"  multiple="multiple"  onfocus="fill(\'supertypes\', [].concat(fill_regex(\'noun(?!{i}_)[0-9]+_name\')));">\n<option value=""></option>\n</select><br />\nFeatures:\n'
@@ -265,7 +251,6 @@ class DefsToHtmlTests(unittest.TestCase):
   def testDefsToHtml_text(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Text test \"Test name\" \"<p>Some test text: </p>\" \"<br />\" 42"
-      # tokenized_lines = [["Text", "test", "Test name", "<p>Some test text: </p>", "<br />", "42"]]
       tokenized_lines = [(['Text', 'test', 'Test name', '<p>Some test text: </p>', '<br />', '42'], 6, 'Text')]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>Some test text: </p><input type="text"  name="test" size="42"><br />\n'
@@ -275,7 +260,6 @@ class DefsToHtmlTests(unittest.TestCase):
   def testDefsToHtml_textarea(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       #lines = ['TextArea test "Test name" "<p>A test text area:</p>" "<br />" 42x42']
-      # tokenized_lines = [["TextArea", "test", "Test name", "<p>A test text area:</p>", "<br />", "42x42"]]
       tokenized_lines = [(['TextArea', 'test', 'Test name', '<p>A test text area:</p>', '<br />', '42x42'], 6, 'TextArea')]
       actual = self._definition.defs_to_html(tokenized_lines, {}, mock_validation(), "", {})
       expected = '<p>A test text area:</p><TextArea name="test" cols="42" rows="42"></TextArea><br />\n'
@@ -285,7 +269,6 @@ class DefsToHtmlTests(unittest.TestCase):
   # defs_to_html with choices
   def testDefsToHtml_iter_example(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      # tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Label', 'Test variable: {i}'], ['EndIter', 'test']]
       tokenized_lines = [(['BeginIter', 'test{i}', '"test-iter"'], 3, 'BeginIter'), (['Label', 'Test variable: {i}'], 2, 'Label'), (['EndIter', 'test'], 2, 'EndIter')]
       choices = load_choices("iter_choices.txt")
       actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
@@ -307,7 +290,6 @@ class DefsToHtmlTests(unittest.TestCase):
 
   def testDefsToHtml_iter_example2(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      # tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Label', 'Test variable: {i}'], ['EndIter', 'test']]
       tokenized_lines = [(['BeginIter', 'test{i}', '"test-iter"'], 3, 'BeginIter'), (['Label', 'Test variable: {i}'], 2, 'Label'), (['EndIter', 'test'], 2, 'EndIter')]
       choices = load_choices("iter_choices2.txt")
       actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
@@ -335,7 +317,6 @@ class DefsToHtmlTests(unittest.TestCase):
 
   def testDefsToHtml_select_example(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      # tokenized_lines = [['Select', 'test-select', 'test select', '', '<br />']]
       tokenized_lines = [(['Select', 'test-select', 'test select', '', '<br />'], 4, 'Select')]
       choices = load_choices("select_choices.txt")
       actual = self._definition.defs_to_html(tokenized_lines, choices, mock_validation(), "", {})
@@ -347,7 +328,6 @@ class DefsToHtmlTests(unittest.TestCase):
 
   def testDefsToHtml_section(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      # tokenized_lines = [['Section', 'Test', 'test section', 'testSection'], ['Label', 'test-label', 'test label']]
       tokenized_lines = [(['Section', 'Test', 'test section', 'testSection'], 4, 'Section'), (['Label', 'test-label', 'test label'], 3, 'Label')]
       actual = self._definition.defs_to_html(tokenized_lines, mock_choices({}), mock_validation(), "", {})
       expected = "test label\n"
@@ -701,4 +681,85 @@ class ReplaceVarsTests(unittest.TestCase):
   def testReplaceVarsTokenized_Missing(self):
     actual = deffile.replace_vars_tokenized((['BeginIter', 'test-iter-{i}-{j}', '"hello"', ''], 4, 'BeginIter'), {"i":1, "k":2})
     expected = (['BeginIter', 'test-iter-1-{j}', '"hello"', ''], 4, 'BeginIter')
+    self.assertEqual(actual, expected)
+
+
+class SaveChoicesTests(unittest.TestCase):
+
+  @classmethod
+  def setUpClass(cls):
+    cls._definition = deffile.MatrixDef(os.path.join("gmcs", "tests", "resources", "test_defs", "testIter"))
+
+
+  def testSaveChoicesSection_copy(self):
+    with choice_environ('lexicon', 'iter_choices.txt') as env:
+      self._definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = env.choices_file.read()
+      expected = "\nversion=28\n\nsection=lexicon\n  test1_name=common\n"
+      self.assertEqual(actual, expected)
+
+
+
+class SaveChoicesSectionTests(unittest.TestCase):
+
+  @classmethod
+  def setUpClass(cls):
+    cls._definition = deffile.MatrixDef(None)
+
+  def testSaveChoicesSection_basic(self):
+    io = StringIO.StringIO()
+    tokenized_lines = [(['Check', 'test-check', 'test-check', 'check: ', ''], 5, 'Check')]
+    self._definition.save_choices_section(tokenized_lines, io, mock_choices({"test-check":"on"}))
+    actual = io.getvalue()
+    expected = "test-check=on\n"
+    self.assertEqual(actual, expected)
+
+
+  def testSaveChoicesSection_basic2(self):
+    io = StringIO.StringIO()
+    tokenized_lines = [(['Check', 'test-check', 'test-check', 'check: ', ''], 5, 'Check')]
+    self._definition.save_choices_section(tokenized_lines, io, mock_choices({"test-check":"off"}))
+    actual = io.getvalue()
+    expected = "test-check=off\n"
+    self.assertEqual(actual, expected)
+
+
+  def testSaveChoicesSection_iter(self):
+    io = StringIO.StringIO()
+    choices = load_choices("iter_choices.txt")
+    tokenized_lines = [(['BeginIter', 'test{i}', '"test-iter"'], 3, 'BeginIter'), (['Text', 'name', 'Test variable: {i}', "", "", "20"], 6, 'Text'), (['EndIter', 'test'], 2, 'EndIter')]
+    self._definition.save_choices_section(tokenized_lines, io, choices)
+    actual = io.getvalue()
+    expected = "  test1_name=common\n"
+    self.assertEqual(actual, expected)
+
+
+  def testSaveChoicesSection_iter(self):
+    io = StringIO.StringIO()
+    choices = load_choices("iter_check_choices.txt")
+    tokenized_lines = [(['Check', 'test-check', 'test-check', 'check: ', ''], 5, 'Check'), (['BeginIter', 'test{i}', '"test-iter"'], 3, 'BeginIter'), (['Text', 'name', 'Test variable: {i}', "", "", "20"], 6, 'Text'), (['EndIter', 'test'], 2, 'EndIter')]
+    self._definition.save_choices_section(tokenized_lines, io, choices)
+    actual = io.getvalue()
+    expected = "test-check=on\n  test1_name=common\n"
+    self.assertEqual(actual, expected)
+
+
+  def testSaveChoicesSection_nestedIter(self):
+    io = StringIO.StringIO()
+    choices = load_choices("iter_nested_check_choices.txt")
+    tokenized_lines = [(['Check', 'test-check', 'test-check', 'check: ', ''], 5, 'Check'), (['BeginIter', 'test{i}', '"test-iter"'], 3, 'BeginIter'), (['Text', 'name', 'Test variable: {i}', "", "", "20"], 6, 'Text'), (['BeginIter', 'test-nested{j}', '"test-iter"'], 3, 'BeginIter'), (['Text', 'name', 'Test variable: {i} {j}', "", "", "20"], 6, 'Text'), (['EndIter', 'test-nested'], 2, 'EndIter'), (['EndIter', 'test'], 2, 'EndIter')]
+    self._definition.save_choices_section(tokenized_lines, io, choices)
+    actual = io.getvalue()
+    expected = "test-check=on\n  test1_name=test-name\n    test1_test-nested1_name=common\n"
+    self.assertEqual(actual, expected)
+
+
+  def testSaveChoicesSection_optionallyCopulaComplement(self):
+    io = StringIO.StringIO()
+    choices = load_choices("optionally_copula_complement.txt")
+    tokenized_lines = [(['Radio', 'predcop', 'predicative structure', '', ''], 5, 'Radio'), (['.', 'Obligatorily', '', ''], 4, '.'), (['.', 'Optionally', '', ''], 4, '.'), (['.', 'Impossibly', '', ''], 4, '.')]
+    self._definition.save_choices_section(tokenized_lines, io, choices)
+    actual = io.getvalue()
+    expected = "predcop=opt\n"
     self.assertEqual(actual, expected)

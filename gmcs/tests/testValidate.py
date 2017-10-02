@@ -15,10 +15,6 @@ class TestValidate(unittest.TestCase):
     d = vr.errors if errors else vr.warnings
     for v in variables:
       self.assertTrue(v in d)
-      #if errors:
-      #  self.assertTrue(v in vr.errors)
-      #else:
-      #  self.assertTrue(v in vr.warnings)
 
 
   def assertWarning(self, c, warning):
@@ -79,7 +75,7 @@ class TestValidate(unittest.TestCase):
         self.assertError(c, name)
 
       # next try colliding pairs of names
-      for v2 in [x for x in variables if x[0] != v1[0]]:
+      for v2 in (x for x in variables if x[0] != v1[0]):
         if v1[1] == v2[1]: # won't collide with different suffixes
           name1 = v1[0] + 'name'
           name2 = v2[0] + 'name'
@@ -272,7 +268,7 @@ class TestValidate(unittest.TestCase):
     c['neg-exp'] = '1'
     self.assertErrors(c, ['neg-mod', 'neg-order', 'neg-adv-orth'])
 
-    # auxiliary selects neg complement, 
+    # auxiliary selects neg complement,
     # but no auxiliaries ('has-aux' != 'yes')
     c['comp-neg'] = 'on'
     c['comp-neg-head'] = 'aux'

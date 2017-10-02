@@ -12,8 +12,8 @@ from gmcs import deffile
 from gmcs.choices import ChoicesFile
 from gmcs.deffile import MatrixDefSyntaxException
 
-from mock import mock_choices, mock_validation, mock_error, os_environ, environ_choices
-from test import load_subpage, remove_empty_lines
+from mock import mock_choices, mock_validation, mock_error
+from test import load_subpage, remove_empty_lines, os_environ, environ_choices
 
 from test import save_both
 
