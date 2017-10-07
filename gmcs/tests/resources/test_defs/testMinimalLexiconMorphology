@@ -1,0 +1,903 @@
+Section lexicon "Lexicon" Lexicon
+
+Check adj_incorp "adj_incorp" "<p>Some nouns in this language take adjectives as incorporated affixes: " "</p>"
+
+BeginIter noun{i} "a Noun Type" 1 1
+
+  Text name "Noun {i} name" "Type name: " "<br /><br />" 20
+
+  MultiSelect supertypes "Noun type {i}" "Supertypes: " "<br />"
+  fillregex p=noun(?!{i}_)[0-9]+_name
+
+  BeginIter feat{j} "a Feature"
+
+    Select name "Noun {i} feature {j} name" "Name: " " "
+    fillnames c=noun
+
+    MultiSelect value "Noun {i} feature {j} value" "Value: " ""
+    fillvalues p=noun{i}_feat{j}_name
+
+  EndIter feat
+
+  Radio det "Noun {i} determiner" "<p>For nouns of this type, a determiner is: " "</p>"
+  . obl "Obligatory" "" " obligatory"
+  . opt "Optional" "" " optional"
+  . imp "Impossible" "" " impossible"
+
+  BeginIter stem{j} "a Stem" 0 1
+
+    Text orth "Noun {i} stem {j} spelling" "Spelling: " "" 30 "fill_pred('noun{i}_stem{j}', 'n')"
+
+    Text pred "Noun {i} stem {j} predicate" " Predicate: " "" 30
+
+  EndIter stem
+
+  BeginIter require{j} "a Require constraint"
+
+    MultiSelect others "Noun {i} Requires" "Noun {i} requires one of the following: " ""
+    fillcache c=nounlrs
+
+  EndIter require
+
+  BeginIter forbid{j} "a Forbid constraint"
+
+    Select others "Noun {i} Forbids" "Noun {i} forbids the following position class: " ""
+    fillcache c=nounlrs
+
+  EndIter forbid
+
+EndIter noun
+
+BeginIter verb{i} "a Verb Type" 1 2
+
+  Text name "Verb {i} name" "Type name: " "<br /><br />" 20
+
+  MultiSelect supertypes "Verb type {i}" "Supertypes: " "<br /><br />"
+  fillregex p=verb(?!{i}_)[0-9]+_name
+
+  BeginIter feat{j} "a Feature"
+
+    Select name "Verb {i} feature {j} name" "Name: " " "
+    fillnames c=both
+
+    MultiSelect value "Verb {i} feature {j} value" "Value: " ""
+    fillvalues p=verb{i}_feat{j}_name
+
+    Select head "Verb {i} feature {j} head" "Specified on: " ""
+    . verb "The verb" "the verb"
+    . subj "The subject" "the subject NP"
+    . obj "The object" "the object NP"
+    . higher "Higher-ranked" "the higher-ranked NP"
+    . lower "Lower-ranked" "the lower-ranked NP"
+
+  EndIter feat
+
+  Select valence "Verb {i} arguments" "<br /><br />Argument structure: " "<br />"
+  fillverbpat
+
+  Select bipartitepc "Verb {i} bipartite stems position class" "If this verb class includes bipartite stems, select the position class for the affix portion of the stems: " "<br />"
+  fillcache c=verbpcs
+
+  BeginIter stem{j} "a simple Stem" 0 1
+
+    Text orth "Verb {i} stem {j} spelling" "Spelling: " "" 30 "fill_pred('verb{i}_stem{j}', 'v')"
+
+    Text pred "Verb {i} stem {j} predicate" " Predicate: " "" 30
+
+  EndIter stem
+
+  BeginIter bistem{j} "a bipartite Stem"
+
+    Text orth "Verb {i} bipartite stem {j} spelling" "Root spelling: " "" 30 "fill_pred('verb{i}_bistem{j}', 'v')"
+
+    Text aff "Verb {i} bipartite stem {j} affix" "Affix spelling: " "" 30
+
+    Text pred "Verb {i} bipartite stem {j} predicate" " Predicate: " "" 30
+
+  EndIter bistem
+
+  BeginIter require{j} "a Require constraint"
+
+    MultiSelect others "Verb {i} requires" "Verb {i} requires one of the following position classes: " ""
+    fillcache c=verblrs
+
+  EndIter require
+
+  BeginIter forbid{j} "a Forbid constraint"
+
+    Select others "Verb {i} forbids" "Verb {i} forbids the following position class: " ""
+    fillcache c=verblrs
+
+  EndIter forbid
+
+EndIter verb
+
+BeginIter adj{i} "an Adjective Type" 1
+
+  Text name "Adjective {i} name" "Type name: " "<br /><br />" 20
+
+  MultiSelect supertypes "Adjective type {i}" "Supertypes: " "<br />"
+  fillregex p=adj(?!{i})[0-9]+_name
+
+  Radio mod "Adjective {i} structure" "<p>This type of adjective is " "</p>"
+  . attr "attributive" "" "attributive "
+  . pred "predicative" "" "predicative "
+  . both "both" "" "both "
+  . none "unspecified" "" "unspecified"
+
+  BeginIter feat{j} "a Feature"
+
+    Select name "Adjective {i} feature {j} name" "Name: " " "
+    fillnames c=both
+
+    MultiSelect value "Adjective {i} feature {j} value" "Value: " ""
+    fillvalues p=adj{i}_feat{j}_name
+
+    Select head "Adjective {i} feature {j} head" "Specified on: " "" "" "toggle_element.call(this, 'adj{i}_adj_pc_note', 'on', ['subj', 'mod']); check_radio_button.call(this, 'adj{i}_mod', 'last', ['subj', 'mod']);"
+    . adj "The adjective" "the adjective"
+    . subj "The subject" "the subject NP"
+    . mod "The modified noun" "the modified NP"
+    . xarg "Both positions" "both"
+
+  EndIter feat
+
+  Radio modpos "Adjective {i} attributive structure" "<p>This type of adjective behaving
+  attributively modifies items immediately <br>" "</p>"
+  . after "After-modifying" "" " after the adjective <br>"
+  . before "Before-modifying" "" " before the adjective <br>"
+  . either "Either-modifying" "" " either position <br>"
+  . other "Other-mod" "" " some other position: this option is not currently supported" "" x
+
+  Check modunique "Adjective {i} unique modification" "" " This type of adjective behaving
+  attributively must be the only modifier of its modificand"
+
+  Radio predcop "Adjective {i} predicative structure" "<p>Adjectives of this type behaving predicatively appear as the complement of a copula:<br>" "</p>"
+  . obl "Obligatorily" "" " obligatorily<br>"
+  . opt "Optionally" "" " optionally<br>" "toggle_element.call(this, 'adj{i}_opt_note', 'on')"
+  . imp "Impossibly" "" " impossibly<br>"
+
+  BeginIter stem{j} "a Stem" 0 1
+
+    Text orth "Adjective {i} stem {j} spelling" "Spelling: " "" 30 "fill_pred('adj{i}_stem{j}', 'a')"
+
+    Text pred "Adjective {i} stem {j} predicate" " Predicate: " "" 30
+
+  EndIter stem
+
+  BeginIter require{j} "a Require constraint"
+
+    MultiSelect others "Adjective {i} requires" "Adjective {i} requires one of the following position classes: " ""
+    fillcache c=adjlrs
+
+  EndIter require
+
+  BeginIter forbid{j} "a Forbid constraint"
+
+    Select others "Adjective {i} forbids" "Adjective {i} forbids the following position class: " ""
+    fillcache c=adjlrs
+
+  EndIter forbid
+
+EndIter adj
+
+BeginIter aux{i} "an Auxiliary Type" 1
+
+  Text name "Aux {i} type name" "Type name: " "<br>" 30
+
+  Radio sem "Aux {i} semantics" "" ""
+  . no-pred "No predicate" "" "No predicate.<br>"
+  . add-pred "Predicate" "" "An independent predicate."
+
+  BeginIter feat{j} "an auxiliary feature"
+
+     Select name "Aux {i} feature {j} name" "Name: " ""
+     fillnames c=verb
+
+     MultiSelect value "Aux {i} feature {j} value" "Value: " ""
+     fillvalues p=aux{i}_feat{j}_name
+
+     Select head "Aux {i} feature {j} head" "Specified on: " ""
+     . verb "The auxiliary" "the auxiliary"
+     . subj "The subject" "the subject NP"
+     . obj  "The object"  "the object NP"
+     . higher "Higher-ranked"  "the higher-ranked NP"
+     . lower "Lower-ranked" "the lower-ranked NP"
+
+  EndIter feat
+
+  Radio subj "Aux {i} subject" "If this auxiliary type takes a VP or V complement, select the subject type:<br>" ""
+  . np "Noun phrase" "" "noun phrase without case restrictions <br>"
+  . np-comp-case "NP comp case" "" "noun phrase bearing the case the verbal complement assigns to its subject <br>"
+  . np-aux-case "NP aux case" "" "noun phrase, receiving the following case from its auxiliary: "
+
+  Select subj_case "Aux {i} subject-case" "" ""
+  fillvalues p=case l=1
+
+  Radio subj "Aux {i} subject" "" ""
+  . adp "Adpositional phrase" "<br>" "adpositional phrase<br><br>"
+
+  BeginIter compfeature{j} "a complement feature" 0 1
+
+    Select name "Aux {i} complement feature {j} name" "Name: " ""
+    fillnames c=verb
+
+    MultiSelect value "Aux {i} complement feature {j} value" "Value: " ""
+    fillvalues p=aux{i}_compfeature{j}_name
+
+  EndIter compfeature
+
+  BeginIter stem{j} "a Stem" 0 1
+
+    Text orth "Aux {i} stem {j} spelling" "Spelling: " "" 30 "aux_fill_pred('aux{i}', 'stem{j}', 'v')"
+
+    Text pred "Aux {i} stem {j} predicate" "&nbsp;&nbsp;&nbsp;&nbsp;Predicate (if applicable): " "" 30
+
+  EndIter stem
+
+  BeginIter require{j} "a Require constraint"
+
+    MultiSelect others "Aux {i} requires" "Aux {i} requires one of the following position classes: " ""
+    fillcache c=verblrs
+
+  EndIter require
+
+  BeginIter forbid{j} "a Forbid constraint"
+
+    Select others "Aux {i} forbids" "Aux {i} forbids the following position class: " ""
+    fillcache c=verblrs
+
+  EndIter forbid
+
+  Label "</div>"
+
+EndIter aux
+
+BeginIter cop{i} "a Copula Type" 1
+
+  Text name "Cop {i} type name" "Type name: " "<br>" 30
+
+  MultiSelect supertypes "Copula type {i}" "Supertypes: " "<br />"
+  fillregex p=cop(?!{i})[0-9]+_name
+
+  MultiSelect comptype "Cop {i} comptype" "Type: " ""
+  fillvalues p=cop{i}_feat{j}_name
+  . np "NPs" "NPs" "" x
+  . pp "PPs" "PPs" "" x
+  . ap  "APs" "APs"
+
+  BeginIter feat{j} "a copula feature"
+
+     Select name "Cop {i} feature {j} name" "Name: " ""
+     fillnames c=both
+
+     MultiSelect value "Cop {i} feature {j} value" "Value: " ""
+     fillvalues p=cop{i}_feat{j}_name
+
+     Select head "Cop {i} feature {j} head" "Specified on: " ""
+     . cop "The copula" "the copula"
+     . subj "The subject" "the subject NP"
+     . comp  "The complement" "the complement"
+
+  EndIter feat
+
+  BeginIter stem{j} "a Stem" 0 1
+
+    Text orth "Cop {i} stem {j} spelling" "Spelling: " "" 30 "aux_fill_pred('cop{i}', 'stem{j}', 'v')"
+
+  EndIter stem
+
+  BeginIter require{j} "a Require constraint"
+
+    MultiSelect others "Cop {i} requires" "Copula {i} requires one of the following position classes: " ""
+    fillcache c=verblrs
+
+  EndIter require
+
+  BeginIter forbid{j} "a Forbid constraint"
+
+    Select others "Aux {i} forbids" "Copula {i} forbids the following position class: " ""
+    fillcache c=verblrs
+
+  EndIter forbid
+
+EndIter cop
+
+BeginIter det{i} "a Determiner" 1
+
+  Text name "Determiner {i} name" "Type name: " "<br>" 20
+
+  BeginIter stem{j} "a Stem" 0 1
+
+    Text orth "Determiner {i} spelling" "Spelling: " "" 30 "fill_pred('det{i}_stem{j}', 'q')"
+
+    Text pred "Determiner {i} predicate" " Predicate: " "<br>" 30
+
+  EndIter stem
+
+  BeginIter feat{j} "a Feature"
+
+    Select name "Determiner {i} feature {j} name" "Name: " " "
+    fillnames c=noun
+
+    MultiSelect value "Determiner {i} feature {j} value" "Value: " ""
+    fillvalues p=det{i}_feat{j}_name
+
+  EndIter feat
+
+  BeginIter require{j} "a Require constraint"
+
+    MultiSelect others "Determiner {i} requires" "Determiner {i} requires one of the following position classes: " ""
+    fillcache c=detlrs
+
+  EndIter require
+
+  BeginIter forbid{j} "a Forbid constraint"
+
+    MultiSelect others "Determiner {i} requires" "Determiner {i} requires one of the following position classes: " ""
+    fillcache c=detlrs
+
+  EndIter forbid
+
+EndIter det
+
+BeginIter adp{i} "an Adposition" 1
+
+  Text orth "Adposition {i} spelling" "Spelling: " "" 20
+
+  Check opt "Adposition {i} optional" ", which is " " optional"
+
+  Select order "Adposition {i} order" " and appears " " a noun phrase<br><br>Features:<br>"
+  . after "After" "after"
+  . before "Before" "before"
+
+  BeginIter feat{j} "a Feature" 0 1
+
+    Select name "Adposition {i} feature {j} name" "Name: " " "
+    fillnames c=noun
+
+    MultiSelect value "Adposition {i} feature {j} value" "Value: " ""
+    fillvalues p=adp{i}_feat{j}_name
+
+  EndIter feat
+
+EndIter adp
+
+Section morphology "Morphology" Morphology "Morph"
+
+BeginIter noun-pc{i} "a Position Class" 1 0
+
+  Text name "Noun Position Class {i} Name" "<b>Noun Position Class {i}</b>:<br/>Position Class Name: " " " 20
+
+  Check obligatory "Noun Position Class {i} Obligatory" "<br/>Obligatorily occurs:" ""
+
+  Select order "Noun Position Class {i} Order" "<br/>Appears as a prefix or suffix:" ""
+  . prefix "Prefix" "prefix"
+  . suffix "Suffix" "suffix"
+
+  MultiSelect inputs "Noun Position Class {i} Input" "<br/>Possible inputs:" ""
+  fillcache c=nouns
+  fillregex p=noun-pc[0-9]+(_lrt[0-9]+)?_name
+  . noun "Any noun" "any noun"
+
+  BeginIter require{j} "a Require constraint"
+
+    MultiSelect others "Noun Position Class {i} Requires" "Noun Position Class {i} requires one of the following: " ""
+    fillcache c=nouns
+    fillregex p=noun-pc[0-9]+(_lrt[0-9]+)?_name
+    . noun "Any noun" "any noun"
+
+  EndIter require
+
+  BeginIter forbid{j} "a Forbid constraint"
+
+    Select others "Noun Position Class {i} Forbids" "Noun Position Class {i} forbids the following: " ""
+    fillcache c=nouns
+    fillregex p=noun-pc[0-9]+(_lrt[0-9]+)?_name
+    . noun "Any noun" "any noun"
+
+  EndIter forbid
+
+  BeginIter lrt{j} "a Lexical Rule Type" 1 0
+
+    Text name "Noun Position Class {i} Lexical Rule Type {j} Name" "<b>Lexical Rule Type {j}</b>:<br/>Name: " "" 20
+
+    MultiSelect supertypes "Noun Position Class {i} Lexical Rule Type {j} Supertype" "<br/>Supertypes: " ""
+    fillregex p=noun-pc{i}_lrt[0-9]+_name
+
+    BeginIter feat{k} "a Feature"
+
+      Select name "Noun Position Class {i} Lexical Rule Type {j} Feature {k} Name" "Name: " " "
+      fillnames c=both
+
+      MultiSelect value "Noun Position Class {i} Lexical Rule Type {j} Feature {k} Value" "Value: " ""
+      fillvalues p=noun-pc{i}_lrt{j}_feat{k}_name
+
+    EndIter feat
+
+    BeginIter require{k} "a Require constraint"
+
+      MultiSelect others "Noun Position Class {i} Lexical Rule Type {j} Requires" "Lexical Rule Type {j} requires one of the following: " ""
+      fillcache c=nouns
+      fillregex p=noun-pc[0-9]+(_lrt[0-9]+)?_name
+      . noun "Any noun" "any noun"
+
+    EndIter require
+
+    BeginIter forbid{k} "a Forbid constraint"
+
+      Select others "Noun Position Class {i} Lexical Rule Type {j} forbids" "Lexical Rule Type {j} forbids the following: " ""
+      fillcache c=nouns
+      fillregex p=noun-pc[0-9]+(_lrt[0-9]+)?_name
+      . noun "Any noun" "any noun"
+
+    EndIter forbid
+
+    BeginIter lri{k} "a Lexical Rule Instance" 0 1
+
+      Radio inflecting "Noun Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Has Orthography" "Instance {k}" ""
+      . no "No" "" "No affix"
+      . yes "Yes" "" "Affix spelled"
+
+      Text orth "Noun Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Spelling" "" "" 20
+
+    EndIter lri
+
+  EndIter lrt
+
+  BeginIter is-lrt{j} "an Incorporated Stem Lexical Rule Type" 1 0 "adj_incorp"
+
+    Text name "Noun Position Class {i} Lexical Rule Type {j} Name" "<b>Incorporated Stem Lexical Rule Type {j}</b>:<br/>Name: " "" 20
+
+    MultiSelect supertypes "Noun Position Class {i} Lexical Rule Type {j} Supertype" "<br/>Supertypes: " ""
+    fillregex p=noun-pc{i}_is-lrt[0-9]+_name
+
+    BeginIter feat{k} "a Feature"
+
+      Select name "Noun Position Class {i} Lexical Rule Type {j} Feature {k} Name" "Name: " " "
+      fillnames c=noun
+
+      MultiSelect value "Noun Position Class {i} Lexical Rule Type {j} Feature {k} Value" "Value: " ""
+      fillvalues p=noun-pc{i}_is-lrt{j}_feat{k}_name
+
+      Select head "Noun Position Class {i} Lexical Rule Type {j} Feature {k} Head" "Specified on: " ""
+      . dtr "The noun" "the noun"
+      . adj "The adjective" "the adjective"
+
+    EndIter feat
+
+    BeginIter require{k} "a Require constraint"
+
+      MultiSelect others "Noun Position Class {i} Lexical Rule Type {j} Requires" "Lexical Rule Type {j} requires one of the following: " ""
+      fillcache c=nouns
+      fillregex p=noun-pc[0-9]+(_is-lrt[0-9]+)?_name
+      . noun "Any noun" "any noun"
+
+    EndIter require
+
+    BeginIter forbid{k} "a Forbid constraint"
+
+      Select others "Noun Position Class {i} Lexical Rule Type {j} forbids" "Lexical Rule Type {j} forbids the following: " ""
+      fillcache c=nouns
+      fillregex p=noun-pc[0-9]+(_is-lrt[0-9]+)?_name
+      . noun "Any noun" "any noun"
+
+    EndIter forbid
+
+    BeginIter lri{k} "a Lexical Rule Instance" 0 1
+
+      Radio inflecting "Noun Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Has Orthography" "Instance {k}<br>" ""
+      . no "No" "" "No affix<br>"
+      . yes "Yes" "" "Affix spelled"
+
+      Text orth "Noun Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Spelling" "" "" 20 "fill_pred('noun-pc{i}_is-lrt{j}_lri{k}', 'a')"
+      Text pred "Noun Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Predicate" "Predicate: " "" 20
+
+    EndIter lri
+
+  EndIter is-lrt
+
+EndIter noun-pc
+
+BeginIter verb-pc{i} "a Position Class" 1
+
+  Text name "Verb Position Class {i} Name" "<b>Verb Position Class {i}</b>:<br/>Position Class Name: " " " 20
+
+  Check obligatory "Verb Position Class {i} Obligatory" "<br/>Obligatorily occurs:" ""
+
+  Select order "Verb Position Class {i} Order" "<br/>Appears as a prefix or suffix:" ""
+  . prefix "Prefix" "prefix"
+  . suffix "Suffix" "suffix"
+
+  MultiSelect inputs "Verb Position Class {i} Input" "<br/>Possible inputs:" ""
+  fillcache c=verbs
+  fillcache c=auxes
+  fillregex p=verb-pc[0-9]+(_lrt[0-9]+)?_name
+  . verb "Any verb" "any verb"
+  . iverb "Any intransitive verb" "any intransitive verb"
+  . tverb "Any transitive verb" "any transitive verb"
+  . aux "Any auxiliary verb" "any auxiliary verb"
+
+  BeginIter require{j} "a Require constraint"
+
+    MultiSelect others "Verb Position Class {i} Requires" "Verb Position Class {i} requires one of the following: " ""
+    fillcache c=verbs
+    fillcache c=auxes
+    fillregex p=verb-pc[0-9]+(_lrt[0-9]+)?_name
+    . verb "Any verb" "any verb"
+    . iverb "Any intransitive verb" "any intransitive verb"
+    . tverb "Any transitive verb" "any transitive verb"
+    . aux "Any auxiliary verb" "any auxiliary verb"
+
+  EndIter require
+
+  BeginIter forbid{j} "a Forbid constraint"
+
+    Select others "Verb Position Class {i} Forbids" "Verb Position Class {i} forbids the following: " ""
+    fillcache c=verbs
+    fillcache c=auxes
+    fillregex p=verb-pc[0-9]+(_lrt[0-9]+)?_name
+    . verb "Any verb" "any verb"
+    . iverb "Any intransitive verb" "any intransitive verb"
+    . tverb "Any transitive verb" "any transitive verb"
+    . aux "Any auxiliary verb" "any auxiliary verb"
+
+  EndIter forbid
+
+  BeginIter lrt{j} "a Lexical Rule Type" 1 1
+
+    Text name "Verb Position Class {i} Lexical Rule Type {j} Name" "<b>Lexical Rule Type {j}</b>:<br/>Name: " "" 20
+
+    MultiSelect supertypes "Verb Position Class {i} Lexical Rule Type {j} Supertype" "<br/>Supertypes: " ""
+    fillregex p=verb-pc{i}_lrt[0-9]+_name
+
+    BeginIter feat{k} "a Feature"
+
+      Select name "Verb Position Class {i} Lexical Rule Type {j} Feature {k} Name" "Name: " " "
+      fillnames c=both
+
+      MultiSelect value "Verb Position Class {i} Lexical Rule Type {j} Feature {k} Value" "Value: " ""
+      fillvalues p=verb-pc{i}_lrt{j}_feat{k}_name
+
+      Select head "Verb Position Class {i} Lexical Rule Type {j} Feature {k} Head" "Specified on: " ""
+      . verb "The verb" "the verb"
+      . subj "The subject" "the subject NP"
+      . obj "The object" "the object NP"
+      . higher "Higher-ranked" "the higher-ranked NP"
+      . lower "Lower-ranked" "the lower-ranked NP"
+
+    EndIter feat
+
+    BeginIter valchg{k} "a valence-changing operation"
+
+      Select operation "Verb Position Class {i} Lexical Rule Type {j} Valence-changing Operation {k} Type" "Type: " "<br/>" "" ""
+      . subj-rem "Subject-removing" "subject-removing"
+      . obj-rem "Object-removing" "object-removing"
+      . obj-add "Object-adding" "object-adding"
+
+      Label "<p>Object-adding operations currently only support strict transitive verbs as inputs.<br/>
+        For object-adding operations, also specify (ignored for other operations):</p>"
+
+      Text predname "Verb Position Class {i} Lexical Rule Type {j} Valence-changing Operation {k} Predicate Name" "Predicate: " "<br/> " 20
+
+      Select argpos "Verb Position Class {i} Lexical Rule Type {j} Valence-changing Operation {k} Complement Position" "The added argument is at the: " " of the complements list.<br/>"
+      . pre "front" "front"
+      . post "end" "end"
+
+
+      Select argtype "Verb Position Class {i} Lexical Rule Type {j} Valence-changing Operation {k} Argument Type" "The added argument must be a(n): " ""
+      . np "NP" "NP"
+      . pp "PP" "PP"
+
+    EndIter valchg
+
+    BeginIter require{k} "a Require constraint"
+
+      MultiSelect others "Verb Position Class {i} Lexical Rule Type {j} Requires" "Lexical Rule Type {j} requires one of the following: " ""
+      fillcache c=verbs
+      fillcache c=auxes
+      fillregex p=verb-pc[0-9]+(_lrt[0-9]+)?_name
+      . verb "Any verb" "any verb"
+      . iverb "Any intransitive verb" "any intransitive verb"
+      . tverb "Any transitive verb" "any transitive verb"
+      . aux "Any auxiliary verb" "any auxiliary verb"
+
+    EndIter require
+
+    BeginIter forbid{k} "a Forbid constraint"
+
+      Select others "Verb Position Class {i} Lexical Rule Type {j} forbids" "Lexical Rule Type {j} forbids the following: " ""
+      fillcache c=verbs
+      fillcache c=auxes
+      fillregex p=verb-pc[0-9]+(_lrt[0-9]+)?_name
+      . verb "Any verb" "any verb"
+      . iverb "Any intransitive verb" "any intransitive verb"
+      . tverb "Any transitive verb" "any transitive verb"
+      . aux "Any auxiliary verb" "any auxiliary verb"
+
+    EndIter forbid
+
+    BeginIter lri{k} "a Lexical Rule Instance" 0 1
+
+      Radio inflecting "Verb Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Has Orthography" "Instance {k}" ""
+      . no "No" "" "No affix"
+      . yes "Yes" "" "Affix spelled"
+
+      Text orth "Verb Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Spelling" "" "" 20
+
+    EndIter lri
+
+  EndIter lrt
+
+EndIter verb-pc
+
+BeginIter adj-pc{i} "a Position Class" 1
+
+  Text name "Adjective Position Class {i} Name" "<b> Adjective Position Class {i}</b>:<br/>Position Class Name: " " " 20
+
+  Check obligatory "Adjective Position Class {i} Obligatory" "<br/>Obligatorily occurs:" ""
+
+  Select order "Adjective Position Class {i} Order" "<br/>Appears as a prefix or suffix:" ""
+  . prefix "Prefix" "prefix"
+  . suffix "Suffix" "suffix"
+
+  MultiSelect inputs "Adjective Position Class {i} Input" "<br/>Possible inputs:" ""
+  fillcache c=adjs
+  fillregex p=adj-pc[0-9]+(_lrt[0-9]+)?_name
+  . adj "Any Adjective" "any adjective"
+
+  Check switching "Adjective Position Class {i} Switching" "<div>This position class constrains the syntactic behavior of its output: " "</div>"
+
+  BeginIter require{j} "a Require constraint"
+
+    MultiSelect others "Adjective Position Class {i} Requires" "Adjective Position Class {i} requires one of the following: " ""
+    fillcache c=adjs
+    fillregex p=adj-pc[0-9]+(_lrt[0-9]+)?_name
+    . adj "Any Adjective" "any adjective"
+
+  EndIter require
+
+  BeginIter forbid{j} "a Forbid constraint"
+
+    Select others "Adjective Position Class {i} Forbids" "Adjective Position Class {i} forbids the following: " ""
+    fillcache c=adjs
+    fillregex p=adj-pc[0-9]+(_lrt[0-9]+)?_name
+    . adj "Any Adjective" "any adjective"
+
+  EndIter forbid
+
+  BeginIter lrt{j} "a Lexical Rule Type" 1 1
+
+    Text name "Adjective Position Class {i} Lexical Rule Type {j} Name" "<b>Lexical Rule Type {j}</b>:<br/>Name: " "" 20
+
+    MultiSelect supertypes "Adjective Position Class {i} Lexical Rule Type {j} Supertype" "<br/>Supertypes: " ""
+    fillregex p=adj-pc{i}_lrt[0-9]+_name
+
+    BeginIter feat{k} "a Feature"
+
+      Select name "Adjective Position Class {i} Lexical Rule Type {j} Feature {k} Name" "Name: " " "
+      fillnames c=both
+
+      MultiSelect value "Adjective Position Class {i} Lexical Rule Type {j} Feature {k} Value" "Value: " ""
+      fillvalues p=adj-pc{i}_lrt{j}_feat{k}_name
+
+      Select head "Adjective Position Class {i} Lexical Rule Type {j} Feature {k} Head" "Specified on: " "" "" "toggle_element.call(this, 'adj-pc{i}_lrt{j}_adj_pc_note', 'on', ['subj', 'mod'])"
+      . adj "The adjective" "the adjective"
+      . subj "The subject" "the subject NP"
+      . mod "The modified noun" "the modified NP"
+      . xarg "Both positions" "both"
+
+    EndIter feat
+
+    Radio mod "Adjective Position Class {i} Lexical Rule Type {j} structure" "<p>Instances of this Lexical Rule Type can be " "</p>" "adj-pc{i}_switching"
+    . attr "Attributive" "" "attributive "
+    . pred "Predicative" "" "predicative "
+    . both "both" "" "both "
+
+    Radio modpos "Adjective Position Class {i} Lexical Rule Type {j} modification direction" "<p>Instances of this Lexical Rule Type behaving attributively modify nouns directly<br>" "</p>" "adj-pc{i}_switching"
+    . after "After-modifying" "" " after the adjective <br>"
+    . before "Before-modifying" "" " before the adjective <br>"
+    . either "Either-modifying" "" " either position <br>"
+    . other "Other-mod" "" " some other position: this option is not currently supported" "" x
+
+    Check predcop "Adjective Position Class {i} Lexical Rule Type {j} Stative Predicate or Copula Complement" "" " Instances of this Lexical Rule Type behaving predicatively appear as copula complements" "" "adj-pc{i}_switching"
+
+    BeginIter require{k} "a Require constraint"
+
+      MultiSelect others "Adjective Position Class {i} Lexical Rule Type {j} Requires" "Lexical Rule Type {j} requires one of the following: " ""
+      fillcache c=adjs
+      fillregex p=adj-pc[0-9]+(_lrt[0-9]+)?_name
+      . adj "Any adjective" "any adjective"
+
+    EndIter require
+
+    BeginIter forbid{k} "a Forbid constraint"
+
+      Select others "Adjective Position Class {i} Lexical Rule Type {j} forbids" "Lexical Rule Type {j} forbids the following: " ""
+      fillcache c=adjs
+      fillregex p=adj-pc[0-9]+(_lrt[0-9]+)?_name
+      . adj "Any adjective" "any adjective"
+
+    EndIter forbid
+
+    BeginIter lri{k} "a Lexical Rule Instance" 0 1
+
+      Radio inflecting "Adjective Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Has Orthography" "Instance {k}" ""
+      . no "No" "" "No affix"
+      . yes "Yes" "" "Affix spelled"
+
+      Text orth "Adjective Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Spelling" "" "" 20
+
+    EndIter lri
+
+  EndIter lrt
+
+EndIter adj-pc
+
+BeginIter cop-pc{i} "a Position Class" 1
+
+  Text name "Copula Position Class {i} Name" "<b> Copula Position Class {i}</b>:<br/>Position Class Name: " " " 20
+
+  Check obligatory "Copula Position Class {i} Obligatory" "<br/>Obligatorily occurs:" ""
+
+  Select order "Copula Position Class {i} Order" "<br/>Appears as a prefix or suffix:" ""
+  . prefix "Prefix" "prefix"
+  . suffix "Suffix" "suffix"
+
+  MultiSelect inputs "Copula Position Class {i} Input" "<br/>Possible inputs:" ""
+  fillcache c=cops
+  fillregex p=cop-pc[0-9]+(_lrt[0-9]+)?_name
+  . cop "Any Copula" "any copula"
+
+  BeginIter require{j} "a Require constraint"
+
+    MultiSelect others "Copula Position Class {i} Requires" "Copula Position Class {i} requires one of the following: " ""
+    fillcache c=cops
+    fillregex p=cop-pc[0-9]+(_lrt[0-9]+)?_name
+    . cop "Any Copula" "any copula"
+
+  EndIter require
+
+  BeginIter forbid{j} "a Forbid constraint"
+
+    Select others "Copula Position Class {i} Forbids" "Copula Position Class {i} forbids the following: " ""
+    fillcache c=cops
+    fillregex p=cop-pc[0-9]+(_lrt[0-9]+)?_name
+    . cop "Any Copula" "any copula"
+
+  EndIter forbid
+
+  BeginIter lrt{j} "a Lexical Rule Type" 1 1
+
+    Text name "Copula Position Class {i} Lexical Rule Type {j} Name" "<b>Lexical Rule Type {j}</b>:<br/>Name: " "" 20
+
+    MultiSelect supertypes "Copula Position Class {i} Lexical Rule Type {j} Supertype" "<br/>Supertypes: " ""
+    fillregex p=cop-pc{i}_lrt[0-9]+_name
+
+    BeginIter feat{k} "a Feature"
+
+      Select name "Copula Position Class {i} Lexical Rule Type {j} Feature {k} Name" "Name: " " "
+      fillnames c=both
+
+      MultiSelect value "Copula Position Class {i} Lexical Rule Type {j} Feature {k} Value" "Value: " ""
+      fillvalues p=cop-pc{i}_lrt{j}_feat{k}_name
+
+      Select head "Copula Position Class {i} Lexical Rule Type {j} Feature {k} Head" "Specified on: " ""
+      . cop "The copula" "the copula"
+      . subj "The subject" "the subject NP"
+      . mod "The complement" "the complement"
+
+    EndIter feat
+
+    BeginIter require{k} "a Require constraint"
+
+      MultiSelect others "Copula Position Class {i} Lexical Rule Type {j} Requires" "Lexical Rule Type {j} requires one of the following: " ""
+      fillcache c=cops
+      fillregex p=cop-pc[0-9]+(_lrt[0-9]+)?_name
+      . cop "Any copula" "any copula"
+
+    EndIter require
+
+    BeginIter forbid{k} "a Forbid constraint"
+
+      Select others "Copula Position Class {i} Lexical Rule Type {j} forbids" "Lexical Rule Type {j} forbids the following: " ""
+      fillcache c=cops
+      fillregex p=cop-pc[0-9]+(_lrt[0-9]+)?_name
+      . cop "Any copula" "any copula"
+
+    EndIter forbid
+
+    BeginIter lri{k} "a Lexical Rule Instance" 0 1
+
+      Radio inflecting "Copula Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Has Orthography" "Instance {k}" ""
+      . no "No" "" "No affix"
+      . yes "Yes" "" "Affix"
+
+      Text orth "Copula Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Spelling" "spelled" "" 20
+
+    EndIter lri
+
+  EndIter lrt
+
+EndIter cop-pc
+
+BeginIter det-pc{i} "a Position Class" 1
+
+  Text name "Determiner Position Class {i} Name" "<b>Determiner Position Class {i}</b>:<br/>Position Class Name: " " " 20
+
+  Check obligatory "Determiner Position Class {i} Obligatory" "<br/>Obligatorily occurs:" ""
+
+  Select order "Determiner Position Class {i} Order" "<br/>Appears as a prefix or suffix:" ""
+  . prefix "Prefix" "prefix"
+  . suffix "Suffix" "suffix"
+
+  MultiSelect inputs "Determiner Position Class {i} Input" "<br/>Possible inputs:" ""
+  fillcache c=dets
+  fillregex p=det-pc[0-9]+(_lrt[0-9]+)?_name
+  . det "Any determiner" "any determiner"
+
+  BeginIter require{j} "a Require constraint"
+
+    MultiSelect others "Determiner Position Class {i} Requires" "Determiner Position Class {i} requires one of the following: " ""
+    fillcache c=dets
+    fillregex p=det-pc[0-9]+(_lrt[0-9]+)?_name
+    . det "Any determiner" "any determiner"
+
+  EndIter require
+
+  BeginIter forbid{j} "a Forbid constraint"
+
+    Select others "Determiner Position Class {i} Forbids" "Determiner Position Class {i} forbids the following: " ""
+    fillcache c=dets
+    fillregex p=det-pc[0-9]+(_lrt[0-9]+)?_name
+    . det "Any determiner" "any determiner"
+
+  EndIter forbid
+
+  BeginIter lrt{j} "a Lexical Rule Type" 1 1
+
+    Text name "Determiner Position Class {i} Lexical Rule Type {j} Name" "<b>Lexical Rule Type {j}</b>:<br/>Name: " "" 20
+
+    MultiSelect supertypes "Determiner Position Class {i} Lexical Rule Type {j} Supertype" "<br/>Supertypes: " ""
+    fillregex p=det-pc{i}_lrt[0-9]+_name
+
+    BeginIter feat{k} "a Feature"
+
+      Select name "Determiner Position Class {i} Lexical Rule Type {j} Feature {k} Name" "Name: " " "
+      fillnames c=noun
+
+      MultiSelect value "Determiner Position Class {i} Lexical Rule Type {j} Feature {k} Value" "Value: " ""
+      fillvalues p=det-pc{i}_lrt{j}_feat{k}_name
+
+    EndIter feat
+
+    BeginIter require{k} "a Require constraint"
+
+      MultiSelect others "Determiner Position Class {i} Lexical Rule Type {j} Requires" "Lexical Rule Type {j} requires one of the following: " ""
+      fillcache c=dets
+      fillregex p=det-pc[0-9]+(_lrt[0-9]+)?_name
+      . det "Any determiner" "any determiner"
+
+    EndIter require
+
+    BeginIter forbid{k} "a Forbid constraint"
+
+      Select others "Determiner Position Class {i} Lexical Rule Type {j} forbids" "Lexical Rule Type {j} forbids the following: " ""
+      fillcache c=dets
+      fillregex p=det-pc[0-9]+(_lrt[0-9]+)?_name
+      . det "Any determiner" "any determiner"
+
+    EndIter forbid
+
+    BeginIter lri{k} "a Lexical Rule Instance" 0 1
+
+      Radio inflecting "Determiner Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Has Orthography" "Instance {k}" ""
+      . no "No" "" "No affix"
+      . yes "Yes" "" "Affix"
+
+      Text orth "Determiner Position Class {i} Lexical Rule Type {j} Lexical Rule Instance {k} Spelling" "spelled" "" 20
+
+    EndIter lri
+
+  EndIter lrt
+
+EndIter det-pc

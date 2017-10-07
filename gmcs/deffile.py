@@ -1075,16 +1075,6 @@ class MatrixDef:
 
     # collect the lines that are between BeginIter and EndIter
     i, section_lines = self.get_iter_lines(iter_name, i, tokenized_lines, iter_orig)
-    # i += 1
-    # section_lines = []
-    # for word, word_length, element in tokenized_lines[i:]:
-    #   if word_length and element == END_ITER and word[1] == iter_name:
-    #     break
-    #   section_lines.append((word, word_length, element))
-    #   i += 1
-    # else:
-    #   raise MatrixDefSyntaxException("Missing EndIter statement for Iter \"%s\"" % iter_orig)
-
 
     # TJT 2014-08-20: if skipping iter, skip this whole section
     if not skip_this_iter:
@@ -1404,9 +1394,10 @@ class MatrixDef:
                            iter_level=0, prefix=u''):
     """
     Based on a section of a matrix definition file in tokenized_lines, save the
-    values from choices into the file handle f.  The section in tokenized_lines
+    values from choices into the file handle f. The section in tokenized_lines
     need not correspond to a whole named section (e.g. "Lexicon"), but
     can be any part of the file not containing a section line.
+
     # TODO: Move this to choices.py
     # TODO: Unit test this
     """
@@ -1421,23 +1412,27 @@ class MatrixDef:
         if vn and name not in saved:
           saved.add(name)
           val = choices.get(name, u'')
-          if val and element == TEXT_AREA:
-            val = u'\\n'.join(val.splitlines())
-          f.write('  '*iter_level)
-          f.write(prefix + vn + '=' + val + '\n')
+          if val:
+            if element == TEXT_AREA:
+              val = u'\\n'.join(val.splitlines())
+            f.write(u'  '*iter_level)
+            f.write(prefix + vn + u'=' + val + u'\n')
 
       elif element == BEGIN_ITER:
         # Recurse
-        iter_name, iter_var = word[1].replace('}', '').split('{', 1)
+        iter_name, iter_var = word[1].replace(u'}', u'').split(u'{', 1)
         i, section_lines = self.get_iter_lines(iter_name, i, tokenized_lines, word[1])
 
+        # TODO: This is extremely inefficient
+        # if iter_name == "noun":
+        #   import pdb; pdb.set_trace()
         for var in choices.get(prefix + iter_name):
           self.save_choices_section(
             section_lines,
             f,
             choices,
             iter_level = iter_level + 1,
-            prefix = prefix + iter_name + str(var.iter_num()) + '_')
+            prefix = prefix + iter_name + unicode(var.iter_num()) + '_')
 
       i += 1
 
@@ -1446,9 +1441,11 @@ class MatrixDef:
     """
     Read the choices_file, stripping out the section associated with
     the 'section' member of form_data, and replacing it with all the
-    values in form_data.  Use the matrixdef lines to keep the choices file
+    values in form_data.  Use self.def_file to keep the choices file
     in order.
+
     TODO: Move this to choices.py
+        Moving this to choice.py requires adding the section to the choice
     TODO: Modularize this
     TODO: Unit test this
     """
@@ -1461,64 +1458,67 @@ class MatrixDef:
 
     # Copy the form_data into a choices object
     new_choices = ChoicesFile('')
-    for k in form_data.keys():
-      if k:
-        # on sentential negation page, some choices are hidden in
-        # more than one place, so the FieldStorage object at [k] can
-        # be a list, but in these cases only one item on the list
-        # should ever have a value
-        if type(form_data[k]) == list:
-          for l in form_data[k]:
-            if l.value:
-              new_choices[k] = l.value
-        else:
-          new_choices[k] = form_data[k].value
+    for k in (k for k in form_data.keys() if k):
+      # TODO: Consider checking for the correct keys (e.g. section is added)
+      # on sentential negation page, some choices are hidden in
+      # more than one place, so the FieldStorage object at [k] can
+      # be a list, but in these cases only one item on the list
+      # should ever have a value
+      if isinstance(form_data[k], list):
+        for l in form_data[k]:
+          if l.value:
+            new_choices[k] = l.value
+            break
+      else:
+        new_choices[k] = form_data[k].value
 
     # Read the current choices file (if any) into old_choices
     old_choices = ChoicesFile(choices_file)
 
     # Keep track of features
-    if section in ('lexicon', 'morphology'):
+    if section in (u'lexicon', u'morphology'):
       feats_to_add = defaultdict(list)
 
     # TJT: 2014-08-26: If optionally copula complement,
     # add zero rules to choices
     if section == u'lexicon':
       # TODO: make this a function
-      for adj in new_choices.get('adj', []): # check NEW values
-        if adj.get('predcop') == u"opt":
+      for adj in new_choices.get('adj', []):
+        if adj.get(u'predcop') == u"opt":
           atype = get_name(adj)
           pc_name = u"%s_opt_cop" % atype
           # Skip if already added
-          if not any(pc.get('name','') == pc_name
-                     for pc in old_choices['adj-pc']):
+          if not any(pc.get('name','') == pc_name for pc in old_choices['adj-pc']):
             switching_pc = u"adj-pc%d" % (old_choices['adj-pc'].next_iter_num()
-                                         if old_choices['adj-pc'] else 1)
-            # Set up position class
-            old_choices[switching_pc+"_name"] = pc_name
-            old_choices[switching_pc+"_obligatory"] = u"on"
-            old_choices[switching_pc+"_inputs"] = atype
-            # Set up new position class as a "switching" pc
-            old_choices[switching_pc+'_switching'] = u"on"
-            # Define lexical rule types
-            aToA = switching_pc+'_lrt1'
-            aToV = switching_pc+'_lrt2'
-            # Write adjective to adjective rule
-            old_choices[aToA+"_name"] = u"%s_cop_comp" % atype
-            old_choices[aToA+"_predcop"] = u"on"
-            old_choices[aToA+"_mod"] = u"pred"
-            # Write adjective to verb rule
-            old_choices[aToV+"_name"] = u"%s_stative_pred" % atype
-            #old_choices[aToV+"_predcop"] = u"off" # Unchecked is off
-            old_choices[aToV+"_mod"] = u"pred"
+                                          if old_choices['adj-pc'] else 1)
 
+            # TODO: Set section to morphology
+            # TODO: This requires some significant restructuring
+
+            # Set up position class
+            old_choices[switching_pc+u"_name"] = pc_name
+            old_choices[switching_pc+u"_obligatory"] = u"on"
+            old_choices[switching_pc+u"_inputs"] = atype
+            # Set up new position class as a "switching" pc
+            old_choices[switching_pc+u'_switching'] = u"on"
+
+            # Define lexical rule types
+            aToA = switching_pc+u'_lrt1'
+            aToV = switching_pc+u'_lrt2'
+            # Write adjective to adjective rule
+            old_choices[aToA+u"_name"] = u"%s_cop_comp" % atype
+            old_choices[aToA+u"_predcop"] = u"on"
+            old_choices[aToA+u"_mod"] = u"pred"
+            # Write adjective to verb rule
+            old_choices[aToV+u"_name"] = u"%s_stative_pred" % atype
+            old_choices[aToV+u"_mod"] = u"pred"
 
     # TJT: 2014-08-26: If adjective agrees only with one argument,
     # add zero rules to choices
     #if section == u'lexicon': # already in lexicon
       # Check lexicon for argument agreement
-      for adj in new_choices.get('adj',[]): # check NEW values
-        for feat in adj.get('feat',[]):
+      for adj in new_choices.get('adj', []):
+        for feat in adj.get('feat', []):
           if feat.get('head','') in ('subj','mod'):
             atype = get_name(adj)
             pc_name = u"%s_argument_agreement" % atype
@@ -1528,7 +1528,7 @@ class MatrixDef:
 
     elif section == u'morphology':
       # Check morphology for argument agreement
-      for adj_pc in new_choices.get('adj-pc',[]): # check NEW values
+      for adj_pc in new_choices.get('adj-pc', []):
         for lrt in adj_pc.get('lrt',[]):
           for feat in lrt.get('feat',[]):
             if feat.get('head','') in ('subj','mod'):
@@ -1547,20 +1547,20 @@ class MatrixDef:
         argument_agreement_pc = u"adj-pc%d" % (old_choices['adj-pc'].next_iter_num()
                                               if old_choices['adj-pc'] else 1)
         # Set up position class
-        target_page_choices[argument_agreement_pc+'_name'] = u"%s_argument_agreement" % adj
-        target_page_choices[argument_agreement_pc+'_obligatory'] = u'on'
-        target_page_choices[argument_agreement_pc+'_inputs'] = adj
+        target_page_choices[argument_agreement_pc+u'_name'] = u"%s_argument_agreement" % adj
+        target_page_choices[argument_agreement_pc+u'_obligatory'] = u'on'
+        target_page_choices[argument_agreement_pc+u'_inputs'] = adj
         # Set up new position class as a "switching" pc
-        target_page_choices[argument_agreement_pc+'_switching'] = u'on'
+        target_page_choices[argument_agreement_pc+u'_switching'] = u'on'
         # Define lexical rule types
-        subj_only = argument_agreement_pc+'_lrt1'
-        mod_only = argument_agreement_pc+'_lrt2'
+        subj_only = argument_agreement_pc+u'_lrt1'
+        mod_only = argument_agreement_pc+u'_lrt2'
         # Write subject agreement rule
-        target_page_choices[subj_only+'_name'] = u"%s_subj_agr" % adj
-        target_page_choices[subj_only+'_mod'] = u'pred'
+        target_page_choices[subj_only+u'_name'] = u"%s_subj_agr" % adj
+        target_page_choices[subj_only+u'_mod'] = u'pred'
         # Write modificand agreement rule
-        target_page_choices[mod_only+"_name"] = u"%s_mod_agr" % adj
-        target_page_choices[mod_only+"_mod"] = u"attr"
+        target_page_choices[mod_only+u"_name"] = u"%s_mod_agr" % adj
+        target_page_choices[mod_only+u"_mod"] = u"attr"
         # Add features from lexicon page to morphology page
         feat_count = 1
         for feat in feats_to_add[adj]:
@@ -1568,19 +1568,19 @@ class MatrixDef:
           if head in ('subj', 'mod'):
             if head == u'subj':
               # Copy subject agreement features
-              feature_vn = subj_only+"_feat%d" % feat_count
+              feature_vn = subj_only+u"_feat%d" % feat_count
             elif head == u'mod':
               # Copy object agreement features
-              feature_vn = mod_only+"_feat%d" % feat_count
-            target_page_choices[feature_vn+'_name'] = feat.get('name')
-            target_page_choices[feature_vn+'_value'] = feat.get('value')
+              feature_vn = mod_only+u"_feat%d" % feat_count
+            target_page_choices[feature_vn+u'_name'] = feat.get('name')
+            target_page_choices[feature_vn+u'_value'] = feat.get('value')
             # Adjectives' MOD, XARG, and SUBJ identified
             # so just agree with the XARG
-            target_page_choices[feature_vn+'_head'] = u'xarg'
+            target_page_choices[feature_vn+u'_head'] = u'xarg'
             # Delete this feature from current page
-            new_choices.delete(feat.full_key+'_name')
-            new_choices.delete(feat.full_key+'_value')
-            new_choices.delete(feat.full_key+'_head', prune=True)
+            new_choices.delete(feat.full_key+u'_name')
+            new_choices.delete(feat.full_key+u'_value')
+            new_choices.delete(feat.full_key+u'_head', prune=True)
             feat_count += 1
 
     # if neg-aux=on exists, create side-effect in lexicon.
@@ -1622,319 +1622,29 @@ class MatrixDef:
           for nfs in nfss:
             if nfs['name'] == u'negform':
               found_negform = True
-              # break # TODO: verify this added break
+              break # TODO: verify this added break
         if not found_negform:
-          old_choices['nf-subform%d_name' % next_n ] = u'negform'
+          old_choices['nf-subform%d_name' % next_n] = u'negform'
 
-    # TODO: Verify these changes, remove the commented out code and comments
+    # TODO: Verify these changes
     # Now pass through the def file, writing out either the old choices
     # for each section or, for the section we're saving, the new choices
     # Write out the choices
-    with codecs.open(choices_file, 'w+', encoding="utf-8") as f:
-        # TODO: This breaks one of the tests
-    #   f.write(u'\n') # blank line in case an editor inserts a BOM
-    #   f.write(u'version=' + unicode(old_choices.current_version()) + u'\n\n')
-      #
-    #   # TODO: Verify these changes
-    #   for section_name in self.sections:
-    #     choices = new_choices if section_name == section else old_choices
-    #     f.write(u'section=' + section_name + u'\n')
-    #     self.save_choices_section(self.sections[section_name], f, choices)
-    #     f.write(u'\n')
+    with codecs.open(choices_file, 'w', encoding="utf-8") as f:
+      # TODO: This breaks one of the toolbox tests
+      f.write(u'\n') # blank line in case an editor inserts a BOM
+      f.write(u'version=' + unicode(old_choices.current_version()) + u'\n\n')
 
-      f.write('\n') # blank line in case an editor inserts a BOM
-      f.write('version=' + str(old_choices.current_version()) + '\n\n')
-
-      cur_sec = u''
-      cur_sec_begin = 0
-      # TODO: Verify these changes
-      #while i < len(self.def_lines):
-      for i, word in enumerate(self.tokenized_lines):
-        # TODO: Simplify this logic
-        if word and word[0] == SECTION:
-          if cur_sec:
-            self.save_choices_section(self.def_lines[cur_sec_begin:i], f, choices)
-            f.write('\n')
-          cur_sec = word[1]
-          cur_sec_begin = i + 1
-          f.write('section=' + cur_sec + '\n')
-          if cur_sec == section:
-            choices = new_choices
-          else:
-            choices = old_choices
-        i += 1
-      # Make sure to save the last section
-      if cur_sec_begin:
-        self.save_choices_section(self.def_lines[cur_sec_begin:i], f, choices)
-
-  # def save_choices_section(self, tokenized_lines, f, choices,
-  #                          iter_level=0, prefix=u''):
-  #   """
-  #   Based on a section of a matrix definition file in tokenized_lines, save the
-  #   values from choices into the file handle f.  The section in tokenized_lines
-  #   need not correspond to a whole named section (e.g. "Lexicon"), but
-  #   can be any part of the file not containing a section line.
-  #
-  #   # TODO: Move this to choices.py
-  #   # TODO: Unit test this
-  #   """
-  #   saved = set()
-  #   i = 0
-  #   while i < len(tokenized_lines):
-  #     word, word_length, element = tokenized_lines[i]
-  #     if element in (CHECK, TEXT, TEXT_AREA, RADIO,
-  #                    SELECT, MULTI_SELECT, FILE, HIDDEN):
-  #       vn = word[1]
-  #       name = prefix + vn
-  #       if vn and name not in saved:
-  #         saved.add(name)
-  #         val = choices.get(name, u'')
-  #         if val and element == TEXT_AREA:
-  #           val = u'\\n'.join(val.splitlines())
-  #         f.write('  '*iter_level)
-  #         f.write(prefix + vn + '=' + val + '\n')
-  #
-  #     elif element == BEGIN_ITER:
-  #       # Recurse
-  #       iter_name, iter_var = word[1].replace('}', '').split('{', 1)
-  #       i, section_lines = self.get_iter_lines(iter_name, i, tokenized_lines, word[1])
-  #
-  #       for var in choices.get(prefix + iter_name):
-  #         self.save_choices_section(
-  #           section_lines,
-  #           f,
-  #           choices,
-  #           iter_level = iter_level + 1,
-  #           prefix = prefix + iter_name + str(var.iter_num()) + '_')
-  #
-  #     i += 1
-  #
-  #
-  # def save_choices(self, form_data, choices_file):
-  #   """
-  #   Read the choices_file, stripping out the section associated with
-  #   the 'section' member of form_data, and replacing it with all the
-  #   values in form_data.  Use self.def_file to keep the choices file
-  #   in order.
-  #
-  #   TODO: Move this to choices.py
-  #   TODO: Modularize this
-  #   TODO: Unit test this
-  #   """
-  #   # section is page user is leaving (or clicking "save and stay" on)
-  #   section = form_data['section'].value
-  #
-  #   ## New choices vs Old choices
-  #   # old_choices is from pages other than "section"
-  #   # new_choices is from the "section"'s page
-  #
-  #   # Copy the form_data into a choices object
-  #   new_choices = ChoicesFile('')
-  #   for k in form_data.keys():
-  #     if k:
-  #       # on sentential negation page, some choices are hidden in
-  #       # more than one place, so the FieldStorage object at [k] can
-  #       # be a list, but in these cases only one item on the list
-  #       # should ever have a value
-  #       if type(form_data[k]) == list:
-  #         for l in form_data[k]:
-  #           if l.value:
-  #             new_choices[k] = l.value
-  #       else:
-  #         new_choices[k] = form_data[k].value
-  #
-  #   # Read the current choices file (if any) into old_choices
-  #   old_choices = ChoicesFile(choices_file)
-  #
-  #   # Keep track of features
-  #   if section in ('lexicon', 'morphology'):
-  #     feats_to_add = defaultdict(list)
-  #
-  #   # TJT: 2014-08-26: If optionally copula complement,
-  #   # add zero rules to choices
-  #   if section == u'lexicon':
-  #     # TODO: make this a function
-  #     for adj in new_choices.get('adj', []): # check NEW values
-  #       if adj.get('predcop') == u"opt":
-  #         atype = get_name(adj)
-  #         pc_name = u"%s_opt_cop" % atype
-  #         # Skip if already added
-  #         if not any(pc.get('name','') == pc_name
-  #                    for pc in old_choices['adj-pc']):
-  #           switching_pc = u"adj-pc%d" % (old_choices['adj-pc'].next_iter_num()
-  #                                        if old_choices['adj-pc'] else 1)
-  #           # Set up position class
-  #           old_choices[switching_pc+"_name"] = pc_name
-  #           old_choices[switching_pc+"_obligatory"] = u"on"
-  #           old_choices[switching_pc+"_inputs"] = atype
-  #           # Set up new position class as a "switching" pc
-  #           old_choices[switching_pc+'_switching'] = u"on"
-  #           # Define lexical rule types
-  #           aToA = switching_pc+'_lrt1'
-  #           aToV = switching_pc+'_lrt2'
-  #           # Write adjective to adjective rule
-  #           old_choices[aToA+"_name"] = u"%s_cop_comp" % atype
-  #           old_choices[aToA+"_predcop"] = u"on"
-  #           old_choices[aToA+"_mod"] = u"pred"
-  #           # Write adjective to verb rule
-  #           old_choices[aToV+"_name"] = u"%s_stative_pred" % atype
-  #           #old_choices[aToV+"_predcop"] = u"off" # Unchecked is off
-  #           old_choices[aToV+"_mod"] = u"pred"
-  #
-  #
-  #   # TJT: 2014-08-26: If adjective agrees only with one argument,
-  #   # add zero rules to choices
-  #   #if section == u'lexicon': # already in lexicon
-  #     # Check lexicon for argument agreement
-  #     for adj in new_choices.get('adj',[]): # check NEW values
-  #       for feat in adj.get('feat',[]):
-  #         if feat.get('head','') in ('subj','mod'):
-  #           atype = get_name(adj)
-  #           pc_name = u"%s_argument_agreement" % atype
-  #           # Skip if already added
-  #           if not any(pc.get('name','') == pc_name for pc in old_choices['adj-pc']):
-  #             feats_to_add[atype].append(feat)
-  #
-  #   elif section == u'morphology':
-  #     # Check morphology for argument agreement
-  #     for adj_pc in new_choices.get('adj-pc',[]): # check NEW values
-  #       for lrt in adj_pc.get('lrt',[]):
-  #         for feat in lrt.get('feat',[]):
-  #           if feat.get('head','') in ('subj','mod'):
-  #             apc = adj_pc.full_key
-  #             pc_name = u"%s_argument_agreement" % apc
-  #             # Skip if already added
-  #             if not any(pc.get('name','') == pc_name for pc in old_choices['adj-pc']):
-  #               feats_to_add[apc].append(feat)
-  #
-  #
-  #   if section in ('lexicon', 'morphology'):
-  #     # With features collected, add them to choices dict
-  #     target_page_choices = old_choices if section == u"lexicon" else new_choices
-  #     for adj in feats_to_add:
-  #       # Add zero rules
-  #       argument_agreement_pc = u"adj-pc%d" % (old_choices['adj-pc'].next_iter_num()
-  #                                             if old_choices['adj-pc'] else 1)
-  #       # Set up position class
-  #       target_page_choices[argument_agreement_pc+'_name'] = u"%s_argument_agreement" % adj
-  #       target_page_choices[argument_agreement_pc+'_obligatory'] = u'on'
-  #       target_page_choices[argument_agreement_pc+'_inputs'] = adj
-  #       # Set up new position class as a "switching" pc
-  #       target_page_choices[argument_agreement_pc+'_switching'] = u'on'
-  #       # Define lexical rule types
-  #       subj_only = argument_agreement_pc+'_lrt1'
-  #       mod_only = argument_agreement_pc+'_lrt2'
-  #       # Write subject agreement rule
-  #       target_page_choices[subj_only+'_name'] = u"%s_subj_agr" % adj
-  #       target_page_choices[subj_only+'_mod'] = u'pred'
-  #       # Write modificand agreement rule
-  #       target_page_choices[mod_only+"_name"] = u"%s_mod_agr" % adj
-  #       target_page_choices[mod_only+"_mod"] = u"attr"
-  #       # Add features from lexicon page to morphology page
-  #       feat_count = 1
-  #       for feat in feats_to_add[adj]:
-  #         head = feat.get('head','').lower()
-  #         if head in ('subj', 'mod'):
-  #           if head == u'subj':
-  #             # Copy subject agreement features
-  #             feature_vn = subj_only+"_feat%d" % feat_count
-  #           elif head == u'mod':
-  #             # Copy object agreement features
-  #             feature_vn = mod_only+"_feat%d" % feat_count
-  #           target_page_choices[feature_vn+'_name'] = feat.get('name')
-  #           target_page_choices[feature_vn+'_value'] = feat.get('value')
-  #           # Adjectives' MOD, XARG, and SUBJ identified
-  #           # so just agree with the XARG
-  #           target_page_choices[feature_vn+'_head'] = u'xarg'
-  #           # Delete this feature from current page
-  #           new_choices.delete(feat.full_key+'_name')
-  #           new_choices.delete(feat.full_key+'_value')
-  #           new_choices.delete(feat.full_key+'_head', prune=True)
-  #           feat_count += 1
-  #
-  #   # if neg-aux=on exists, create side-effect in lexicon.
-  #   if section == u'sentential-negation' \
-  #     and ('neg-aux' in form_data.keys() \
-  #     or ('bineg-type' in form_data.keys() \
-  #     and form_data['bineg-type'].value =='infl-head')):
-  #     # see if we're already storing an index number
-  #     if 'neg-aux-index' in old_choices.keys():
-  #       # we have an index for a neg-aux, see if it's still around
-  #       if not old_choices['aux%s' % old_choices['neg-aux-index']]:
-  #         # it's not so we make a new neg-aux and store the index
-  #         old_choices, neg_aux_index = self.create_neg_aux_choices(old_choices)
-  #         new_choices["neg-aux-index"] = str(neg_aux_index) if neg_aux_index > 0 else str(1)
-  #     else: #we don't have any neg aux index stored, so make a new one
-  #       old_choices, neg_aux_index = self.create_neg_aux_choices(old_choices,form_data)
-  #       new_choices["neg-aux-index"] = str(neg_aux_index) if neg_aux_index > 0 else str(1)
-  #
-  #   # create a zero-neg lri in choices
-  #   if section == u'sentential-negation' \
-  #              and form_data['neg-exp'].value == u'0' \
-  #              and 'vpc-0-neg' in form_data.keys():
-  #     if form_data['vpc-0-neg'].value != u"":
-  #       # infl-neg should be on for zero-neg to work
-  #       new_choices['infl-neg'] = u'on'
-  #       old_choices, new_choices = self.create_infl_neg_choices(old_choices, new_choices)
-  #
-  #   # add FORM subtype for neg1b-neg2b analysis
-  #   # also add it for infl-head neg analysis
-  #   if section == u'sentential-negation':
-  #     keys = form_data.keys()
-  #     if 'neg1b-neg2b' in keys or \
-  #       ('neg1-type' in keys and 'neg2-type' in keys and form_data['neg1-type'].value == u'fh' and form_data['neg2-type'].value == u'b') or \
-  #       ('neg1-type' in keys and 'neg2-type' in keys and form_data['neg2-type'].value == u'fh' and form_data['neg1-type'].value == u'b'):
-  #       next_n = old_choices['nf-subform'].next_iter_num() if 'nf-subform' in old_choices else 1
-  #       found_negform = False
-  #       if next_n > 1:
-  #         nfss = old_choices.get('nf-subform')
-  #         for nfs in nfss:
-  #           if nfs['name'] == u'negform':
-  #             found_negform = True
-  #             # break # TODO: verify this added break
-  #       if not found_negform:
-  #         old_choices['nf-subform%d_name' % next_n ] = u'negform'
-  #
-  #   # TODO: Verify these changes, remove the commented out code and comments
-  #   # Now pass through the def file, writing out either the old choices
-  #   # for each section or, for the section we're saving, the new choices
-  #   # Write out the choices
-  #   with codecs.open(choices_file, 'w', encoding="utf-8") as f:
-  #       # TODO: This breaks one of the tests
-  #     f.write(u'\n') # blank line in case an editor inserts a BOM
-  #     f.write(u'version=' + unicode(old_choices.current_version()) + u'\n\n')
-  #
-  #     # TODO: Verify these changes
-  #     for section_name in self.sections:
-  #       choices = new_choices if section_name == section else old_choices
-  #       f.write(u'section=' + section_name + u'\n')
-  #       self.save_choices_section(self.sections[section_name], f, choices)
-  #       f.write(u'\n')
-  #
-  #     # TODO: REMOVE THE REST OF THIS
-  #   #   cur_sec = u''
-  #   #   cur_sec_begin = 0
-  #   #   # TODO: Verify these changes
-  #   #   i = 0
-  #   #   while i < len(self.tokenized_lines):
-  #   #     word, word_length, element = self.tokenized_lines[i]
-  #   #     if element == SECTION:
-  #   #       if cur_sec:
-  #   #         # TODO: changed self.def_lines to self.tokenized_lines; verify
-  #   #         self.save_choices_section(self.tokenized_lines[cur_sec_begin:i], f, choices)
-  #   #         f.write('\n')
-  #   #       cur_sec = word[1]
-  #   #       cur_sec_begin = i + 1
-  #   #       f.write('section=' + cur_sec + '\n')
-  #   #       if cur_sec == section:
-  #   #         choices = new_choices
-  #   #       else:
-  #   #         choices = old_choices
-  #   #     i += 1
-  #   #   # Make sure to save the last section
-  #   #   if cur_sec_begin:
-  #   #     # TODO: changed self.def_lines to self.tokenized_lines; verify
-  #   #     self.save_choices_section(self.tokenized_lines[cur_sec_begin:i], f, choices)
+      # TODO: Rework how this works entirely: don't modify the incoming choices?
+      # TODO: It seems it should be possible to iterate through the matrixdef file,
+      #       saving choices as they are discovered in the file.
+      #       This will be significantly more efficient than iterating through the
+      #       sections and then each choice as it currently is (up to O(n^3))
+      for section_name in self.sections:
+        choices = new_choices if section_name == section else old_choices
+        f.write(u'section=%s\n' % section_name)
+        self.save_choices_section(self.sections[section_name], f, choices)
+        f.write(u'\n')
 
 
   def create_neg_aux_choices(self, choices, form_data):

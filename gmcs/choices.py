@@ -27,6 +27,7 @@ from gmcs.linglib import case
 class ChoicesFileParseError(Exception):
   def __init__(self, msg=''):
     self.msg = msg
+
   def __str__(self):
     return repr(self.msg)
 
@@ -2231,6 +2232,7 @@ class ChoicesFile:
 
 ########################################################################
 # Test classes
+# TODO: Move these to test.py
 
 class FormData:
   """

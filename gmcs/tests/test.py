@@ -78,11 +78,15 @@ class choice_environ(object):
   """
 
   def __init__(self, section, test_choices_file, path=["gmcs", "tests", "resources", "test_choices"]):
+    self.path = path
+
     self.form_data = FormData()
-    self.form_data['section'] = FormInfo('section', 'lexicon')
+    self.form_data['section'] = FormInfo('section', section)
+
     test_choices = load_file(os.path.join(*(path + [test_choices_file])))
     self.choices_file = tempfile.NamedTemporaryFile(mode='w+')
     self.choices_file.write(test_choices)
+    self.choices_file.seek(0)
 
 
   def __enter__(self):

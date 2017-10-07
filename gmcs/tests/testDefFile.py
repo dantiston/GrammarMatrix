@@ -11,12 +11,16 @@ import StringIO
 from gmcs import html
 from gmcs import deffile
 from gmcs.deffile import MatrixDefSyntaxException
+from gmcs.choices import FormInfo
 
 from mock import mock_choices, mock_validation, mock_error
 from test import load_testhtml, load_matrixdef, load_choices, remove_empty_lines, load_file, os_environ, choice_environ
 
-from test import save_both
+from test import save_both, print_both
 
+"""
+TODO: test MatrixDef.get_iter_lines()
+"""
 
 # For seeing actual output
 # def assertEqual(self, actual, expected):
@@ -685,23 +689,111 @@ class ReplaceVarsTests(unittest.TestCase):
 
 
 class SaveChoicesTests(unittest.TestCase):
+  """
+  TODO: Tests for nested iters
+  TODO: Tests for choice adding functions
+  NOTE: Using named file because save_choices expects a path
+  """
 
   @classmethod
   def setUpClass(cls):
-    cls._definition = deffile.MatrixDef(os.path.join("gmcs", "tests", "resources", "test_defs", "testIter"))
+    cls._definition = deffile.MatrixDef(os.path.join("gmcs", "tests", "resources", "test_defs", "testMinimalLexiconMorphology"))
 
 
-  def testSaveChoicesSection_copy(self):
-    with choice_environ('lexicon', 'iter_choices.txt') as env:
+  # Generic tests
+  def testSaveChoicesSection_noChanges_currentPage(self):
+    with choice_environ('lexicon', 'min_lexicon_morphology.txt') as env:
+      env.choices_file.seek(0)
+      expected = env.choices_file.read()
+      env.form_data['noun1_name'] = FormInfo('noun1_name', 'common')
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
       actual = env.choices_file.read()
-      expected = "\nversion=28\n\nsection=lexicon\n  test1_name=common\n"
-      self.assertEqual(actual, expected)
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
+
+  def testSaveChoicesSection_noChanges_otherPage(self):
+    with choice_environ('morphology', 'min_lexicon_morphology.txt') as env:
+      env.choices_file.seek(0)
+      expected = env.choices_file.read()
+      self._definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = env.choices_file.read()
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testSaveChoicesSection_currentPage_add(self):
+    with choice_environ('lexicon', 'min_lexicon_morphology.txt') as env:
+      env.form_data['noun1_name'] = FormInfo('noun1_name', 'common')
+      env.form_data['noun1_det'] = FormInfo('noun1_det', 'obl')
+      self._definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = env.choices_file.read()
+      expected = "\nversion=28\n\nsection=morphology\n\nsection=lexicon\n  noun1_name=common\n  noun1_det=obl\n"
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testSaveChoicesSection_currentPage_remove(self):
+    with choice_environ('lexicon', 'min_lexicon_morphology.txt') as env:
+      self._definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = env.choices_file.read()
+      expected = "\nversion=28\n\nsection=morphology\n\nsection=lexicon\n"
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testSaveChoicesSection_otherPage_noChanges(self):
+    with choice_environ('lexicon', 'min_lexicon_morphology.txt') as env:
+      env.form_data['noun1_name'] = FormInfo('noun1_name', 'common')
+      env.form_data['noun-pc1_name'] = FormInfo('noun-pc1_name', "test")
+      env.form_data['noun-pc1_obligatory'] = FormInfo('noun-pc1_obligatory', "on")
+      env.form_data['noun-pc1_order'] = FormInfo('noun-pc1_order', "suffix")
+      self._definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = env.choices_file.read()
+      expected = "\nversion=28\n\nsection=morphology\n\nsection=lexicon\n  noun1_name=common\n"
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testSaveChoicesSection_multipleChoices(self):
+    with choice_environ('morphology', 'min_lexicon_morphology.txt') as env:
+      env.form_data['noun-pc1_name'] = FormInfo('noun-pc1_name', "test")
+      env.form_data['noun-pc1_obligatory'] = FormInfo('noun-pc1_obligatory', "on")
+      env.form_data['noun-pc1_order'] = FormInfo('noun-pc1_order', "suffix")
+      self._definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = env.choices_file.read()
+      expected = "\nversion=28\n\nsection=morphology\n  noun-pc1_name=test\n  noun-pc1_obligatory=on\n  noun-pc1_order=suffix\n\nsection=lexicon\n  noun1_name=common\n"
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  # Choice adding method tests
+  def testSaveChoicesSection_optionallyCopulaComplement_new(self):
+    with choice_environ('lexicon', 'optionally_copula_complement_before.txt') as env:
+      env.form_data['adj1_name'] = FormInfo('adj1_name', "test")
+      env.form_data['adj1_predcop'] = FormInfo('adj1_predcop', "opt")
+      self._definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = env.choices_file.read()
+      expected = load_file(os.path.join(*(env.path + ['optionally_copula_complement_after.txt'])))
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testSaveChoicesSection_optionallyCopulaComplement_existing(self):
+    with choice_environ('lexicon', 'optionally_copula_complement_after.txt') as env:
+      env.form_data['adj1_name'] = FormInfo('adj1_name', "test")
+      env.form_data['adj1_predcop'] = FormInfo('adj1_predcop', "opt")
+      self._definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = env.choices_file.read()
+      expected = load_file(os.path.join(*(env.path + ['optionally_copula_complement_after.txt'])))
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
 class SaveChoicesSectionTests(unittest.TestCase):
+  """
+  NOTE: Using StringIO because it's simpler and save_choices_section expects a file object
+  """
 
   @classmethod
   def setUpClass(cls):
@@ -752,14 +844,4 @@ class SaveChoicesSectionTests(unittest.TestCase):
     self._definition.save_choices_section(tokenized_lines, io, choices)
     actual = io.getvalue()
     expected = "test-check=on\n  test1_name=test-name\n    test1_test-nested1_name=common\n"
-    self.assertEqual(actual, expected)
-
-
-  def testSaveChoicesSection_optionallyCopulaComplement(self):
-    io = StringIO.StringIO()
-    choices = load_choices("optionally_copula_complement.txt")
-    tokenized_lines = [(['Radio', 'predcop', 'predicative structure', '', ''], 5, 'Radio'), (['.', 'Obligatorily', '', ''], 4, '.'), (['.', 'Optionally', '', ''], 4, '.'), (['.', 'Impossibly', '', ''], 4, '.')]
-    self._definition.save_choices_section(tokenized_lines, io, choices)
-    actual = io.getvalue()
-    expected = "predcop=opt\n"
     self.assertEqual(actual, expected)

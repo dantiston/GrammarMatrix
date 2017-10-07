@@ -1,0 +1,16 @@
+version=28
+
+section=morphology
+  adj-pc1_name=test_opt_cop
+  adj-pc1_obligatory=on
+  adj-pc1_inputs=test
+  adj-pc1_switching=on
+    adj-pc1_lrt1_name=test_cop_comp
+    adj-pc1_lrt1_mod=pred
+    adj-pc1_lrt1_predcop=on
+    adj-pc1_lrt2_name=test_stative_pred
+    adj-pc1_lrt2_mod=pred
+
+section=lexicon
+  adj1_name=test
+  adj1_predcop=opt
