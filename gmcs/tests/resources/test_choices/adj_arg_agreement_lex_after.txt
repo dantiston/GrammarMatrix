@@ -1,0 +1,18 @@
+version=28
+
+section=morphology
+  adj-pc1_name=test_argument_agreement
+  adj-pc1_obligatory=on
+  adj-pc1_inputs=test
+  adj-pc1_switching=on
+    adj-pc1_lrt1_name=test_subj_agr
+      adj-pc1_lrt1_feat1_name=person
+      adj-pc1_lrt1_feat1_value=3rd
+      adj-pc1_lrt1_feat1_head=xarg
+    adj-pc1_lrt1_mod=pred
+    adj-pc1_lrt2_name=test_mod_agr
+    adj-pc1_lrt2_mod=attr
+
+section=lexicon
+  adj1_name=test
+  adj1_predcop=obl

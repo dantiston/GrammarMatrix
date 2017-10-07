@@ -186,10 +186,8 @@ def validate_lexicon(ch, vr):
   # both nominal and verbal constraints to constrain adjective agreement and
   # inflection properly
 
-  # TJT 2014-12-19: Changing these set declarations to list declarations for
-  # older versions of python
-  index_features = set(['person', 'number','gender'])
-  head_features = set(['tense', 'aspect', 'mood'])
+  index_features = {'person', 'number','gender'}
+  head_features = {'tense', 'aspect', 'mood'}
   for feature in ch.get('feature'):
     if 'name' in feature:
       if feature.get('type') == 'index':
@@ -562,6 +560,7 @@ def validate_lexicon(ch, vr):
   adj_pc_switching_inputs = defaultdict(list)
   for adj_pc in ch.get('adj-pc',[]):
     if adj_pc.get('switching',''):
+      # TODO: This is broken
       inputs = adj_pc.get('inputs',[]).split(', ')
       if isinstance(inputs, basestring):
         adj_pc_switching_inputs[inputs].append(adj_pc)
@@ -572,15 +571,16 @@ def validate_lexicon(ch, vr):
 
   # TJT 2015-02-05: Check for conflicts between switching position classes
   # and their input lexical types
-  for adj in adj_pc_switching_inputs:
-    for pc in adj_pc_switching_inputs.get(adj):
-      if not (ch.get(adj, ChoiceDict()).get('mod','') == 'none' or ch.get(adj, ChoiceDict()).get('predcop','') == 'opt'):
-        vr.err(pc.full_key+'_name',
-               'This position class was created to enable behavior on ' +\
-               'an adjectival lexical type on the Lexicon page which is ' +\
-               'no longer configured to require this position class. You ' +\
-               'should either delete this position class or double check ' +\
-               'your types on the Lexicon page.')
+  # TODO: This is overly aggressive for argument agreement
+  # for adj in adj_pc_switching_inputs:
+  #   for pc in adj_pc_switching_inputs.get(adj):
+  #     if not (ch.get(adj, ChoiceDict()).get('mod','') == 'none' or ch.get(adj, ChoiceDict()).get('predcop','') == 'opt'):
+  #       vr.err(pc.full_key+'_name',
+  #              'This position class was created to enable behavior on ' +\
+  #              'an adjectival lexical type on the Lexicon page which is ' +\
+  #              'no longer configured to require this position class. You ' +\
+  #              'should either delete this position class or double check ' +\
+  #              'your types on the Lexicon page.')
 
   for adj in ch.get('adj',[]):
     mode = adj.get('mod','')
@@ -736,7 +736,7 @@ def validate_lexicon(ch, vr):
     #     vr.err(adj.full_key+'_mod',
     #            'Adjective types with unspecified syntactic behavior must ' +\
     #            'be the input to a position class on the Morphology page ' +\
-    #            'that enables this functionality.')      
+    #            'that enables this functionality.')
 
     # Check for clashes between inherited features and specified features
     inherited_feats = defaultdict(dict) # name -> 'value' -> value, 'specified on' -> head
@@ -987,4 +987,3 @@ def validate_lexicon(ch, vr):
           mess = 'That choice is not available in languages ' +\
                  'without a direct-inverse scale.'
           vr.err(feat.full_key + '_head', mess)
-

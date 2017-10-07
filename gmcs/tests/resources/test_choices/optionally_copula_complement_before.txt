@@ -1,3 +1,0 @@
-section=lexicon
-
-section=morphology

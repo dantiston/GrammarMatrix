@@ -769,13 +769,25 @@ class SaveChoicesTests(unittest.TestCase):
 
   # Choice adding method tests
   def testSaveChoicesSection_optionallyCopulaComplement_new(self):
-    with choice_environ('lexicon', 'optionally_copula_complement_before.txt') as env:
+    with choice_environ('lexicon', 'min_lexicon_morphology.txt') as env:
       env.form_data['adj1_name'] = FormInfo('adj1_name', "test")
       env.form_data['adj1_predcop'] = FormInfo('adj1_predcop', "opt")
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
       actual = env.choices_file.read()
       expected = load_file(os.path.join(*(env.path + ['optionally_copula_complement_after.txt'])))
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testSaveChoicesSection_optionallyCopulaComplement_other_page(self):
+    with choice_environ('general', 'min_lexicon_morphology.txt') as env:
+      # Wrong page, do nothing # TODO: Confirm this
+      env.form_data['adj1_name'] = FormInfo('adj1_name', "test")
+      env.form_data['adj1_predcop'] = FormInfo('adj1_predcop', "opt")
+      self._definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = env.choices_file.read()
+      expected = load_file(os.path.join(*(env.path + ['min_lexicon_morphology.txt'])))
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -787,6 +799,35 @@ class SaveChoicesTests(unittest.TestCase):
       env.choices_file.seek(0)
       actual = env.choices_file.read()
       expected = load_file(os.path.join(*(env.path + ['optionally_copula_complement_after.txt'])))
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testSaveChoicesSection_lexicon_add_adj_arg_agreement_feats(self):
+    with choice_environ('lexicon', 'min_lexicon_morphology.txt') as env:
+      env.form_data['adj1_name'] = FormInfo('adj1_name', "test")
+      env.form_data['adj1_predcop'] = FormInfo('adj1_predcop', "obl")
+      env.form_data['adj1_feat1_name'] = FormInfo('adj1_feat1_name', "person")
+      env.form_data['adj1_feat1_value'] = FormInfo('adj1_feat1_value', "3rd")
+      env.form_data['adj1_feat1_head'] = FormInfo('adj1_feat1_head', "subj")
+      self._definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = env.choices_file.read()
+      expected = load_file(os.path.join(*(env.path + ['adj_arg_agreement_lex_after.txt'])))
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testSaveChoicesSection_morphology_add_adj_arg_agreement_feats(self):
+    with choice_environ('morphology', 'min_lexicon_morphology.txt') as env:
+      env.form_data['adj-pc1_name'] = FormInfo('adj-pc1_name', "test_pc")
+      env.form_data['adj-pc1_lrt1_name'] = FormInfo('adj-pc1_lrt1_name', "test_lrt")
+      env.form_data['adj-pc1_lrt1_feat1_name'] = FormInfo('adj-pc1_lrt1_feat1_name', "person")
+      env.form_data['adj-pc1_lrt1_feat1_value'] = FormInfo('adj-pc1_lrt1_feat1_value', "3rd")
+      env.form_data['adj-pc1_lrt1_feat1_head'] = FormInfo('adj-pc1_lrt1_feat1_head', "subj")
+      self._definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = env.choices_file.read()
+      expected = load_file(os.path.join(*(env.path + ['adj_arg_agreement_morph_after.txt'])))
+      print_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 

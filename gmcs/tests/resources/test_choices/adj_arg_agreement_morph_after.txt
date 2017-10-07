@@ -1,0 +1,19 @@
+version=28
+
+section=morphology
+  adj-pc1_name=test_pc
+    adj-pc1_lrt1_name=test_lrt
+  adj-pc2_name=adj-pc1_argument_agreement
+  adj-pc2_obligatory=on
+  adj-pc2_inputs=adj-pc1
+  adj-pc2_switching=on
+    adj-pc2_lrt1_name=adj-pc1_subj_agr
+      adj-pc2_lrt1_feat1_name=person
+      adj-pc2_lrt1_feat1_value=3rd
+      adj-pc2_lrt1_feat1_head=xarg
+    adj-pc2_lrt1_mod=pred
+    adj-pc2_lrt2_name=adj-pc1_mod_agr
+    adj-pc2_lrt2_mod=attr
+
+section=lexicon
+  noun1_name=common
