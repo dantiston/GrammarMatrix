@@ -692,7 +692,7 @@ class SaveChoicesTests(unittest.TestCase):
   """
   TODO: Tests for nested iters
   TODO: Tests for choice adding functions
-  NOTE: Using named file because save_choices expects a path
+  NOTE: Using named temp file because save_choices expects a path
   """
 
   @classmethod
@@ -729,7 +729,7 @@ class SaveChoicesTests(unittest.TestCase):
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
       actual = env.choices_file.read()
-      expected = "\nversion=28\n\nsection=morphology\n\nsection=lexicon\n  noun1_name=common\n  noun1_det=obl\n"
+      expected = "\nversion=28\n\nsection=lexicon\n  noun1_name=common\n  noun1_det=obl\n\nsection=morphology\n"
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -738,7 +738,7 @@ class SaveChoicesTests(unittest.TestCase):
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
       actual = env.choices_file.read()
-      expected = "\nversion=28\n\nsection=morphology\n\nsection=lexicon\n"
+      expected = "\nversion=28\n\nsection=lexicon\n\nsection=morphology\n"
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -751,7 +751,7 @@ class SaveChoicesTests(unittest.TestCase):
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
       actual = env.choices_file.read()
-      expected = "\nversion=28\n\nsection=morphology\n\nsection=lexicon\n  noun1_name=common\n"
+      expected = "\nversion=28\n\nsection=lexicon\n  noun1_name=common\n\nsection=morphology\n"
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -763,7 +763,7 @@ class SaveChoicesTests(unittest.TestCase):
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
       actual = env.choices_file.read()
-      expected = "\nversion=28\n\nsection=morphology\n  noun-pc1_name=test\n  noun-pc1_obligatory=on\n  noun-pc1_order=suffix\n\nsection=lexicon\n  noun1_name=common\n"
+      expected = "\nversion=28\n\nsection=lexicon\n  noun1_name=common\n\nsection=morphology\n  noun-pc1_name=test\n  noun-pc1_obligatory=on\n  noun-pc1_order=suffix\n"
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -827,7 +827,6 @@ class SaveChoicesTests(unittest.TestCase):
       env.choices_file.seek(0)
       actual = env.choices_file.read()
       expected = load_file(os.path.join(*(env.path + ['adj_arg_agreement_morph_after.txt'])))
-      print_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -839,6 +838,7 @@ class SaveChoicesSectionTests(unittest.TestCase):
   @classmethod
   def setUpClass(cls):
     cls._definition = deffile.MatrixDef(None)
+
 
   def testSaveChoicesSection_basic(self):
     io = StringIO.StringIO()

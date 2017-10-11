@@ -1,7 +1,7 @@
 
 version=28
 
-section=morphology
-
 section=lexicon
   noun1_name=common
+
+section=morphology

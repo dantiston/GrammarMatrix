@@ -1,5 +1,8 @@
 version=28
 
+section=lexicon
+  noun1_name=common
+
 section=morphology
   adj-pc1_name=test_pc
     adj-pc1_lrt1_name=test_lrt
@@ -14,6 +17,3 @@ section=morphology
     adj-pc2_lrt1_mod=pred
     adj-pc2_lrt2_name=adj-pc1_mod_agr
     adj-pc2_lrt2_mod=attr
-
-section=lexicon
-  noun1_name=common

@@ -1,5 +1,9 @@
 version=28
 
+section=lexicon
+  adj1_name=test
+  adj1_predcop=obl
+
 section=morphology
   adj-pc1_name=test_argument_agreement
   adj-pc1_obligatory=on
@@ -12,7 +16,3 @@ section=morphology
     adj-pc1_lrt1_mod=pred
     adj-pc1_lrt2_name=test_mod_agr
     adj-pc1_lrt2_mod=attr
-
-section=lexicon
-  adj1_name=test
-  adj1_predcop=obl
