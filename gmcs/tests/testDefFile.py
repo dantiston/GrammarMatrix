@@ -5,6 +5,7 @@ import unittest
 
 import os
 import re
+import shutil
 
 import StringIO
 
@@ -34,7 +35,7 @@ TODO: test MatrixDef.get_iter_lines()
 #   super(InitializerTests, self).assertEqual(expected, actual)
 
 ### TESTS
-class InitializerTests(unittest.TestCase):
+class  InitializerTests(unittest.TestCase):
 
   def testInitializer_Basic(self):
     definition = load_matrixdef("testBasic")
@@ -61,7 +62,7 @@ class InitializerTests(unittest.TestCase):
 
 
 
-class DefsToHtmlTests(unittest.TestCase):
+class  DefsToHtmlTests(unittest.TestCase):
   """
   NOTE: defs_to_html() expects input lines to be stripped
 
@@ -315,7 +316,6 @@ class DefsToHtmlTests(unittest.TestCase):
 </div>
 <div class="anchor" id="test_ANCHOR"></div>
 <p><input type="button"  value="Add "test-iter"" onclick="clone_region('test', 'i', false)">"""
-      save_both(actual, expected)
       self.assertEqual(actual, expected)
 
 
@@ -338,7 +338,7 @@ class DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
-class SubPageTests(unittest.TestCase):
+class  SubPageTests(unittest.TestCase):
   """
   TODO: Tests for conditional skipping
   TODO: Tests for striking options from select and multiselect
@@ -483,6 +483,7 @@ class SubPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual2), remove_empty_lines(expected2))
 
 
+
 class MainPageTests(unittest.TestCase):
   """
   TODO: Need to write tests for displaying choices
@@ -505,7 +506,18 @@ class MainPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-class NavigationTests(unittest.TestCase):
+  def testMainPage_choices(self):
+    # TODO: This test should be simplified, either by improving the test or improving main_page()
+    with os_environ(HTTP_COOKIE="session=7777"), choice_environ('lexicon', 'min_lexicon_morphology.txt') as env:
+      definition = load_matrixdef("testMinimalLexiconMorphology")
+      shutil.copyfile(env.choices_file.name, 'sessions/7777/choices')
+      actual = definition.main_page('7777', mock_validation())
+      os.remove('sessions/7777/choices')
+      expected = load_testhtml("testMainPageMinimalLexiconMorphology")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+class  NavigationTests(unittest.TestCase):
 
   def testNavigation_Basic(self):
     definition = load_matrixdef("testBasic")
@@ -626,7 +638,7 @@ class NavigationTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-class GetOnLoadTests(unittest.TestCase):
+class  GetOnLoadTests(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
@@ -643,7 +655,7 @@ class GetOnLoadTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-class ReplaceVarsTests(unittest.TestCase):
+class  ReplaceVarsTests(unittest.TestCase):
 
   def testReplaceVars_Multiple(self):
     actual = deffile.replace_vars("BeginIter test-iter-{i} \"hello\" \"\"", {"i":1})
@@ -688,7 +700,7 @@ class ReplaceVarsTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-class SaveChoicesTests(unittest.TestCase):
+class  SaveChoicesTests(unittest.TestCase):
   """
   TODO: Tests for nested iters
   TODO: Tests for choice adding functions
@@ -830,7 +842,7 @@ class SaveChoicesTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-class SaveChoicesSectionTests(unittest.TestCase):
+class  SaveChoicesSectionTests(unittest.TestCase):
   """
   NOTE: Using StringIO because it's simpler and save_choices_section expects a file object
   """

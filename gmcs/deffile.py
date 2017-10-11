@@ -7,7 +7,7 @@ deffile.py
 This module provides the class MatrixDef and supporting methods for validating,
 loading, and generating HTML from files defining pages in the matrixdef specification
 
-# TJT 10-1-17 Significantly rewritten and refactored, focused on speed, testability,
+# TJT 10-10-17 Significantly rewritten and refactored, focused on speed, testability,
   standards compliance, and organization
 
 TODO: Think about pickling MatrixDef
@@ -18,7 +18,6 @@ TODO: Think about either making constants for accessing indices of MatrixDef
 TODO: PROBLEMS
     * Main page
         * choices not displayed under the sections
-        * sections displayed in the wrong order
 
     * sentences_page
     * more_sentences_page
@@ -414,13 +413,17 @@ class MatrixDef:
     that determines where to look for the choices file.
     """
 
-    choices, choices_file = self.get_choices_from_session(cookie, choices)
+    choices = []
+    choices_file = self.get_choices_file_from_session(cookie, choices)
+    if choices_file and os.path.exists(choices_file):
+      with codecs.open(choices_file, 'r', encoding='utf-8') as f:
+        choices = f.readlines()
 
     template = jinja.get_template('main.html')
     return template.render(
         cookie=cookie,
         datestamp=self.get_datestamp(),
-        navigation=self.page_links(vr, choices_file, choices),
+        navigation=self.page_links(vr, choices),
         download_grammar=self.download_links(vr),
         choices_file=choices_file,
         upload_choices=self.upload_links(vr),
@@ -676,14 +679,20 @@ class MatrixDef:
     """
     Load the choices file from the given session directory
     """
-    # Get session
+    choices_file = self.get_choices_file_from_session(session, choices)
     if not choices:
-      choices_file = u'sessions/' + session + u'/choices'
       choices = ChoicesFile(choices_file)
-    else:
-      # In test mode
-      choices_file = u''
     return choices, choices_file
+
+
+  def get_choices_file_from_session(self, session, choices):
+    """
+    Get the choices file path from the session
+    """
+    result = u'' # Default to empty for testing
+    if not choices:
+      result = u'sessions/' + session + u'/choices'
+    return result
 
 
   def get_datestamp(self):
@@ -707,7 +716,7 @@ class MatrixDef:
     return result
 
 
-  def page_links(self, vr, choices_file, choices):
+  def page_links(self, vr, choices):
     """
     Get the page links for the main page with the specified
     validation errors and choices
@@ -759,7 +768,8 @@ class MatrixDef:
             u'>&#9658;</span>\n')
       result.append(html.validation_mark(vr, section_name, info=False))
       result.append(u'<a href="matrix.cgi?subpage=%s">%s</a>\n' % (section_name, self.section_names[section_name]))
-      result.append(u'<div class="values" id="%s" style="display:none">' % section_name)
+      result.append(u'<div class="values" id="%s" style="display:none;">' % section_name)
+
       cur_sec = u''
       printed_something = False
       for c in choices:
@@ -770,16 +780,20 @@ class MatrixDef:
             if a == u'section':
               cur_sec = v.strip()
             elif cur_sec == section_name:
-              result.append(self.f(a) + u' = u' + self.f(v) + u'<br>')
+              result.append(self.f(a) + u' = ' + self.f(v) + u'<br>')
               printed_something = True
+            # TODO: Confirm this
+            # else if printed_something:
+            #   break
         except ValueError:
           if cur_sec == section_name:
             result.append(u'(<i>Bad line in choices file: </i>"<tt>' + \
                           c + u'</tt>")<br>')
             printed_something = True
+
       if not printed_something:
         result.append(u'&nbsp;')
-      result.append(u'</div></div>')
+      result.append(u'</div></div>\n')
 
     return u"".join(result)
 
@@ -1333,11 +1347,8 @@ class MatrixDef:
 
   def text_to_html(self, tokenized_lines, choices, vr, cookie, prefix, variables, num_lines, word, word_length, element, i, do_replace=False):
     result = u""
-    if word_length > 6:
-      vn, fn, bf, af, sz, oc = word[1:]
-    else:
-      vn, fn, bf, af, sz = word[1:]
-      oc = u''
+    vn, fn, bf, af, sz = word[1:6]
+    oc = word[6] if word_length > 6 else u''
     # TJT 2014-08-27: Prepend auto onchange events (instead of assinging)
     if vn == u"name":
       oc = u"fill_display_name('"+prefix[:-1]+"');" + oc
@@ -1345,7 +1356,7 @@ class MatrixDef:
     # on morphology page affixes
     elif vn == u"orth":
       # If previous non-empty line a radio definition, add check radio
-      # button function to onChange
+      # button function to onChange (for affixes)
       if tokenized_lines[i-1][2] == BULLET:
         oc = u"check_radio_button('"+prefix[:-1]+"_inflecting', 'yes'); " + oc
     vn = prefix + vn
@@ -1517,6 +1528,7 @@ class MatrixDef:
         result[k] = form_data[k].value
     return result
 
+  CHOICES_TO_SAVE = {CHECK, TEXT, TEXT_AREA, RADIO, SELECT, MULTI_SELECT, FILE, HIDDEN}
 
   def save_choices_section(self, tokenized_lines, f, choices,
                            iter_level=0, prefix=u''):
@@ -1532,8 +1544,7 @@ class MatrixDef:
     i = 0
     while i < len(tokenized_lines):
       word, word_length, element = tokenized_lines[i]
-      if element in (CHECK, TEXT, TEXT_AREA, RADIO,
-                     SELECT, MULTI_SELECT, FILE, HIDDEN):
+      if element in self.CHOICES_TO_SAVE:
         vn = word[1]
         name = prefix + vn
         if vn and name not in saved:
