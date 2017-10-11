@@ -120,9 +120,6 @@ def tokenize_def_line(line):
   return result
 
 
-################################################################################
-# matrixdef functions
-
 def merge_quoted_strings(document):
   """
   given a list of lines of text, some of which may contain
@@ -131,20 +128,29 @@ def merge_quoted_strings(document):
   the merged list
   """
   i = 0
-  while i < len(document):
-    j = 0
-    in_quotes = False
-    while j < len(document[i]):
-      if document[i][j] == u'"' and (j == 0 or document[i][j-1] != u'\\'):
+  j = 0
+  in_quotes = False
+  doc_length = len(document)
+  while i < doc_length:
+    line = document[i]
+    length = len(line)
+
+    while j < length:
+      if line[j] == u'"' and (j == 0 or line[j-1] != u'\\'):
         in_quotes = not in_quotes
       j += 1
 
     # if we reach the end of a line inside a quoted string, merge with
     # the next line and reprocess the newly-merged line
     if in_quotes:
-      document[i] += document[i+1] # crash here implies an unbalanced '"'
-      del document[i+1]
+      try:
+        document[i] += document[i+1] # crash here implies an unbalanced '"'
+        del document[i+1]
+        doc_length -= 1
+      except IndexError as e:
+        raise ValueError("Unbalanced parentheses in matrix definition file")
     else:
+      j = 0
       i += 1
 
   return document
