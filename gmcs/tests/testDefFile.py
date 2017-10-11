@@ -20,7 +20,9 @@ from test import load_testhtml, load_matrixdef, load_choices, remove_empty_lines
 from test import save_both, print_both
 
 """
-TODO: test MatrixDef.get_iter_lines()
+TODO:
+    test MatrixDef.get_iter_lines()
+    test deffile.tokenize_def_line
 """
 
 # For seeing actual output
@@ -35,7 +37,7 @@ TODO: test MatrixDef.get_iter_lines()
 #   super(InitializerTests, self).assertEqual(expected, actual)
 
 ### TESTS
-class  InitializerTests(unittest.TestCase):
+class InitializerTests(unittest.TestCase):
 
   def testInitializer_Basic(self):
     definition = load_matrixdef("testBasic")
@@ -62,7 +64,39 @@ class  InitializerTests(unittest.TestCase):
 
 
 
-class  DefsToHtmlTests(unittest.TestCase):
+class TokenizeDefLineTests(unittest.TestCase):
+
+  def testTokenizeDefLine_minimal(self):
+    actual = deffile.tokenize_def_line("Separator")
+    expected = ["Separator"]
+    self.assertEqual(actual, expected)
+
+
+  def testTokenizeDefLine_basic(self):
+    actual = deffile.tokenize_def_line("EndIter test")
+    expected = ["EndIter", "test"]
+    self.assertEqual(actual, expected)
+
+
+  def testTokenizeDefLine_quoted(self):
+    actual = deffile.tokenize_def_line("Check test-name \"Test Name\"")
+    expected = ["Check", "test-name", "Test Name"]
+    self.assertEqual(actual, expected)
+
+
+  def testTokenizeDefLine_quoted_empty(self):
+    actual = deffile.tokenize_def_line("Check test-name \"Test Name\" \"\"")
+    expected = ["Check", "test-name", "Test Name", ""]
+    self.assertEqual(actual, expected)
+
+
+  def testTokenizeDefLine_quoted_escaped(self):
+    actual = deffile.tokenize_def_line("Check test-name \"Test \\\"Name\\\"\"")
+    expected = ["Check", "test-name", "Test \"Name\""]
+    self.assertEqual(actual, expected)
+
+
+class DefsToHtmlTests(unittest.TestCase):
   """
   NOTE: defs_to_html() expects input lines to be stripped
 
@@ -338,7 +372,7 @@ class  DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
-class  SubPageTests(unittest.TestCase):
+class SubPageTests(unittest.TestCase):
   """
   TODO: Tests for conditional skipping
   TODO: Tests for striking options from select and multiselect
@@ -506,7 +540,7 @@ class MainPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-  def testMainPage_choices(self):
+  def testMainPage_simple_choices(self):
     # TODO: This test should be simplified, either by improving the test or improving main_page()
     with os_environ(HTTP_COOKIE="session=7777"), choice_environ('lexicon', 'min_lexicon_morphology.txt') as env:
       definition = load_matrixdef("testMinimalLexiconMorphology")
@@ -517,7 +551,18 @@ class MainPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-class  NavigationTests(unittest.TestCase):
+  def testMainPage_lexicon_choices(self):
+    # TODO: This test should be simplified, either by improving the test or improving main_page()
+    with os_environ(HTTP_COOKIE="session=7777"), choice_environ('lexicon', 'lexicon_choices2.txt') as env:
+      definition = load_matrixdef("testMinimalLexiconMorphology")
+      shutil.copyfile(env.choices_file.name, 'sessions/7777/choices')
+      actual = definition.main_page('7777', mock_validation())
+      os.remove('sessions/7777/choices')
+      expected = load_testhtml("testMainPageFullChoices")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+class NavigationTests(unittest.TestCase):
 
   def testNavigation_Basic(self):
     definition = load_matrixdef("testBasic")
@@ -638,7 +683,7 @@ class  NavigationTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-class  GetOnLoadTests(unittest.TestCase):
+class GetOnLoadTests(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
@@ -655,7 +700,7 @@ class  GetOnLoadTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-class  ReplaceVarsTests(unittest.TestCase):
+class ReplaceVarsTests(unittest.TestCase):
 
   def testReplaceVars_Multiple(self):
     actual = deffile.replace_vars("BeginIter test-iter-{i} \"hello\" \"\"", {"i":1})
@@ -700,7 +745,7 @@ class  ReplaceVarsTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-class  SaveChoicesTests(unittest.TestCase):
+class SaveChoicesTests(unittest.TestCase):
   """
   TODO: Tests for nested iters
   TODO: Tests for choice adding functions
@@ -842,7 +887,7 @@ class  SaveChoicesTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-class  SaveChoicesSectionTests(unittest.TestCase):
+class SaveChoicesSectionTests(unittest.TestCase):
   """
   NOTE: Using StringIO because it's simpler and save_choices_section expects a file object
   """

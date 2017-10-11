@@ -16,9 +16,6 @@ TODO: Think about either making constants for accessing indices of MatrixDef
       commands or make the commands object oriented (and have accessors)
 
 TODO: PROBLEMS
-    * Main page
-        * choices not displayed under the sections
-
     * sentences_page
     * more_sentences_page
     * error_page
@@ -32,6 +29,7 @@ TODO: PROBLEMS
 
 __authors__ = ["Joshua Crowgey", "Scott Drellishak", "Michael Goodman", "Daniel Mills", "T.J. Trimble"]
 
+######################################################################
 # imports
 
 import os
@@ -45,9 +43,7 @@ import codecs
 
 from collections import defaultdict, OrderedDict
 
-from gmcs import choices
-from gmcs import html
-from gmcs import generate
+from gmcs import choices, html, generate
 from gmcs.utils import get_name, make_tgz, make_zip
 from gmcs.choices import ChoicesFile
 from gmcs.validate import ValidationMessage
@@ -91,37 +87,35 @@ jinja = Environment(loader=PackageLoader('gmcs', 'html'))
 
 
 ######################################################################
-# Archive helper functions
+# Helper functions
 
-def tokenize_def(str):
+def tokenize_def_line(line):
   """
-  Split a string into words, treating double-quoted strings as
-  single words.
-
-  TODO: Get the length once
-  TODO: Change str to line
-  TODO: Write unit tests for this
+  Split a line of matrixdef into tokens, treating double-quoted strings as
+  single tokens.
   """
   i = 0
+  length = len(line)
   result = []
 
-  while i < len(str):
+  while i < length:
     # skip whitespace
-    while i < len(str) and str[i].isspace():
+    while i < length and line[i].isspace():
       i += 1
     # if it's quoted, read to the close quote, otherwise to a space
-    if i < len(str) and str[i] == u'"':
-      i += 1
-      a = i
-      while i < len(str) and not (str[i] == u'"' and str[i-1] != '\\'):
+    if i < length:
+      if line[i] == u'"':
         i += 1
-      result.append(str[a:i].replace(u'\\"', u'"'))
-      i += 1
-    elif i < len(str):
-      a = i
-      while i < len(str) and not str[i].isspace():
+        start = i
+        while i < length and not (line[i] == u'"' and line[i-1] != '\\'):
+          i += 1
+        result.append(line[start:i].replace(u'\\"', u'"'))
         i += 1
-      result.append(str[a:i])
+      else:
+        start = i
+        while i < length and not line[i].isspace():
+          i += 1
+        result.append(line[start:i])
 
   return result
 
@@ -280,7 +274,7 @@ class MatrixDef:
     # Remove empty lines and comments
     self.def_lines = [line for line in def_lines if line and not line[0] == COMMENT_CHAR]
     # Tokenize and count ONCE
-    tokenized_lines = (tokenize_def(line) for line in self.def_lines)
+    tokenized_lines = (tokenize_def_line(line) for line in self.def_lines)
     self.tokenized_lines = [(line, len(line), line[0]) for line in tokenized_lines]
 
     # Keep track of which sections to not show on navigation
@@ -691,7 +685,7 @@ class MatrixDef:
     """
     result = u'' # Default to empty for testing
     if not choices:
-      result = u'sessions/' + session + u'/choices'
+      result = os.path.join(u'sessions', session, u'choices')
     return result
 
 
