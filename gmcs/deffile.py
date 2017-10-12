@@ -229,6 +229,15 @@ class MatrixDef:
   SECTION_ONLOAD = 5
   SECTION_SKIP = 6
 
+  TOKENIZED_LINES = "tokenized_lines"
+  SECTIONS = "sections"
+  SECTION_NAMES = "section_names"
+  DOC_LINKS = "doc_links"
+  SHORT_NAMES = "short_names"
+  HIDE_ON_NAVIGATION = "hide_on_navigation"
+  F2V = "f2v"
+  V2F = "v2f"
+
 
   def __init__(self, def_file):
     # Define members
@@ -246,42 +255,29 @@ class MatrixDef:
     self.load_html_generators()
 
 
-
   def __getstate__(self):
     """
     Pickling MatrixDef only stores the definition data
-    TODO: Make these keys constants
     """
     result = {}
-    result["tokenized_lines"] = self.tokenized_lines
-    result["sections"] = self.sections
+    result[self.TOKENIZED_LINES] = self.tokenized_lines
+    result[self.SECTIONS] = self.sections
 
-    result["section_names"] = self.section_names
-    result["doc_links"] = self.doc_links
-    result["short_names"] = self.short_names
-    result["hide_on_navigation"] = self.hide_on_navigation
+    result[self.SECTION_NAMES] = self.section_names
+    result[self.DOC_LINKS] = self.doc_links
+    result[self.SHORT_NAMES] = self.short_names
+    result[self.HIDE_ON_NAVIGATION] = self.hide_on_navigation
 
-    result["f2v"] = self.f2v
-    result["v2f"] = self.v2f
+    result[self.F2V] = self.f2v
+    result[self.V2F] = self.v2f
     return result
 
 
   def __setstate__(self, state):
     """
     Unpickling MatrixDef only retrives the definition data
-    TODO: Make these keys constants
     """
-    self.tokenized_lines = state["tokenized_lines"]
-    self.sections = state["sections"]
-
-    self.section_names = state["section_names"]
-    self.doc_links = state["doc_links"]
-    self.short_names = state["short_names"]
-    self.hide_on_navigation = state["hide_on_navigation"]
-
-    self.f2v = state["f2v"]
-    self.v2f = state["v2f"]
-
+    self.__dict__.update(state)
     self.load_html_generators()
 
 

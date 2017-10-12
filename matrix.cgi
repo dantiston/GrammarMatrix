@@ -15,6 +15,9 @@ import cgitb; cgitb.enable()
 import time
 import glob
 import tempfile
+
+import cPickle as pickle
+
 from random import randint
 from distutils.dir_util import remove_tree
 
@@ -26,11 +29,34 @@ from gmcs.linglib.toolboximport import import_toolbox_lexicon
 
 
 ######################################################################
+# Functions
+
+def load_matrixdef(path):
+  """
+  Only parse matrixdef if it hasn't been cached yet
+  """
+  path_to_cached = path + ".pickle"
+  definition = None
+  if os.path.exists(path_to_cached):
+    cache_time = os.path.getmtime(path_to_cached)
+    def_time = os.path.getmtime(path)
+    if cache_time >= def_time:
+      with codecs.open(path_to_cached, 'r') as f:
+        definition = pickle.load(f)
+
+  if not definition:
+    with codecs.open(path_to_cached, 'r') as f:
+      definition = MatrixDef(path)
+      pickle.dump(definition, f)
+  return definition
+
+
+
+######################################################################
 # beginning of main program
 
-# TODO: Can we store this in a server side session?
-# TODO: Make this a parameter?
-matrixdef = MatrixDef('web/matrixdef')
+# TODO: Make the path to the matrixdef file a parameter?
+matrixdef = load_matrixdef(os.path.join('web', 'matrixdef'))
 
 form_data = cgi.FieldStorage()
 
@@ -184,8 +210,7 @@ if form_data.has_key('customize'):
       grammar_dir = customize_matrix(session_path, arch_type)
     except:
       exc = sys.exc_info()
-      matrixdef.customize_error_page(os.path.join(session_path, 'choices'),
-                                     exc)
+      matrixdef.customize_error_page(os.path.join(session_path, 'choices'), exc)
       sys.exit()
 
     if form_data.has_key('sentences'):
