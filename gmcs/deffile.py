@@ -229,6 +229,7 @@ class MatrixDef:
   SECTION_ONLOAD = 5
   SECTION_SKIP = 6
 
+
   def __init__(self, def_file):
     # Define members
     self.section_names = {}
@@ -242,6 +243,49 @@ class MatrixDef:
       self.v2f = defaultdict(lambda key: key)
       self.f2v = defaultdict(lambda key: key)
 
+    self.load_html_generators()
+
+
+
+  def __getstate__(self):
+    """
+    Pickling MatrixDef only stores the definition data
+    TODO: Make these keys constants
+    """
+    result = {}
+    result["tokenized_lines"] = self.tokenized_lines
+    result["sections"] = self.sections
+
+    result["section_names"] = self.section_names
+    result["doc_links"] = self.doc_links
+    result["short_names"] = self.short_names
+    result["hide_on_navigation"] = self.hide_on_navigation
+
+    result["f2v"] = self.f2v
+    result["v2f"] = self.v2f
+    return result
+
+
+  def __setstate__(self, state):
+    """
+    Unpickling MatrixDef only retrives the definition data
+    TODO: Make these keys constants
+    """
+    self.tokenized_lines = state["tokenized_lines"]
+    self.sections = state["sections"]
+
+    self.section_names = state["section_names"]
+    self.doc_links = state["doc_links"]
+    self.short_names = state["short_names"]
+    self.hide_on_navigation = state["hide_on_navigation"]
+
+    self.f2v = state["f2v"]
+    self.v2f = state["v2f"]
+
+    self.load_html_generators()
+
+
+  def load_html_generators(self):
     self.html_gens = {
       BEGIN_ITER: self.iter_to_html,
       CACHE: self.cache_to_html,
@@ -278,9 +322,9 @@ class MatrixDef:
     # Remove unimportant whitespace
     def_lines = map(unicode.strip, def_lines)
     # Remove empty lines and comments
-    self.def_lines = [line for line in def_lines if line and not line[0] == COMMENT_CHAR]
+    def_lines = (line for line in def_lines if line and not line[0] == COMMENT_CHAR)
     # Tokenize and count ONCE
-    tokenized_lines = (tokenize_def_line(line) for line in self.def_lines)
+    tokenized_lines = (tokenize_def_line(line) for line in def_lines)
     self.tokenized_lines = [(line, len(line), line[0]) for line in tokenized_lines]
 
     # Keep track of which sections to not show on navigation
@@ -311,7 +355,7 @@ class MatrixDef:
 
 
   def __len__(self):
-    return len(self.def_lines)
+    return len(self.tokenized_lines)
 
 
   ######################################################################

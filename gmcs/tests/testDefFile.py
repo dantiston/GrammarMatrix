@@ -6,6 +6,7 @@ import unittest
 import os
 import re
 import shutil
+import cPickle as pickle
 
 import StringIO
 
@@ -37,7 +38,6 @@ TODO:
 #   super(InitializerTests, self).assertEqual(expected, actual)
 
 ### TESTS
-@unittest.skip("testing merge quoted strings")
 class InitializerTests(unittest.TestCase):
 
   def testInitializer_Basic(self):
@@ -65,7 +65,54 @@ class InitializerTests(unittest.TestCase):
 
 
 
-@unittest.skip("testing merge quoted strings")
+class PicklingTests(unittest.TestCase):
+
+  def testPickle_basic_dumps_loads(self):
+    definition = load_matrixdef("testBasic")
+    state = pickle.dumps(definition)
+    loaded_def = pickle.loads(state)
+    self.assertEqual(definition.doc_links, loaded_def.doc_links)
+    self.assertEqual(definition.short_names, loaded_def.short_names)
+    self.assertEqual(definition.tokenized_lines, loaded_def.tokenized_lines)
+    self.assertEqual(definition.sections, loaded_def.sections)
+
+
+  def testPickle_basic_dump_load(self):
+    definition = load_matrixdef("testBasic")
+    f = StringIO.StringIO()
+    pickle.dump(definition, f)
+    f.seek(0)
+    loaded_def = pickle.load(f)
+    self.assertEqual(definition.doc_links, loaded_def.doc_links)
+    self.assertEqual(definition.short_names, loaded_def.short_names)
+    self.assertEqual(definition.tokenized_lines, loaded_def.tokenized_lines)
+    self.assertEqual(definition.sections, loaded_def.sections)
+
+
+  def testPickle_subpage_string(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load_matrixdef("testBasic")
+      f = StringIO.StringIO()
+      pickle.dump(definition, f)
+      f.seek(0)
+      loaded_def = pickle.load(f)
+      actual = loaded_def.sub_page('test-basic', '7777', mock_validation())
+      expected = load_testhtml("testBasic")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testPickle_mainpage_string(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load_matrixdef("testMinimalLexiconMorphology")
+      f = StringIO.StringIO()
+      pickle.dump(definition, f)
+      f.seek(0)
+      loaded_def = pickle.load(f)
+      actual = loaded_def.main_page('7777', mock_validation())
+      expected = load_testhtml("testMainPageMinimalLexiconMorphology")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
 class TokenizeDefLineTests(unittest.TestCase):
 
   def testTokenizeDefLine_minimal(self):
@@ -131,7 +178,6 @@ class MergeQuotedStrings(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-@unittest.skip("testing merge quoted strings")
 class DefsToHtmlTests(unittest.TestCase):
   """
   NOTE: defs_to_html() expects input lines to be stripped
@@ -408,7 +454,6 @@ class DefsToHtmlTests(unittest.TestCase):
       self.assertEqual(actual, expected)
 
 
-@unittest.skip("testing merge quoted strings")
 class SubPageTests(unittest.TestCase):
   """
   TODO: Tests for conditional skipping
@@ -555,7 +600,6 @@ class SubPageTests(unittest.TestCase):
 
 
 
-@unittest.skip("testing merge quoted strings")
 class MainPageTests(unittest.TestCase):
   """
   TODO: Need to write tests for displaying choices
@@ -585,7 +629,7 @@ class MainPageTests(unittest.TestCase):
       shutil.copyfile(env.choices_file.name, 'sessions/7777/choices')
       actual = definition.main_page('7777', mock_validation())
       os.remove('sessions/7777/choices')
-      expected = load_testhtml("testMainPageMinimalLexiconMorphology")
+      expected = load_testhtml("testMainPageMinimalLexiconMorphologyChoices")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -600,7 +644,6 @@ class MainPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-@unittest.skip("testing merge quoted strings")
 class NavigationTests(unittest.TestCase):
 
   def testNavigation_Basic(self):
@@ -722,7 +765,6 @@ class NavigationTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-@unittest.skip("testing merge quoted strings")
 class GetOnLoadTests(unittest.TestCase):
 
   @classmethod
@@ -740,7 +782,6 @@ class GetOnLoadTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-@unittest.skip("testing merge quoted strings")
 class ReplaceVarsTests(unittest.TestCase):
 
   def testReplaceVars_Multiple(self):
@@ -786,7 +827,6 @@ class ReplaceVarsTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-@unittest.skip("testing merge quoted strings")
 class SaveChoicesTests(unittest.TestCase):
   """
   TODO: Tests for nested iters
@@ -929,7 +969,6 @@ class SaveChoicesTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-@unittest.skip("testing merge quoted strings")
 class SaveChoicesSectionTests(unittest.TestCase):
   """
   NOTE: Using StringIO because it's simpler and save_choices_section expects a file object
