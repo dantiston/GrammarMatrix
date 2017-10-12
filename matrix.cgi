@@ -47,7 +47,7 @@ def load_matrixdef(path):
         definition = pickle.load(f)
 
   if not definition:
-    with codecs.open(path_to_cached, 'r') as f:
+    with codecs.open(path_to_cached, 'w+') as f:
       definition = MatrixDef(path)
       pickle.dump(definition, f)
   return definition
