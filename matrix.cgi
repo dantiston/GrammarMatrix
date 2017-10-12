@@ -42,13 +42,14 @@ def load_matrixdef(path):
     cache_time = os.path.getmtime(path_to_cached)
     def_time = os.path.getmtime(path)
     if cache_time >= def_time:
+      # Cache exists, is current
       with codecs.open(path_to_cached, 'r') as f:
-        definition = MatrixDef(path)
-        pickle.dump(definition, f)
+        definition = pickle.load(f)
 
   if not definition:
     with codecs.open(path_to_cached, 'r') as f:
-      definition = pickle.load(f)
+      definition = MatrixDef(path)
+      pickle.dump(definition, f)
   return definition
 
 
