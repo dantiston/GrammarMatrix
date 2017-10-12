@@ -15,6 +15,7 @@ import cgitb; cgitb.enable()
 import time
 import glob
 import tempfile
+import codecs
 
 import cPickle as pickle
 
