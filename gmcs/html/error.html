@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 
 {#
-  This Jinja template displays validations errors to users when trying to customize their grammar
+  This Jinja template displays validation errors to users when trying to customize their grammar
 
   Note this defines (at least) the following variables:
     * errors
+    * warnings
 
 #}
 
@@ -16,7 +17,16 @@
     <dl>
     {% for error in errors %}
       <dt><b>{{error}}:</b></dt>
-      <dd>{% errors[error].message %}</dd>
+      <dd>{{ errors[error].message }}</dd>
+    {% endfor %}
+    </dl>
+  {% endif %}
+  {% if warnings %}
+    <h2>Warnings</h2>
+    <dl>
+    {% for warning in warnings %}
+      <dt><b>{{warning}}:</b></dt>
+      <dd>{{ warnings[warning].message }}</dd>
     {% endfor %}
     </dl>
   {% endif %}

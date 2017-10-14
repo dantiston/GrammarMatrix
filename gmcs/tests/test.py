@@ -5,9 +5,11 @@ Utilities for testing the Grammar Matrix
 """
 
 import os
+import sys
 import codecs
 import tempfile
 import shutil
+import cStringIO as StringIO
 
 from gmcs import deffile
 from gmcs import choices
@@ -143,3 +145,36 @@ class environ_choices(object):
 
   def __exit__(self, exc_type, exc_value, exc_traceback):
     os.remove(self.temp)
+    if exc_value != None:
+      return False
+    return True
+
+
+class redirect_out(object):
+
+  def __init__(self, f=StringIO.StringIO()):
+    self.f = f
+
+
+  def __enter__(self):
+    self.old_stdout = sys.stdout
+    self.old_stderr = sys.stderr
+    sys.stdout = self.f
+    sys.stderr = self.f
+    return self
+
+
+  def __exit__(self, exc_type, exc_value, exc_traceback):
+    sys.stdout = self.old_stdout
+    sys.stderr = self.old_stderr
+    if exc_value != None:
+      return False
+    return True
+
+
+  def get(self):
+    current_pos = self.f.tell()
+    self.f.seek(0)
+    result = self.f.read()
+    self.f.seek(current_pos)
+    return result

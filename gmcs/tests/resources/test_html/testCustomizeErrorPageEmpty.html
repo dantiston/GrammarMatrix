@@ -1,19 +1,13 @@
-{% extends "base.html" %}
-
-{#
-  This Jinja template displays validations errors to users when trying to customize their grammar
-
-  Note this defines (at least) the following variables:
-    * choices_file
-    * exception
-
-#}
-
-{% block title %}Invalid Choices File{% endblock %}
+Content-type: text/html;charset=UTF-8
 
 
-{# TODO: Move this to matrix.js #}
-{% block head %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Problem Customizing Grammar</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
 <script type="text/javascript">
 <!--
     function toggle_visible(id) {
@@ -25,10 +19,9 @@
     }
 //-->
 </script>
-{% endblock %}
+  </head>
 
-
-{% block body %}
+  <body>
   <div style="position:absolute; top:15%; width:60%">
     <p style="color:red; text-align:center; font-size:12pt">
       The provided choices file is invalid. If you have edited the
@@ -40,7 +33,7 @@
     </p>
 
     <p style="text-align:center">
-      <a href="{{choices_file}}">View Choices File</a> (right-click to download)
+      <a href="sessions/7777/test_choices">View Choices File</a> (right-click to download)
     </p>
 
     <p style="text-align:center">In most cases, you can go back
@@ -49,5 +42,8 @@
       (this will erase your changes, so be sure to save your choices (above) first).
     </p>
 
-    {{exception|indent}}
-{% endblock %}
+
+
+  </body>
+
+</html>

@@ -8,6 +8,7 @@
 import unittest
 
 import os
+import sys
 import re
 import shutil
 import cPickle as pickle
@@ -17,10 +18,10 @@ import cStringIO as StringIO
 from gmcs import html
 from gmcs import deffile
 from gmcs.deffile import MatrixDefSyntaxException
-from gmcs.choices import FormInfo
+from gmcs.choices import FormInfo, ChoicesFileParseError
 
 from mock import mock_choices, mock_validation, mock_error
-from test import load_testhtml, load_matrixdef, load_choices, remove_empty_lines, load_file, os_environ, choice_environ, environ_choices
+from test import load_testhtml, load_matrixdef, load_choices, remove_empty_lines, load_file, os_environ, choice_environ, environ_choices, redirect_out
 
 from test import save_both, print_both
 
@@ -657,32 +658,100 @@ class MainPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-class CustomPageTests(unittest.TestCase):
+class OtherPageTests(unittest.TestCase):
+
+  def assertFirstNLinesEqual(self, first, second, n):
+    first = remove_empty_lines(first)[:n]
+    second = remove_empty_lines(second)[:n]
+    self.assertEqual(first, second)
+
+
+  @classmethod
+  def setUpClass(cls):
+    cls._definition = load_matrixdef("testBasic")
+
 
   def testCustomPage_basic_tgz(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load_matrixdef("testBasic")
       grammar_path = os.path.join('sessions', '7777', 'test_grammar')
       if not os.path.exists(grammar_path):
         os.makedirs(grammar_path)
-      actual = definition.custom_page(os.path.join('sessions', '7777'), grammar_path, 'tgz')
+      actual = self._definition.custom_page(os.path.join('sessions', '7777'), grammar_path, 'tgz')
       expected = load_testhtml('testCustomPageTgz')
-      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
       self.assertTrue(os.path.exists(grammar_path + u".tar.gz"))
 
 
   def testCustomPage_basic_zip(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      definition = load_matrixdef("testBasic")
       grammar_path = os.path.join('sessions', '7777', 'test_grammar')
       if not os.path.exists(grammar_path):
         os.makedirs(grammar_path)
-      actual = definition.custom_page(os.path.join('sessions', '7777'), grammar_path, 'zip')
+      actual = self._definition.custom_page(os.path.join('sessions', '7777'), grammar_path, 'zip')
       expected = load_testhtml('testCustomPageZip')
-      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
       self.assertTrue(os.path.exists(grammar_path + u".zip"))
+
+
+  def testErrorPage_errors(self):
+    actual = self._definition.error_page(mock_validation(errors={"test": mock_error(name="test", message="test message")}))
+    expected = load_testhtml("testErrorPageErrors")
+    self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testErrorPage_warnings(self):
+    actual = self._definition.error_page(mock_validation(warnings={"test": mock_error(name="test", message="test message")}))
+    expected = load_testhtml("testErrorPageWarnings")
+    self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testErrorPage_both(self):
+    actual = self._definition.error_page(mock_validation(errors={"test": mock_error(name="test", message="test message")}, warnings={"test": mock_error(name="test", message="test message")}))
+    expected = load_testhtml("testErrorPageBoth")
+    self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testCookieErrorPage(self):
+    actual = self._definition.cookie_error_page()
+    expected = load_testhtml("testCookieErrorPage")
+    self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testChoicesErrorPage_empty(self):
+    actual = self._definition.choices_error_page("sessions/7777/test_choices")
+    expected = load_testhtml("testChoicesErrorPageEmpty")
+    self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testChoicesErrorPage_error(self):
+    # NOTE: This test may be too strict; rely on the exact state of unrelated code
+    try:
+      raise ChoicesFileParseError(u"test error")
+    except ChoicesFileParseError as e:
+      exception = sys.exc_info()
+    actual = self._definition.choices_error_page("sessions/7777/test_choices", exc=exception)
+    expected = load_testhtml("testChoicesErrorPageError")
+    save_both(actual, expected)
+    # The specific information about the exception carries too much environment info to be useful
+    self.assertFirstNLinesEqual(actual, expected, 50)
+
+
+  def testCustomizeErrorPage_empty(self):
+    actual = self._definition.customize_error_page("sessions/7777/test_choices")
+    expected = load_testhtml("testCustomizeErrorPageEmpty")
+    self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testCustomizeErrorPage_error(self):
+    # NOTE: This test may be too strict; rely on the exact state of unrelated code
+    try:
+      raise ChoicesFileParseError(u"test error")
+    except ChoicesFileParseError as e:
+      exception = sys.exc_info()
+    actual = self._definition.customize_error_page("sessions/7777/test_choices", exc=exception)
+    expected = load_testhtml("testCustomizeErrorPageError")
+    # The specific information about the exception carries too much environment info to be useful
+    self.assertFirstNLinesEqual(actual, expected, 50)
 
 
 class NavigationTests(unittest.TestCase):

@@ -18,13 +18,10 @@ TODO: Think about either making constants for accessing indices of MatrixDef
 
 TODO: PROBLEMS
     * Need to test fix for enhance_choices() re: sentential negation
+    * main_page choices printing not using friendly names
 
     * sentences_page
     * more_sentences_page
-    * error_page
-    * cookie_error_page
-    * choices_error_page
-    * customize_error_page
 
     * Parsing/saving should be able to be sped up quite a bit by
         1) making the ChoicesDict an OrderedDict
@@ -50,6 +47,8 @@ import gzip
 import zipfile
 import codecs
 
+import cStringIO as StringIO
+
 from collections import defaultdict, OrderedDict
 
 from gmcs import choices, html, generate
@@ -69,116 +68,6 @@ var %s = [
 ];
 </script>'''
 
-HTML_preform = u'<form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">'
-
-HTML_postform = u'</form>'
-
-
-######################################################################
-# TODO: DELETEME
-
-HTTP_header = 'Content-type: text/html;charset=UTF-8'
-
-HTML_pretitle = '''<!doctype html>
-<html>
-<head><meta charset="utf-8"/>
-'''
-
-HTML_posttitle = '''<script type="text/javascript" src="web/matrix.js">
-</script>
-
-<script type="text/javascript">
-// An array of strings, each of the form 'name:value|friendly value,...'
-var features = [
-%s
-];
-
-var verb_case_patterns = [
-%s
-];
-
-var numbers = [
-%s
-];
-</script>
-
-<link rel="stylesheet" href="web/matrix.css">
-</head>
-'''
-
-HTML_toggle_visible_js = '''<script type="text/javascript">
-<!--
-    function toggle_visible(id) {
-       var e = document.getElementById(id);
-       if(e.style.display == 'block')
-          e.style.display = 'none';
-       else
-          e.style.display = 'block';
-    }
-//-->
-</script>
-'''
-
-HTML_prebody = '''<body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors();scalenav();">
-'''
-
-HTML_customprebody = '''<h3>Customized Matrix</h3>
-
-<p>A customized copy of the Matrix has been created for you.
-Please download it <a href="%s">here</a>.
-
-<p>This file will be removed from the system in 24 hours.
-
-<h3>Instructions</h3>
-
-<p>To unpack the archive, if your browser hasn't already done it for
-you, first try saving it on your desktop and double-clicking it.  If
-that doesn't work, and you're using Linux or Mac OS X, from a command
-prompt, type <tt>tar xzf matrix.tar.gz</tt> or <tt>unzip matrix.zip</tt>.
-
-<p>Once you've unpacked the archive you should find a directory called
-<tt>matrix</tt>.  Inside the directory are several files.  Here is
-an explanation of some:
-
-<ul>
-<li><tt>matrix.tdl</tt>: Language independent type and constraint
-definitions.  You should not need to modify this file.
-<li><tt>my_language.tdl</tt>: Types and constraints specific to your
-language.  (Actual file name depends on the name of your language.)
-<li><tt>lexicon.tdl</tt>: Lexical entries for your language.
-<li><tt>rules.tdl</tt>: Phrase structure rule instance entries for
-your language.
-<li><tt>irules.tdl</tt>: Spelling-changing lexical rule instance
-entries for your language.
-<li><tt>lrules.tdl</tt>: Non-spelling-changing lexical rule instance
-entries for your language.
-<li><tt>lkb/script</tt>: The script file for loading your grammar into
-the LKB.
-<li><tt>choices</tt>: A record of the information you
-provided in the matrix configuration form.
-</ul>
-
-<p>To run this grammar, start the LKB, and the load it by selected
-"Load > Complete grammar..." from the LKB menu.  You can then parse a
-sentence by selecting "Parse > Parse input..." from the LKB menu.  The
-dialog box that pops up should include the sentences you filled into
-the form.  When a sentence parses successfully, you can try generating
-from the resulting semantic representation by selecting "Generate" or
-"Generate from edge" from the pop-up menu.  For more on using the LKB,
-see the <a href="http://www.delph-in.net/lkb">LKB page</a> and/or
-Copestake 2002 <a
-href="http://cslipublications.stanford.edu/lkb.html"><i>Implementing
-Typed Feature Structure Grammars</i></a>.
-
-<hr>
-<a href="matrix.cgi">Back to form</a><br>
-<a href="http://www.delph-in.net/matrix/">Back to Matrix main page</a><br>
-<a href="http://www.delph-in.net/lkb">To the LKB page</a>
-'''
-
-HTML_postbody = '''</body>
-
-</html>'''
 
 ######################################################################
 # Constants
@@ -188,7 +77,11 @@ HTTP_COOKIE = u"HTTP_COOKIE"
 
 ######################################################################
 # Jinja
-jinja = Environment(loader=PackageLoader('gmcs', 'html'))
+jinja = Environment(
+  loader=PackageLoader('gmcs', 'html'),
+  trim_blocks=True,
+  lstrip_blocks=True,
+)
 
 
 ######################################################################
@@ -565,8 +458,7 @@ class MatrixDef:
       with codecs.open(choices_file, 'r', encoding='utf-8') as f:
         choices = f.readlines()
 
-    template = jinja.get_template('main.html')
-    return template.render(
+    return jinja.get_template('main.html').render(
         cookie=cookie,
         datestamp=self.get_datestamp(),
         navigation=self.page_links(vr, choices),
@@ -588,8 +480,7 @@ class MatrixDef:
 
     choices, choices_file = self.get_choices_from_session(cookie, choices)
 
-    template = jinja.get_template('sub.html')
-    return template.render(
+    return jinja.get_template('sub.html').render(
         title=self.section_names[section],
         features=html.js_array4_skip3(choices.features()),
         verb_case_patterns=html.js_array([c for c in choices.patterns() if not c[2]]),
@@ -620,8 +511,7 @@ class MatrixDef:
       make_zip(grammar_dir)
     os.chdir(cwd)
 
-    template = jinja.get_template('customized.html')
-    return template.render(
+    return jinja.get_template('customized.html').render(
         section_name=u"Matrix Customized",
         grammar_link=os.path.join(session_path, arch_file),
         cookie=session_path[-4:]
@@ -632,6 +522,7 @@ class MatrixDef:
     """
     Generate and print sample sentences from the customized grammar
     TODO: Write unit test for this
+    TODO: This currently only works with LOGON installed; change that?
     """
     print HTTP_header + '\n'
     print HTML_pretitle
@@ -684,6 +575,7 @@ class MatrixDef:
   def more_sentences_page(self, session_path, grammar_dir, verbpred, template_file, session):
     """
     Display page with additional sentences
+    TODO: This currently only works with LOGON installed; change that?
     """
     print HTTP_header + '\n'
     print HTML_pretitle
@@ -716,109 +608,40 @@ class MatrixDef:
   def error_page(self, vr):
     """
     Display errors and warnings that occurred during customization
+    NOTE: This page is basically inaccessible now
     """
-    print HTTP_header + '\n'
-    print HTML_pretitle
-    print '<title>Matrix Customization Errors</title>'
-    print HTML_prebody
-
-    if vr.has_errors():
-      print '<h2>Errors</h2>'
-      print '<dl>'
-      for k in vr.errors:
-        print '<dt><b>' + k + ':</b></dt>'
-        print '<dd>' + vr.errors[k].message + '</dd>'
-      print '</dl>'
-
-    if vr.has_warnings():
-      print '<h2>Warnings</h2>'
-      print '<dl>'
-      for k in vr.warnings:
-        print '<dt><b>' + k + ':</b></dt>'
-        print '<dd>' + vr.warnings[k].message + '</dd>'
-      print '</dl>'
-
-    print HTML_postbody
+    return jinja.get_template('error.html').render(
+        errors=vr.errors,
+        warnings=vr.warnings
+    )
 
 
   def cookie_error_page(self):
     """
     Inform the user that cookies must be enabled
     """
-    print HTTP_header + '\n'
-    print HTML_pretitle
-    print '<title>Cookies Required</title>'
-    print HTML_prebody
-
-    print '<div style="position:absolute; top:45%; width:100%">\n' + \
-          '<p style="color:red; text-align:center; font-size:16pt">' + \
-          'Cookies must be enabled for this site in your browser in order ' + \
-          'to fill out the questionnaire.</p>\n'
-    print '<p style="text-align:center; font-size:16pt">'
-    print 'If cookies are enabled, try reloading an '
-    print '<a href="matrix.cgi?choices=empty">empty questionnaire</a>. '
-    print 'Note that any existing changes will be lost.</p>'
-    print '</div>'
-
-    print HTML_postbody
+    return jinja.get_template('cookie_error.html').render()
 
 
   def choices_error_page(self, choices_file, exc=None):
-    print HTTP_header + '\n'
-    print HTML_pretitle
-    print '<title>Invalid Choices File</title>'
-    print HTML_posttitle % ('', '', '')
-    print HTML_toggle_visible_js
-    print HTML_prebody
-
-    print '<div style="position:absolute; top:15%; width:60%">\n' + \
-          '<p style="color:red; text-align:center; font-size:12pt">' + \
-          'The provided choices file is invalid. If you have edited the ' +\
-          'file by hand, please review the changes you made to make sure ' +\
-          'they follow the choices file file format. If you did not make ' +\
-          'any manual changes, please email the choices file to the Matrix ' +\
-          'developers. You may download the choices file to try and fix ' +\
-          'any errors.</p>\n'
-
-    print '<p style="text-align:center"><a href="' + choices_file + '">' +\
-          'View Choices File</a> (right-click to download)</p>'
-
-    print '<p style="text-align:center">In most cases, you can go back ' +\
-          'in your browser and fix the problems, but if not you may ' +\
-          '<a href="matrix.cgi?choices=empty">reload an empty ' +\
-          'questionnaire</a> (this will erase your changes, so be sure to ' +\
-          'save your choices (above) first).'
-    exception_html(exc)
-    print HTML_postbody
+    """
+    Inform the user there is an error with their choices file
+    """
+    # TODO: Confirm this is 100% correct
+    return jinja.get_template('choices_error.html').render(
+      choices_file=choices_file,
+      exception=exception_html(exc)
+    )
 
 
   def customize_error_page(self, choices_file, exc=None):
-    print HTTP_header + '\n'
-    print HTML_pretitle
-    print '<title>Problem Customizing Grammar</title>'
-    print HTML_posttitle % ('', '', '')
-    print HTML_toggle_visible_js
-    print HTML_prebody
-
-    print '<div style="position:absolute; top:15%; width:60%">\n' +\
-          '<p style="color:red; text-align:center; font-size:12pt">' +\
-          'The Grammar Matrix Customization System was unable to create ' +\
-          'a grammar with the provided choices file. You may go back in ' +\
-          'your browser to try and fix the problem, or if you think ' +\
-          'there is a bug in the system you may email the choices file ' +\
-          'to the developers</p>\n'
-
-    print '<p style="text-align:center"><a href="' + choices_file + '">' +\
-          'View Choices File</a> (right-click to download)</p>'
-
-    print '<p style="text-align:center">In most cases, you can go back ' +\
-          'in your browser and fix the problems, but if not you may ' +\
-          '<a href="matrix.cgi?choices=empty">reload an empty ' +\
-          'questionnaire</a> (this will erase your changes, so be sure to ' +\
-          'save your choices (above) first).'
-    exception_html(exc)
-    print HTML_postbody
-
+    """
+    Inform the user there was an exception while customizing their grammar
+    """
+    return jinja.get_template('customize_error.html').render(
+      choices_file=choices_file,
+      exception=exception_html(exc)
+    )
 
   ##############################################################################
   # Page components
@@ -1915,7 +1738,7 @@ class MatrixDefSyntaxException(Exception):
     pass
 
 
-def exception_html(exc):
+def exception_html_print(exc):
   if exc and exc != (None, None, None):
     print '<p style="text-align:center">You may also wish to ' +\
           '<a href="#" onclick="toggle_visible(\'error\');">' +\
@@ -1924,3 +1747,19 @@ def exception_html(exc):
     print "<div id=\"error\" style=\"display:none\">"
     cgitb.handler(exc)
     print "</div>"
+
+
+def exception_html(exc):
+  result = []
+  if exc and exc != (None, None, None):
+    result.append('<p style="text-align:center">You may also wish to '
+          '<a href="#" onclick="toggle_visible(\'error\');">'
+          'see the Python error</a> '
+          '(note: it is very technical, and possibly not useful).</p>\n'
+          '<div id=\"error\" style=\"display:none\">\n')
+    exception = StringIO.StringIO()
+    cgitb.Hook(file=exception).handle(exc)
+    exception.seek(0)
+    result.append(exception.read())
+    result.append("</div>")
+  return "\n".join(result)

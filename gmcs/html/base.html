@@ -1,5 +1,5 @@
 Content-type: text/html;charset=UTF-8
-Set-cookie: session={{cookie}}
+{% if cookie %}Set-cookie: session={{cookie}}{% endif %}
 
 {#
   This Jinja template acts as a base for the Grammar Matrix website
@@ -24,7 +24,7 @@ Set-cookie: session={{cookie}}
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>{{section_name|default("the Matrix")}}</title>
+    <title>{% block title %}{{section_name|default("the Matrix")}}{% endblock title %}</title>
 
     <link rel="stylesheet" href="web/matrix.css">
     {% block js %}{% endblock js %}
@@ -34,6 +34,7 @@ Set-cookie: session={{cookie}}
   <body{% if self.onload() %} onload="{% block onload %}{% endblock onload %}"{% endif %}>
   {% block body %}
   {% endblock body %}
+
   </body>
 
 </html>

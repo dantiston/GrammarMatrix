@@ -158,7 +158,7 @@ if form_data.has_key('import_toolbox'):
 
 # If the 'verbpred' field is defined, then the user wishes to generate more sentences with that predication
 if form_data.has_key('verbpred'):
-  matrixdef.more_sentences_page(session_path,form_data['grammar'].value, form_data['verbpred'].value, form_data['template'].value, cookie)
+  matrixdef.more_sentences_page(session_path, form_data['grammar'].value, form_data['verbpred'].value, form_data['template'].value, cookie)
   sys.exit()
 
 # Get a list of error messages, determined by validating the current
@@ -170,7 +170,7 @@ try:
   vr = validate_choices(os.path.join(session_path, 'choices'))
 except:
   exc = sys.exc_info()
-  matrixdef.choices_error_page(os.path.join(session_path, 'choices'), exc)
+  print(matrixdef.choices_error_page(os.path.join(session_path, 'choices'), exc))
   sys.exit()
 
 # if the 'customize' field is defined, create a customized copy of the matrix
@@ -185,7 +185,7 @@ if form_data.has_key('customize'):
     vr.err('delivery', 'You must specify an archive type.')
 
   if vr.has_errors():
-    matrixdef.error_page(vr)
+    print(matrixdef.error_page(vr))
   else:
     # If the user said it's OK, archive the choices file
     choices = ChoicesFile(os.path.join(session_path, 'choices'))
@@ -212,7 +212,7 @@ if form_data.has_key('customize'):
       grammar_dir = customize_matrix(session_path, arch_type)
     except:
       exc = sys.exc_info()
-      matrixdef.customize_error_page(os.path.join(session_path, 'choices'), exc)
+      print(matrixdef.customize_error_page(os.path.join(session_path, 'choices'), exc))
       sys.exit()
 
     if form_data.has_key('sentences'):
@@ -223,6 +223,6 @@ elif form_data.has_key('subpage'):
   if browser_cookie:
     print(matrixdef.sub_page(form_data['subpage'].value, cookie, vr).encode('utf-8'))
   else:
-    matrixdef.cookie_error_page()
+    print(matrixdef.cookie_error_page())
 else:
   print(matrixdef.main_page(cookie, vr).encode('utf-8'))
