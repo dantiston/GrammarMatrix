@@ -3,6 +3,8 @@
 
 ### $Id: choices.py,v 1.24 2008-09-30 23:50:02 lpoulson Exp $
 
+from __future__ import unicode_literals
+
 """
 choices.py
 
@@ -97,8 +99,7 @@ class ChoiceDict(ChoiceCategory, dict):
     # otherwise we need to descend to the next list
     else:
       if cur_key not in self:
-        new_key = cur_key if not self.full_key \
-                          else u'_'.join([self.full_key, cur_key])
+        new_key = cur_key if not self.full_key else u'_'.join((self.full_key, cur_key))
         new_list = ChoiceList(full_key=new_key)
         dict.__setitem__(self, cur_key, new_list)
       dict.__getitem__(self, cur_key)[remaining_keys] = value
@@ -194,8 +195,7 @@ class ChoiceList(ChoiceCategory, list):
       list.__setitem__(self, index - 1, value)
     else:
       if self[index] == None:
-        list.__setitem__(self, index - 1, ChoiceDict(full_key=self.full_key +\
-                                                     unicode(index)))
+        list.__setitem__(self, index - 1, ChoiceDict(full_key=self.full_key + unicode(index)))
       list.__getitem__(self, index - 1)[remaining_keys] = value
 
 
@@ -238,7 +238,8 @@ class ChoiceList(ChoiceCategory, list):
 
 
   def is_empty(self):
-    return len(self) == 0
+    #return len(self) == 0
+    return self.get_first() == None
 
 
   def get_first(self):
@@ -265,8 +266,11 @@ class ChoiceList(ChoiceCategory, list):
 
 
   def next_iter_num(self):
-    if len(self) == 0: return 1
-    return (self.get_last().iter_num() or 0) + 1
+    if self.is_empty(): return 1
+    last = self.get_last()
+    if last:
+      return last.iter_num() + 1
+    return 1
 
 
   def full_keys(self):
@@ -343,15 +347,17 @@ def get_next_key(complex_key):
     next_key_cache[rest] = subkeys[1:]
   return safe_int(next_key), rest
 
-######################################################################
-# ChoicesFile is a class that wraps the choices file, a list of
-# variables and values, and provides methods for loading, accessing,
-# and saving them.
 
 class ChoicesFile:
+  """
+  Store a choices file as a list of variables and values,
+  with methods for loading, accessing, and saving them.
+  """
 
-  # initialize by passing either a file name or file handle
   def __init__(self, choices_file=None):
+    """
+    initialize by passing either a file name or file handle
+    """
 
     self.cached_values = {}
     self.choices = ChoiceDict()
@@ -378,17 +384,15 @@ class ChoicesFile:
     return unicode(self.choices).encode("utf-8")
 
 
-  def __eq__(self, object):
-    if not issubclass(object.__class__, ChoicesFile):
+  def __eq__(self, other):
+    if not issubclass(other.__class__, ChoicesFile):
       return False
     else:
-      if len(self.full_keys()) != len(object.full_keys()):
+      if len(self.full_keys()) != len(other.full_keys()):
         return False
       else:
         for i in self.full_keys():
-          if object[i] != self[i]:
-            # print object[i]
-            # print self[i]
+          if other[i] != self[i]:
             return False
     return True
 
@@ -478,7 +482,7 @@ class ChoicesFile:
 
 
   def __iter__(self):
-    return self.choices.__iter__()
+    return iter(self.choices)
 
 
   def walk(self, intermediates=False):
@@ -655,6 +659,7 @@ class ChoicesFile:
     """
     return feat['name'] == 'case' and (feat['value'] == case or case == '' \
                       or any(case == value for value in feat['value'].split(', ')))
+
 
   def has_noun_case(self, case = ''):
     """

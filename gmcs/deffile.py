@@ -1,6 +1,8 @@
 #!usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 """
 deffile.py
 
@@ -57,9 +59,6 @@ from jinja2 import Environment, PackageLoader
 ######################################################################
 # HTML blocks, used to create web pages
 
-def dummy():
-  pass # let emacs know the indentation is 2 spaces
-
 HTML_jscache = u'''<script type="text/javascript">
 // A cache of choices from other subpages
 var %s = [
@@ -70,13 +69,6 @@ var %s = [
 HTML_preform = u'<form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">'
 
 HTML_postform = u'</form>'
-
-
-######################################################################
-# Stupid: The Python syntax coloring in Emacs doesn't properly handle
-# single-quotes inside of triple-quoted strings, so, as necessary to
-# turn syntax-coloring back on for the rest of the file, include (or
-# not) an extra apostrophe here:
 
 
 ######################################################################
@@ -1616,6 +1608,7 @@ class MatrixDef:
         name = prefix + vn
         if vn and name not in saved:
           saved.add(name)
+          # TODO: this choice is being returned as a str
           val = choices.get(name, False)
           if val:
             if element == TEXT_AREA:
