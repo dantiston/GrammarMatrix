@@ -7,8 +7,8 @@
 # imports
 
 import sys
-#import os
 import copy
+import codecs
 
 ###########################################################################
 # TDL Tokenization
@@ -299,12 +299,12 @@ class TDLelem_conj(TDLelem):
     for ch in self.child[0:1]:
       if ch:
         ch.write()
-        last_was_feat = (isinstance(ch, TDLelem_feat));
+        last_was_feat = (isinstance(ch, TDLelem_feat))
     for ch in self.child[1:]:
       # TJT 2014-05-07 Changed to check for Nones; probably not the best
       # This might be the cause of a regression
       if ch:
-          cur_is_feat = (isinstance(ch, TDLelem_feat));
+          cur_is_feat = (isinstance(ch, TDLelem_feat))
           # don't print empty AVMs ([]) unless it's the only thing
           if cur_is_feat and len(ch.child) == 0: continue
           if cur_is_feat or last_was_feat:
@@ -812,7 +812,7 @@ class TDLfile(object):
   def save(self):
     self.disambiguate_types()
 
-    f = open(self.file_name, 'w')
+    f = codecs.open(self.file_name, 'w', encoding='utf-8')
     TDLset_file(f)
 
     # We probably only need this for lexicon.tdl, but to be safe let's
