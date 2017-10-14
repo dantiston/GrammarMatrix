@@ -428,6 +428,8 @@ class ChoicesFile:
         key, value = line.split('=', 1)
         key = key.strip()
         if not key in self.ELEMENTS_TO_SKIP:
+          if isinstance(value, str):
+            value = unicode(value, 'utf-8')
           choices[key] = value
       except ValueError:
         pass # TODO: log this!
