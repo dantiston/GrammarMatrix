@@ -1,6 +1,10 @@
 #!usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
+# cgi.FieldStorage() returns str instances, need to test them,
+# so don't use unicode_literals
+# from __future__ import unicode_literals
+
 import unittest
 
 import os
@@ -858,7 +862,7 @@ class SaveChoicesTests(unittest.TestCase):
       env.form_data['noun1_name'] = FormInfo('noun1_name', 'common')
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
-      actual = env.choices_file.read()
+      actual = unicode(env.choices_file.read(), 'utf-8')
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -868,7 +872,7 @@ class SaveChoicesTests(unittest.TestCase):
       expected = env.choices_file.read()
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
-      actual = env.choices_file.read()
+      actual = unicode(env.choices_file.read(), 'utf-8')
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -878,7 +882,7 @@ class SaveChoicesTests(unittest.TestCase):
       env.form_data['noun1_det'] = FormInfo('noun1_det', 'obl')
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
-      actual = env.choices_file.read()
+      actual = unicode(env.choices_file.read(), 'utf-8')
       expected = "\nversion=28\n\nsection=lexicon\n  noun1_name=common\n  noun1_det=obl\n\nsection=morphology\n"
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
@@ -887,7 +891,7 @@ class SaveChoicesTests(unittest.TestCase):
     with choice_environ('lexicon', 'min_lexicon_morphology.txt') as env:
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
-      actual = env.choices_file.read()
+      actual = unicode(env.choices_file.read(), 'utf-8')
       expected = "\nversion=28\n\nsection=lexicon\n\nsection=morphology\n"
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
@@ -900,7 +904,7 @@ class SaveChoicesTests(unittest.TestCase):
       env.form_data['noun-pc1_order'] = FormInfo('noun-pc1_order', "suffix")
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
-      actual = env.choices_file.read()
+      actual = unicode(env.choices_file.read(), 'utf-8')
       expected = "\nversion=28\n\nsection=lexicon\n  noun1_name=common\n\nsection=morphology\n"
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
@@ -912,8 +916,18 @@ class SaveChoicesTests(unittest.TestCase):
       env.form_data['noun-pc1_order'] = FormInfo('noun-pc1_order', "suffix")
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
-      actual = env.choices_file.read()
+      actual = unicode(env.choices_file.read(), 'utf-8')
       expected = "\nversion=28\n\nsection=lexicon\n  noun1_name=common\n\nsection=morphology\n  noun-pc1_name=test\n  noun-pc1_obligatory=on\n  noun-pc1_order=suffix\n"
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testSaveChoicesSection_unicodeValues(self):
+    with choice_environ('lexicon', 'min_lexicon_morphology.txt') as env:
+      env.form_data['noun1_name'] = FormInfo('noun1_name', "名詞")
+      self._definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = unicode(env.choices_file.read(), 'utf-8')
+      expected = u"\nversion=28\n\nsection=lexicon\n  noun1_name=名詞\n\nsection=morphology\n"
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -924,7 +938,7 @@ class SaveChoicesTests(unittest.TestCase):
       env.form_data['adj1_predcop'] = FormInfo('adj1_predcop', "opt")
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
-      actual = env.choices_file.read()
+      actual = unicode(env.choices_file.read(), 'utf-8')
       expected = load_file(os.path.join(*(env.path + ['optionally_copula_complement_after.txt'])))
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
@@ -936,7 +950,7 @@ class SaveChoicesTests(unittest.TestCase):
       env.form_data['adj1_predcop'] = FormInfo('adj1_predcop', "opt")
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
-      actual = env.choices_file.read()
+      actual = unicode(env.choices_file.read(), 'utf-8')
       expected = load_file(os.path.join(*(env.path + ['min_lexicon_morphology.txt'])))
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
@@ -947,7 +961,7 @@ class SaveChoicesTests(unittest.TestCase):
       env.form_data['adj1_predcop'] = FormInfo('adj1_predcop', "opt")
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
-      actual = env.choices_file.read()
+      actual = unicode(env.choices_file.read(), 'utf-8')
       expected = load_file(os.path.join(*(env.path + ['optionally_copula_complement_after.txt'])))
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
@@ -961,7 +975,7 @@ class SaveChoicesTests(unittest.TestCase):
       env.form_data['adj1_feat1_head'] = FormInfo('adj1_feat1_head', "subj")
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
-      actual = env.choices_file.read()
+      actual = unicode(env.choices_file.read(), 'utf-8')
       expected = load_file(os.path.join(*(env.path + ['adj_arg_agreement_lex_after.txt'])))
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
@@ -975,7 +989,7 @@ class SaveChoicesTests(unittest.TestCase):
       env.form_data['adj-pc1_lrt1_feat1_head'] = FormInfo('adj-pc1_lrt1_feat1_head', "subj")
       self._definition.save_choices(env.form_data, env.choices_file.name)
       env.choices_file.seek(0)
-      actual = env.choices_file.read()
+      actual = unicode(env.choices_file.read(), 'utf-8')
       expected = load_file(os.path.join(*(env.path + ['adj_arg_agreement_morph_after.txt'])))
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 

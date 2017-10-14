@@ -1580,10 +1580,16 @@ class MatrixDef:
       if isinstance(form_data[k], list):
         for l in form_data[k]:
           if l.value:
-            result[k] = l.value
+            val = l.value
+            if isinstance(val, str):
+              val = unicode(val, 'utf-8')
+            result[k] = val
             break
       else:
-        result[k] = form_data[k].value
+        val = form_data[k].value
+        if isinstance(val, str):
+          val = unicode(val, 'utf-8')
+        result[k] = val
     return result
 
 

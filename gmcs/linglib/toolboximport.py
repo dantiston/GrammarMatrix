@@ -30,6 +30,8 @@ that matched no lexical classes.
 
 import os
 import re
+import codecs
+
 from gmcs.utils import TDLencode
 from gmcs.choices import ChoicesFile, FormData
 from gmcs.deffile import MatrixDef
@@ -131,7 +133,7 @@ def insert_affixes(form_data, affix_strings, number):
     for entry in range(1,number):
         affix_id = form_data['imported-entry'+str(entry)+'_aff'].value
         if affix_id in affix_strings.keys():
-            form_data['imported-entry'+str(entry)+'_aff'].value = affix_strings[affix_id]
+            form_data['imported-entry'+str(entry)+'_aff'].value = str(affix_strings[affix_id])
 
 
 def import_toolbox_lexicon(choicesfile):
@@ -171,7 +173,7 @@ def import_toolbox_lexicon(choicesfile):
             if not tbfile.get('tbfilename'):
                 continue
             tb_lines = None
-            tblex = open(tbfile.get('tbfilename'),'r')
+            tblex = codecs.open(tbfile.get('tbfilename'), 'r', encoding='utf-8')
             tbentry = {}
             # List of values of the bistemtag field.
             affixes = []
@@ -191,7 +193,7 @@ def import_toolbox_lexicon(choicesfile):
                 if words:
                     if words[0] == starttag:
                         affixes = process_tb_entry(tbentry,lexclasses,stemtag,bistemtag,glosstag,predchoice,choices,affixes,form_data,form_data_entries)
-                        if form_data.has_key('imported-entry'+str(form_data_entries)+'_orth'):
+                        if form_data.has_key('imported-entry'+unicode(form_data_entries)+'_orth'):
                             form_data_entries += 1
                         tbentry = {}
                         tbentries += 1
@@ -212,7 +214,7 @@ def import_toolbox_lexicon(choicesfile):
                         break
 
             if affixids and affixes:
-                tblex = open(tbfile.get('tbfilename'),'r')
+                tblex = codecs.open(tbfile.get('tbfilename'), 'r', encoding='utf-8')
                 affix_strings = {}
                 for line in tblex.readlines():
                     words = line.rstrip().split()
@@ -229,9 +231,8 @@ def import_toolbox_lexicon(choicesfile):
 
     # Print new choices file by concatenating input choices
     # with output choices.  FIXME: What about section=?
-    # TODO: Make the deffile a parameter
-    # TODO: Make sure to change this when moving save_choices
-    matrixdef = MatrixDef("web/matrixdef").save_choices(form_data, choicesfile)
+    # TODO: Make the matrixdef file a parameter
+    MatrixDef("web/matrixdef").save_choices(form_data, choicesfile)
 
 
 def integrate_imported_entries(choices):

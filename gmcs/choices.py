@@ -429,6 +429,7 @@ class ChoicesFile:
         key = key.strip()
         if not key in self.ELEMENTS_TO_SKIP:
           if isinstance(value, str):
+            # This is happening because the form data isn't specified as unicode
             value = unicode(value, 'utf-8')
           choices[key] = value
       except ValueError:
