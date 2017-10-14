@@ -1,0 +1,2694 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Lexicon</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+    <script type="text/javascript" src="web/matrix.js"></script>
+    <script type="text/javascript" src="web/draw.js"></script>
+
+    <script type="text/javascript">
+      <!--
+      // An array of strings, each of the form "name:value|friendly value,..."
+      var features = ["case:nom|nom;acc|obj:noun:y",
+"pernum:sg|sg;du|du;pl|pl;1st|1st;2nd|2nd;3rd|3rd;1sg|1sg;2sg|2sg;3sg|3sg;1du|1du;1du_incl|1du_incl;1du_excl|1du_excl;2du|2du;3du|3du;1pl|1pl;1pl_incl|1pl_incl;1pl_excl|1pl_excl;2pl|2pl;3pl|3pl:noun:y",
+"argument structure:nom|intransitive (nom);nom-acc|transitive (nom-obj);intrans|intransitive (case unspecified);trans|transitive (case unspecified);nom-acc,dirinv|transitive (nom-obj), direct-inverse;trans,dirinv|transitive (case unspecified), direct-inverse:verb:n",
+"direction:dir|direct;inv|inverse:verb:y",
+"negation:plus|plus;minus|minus:verb:y",
+"information-structure meaning:focus|focus;topic|topic;contrast|contrast;semantic-focus|non-contrastive-focus;contrast-focus|contrastive-focus;aboutness-topic|non-contrastive-topic;contrast-topic|contrastive-topic;focus-or-topic|focus-or-topic;contrast-or-focus|contrast-or-focus;contrast-or-topic|contrast-or-topic;non-topic|non-topic;non-focus|non-focus;bg|background:both:n",
+"_topicality:_topic|_topic;_non-topic|_non-topic:both:y",
+"proximity:proximate|proximate;obviative|obviative;neutral|neutral:both:y"];
+
+      var verb_case_patterns = ["nom:intransitive (nom)",
+"nom-acc:transitive (nom-obj)",
+"intrans:intransitive (case unspecified)",
+"trans:transitive (case unspecified)",
+"nom-acc,dirinv:transitive (nom-obj), direct-inverse",
+"trans,dirinv:transitive (case unspecified), direct-inverse"];
+
+      var numbers = ["sg:number",
+"du:number",
+"pl:number"];
+      -->
+    </script>
+
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h2 style="display:inline">Lexicon</h2>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDoc/Lexicon" target="matrixdoc">help</a>]</span>
+  <br />
+
+  <div id="navmenu"><br />
+    <a href="." onclick="submit_main()" class="navleft">Main page</a><br />
+    <hr />
+    <span style="color:#ff0000;" class="navleft"></span><span data-name="Lexicon" class="navlinks">Lexicon</span><br />
+    <span style="color:#ff0000;" class="navleft"></span><a data-name="Morphology" data-short-name="Morph" class="navlinks" href="#" onclick="submit_go('morphology')">Morphology</a><br />
+    <hr />
+    <a href="sessions/7777/choices" class="navleft">Choices file</a><br /><div class="navleft" style="margin-bottom:0;padding-bottom:0">(right-click to download)</div>
+    <a href="#stay" onclick="document.forms[0].submit()" class="navleft">Save &amp; stay</a><br />
+    <span class="navleft">Create grammar:</span><br />
+    <a href="#" onclick="nav_customize('tgz')" class="navleft" style="padding-left:15px">tgz</a>, <a href="#customize" onclick="nav_customize('zip')" class="navleft">zip</a>
+    </div>
+
+  <div id="form_holder">
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+
+      <input type="hidden" name="section" value="lexicon"></input>
+      <input type="hidden" name="subpage" value="lexicon"></input>
+
+      <label><p>Some nouns in this language take adjectives as incorporated affixes: <input type="checkbox"  name="adj_incorp"></p></label>
+    <div class="iterator" style="display: none" id="noun_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun{i}')">
+    <div class="iterframe">Type name: <input type="text"  name="noun{i}_name" size="20" onchange="fill_display_name('noun{i}');"><br /><br />
+    Supertypes:
+    <select name="noun{i}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun{i}_supertypes', [].concat(fill_regex('noun(?!{i}_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun{i}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun{i}_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun{i}_feat{j}_name" onfocus="fill('noun{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun{i}_feat{j}_value', [].concat(fill_feature_values('noun{i}_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun{i}_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun{i}_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun{i}_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun{i}_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun{i}_det" value="imp"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun{i}_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun{i}_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun{i}_stem{j}_orth" size="30" onchange="fill_pred('noun{i}_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun{i}_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun{i}_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun{i}_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun{i}_stem1_orth" size="30" onchange="fill_pred('noun{i}_stem1', 'n')">
+     Predicate: <input type="text"  name="noun{i}_stem1_pred" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun{i}_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun{i}_stem', 'j', false)"><div class="iterator" style="display: none" id="noun{i}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun{i}_require{j}')">
+    <div class="iterframe">Noun {i} requires one of the following:
+    <select name="noun{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun{i}_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun{i}_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun{i}_require', 'j', false)"><div class="iterator" style="display: none" id="noun{i}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun{i}_forbid{j}')">
+    <div class="iterframe">Noun {i} forbids the following position class:
+    <select name="noun{i}_forbid{j}_others" onfocus="fill('noun{i}_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun{i}_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun{i}_forbid', 'j', false)"></div>
+    </div>
+
+    <span id="noun1_errors" class="error" style="display: none"></span><a id="noun1button" onclick="toggle_display_lex('noun1','noun1button')">&#9660; 1sg-pronoun (noun1)</a><div class="iterator" id="noun1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1')">
+    <div class="iterframe">Type name: <input type="text"  name="noun1_name" value="1sg-pronoun" size="20" onchange="fill_display_name('noun1');"><br /><br />
+    Supertypes:
+    <select name="noun1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun1_supertypes', [].concat(fill_regex('noun(?!1_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun1_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun1_feat{j}_name" onfocus="fill('noun1_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun1_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun1_feat{j}_value', [].concat(fill_feature_values('noun1_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun1_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun1_feat1_name" onfocus="fill('noun1_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun1_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun1_feat1_value', [].concat(fill_feature_values('noun1_feat1_name')));">
+    <option value="nom" selected class="temp">nom</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun1_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun1_feat2_name" onfocus="fill('noun1_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun1_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun1_feat2_value', [].concat(fill_feature_values('noun1_feat2_name')));">
+    <option value="1sg" selected class="temp">1sg</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun1_feat3">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_feat3')">
+    <div class="iterframe">Name:
+    <select name="noun1_feat3_name" onfocus="fill('noun1_feat3_name', [].concat(fill_feature_names('noun')));">
+    <option value="proximity" selected class="temp">proximity</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun1_feat3_value" class="multi"  multiple="multiple"  onfocus="fill('noun1_feat3_value', [].concat(fill_feature_values('noun1_feat3_name')));">
+    <option value="neutral" selected class="temp">neutral</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun1_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun1_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun1_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun1_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun1_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun1_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun1_stem{j}_orth" size="30" onchange="fill_pred('noun1_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun1_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun1_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun1_stem1_orth" value="ín" size="30" onchange="fill_pred('noun1_stem1', 'n')">
+     Predicate: <input type="text"  name="noun1_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun1_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun1_stem', 'j', false)"><div class="iterator" style="display: none" id="noun1_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_require{j}')">
+    <div class="iterframe">Noun 1 requires one of the following:
+    <select name="noun1_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun1_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun1_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun1_require', 'j', false)"><div class="iterator" style="display: none" id="noun1_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun1_forbid{j}')">
+    <div class="iterframe">Noun 1 forbids the following position class:
+    <select name="noun1_forbid{j}_others" onfocus="fill('noun1_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun1_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun1_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun2_errors" class="error" style="display: none"></span><a id="noun2button" onclick="toggle_display_lex('noun2','noun2button')">&#9660; 2sg-pronoun (noun2)</a><div class="iterator" id="noun2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun2')">
+    <div class="iterframe">Type name: <input type="text"  name="noun2_name" value="2sg-pronoun" size="20" onchange="fill_display_name('noun2');"><br /><br />
+    Supertypes:
+    <select name="noun2_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun2_supertypes', [].concat(fill_regex('noun(?!2_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun2_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun2_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun2_feat{j}_name" onfocus="fill('noun2_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun2_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun2_feat{j}_value', [].concat(fill_feature_values('noun2_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun2_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun2_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun2_feat1_name" onfocus="fill('noun2_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun2_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun2_feat1_value', [].concat(fill_feature_values('noun2_feat1_name')));">
+    <option value="nom" selected class="temp">nom</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun2_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun2_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun2_feat2_name" onfocus="fill('noun2_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun2_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun2_feat2_value', [].concat(fill_feature_values('noun2_feat2_name')));">
+    <option value="2sg" selected class="temp">2sg</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun2_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun2_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun2_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun2_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun2_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun2_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun2_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun2_stem{j}_orth" size="30" onchange="fill_pred('noun2_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun2_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun2_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun2_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun2_stem1_orth" value="ím" size="30" onchange="fill_pred('noun2_stem1', 'n')">
+     Predicate: <input type="text"  name="noun2_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun2_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun2_stem', 'j', false)"><div class="iterator" style="display: none" id="noun2_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun2_require{j}')">
+    <div class="iterframe">Noun 2 requires one of the following:
+    <select name="noun2_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun2_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun2_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun2_require', 'j', false)"><div class="iterator" style="display: none" id="noun2_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun2_forbid{j}')">
+    <div class="iterframe">Noun 2 forbids the following position class:
+    <select name="noun2_forbid{j}_others" onfocus="fill('noun2_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun2_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun2_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun3_errors" class="error" style="display: none"></span><a id="noun3button" onclick="toggle_display_lex('noun3','noun3button')">&#9660; 3sg-pronoun (noun3)</a><div class="iterator" id="noun3">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun3')">
+    <div class="iterframe">Type name: <input type="text"  name="noun3_name" value="3sg-pronoun" size="20" onchange="fill_display_name('noun3');"><br /><br />
+    Supertypes:
+    <select name="noun3_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun3_supertypes', [].concat(fill_regex('noun(?!3_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun3_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun3_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun3_feat{j}_name" onfocus="fill('noun3_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun3_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun3_feat{j}_value', [].concat(fill_feature_values('noun3_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun3_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun3_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun3_feat1_name" onfocus="fill('noun3_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun3_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun3_feat1_value', [].concat(fill_feature_values('noun3_feat1_name')));">
+    <option value="nom" selected class="temp">nom</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun3_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun3_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun3_feat2_name" onfocus="fill('noun3_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun3_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun3_feat2_value', [].concat(fill_feature_values('noun3_feat2_name')));">
+    <option value="3sg" selected class="temp">3sg</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun3_feat3">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun3_feat3')">
+    <div class="iterframe">Name:
+    <select name="noun3_feat3_name" onfocus="fill('noun3_feat3_name', [].concat(fill_feature_names('noun')));">
+    <option value="proximity" selected class="temp">proximity</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun3_feat3_value" class="multi"  multiple="multiple"  onfocus="fill('noun3_feat3_value', [].concat(fill_feature_values('noun3_feat3_name')));">
+    <option value="neutral" selected class="temp">neutral</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun3_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun3_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun3_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun3_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun3_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun3_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun3_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun3_stem{j}_orth" size="30" onchange="fill_pred('noun3_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun3_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun3_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun3_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun3_stem1_orth" value="pɨ́n" size="30" onchange="fill_pred('noun3_stem1', 'n')">
+     Predicate: <input type="text"  name="noun3_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun3_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun3_stem', 'j', false)"><div class="iterator" style="display: none" id="noun3_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun3_require{j}')">
+    <div class="iterframe">Noun 3 requires one of the following:
+    <select name="noun3_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun3_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun3_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun3_require', 'j', false)"><div class="iterator" style="display: none" id="noun3_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun3_forbid{j}')">
+    <div class="iterframe">Noun 3 forbids the following position class:
+    <select name="noun3_forbid{j}_others" onfocus="fill('noun3_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun3_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun3_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun4_errors" class="error" style="display: none"></span><a id="noun4button" onclick="toggle_display_lex('noun4','noun4button')">&#9660; 3sgobv-pronoun (noun4)</a><div class="iterator" id="noun4">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun4')">
+    <div class="iterframe">Type name: <input type="text"  name="noun4_name" value="3sgobv-pronoun" size="20" onchange="fill_display_name('noun4');"><br /><br />
+    Supertypes:
+    <select name="noun4_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun4_supertypes', [].concat(fill_regex('noun(?!4_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun4_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun4_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun4_feat{j}_name" onfocus="fill('noun4_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun4_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun4_feat{j}_value', [].concat(fill_feature_values('noun4_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun4_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun4_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun4_feat1_name" onfocus="fill('noun4_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun4_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun4_feat1_value', [].concat(fill_feature_values('noun4_feat1_name')));">
+    <option value="nom" selected class="temp">nom</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun4_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun4_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun4_feat2_name" onfocus="fill('noun4_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun4_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun4_feat2_value', [].concat(fill_feature_values('noun4_feat2_name')));">
+    <option value="3sg" selected class="temp">3sg</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun4_feat3">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun4_feat3')">
+    <div class="iterframe">Name:
+    <select name="noun4_feat3_name" onfocus="fill('noun4_feat3_name', [].concat(fill_feature_names('noun')));">
+    <option value="proximity" selected class="temp">proximity</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun4_feat3_value" class="multi"  multiple="multiple"  onfocus="fill('noun4_feat3_value', [].concat(fill_feature_values('noun4_feat3_name')));">
+    <option value="obviative" selected class="temp">obviative</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun4_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun4_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun4_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun4_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun4_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun4_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun4_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun4_stem{j}_orth" size="30" onchange="fill_pred('noun4_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun4_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun4_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun4_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun4_stem1_orth" value="piiní" size="30" onchange="fill_pred('noun4_stem1', 'n')">
+     Predicate: <input type="text"  name="noun4_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun4_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun4_stem', 'j', false)"><div class="iterator" style="display: none" id="noun4_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun4_require{j}')">
+    <div class="iterframe">Noun 4 requires one of the following:
+    <select name="noun4_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun4_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun4_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun4_require', 'j', false)"><div class="iterator" style="display: none" id="noun4_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun4_forbid{j}')">
+    <div class="iterframe">Noun 4 forbids the following position class:
+    <select name="noun4_forbid{j}_others" onfocus="fill('noun4_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun4_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun4_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun5_errors" class="error" style="display: none"></span><a id="noun5button" onclick="toggle_display_lex('noun5','noun5button')">&#9660; 3sginv-pronoun (noun5)</a><div class="iterator" id="noun5">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun5')">
+    <div class="iterframe">Type name: <input type="text"  name="noun5_name" value="3sginv-pronoun" size="20" onchange="fill_display_name('noun5');"><br /><br />
+    Supertypes:
+    <select name="noun5_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun5_supertypes', [].concat(fill_regex('noun(?!5_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun5_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun5_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun5_feat{j}_name" onfocus="fill('noun5_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun5_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun5_feat{j}_value', [].concat(fill_feature_values('noun5_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun5_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun5_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun5_feat1_name" onfocus="fill('noun5_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun5_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun5_feat1_value', [].concat(fill_feature_values('noun5_feat1_name')));">
+    <option value="nom" selected class="temp">nom</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun5_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun5_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun5_feat2_name" onfocus="fill('noun5_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun5_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun5_feat2_value', [].concat(fill_feature_values('noun5_feat2_name')));">
+    <option value="3sg" selected class="temp">3sg</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun5_feat3">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun5_feat3')">
+    <div class="iterframe">Name:
+    <select name="noun5_feat3_name" onfocus="fill('noun5_feat3_name', [].concat(fill_feature_names('noun')));">
+    <option value="proximity" selected class="temp">proximity</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun5_feat3_value" class="multi"  multiple="multiple"  onfocus="fill('noun5_feat3_value', [].concat(fill_feature_values('noun5_feat3_name')));">
+    <option value="proximate" selected class="temp">proximate</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun5_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun5_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun5_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun5_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun5_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun5_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun5_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun5_stem{j}_orth" size="30" onchange="fill_pred('noun5_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun5_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun5_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun5_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun5_stem1_orth" value="pnɨ́m" size="30" onchange="fill_pred('noun5_stem1', 'n')">
+     Predicate: <input type="text"  name="noun5_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun5_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun5_stem', 'j', false)"><div class="iterator" style="display: none" id="noun5_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun5_require{j}')">
+    <div class="iterframe">Noun 5 requires one of the following:
+    <select name="noun5_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun5_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun5_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun5_require', 'j', false)"><div class="iterator" style="display: none" id="noun5_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun5_forbid{j}')">
+    <div class="iterframe">Noun 5 forbids the following position class:
+    <select name="noun5_forbid{j}_others" onfocus="fill('noun5_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun5_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun5_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun6_errors" class="error" style="display: none"></span><a id="noun6button" onclick="toggle_display_lex('noun6','noun6button')">&#9660; 1du-pronoun (noun6)</a><div class="iterator" id="noun6">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun6')">
+    <div class="iterframe">Type name: <input type="text"  name="noun6_name" value="1du-pronoun" size="20" onchange="fill_display_name('noun6');"><br /><br />
+    Supertypes:
+    <select name="noun6_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun6_supertypes', [].concat(fill_regex('noun(?!6_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun6_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun6_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun6_feat{j}_name" onfocus="fill('noun6_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun6_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun6_feat{j}_value', [].concat(fill_feature_values('noun6_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun6_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun6_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun6_feat1_name" onfocus="fill('noun6_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun6_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun6_feat1_value', [].concat(fill_feature_values('noun6_feat1_name')));">
+    <option value="nom" selected class="temp">nom</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun6_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun6_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun6_feat2_name" onfocus="fill('noun6_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun6_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun6_feat2_value', [].concat(fill_feature_values('noun6_feat2_name')));">
+    <option value="1du" selected class="temp">1du</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun6_feat3">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun6_feat3')">
+    <div class="iterframe">Name:
+    <select name="noun6_feat3_name" onfocus="fill('noun6_feat3_name', [].concat(fill_feature_names('noun')));">
+    <option value="proximity" selected class="temp">proximity</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun6_feat3_value" class="multi"  multiple="multiple"  onfocus="fill('noun6_feat3_value', [].concat(fill_feature_values('noun6_feat3_name')));">
+    <option value="neutral" selected class="temp">neutral</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun6_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun6_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun6_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun6_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun6_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun6_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun6_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun6_stem{j}_orth" size="30" onchange="fill_pred('noun6_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun6_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun6_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun6_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun6_stem1_orth" value="napiiní" size="30" onchange="fill_pred('noun6_stem1', 'n')">
+     Predicate: <input type="text"  name="noun6_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun6_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun6_stem', 'j', false)"><div class="iterator" style="display: none" id="noun6_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun6_require{j}')">
+    <div class="iterframe">Noun 6 requires one of the following:
+    <select name="noun6_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun6_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun6_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun6_require', 'j', false)"><div class="iterator" style="display: none" id="noun6_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun6_forbid{j}')">
+    <div class="iterframe">Noun 6 forbids the following position class:
+    <select name="noun6_forbid{j}_others" onfocus="fill('noun6_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun6_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun6_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun7_errors" class="error" style="display: none"></span><a id="noun7button" onclick="toggle_display_lex('noun7','noun7button')">&#9660; 2du-pronoun (noun7)</a><div class="iterator" id="noun7">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun7')">
+    <div class="iterframe">Type name: <input type="text"  name="noun7_name" value="2du-pronoun" size="20" onchange="fill_display_name('noun7');"><br /><br />
+    Supertypes:
+    <select name="noun7_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun7_supertypes', [].concat(fill_regex('noun(?!7_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun7_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun7_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun7_feat{j}_name" onfocus="fill('noun7_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun7_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun7_feat{j}_value', [].concat(fill_feature_values('noun7_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun7_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun7_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun7_feat1_name" onfocus="fill('noun7_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun7_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun7_feat1_value', [].concat(fill_feature_values('noun7_feat1_name')));">
+    <option value="nom" selected class="temp">nom</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun7_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun7_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun7_feat2_name" onfocus="fill('noun7_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun7_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun7_feat2_value', [].concat(fill_feature_values('noun7_feat2_name')));">
+    <option value="2du" selected class="temp">2du</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun7_feat3">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun7_feat3')">
+    <div class="iterframe">Name:
+    <select name="noun7_feat3_name" onfocus="fill('noun7_feat3_name', [].concat(fill_feature_names('noun')));">
+    <option value="proximity" selected class="temp">proximity</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun7_feat3_value" class="multi"  multiple="multiple"  onfocus="fill('noun7_feat3_value', [].concat(fill_feature_values('noun7_feat3_name')));">
+    <option value="neutral" selected class="temp">neutral</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun7_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun7_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun7_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun7_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun7_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun7_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun7_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun7_stem{j}_orth" size="30" onchange="fill_pred('noun7_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun7_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun7_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun7_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun7_stem1_orth" value="imiiní" size="30" onchange="fill_pred('noun7_stem1', 'n')">
+     Predicate: <input type="text"  name="noun7_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun7_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun7_stem', 'j', false)"><div class="iterator" style="display: none" id="noun7_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun7_require{j}')">
+    <div class="iterframe">Noun 7 requires one of the following:
+    <select name="noun7_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun7_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun7_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun7_require', 'j', false)"><div class="iterator" style="display: none" id="noun7_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun7_forbid{j}')">
+    <div class="iterframe">Noun 7 forbids the following position class:
+    <select name="noun7_forbid{j}_others" onfocus="fill('noun7_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun7_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun7_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun8_errors" class="error" style="display: none"></span><a id="noun8button" onclick="toggle_display_lex('noun8','noun8button')">&#9660; 3du-pronoun (noun8)</a><div class="iterator" id="noun8">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun8')">
+    <div class="iterframe">Type name: <input type="text"  name="noun8_name" value="3du-pronoun" size="20" onchange="fill_display_name('noun8');"><br /><br />
+    Supertypes:
+    <select name="noun8_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun8_supertypes', [].concat(fill_regex('noun(?!8_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun8_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun8_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun8_feat{j}_name" onfocus="fill('noun8_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun8_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun8_feat{j}_value', [].concat(fill_feature_values('noun8_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun8_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun8_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun8_feat1_name" onfocus="fill('noun8_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun8_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun8_feat1_value', [].concat(fill_feature_values('noun8_feat1_name')));">
+    <option value="nom" selected class="temp">nom</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun8_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun8_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun8_feat2_name" onfocus="fill('noun8_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun8_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun8_feat2_value', [].concat(fill_feature_values('noun8_feat2_name')));">
+    <option value="3du" selected class="temp">3du</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun8_feat3">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun8_feat3')">
+    <div class="iterframe">Name:
+    <select name="noun8_feat3_name" onfocus="fill('noun8_feat3_name', [].concat(fill_feature_names('noun')));">
+    <option value="proximity" selected class="temp">proximity</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun8_feat3_value" class="multi"  multiple="multiple"  onfocus="fill('noun8_feat3_value', [].concat(fill_feature_values('noun8_feat3_name')));">
+    <option value="neutral" selected class="temp">neutral</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun8_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun8_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun8_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun8_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun8_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun8_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun8_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun8_stem{j}_orth" size="30" onchange="fill_pred('noun8_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun8_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun8_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun8_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun8_stem1_orth" value="piiní" size="30" onchange="fill_pred('noun8_stem1', 'n')">
+     Predicate: <input type="text"  name="noun8_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun8_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun8_stem', 'j', false)"><div class="iterator" style="display: none" id="noun8_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun8_require{j}')">
+    <div class="iterframe">Noun 8 requires one of the following:
+    <select name="noun8_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun8_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun8_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun8_require', 'j', false)"><div class="iterator" style="display: none" id="noun8_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun8_forbid{j}')">
+    <div class="iterframe">Noun 8 forbids the following position class:
+    <select name="noun8_forbid{j}_others" onfocus="fill('noun8_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun8_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun8_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun9_errors" class="error" style="display: none"></span><a id="noun9button" onclick="toggle_display_lex('noun9','noun9button')">&#9660; 1pl-pronoun (noun9)</a><div class="iterator" id="noun9">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun9')">
+    <div class="iterframe">Type name: <input type="text"  name="noun9_name" value="1pl-pronoun" size="20" onchange="fill_display_name('noun9');"><br /><br />
+    Supertypes:
+    <select name="noun9_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun9_supertypes', [].concat(fill_regex('noun(?!9_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun9_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun9_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun9_feat{j}_name" onfocus="fill('noun9_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun9_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun9_feat{j}_value', [].concat(fill_feature_values('noun9_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun9_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun9_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun9_feat1_name" onfocus="fill('noun9_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun9_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun9_feat1_value', [].concat(fill_feature_values('noun9_feat1_name')));">
+    <option value="nom" selected class="temp">nom</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun9_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun9_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun9_feat2_name" onfocus="fill('noun9_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun9_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun9_feat2_value', [].concat(fill_feature_values('noun9_feat2_name')));">
+    <option value="1pl" selected class="temp">1pl</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun9_feat3">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun9_feat3')">
+    <div class="iterframe">Name:
+    <select name="noun9_feat3_name" onfocus="fill('noun9_feat3_name', [].concat(fill_feature_names('noun')));">
+    <option value="proximity" selected class="temp">proximity</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun9_feat3_value" class="multi"  multiple="multiple"  onfocus="fill('noun9_feat3_value', [].concat(fill_feature_values('noun9_feat3_name')));">
+    <option value="neutral" selected class="temp">neutral</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun9_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun9_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun9_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun9_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun9_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun9_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun9_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun9_stem{j}_orth" size="30" onchange="fill_pred('noun9_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun9_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun9_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun9_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun9_stem1_orth" value="náma" size="30" onchange="fill_pred('noun9_stem1', 'n')">
+     Predicate: <input type="text"  name="noun9_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun9_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun9_stem', 'j', false)"><div class="iterator" style="display: none" id="noun9_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun9_require{j}')">
+    <div class="iterframe">Noun 9 requires one of the following:
+    <select name="noun9_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun9_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun9_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun9_require', 'j', false)"><div class="iterator" style="display: none" id="noun9_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun9_forbid{j}')">
+    <div class="iterframe">Noun 9 forbids the following position class:
+    <select name="noun9_forbid{j}_others" onfocus="fill('noun9_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun9_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun9_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun10_errors" class="error" style="display: none"></span><a id="noun10button" onclick="toggle_display_lex('noun10','noun10button')">&#9660; 2pl-pronoun (noun10)</a><div class="iterator" id="noun10">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun10')">
+    <div class="iterframe">Type name: <input type="text"  name="noun10_name" value="2pl-pronoun" size="20" onchange="fill_display_name('noun10');"><br /><br />
+    Supertypes:
+    <select name="noun10_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun10_supertypes', [].concat(fill_regex('noun(?!10_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun10_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun10_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun10_feat{j}_name" onfocus="fill('noun10_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun10_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun10_feat{j}_value', [].concat(fill_feature_values('noun10_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun10_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun10_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun10_feat1_name" onfocus="fill('noun10_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun10_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun10_feat1_value', [].concat(fill_feature_values('noun10_feat1_name')));">
+    <option value="nom" selected class="temp">nom</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun10_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun10_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun10_feat2_name" onfocus="fill('noun10_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun10_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun10_feat2_value', [].concat(fill_feature_values('noun10_feat2_name')));">
+    <option value="2pl" selected class="temp">2pl</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun10_feat3">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun10_feat3')">
+    <div class="iterframe">Name:
+    <select name="noun10_feat3_name" onfocus="fill('noun10_feat3_name', [].concat(fill_feature_names('noun')));">
+    <option value="proximity" selected class="temp">proximity</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun10_feat3_value" class="multi"  multiple="multiple"  onfocus="fill('noun10_feat3_value', [].concat(fill_feature_values('noun10_feat3_name')));">
+    <option value="neutral" selected class="temp">neutral</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun10_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun10_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun10_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun10_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun10_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun10_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun10_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun10_stem{j}_orth" size="30" onchange="fill_pred('noun10_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun10_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun10_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun10_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun10_stem1_orth" value="imáy" size="30" onchange="fill_pred('noun10_stem1', 'n')">
+     Predicate: <input type="text"  name="noun10_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun10_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun10_stem', 'j', false)"><div class="iterator" style="display: none" id="noun10_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun10_require{j}')">
+    <div class="iterframe">Noun 10 requires one of the following:
+    <select name="noun10_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun10_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun10_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun10_require', 'j', false)"><div class="iterator" style="display: none" id="noun10_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun10_forbid{j}')">
+    <div class="iterframe">Noun 10 forbids the following position class:
+    <select name="noun10_forbid{j}_others" onfocus="fill('noun10_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun10_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun10_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun11_errors" class="error" style="display: none"></span><a id="noun11button" onclick="toggle_display_lex('noun11','noun11button')">&#9660; 3pl-pronoun (noun11)</a><div class="iterator" id="noun11">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun11')">
+    <div class="iterframe">Type name: <input type="text"  name="noun11_name" value="3pl-pronoun" size="20" onchange="fill_display_name('noun11');"><br /><br />
+    Supertypes:
+    <select name="noun11_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun11_supertypes', [].concat(fill_regex('noun(?!11_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun11_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun11_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun11_feat{j}_name" onfocus="fill('noun11_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun11_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun11_feat{j}_value', [].concat(fill_feature_values('noun11_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun11_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun11_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun11_feat1_name" onfocus="fill('noun11_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun11_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun11_feat1_value', [].concat(fill_feature_values('noun11_feat1_name')));">
+    <option value="nom" selected class="temp">nom</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun11_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun11_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun11_feat2_name" onfocus="fill('noun11_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun11_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun11_feat2_value', [].concat(fill_feature_values('noun11_feat2_name')));">
+    <option value="3pl" selected class="temp">3pl</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun11_feat3">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun11_feat3')">
+    <div class="iterframe">Name:
+    <select name="noun11_feat3_name" onfocus="fill('noun11_feat3_name', [].concat(fill_feature_names('noun')));">
+    <option value="proximity" selected class="temp">proximity</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun11_feat3_value" class="multi"  multiple="multiple"  onfocus="fill('noun11_feat3_value', [].concat(fill_feature_values('noun11_feat3_name')));">
+    <option value="neutral" selected class="temp">neutral</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun11_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun11_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun11_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun11_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun11_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun11_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun11_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun11_stem{j}_orth" size="30" onchange="fill_pred('noun11_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun11_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun11_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun11_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun11_stem1_orth" value="pmáy" size="30" onchange="fill_pred('noun11_stem1', 'n')">
+     Predicate: <input type="text"  name="noun11_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun11_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun11_stem', 'j', false)"><div class="iterator" style="display: none" id="noun11_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun11_require{j}')">
+    <div class="iterframe">Noun 11 requires one of the following:
+    <select name="noun11_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun11_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun11_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun11_require', 'j', false)"><div class="iterator" style="display: none" id="noun11_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun11_forbid{j}')">
+    <div class="iterframe">Noun 11 forbids the following position class:
+    <select name="noun11_forbid{j}_others" onfocus="fill('noun11_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun11_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun11_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun12_errors" class="error" style="display: none"></span><a id="noun12button" onclick="toggle_display_lex('noun12','noun12button')">&#9660; 1sgobj-pronoun (noun12)</a><div class="iterator" id="noun12">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun12')">
+    <div class="iterframe">Type name: <input type="text"  name="noun12_name" value="1sgobj-pronoun" size="20" onchange="fill_display_name('noun12');"><br /><br />
+    Supertypes:
+    <select name="noun12_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun12_supertypes', [].concat(fill_regex('noun(?!12_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun12_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun12_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun12_feat{j}_name" onfocus="fill('noun12_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun12_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun12_feat{j}_value', [].concat(fill_feature_values('noun12_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun12_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun12_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun12_feat1_name" onfocus="fill('noun12_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun12_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun12_feat1_value', [].concat(fill_feature_values('noun12_feat1_name')));">
+    <option value="acc" selected class="temp">acc</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun12_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun12_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun12_feat2_name" onfocus="fill('noun12_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun12_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun12_feat2_value', [].concat(fill_feature_values('noun12_feat2_name')));">
+    <option value="1sg" selected class="temp">1sg</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun12_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun12_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun12_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun12_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun12_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun12_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun12_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun12_stem{j}_orth" size="30" onchange="fill_pred('noun12_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun12_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun12_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun12_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun12_stem1_orth" value="ináy" size="30" onchange="fill_pred('noun12_stem1', 'n')">
+     Predicate: <input type="text"  name="noun12_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun12_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun12_stem', 'j', false)"><div class="iterator" style="display: none" id="noun12_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun12_require{j}')">
+    <div class="iterframe">Noun 12 requires one of the following:
+    <select name="noun12_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun12_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun12_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun12_require', 'j', false)"><div class="iterator" style="display: none" id="noun12_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun12_forbid{j}')">
+    <div class="iterframe">Noun 12 forbids the following position class:
+    <select name="noun12_forbid{j}_others" onfocus="fill('noun12_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun12_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun12_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun13_errors" class="error" style="display: none"></span><a id="noun13button" onclick="toggle_display_lex('noun13','noun13button')">&#9660; 2sgobj-pronoun (noun13)</a><div class="iterator" id="noun13">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun13')">
+    <div class="iterframe">Type name: <input type="text"  name="noun13_name" value="2sgobj-pronoun" size="20" onchange="fill_display_name('noun13');"><br /><br />
+    Supertypes:
+    <select name="noun13_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun13_supertypes', [].concat(fill_regex('noun(?!13_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun13_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun13_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun13_feat{j}_name" onfocus="fill('noun13_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun13_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun13_feat{j}_value', [].concat(fill_feature_values('noun13_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun13_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun13_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun13_feat1_name" onfocus="fill('noun13_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun13_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun13_feat1_value', [].concat(fill_feature_values('noun13_feat1_name')));">
+    <option value="acc" selected class="temp">acc</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun13_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun13_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun13_feat2_name" onfocus="fill('noun13_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun13_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun13_feat2_value', [].concat(fill_feature_values('noun13_feat2_name')));">
+    <option value="2sg" selected class="temp">2sg</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun13_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun13_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun13_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun13_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun13_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun13_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun13_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun13_stem{j}_orth" size="30" onchange="fill_pred('noun13_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun13_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun13_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun13_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun13_stem1_orth" value="imanáy" size="30" onchange="fill_pred('noun13_stem1', 'n')">
+     Predicate: <input type="text"  name="noun13_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun13_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun13_stem', 'j', false)"><div class="iterator" style="display: none" id="noun13_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun13_require{j}')">
+    <div class="iterframe">Noun 13 requires one of the following:
+    <select name="noun13_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun13_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun13_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun13_require', 'j', false)"><div class="iterator" style="display: none" id="noun13_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun13_forbid{j}')">
+    <div class="iterframe">Noun 13 forbids the following position class:
+    <select name="noun13_forbid{j}_others" onfocus="fill('noun13_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun13_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun13_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun14_errors" class="error" style="display: none"></span><a id="noun14button" onclick="toggle_display_lex('noun14','noun14button')">&#9660; 3sgobj-pronoun (noun14)</a><div class="iterator" id="noun14">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun14')">
+    <div class="iterframe">Type name: <input type="text"  name="noun14_name" value="3sgobj-pronoun" size="20" onchange="fill_display_name('noun14');"><br /><br />
+    Supertypes:
+    <select name="noun14_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun14_supertypes', [].concat(fill_regex('noun(?!14_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun14_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun14_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun14_feat{j}_name" onfocus="fill('noun14_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun14_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun14_feat{j}_value', [].concat(fill_feature_values('noun14_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun14_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun14_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun14_feat1_name" onfocus="fill('noun14_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun14_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun14_feat1_value', [].concat(fill_feature_values('noun14_feat1_name')));">
+    <option value="acc" selected class="temp">acc</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun14_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun14_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun14_feat2_name" onfocus="fill('noun14_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun14_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun14_feat2_value', [].concat(fill_feature_values('noun14_feat2_name')));">
+    <option value="3sg" selected class="temp">3sg</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun14_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun14_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun14_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun14_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun14_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun14_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun14_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun14_stem{j}_orth" size="30" onchange="fill_pred('noun14_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun14_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun14_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun14_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun14_stem1_orth" value="paanáy" size="30" onchange="fill_pred('noun14_stem1', 'n')">
+     Predicate: <input type="text"  name="noun14_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun14_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun14_stem', 'j', false)"><div class="iterator" style="display: none" id="noun14_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun14_require{j}')">
+    <div class="iterframe">Noun 14 requires one of the following:
+    <select name="noun14_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun14_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun14_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun14_require', 'j', false)"><div class="iterator" style="display: none" id="noun14_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun14_forbid{j}')">
+    <div class="iterframe">Noun 14 forbids the following position class:
+    <select name="noun14_forbid{j}_others" onfocus="fill('noun14_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun14_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun14_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun15_errors" class="error" style="display: none"></span><a id="noun15button" onclick="toggle_display_lex('noun15','noun15button')">&#9660; 1duobj-pronoun (noun15)</a><div class="iterator" id="noun15">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun15')">
+    <div class="iterframe">Type name: <input type="text"  name="noun15_name" value="1duobj-pronoun" size="20" onchange="fill_display_name('noun15');"><br /><br />
+    Supertypes:
+    <select name="noun15_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun15_supertypes', [].concat(fill_regex('noun(?!15_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun15_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun15_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun15_feat{j}_name" onfocus="fill('noun15_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun15_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun15_feat{j}_value', [].concat(fill_feature_values('noun15_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun15_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun15_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun15_feat1_name" onfocus="fill('noun15_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun15_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun15_feat1_value', [].concat(fill_feature_values('noun15_feat1_name')));">
+    <option value="acc" selected class="temp">acc</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun15_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun15_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun15_feat2_name" onfocus="fill('noun15_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun15_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun15_feat2_value', [].concat(fill_feature_values('noun15_feat2_name')));">
+    <option value="1du" selected class="temp">1du</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun15_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun15_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun15_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun15_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun15_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun15_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun15_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun15_stem{j}_orth" size="30" onchange="fill_pred('noun15_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun15_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun15_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun15_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun15_stem1_orth" value="napiinamanáy" size="30" onchange="fill_pred('noun15_stem1', 'n')">
+     Predicate: <input type="text"  name="noun15_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun15_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun15_stem', 'j', false)"><div class="iterator" style="display: none" id="noun15_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun15_require{j}')">
+    <div class="iterframe">Noun 15 requires one of the following:
+    <select name="noun15_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun15_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun15_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun15_require', 'j', false)"><div class="iterator" style="display: none" id="noun15_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun15_forbid{j}')">
+    <div class="iterframe">Noun 15 forbids the following position class:
+    <select name="noun15_forbid{j}_others" onfocus="fill('noun15_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun15_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun15_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun16_errors" class="error" style="display: none"></span><a id="noun16button" onclick="toggle_display_lex('noun16','noun16button')">&#9660; 2duobj-pronoun (noun16)</a><div class="iterator" id="noun16">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun16')">
+    <div class="iterframe">Type name: <input type="text"  name="noun16_name" value="2duobj-pronoun" size="20" onchange="fill_display_name('noun16');"><br /><br />
+    Supertypes:
+    <select name="noun16_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun16_supertypes', [].concat(fill_regex('noun(?!16_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun16_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun16_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun16_feat{j}_name" onfocus="fill('noun16_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun16_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun16_feat{j}_value', [].concat(fill_feature_values('noun16_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun16_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun16_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun16_feat1_name" onfocus="fill('noun16_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun16_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun16_feat1_value', [].concat(fill_feature_values('noun16_feat1_name')));">
+    <option value="acc" selected class="temp">acc</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun16_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun16_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun16_feat2_name" onfocus="fill('noun16_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun16_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun16_feat2_value', [].concat(fill_feature_values('noun16_feat2_name')));">
+    <option value="2du" selected class="temp">2du</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun16_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun16_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun16_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun16_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun16_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun16_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun16_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun16_stem{j}_orth" size="30" onchange="fill_pred('noun16_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun16_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun16_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun16_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun16_stem1_orth" value="imiinamanáy" size="30" onchange="fill_pred('noun16_stem1', 'n')">
+     Predicate: <input type="text"  name="noun16_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun16_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun16_stem', 'j', false)"><div class="iterator" style="display: none" id="noun16_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun16_require{j}')">
+    <div class="iterframe">Noun 16 requires one of the following:
+    <select name="noun16_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun16_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun16_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun16_require', 'j', false)"><div class="iterator" style="display: none" id="noun16_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun16_forbid{j}')">
+    <div class="iterframe">Noun 16 forbids the following position class:
+    <select name="noun16_forbid{j}_others" onfocus="fill('noun16_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun16_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun16_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun17_errors" class="error" style="display: none"></span><a id="noun17button" onclick="toggle_display_lex('noun17','noun17button')">&#9660; 3duobj-pronoun (noun17)</a><div class="iterator" id="noun17">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun17')">
+    <div class="iterframe">Type name: <input type="text"  name="noun17_name" value="3duobj-pronoun" size="20" onchange="fill_display_name('noun17');"><br /><br />
+    Supertypes:
+    <select name="noun17_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun17_supertypes', [].concat(fill_regex('noun(?!17_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun17_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun17_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun17_feat{j}_name" onfocus="fill('noun17_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun17_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun17_feat{j}_value', [].concat(fill_feature_values('noun17_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun17_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun17_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun17_feat1_name" onfocus="fill('noun17_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun17_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun17_feat1_value', [].concat(fill_feature_values('noun17_feat1_name')));">
+    <option value="acc" selected class="temp">acc</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun17_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun17_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun17_feat2_name" onfocus="fill('noun17_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun17_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun17_feat2_value', [].concat(fill_feature_values('noun17_feat2_name')));">
+    <option value="3du" selected class="temp">3du</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun17_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun17_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun17_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun17_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun17_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun17_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun17_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun17_stem{j}_orth" size="30" onchange="fill_pred('noun17_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun17_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun17_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun17_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun17_stem1_orth" value="piinamanáy" size="30" onchange="fill_pred('noun17_stem1', 'n')">
+     Predicate: <input type="text"  name="noun17_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun17_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun17_stem', 'j', false)"><div class="iterator" style="display: none" id="noun17_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun17_require{j}')">
+    <div class="iterframe">Noun 17 requires one of the following:
+    <select name="noun17_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun17_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun17_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun17_require', 'j', false)"><div class="iterator" style="display: none" id="noun17_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun17_forbid{j}')">
+    <div class="iterframe">Noun 17 forbids the following position class:
+    <select name="noun17_forbid{j}_others" onfocus="fill('noun17_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun17_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun17_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun18_errors" class="error" style="display: none"></span><a id="noun18button" onclick="toggle_display_lex('noun18','noun18button')">&#9660; 1plobj-pronoun (noun18)</a><div class="iterator" id="noun18">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun18')">
+    <div class="iterframe">Type name: <input type="text"  name="noun18_name" value="1plobj-pronoun" size="20" onchange="fill_display_name('noun18');"><br /><br />
+    Supertypes:
+    <select name="noun18_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun18_supertypes', [].concat(fill_regex('noun(?!18_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun18_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun18_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun18_feat{j}_name" onfocus="fill('noun18_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun18_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun18_feat{j}_value', [].concat(fill_feature_values('noun18_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun18_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun18_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun18_feat1_name" onfocus="fill('noun18_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun18_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun18_feat1_value', [].concat(fill_feature_values('noun18_feat1_name')));">
+    <option value="acc" selected class="temp">acc</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun18_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun18_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun18_feat2_name" onfocus="fill('noun18_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun18_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun18_feat2_value', [].concat(fill_feature_values('noun18_feat2_name')));">
+    <option value="1pl" selected class="temp">1pl</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun18_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun18_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun18_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun18_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun18_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun18_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun18_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun18_stem{j}_orth" size="30" onchange="fill_pred('noun18_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun18_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun18_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun18_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun18_stem1_orth" value="naamanáy" size="30" onchange="fill_pred('noun18_stem1', 'n')">
+     Predicate: <input type="text"  name="noun18_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun18_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun18_stem', 'j', false)"><div class="iterator" style="display: none" id="noun18_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun18_require{j}')">
+    <div class="iterframe">Noun 18 requires one of the following:
+    <select name="noun18_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun18_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun18_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun18_require', 'j', false)"><div class="iterator" style="display: none" id="noun18_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun18_forbid{j}')">
+    <div class="iterframe">Noun 18 forbids the following position class:
+    <select name="noun18_forbid{j}_others" onfocus="fill('noun18_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun18_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun18_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun19_errors" class="error" style="display: none"></span><a id="noun19button" onclick="toggle_display_lex('noun19','noun19button')">&#9660; 2plobj-pronoun (noun19)</a><div class="iterator" id="noun19">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun19')">
+    <div class="iterframe">Type name: <input type="text"  name="noun19_name" value="2plobj-pronoun" size="20" onchange="fill_display_name('noun19');"><br /><br />
+    Supertypes:
+    <select name="noun19_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun19_supertypes', [].concat(fill_regex('noun(?!19_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun19_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun19_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun19_feat{j}_name" onfocus="fill('noun19_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun19_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun19_feat{j}_value', [].concat(fill_feature_values('noun19_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun19_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun19_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun19_feat1_name" onfocus="fill('noun19_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun19_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun19_feat1_value', [].concat(fill_feature_values('noun19_feat1_name')));">
+    <option value="acc" selected class="temp">acc</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun19_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun19_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun19_feat2_name" onfocus="fill('noun19_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun19_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun19_feat2_value', [].concat(fill_feature_values('noun19_feat2_name')));">
+    <option value="2pl" selected class="temp">2pl</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun19_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun19_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun19_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun19_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun19_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun19_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun19_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun19_stem{j}_orth" size="30" onchange="fill_pred('noun19_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun19_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun19_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun19_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun19_stem1_orth" value="imaamanáy" size="30" onchange="fill_pred('noun19_stem1', 'n')">
+     Predicate: <input type="text"  name="noun19_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun19_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun19_stem', 'j', false)"><div class="iterator" style="display: none" id="noun19_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun19_require{j}')">
+    <div class="iterframe">Noun 19 requires one of the following:
+    <select name="noun19_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun19_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun19_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun19_require', 'j', false)"><div class="iterator" style="display: none" id="noun19_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun19_forbid{j}')">
+    <div class="iterframe">Noun 19 forbids the following position class:
+    <select name="noun19_forbid{j}_others" onfocus="fill('noun19_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun19_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun19_forbid', 'j', false)"></div>
+    </div>
+    <span id="noun20_errors" class="error" style="display: none"></span><a id="noun20button" onclick="toggle_display_lex('noun20','noun20button')">&#9660; 3plobj-pronoun (noun20)</a><div class="iterator" id="noun20">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun20')">
+    <div class="iterframe">Type name: <input type="text"  name="noun20_name" value="3plobj-pronoun" size="20" onchange="fill_display_name('noun20');"><br /><br />
+    Supertypes:
+    <select name="noun20_supertypes" class="multi"  multiple="multiple"  onfocus="fill('noun20_supertypes', [].concat(fill_regex('noun(?!20_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="noun20_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun20_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="noun20_feat{j}_name" onfocus="fill('noun20_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun20_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('noun20_feat{j}_value', [].concat(fill_feature_values('noun20_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="noun20_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun20_feat1')">
+    <div class="iterframe">Name:
+    <select name="noun20_feat1_name" onfocus="fill('noun20_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value="case" selected class="temp">case</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun20_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('noun20_feat1_value', [].concat(fill_feature_values('noun20_feat1_name')));">
+    <option value="acc" selected class="temp">acc</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="iterator" id="noun20_feat2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun20_feat2')">
+    <div class="iterframe">Name:
+    <select name="noun20_feat2_name" onfocus="fill('noun20_feat2_name', [].concat(fill_feature_names('noun')));">
+    <option value="pernum" selected class="temp">pernum</option>
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="noun20_feat2_value" class="multi"  multiple="multiple"  onfocus="fill('noun20_feat2_value', [].concat(fill_feature_values('noun20_feat2_name')));">
+    <option value="3pl" selected class="temp">3pl</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="noun20_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('noun20_feat', 'j', false)"><p>For nouns of this type, a determiner is:
+    <label><input type="radio"  name="noun20_det" value="obl"> obligatory</label>
+    <label><input type="radio"  name="noun20_det" value="opt"> optional</label>
+    <label><input type="radio"  name="noun20_det" value="imp" checked="checked"> impossible</label>
+    </p>
+    <div class="iterator" style="display: none" id="noun20_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun20_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun20_stem{j}_orth" size="30" onchange="fill_pred('noun20_stem{j}', 'n')">
+     Predicate: <input type="text"  name="noun20_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="noun20_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun20_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="noun20_stem1_orth" value="paamanáy" size="30" onchange="fill_pred('noun20_stem1', 'n')">
+     Predicate: <input type="text"  name="noun20_stem1_pred" value="_pronoun_n_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="noun20_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('noun20_stem', 'j', false)"><div class="iterator" style="display: none" id="noun20_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun20_require{j}')">
+    <div class="iterframe">Noun 20 requires one of the following:
+    <select name="noun20_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('noun20_require{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun20_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('noun20_require', 'j', false)"><div class="iterator" style="display: none" id="noun20_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('noun20_forbid{j}')">
+    <div class="iterframe">Noun 20 forbids the following position class:
+    <select name="noun20_forbid{j}_others" onfocus="fill('noun20_forbid{j}_others', [].concat(fill_cache('nounlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="noun20_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('noun20_forbid', 'j', false)"></div>
+    </div>
+    <div class="anchor" id="noun_ANCHOR"></div>
+    <p><input type="button"  value="Add a Noun Type" onclick="clone_region('noun', 'i', true)"><div class="iterator" style="display: none" id="verb_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb{i}')">
+    <div class="iterframe">Type name: <input type="text"  name="verb{i}_name" size="20" onchange="fill_display_name('verb{i}');"><br /><br />
+    Supertypes:
+    <select name="verb{i}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb{i}_supertypes', [].concat(fill_regex('verb(?!{i}_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br /><br />
+    <div class="iterator" style="display: none" id="verb{i}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb{i}_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="verb{i}_feat{j}_name" onfocus="fill('verb{i}_feat{j}_name', [].concat(fill_feature_names('both')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="verb{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('verb{i}_feat{j}_value', [].concat(fill_feature_values('verb{i}_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    Specified on:
+    <select name="verb{i}_feat{j}_head">
+    <option value="verb">The verb</option>
+    <option value="subj">The subject</option>
+    <option value="obj">The object</option>
+    <option value="higher">Higher-ranked</option>
+    <option value="lower">Lower-ranked</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb{i}_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('verb{i}_feat', 'j', false)"><br /><br />Argument structure:
+    <select name="verb{i}_valence" onfocus="fill('verb{i}_valence', [].concat(fill_case_patterns(false)));">
+    <option value=""></option>
+    </select><br />
+    If this verb class includes bipartite stems, select the position class for the affix portion of the stems:
+    <select name="verb{i}_bipartitepc" onfocus="fill('verb{i}_bipartitepc', [].concat(fill_cache('verbpcs')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="verb{i}_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb{i}_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="verb{i}_stem{j}_orth" size="30" onchange="fill_pred('verb{i}_stem{j}', 'v')">
+     Predicate: <input type="text"  name="verb{i}_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="verb{i}_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb{i}_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="verb{i}_stem1_orth" size="30" onchange="fill_pred('verb{i}_stem1', 'v')">
+     Predicate: <input type="text"  name="verb{i}_stem1_pred" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="verb{i}_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a simple Stem" onclick="clone_region('verb{i}_stem', 'j', false)"><div class="iterator" style="display: none" id="verb{i}_bistem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb{i}_bistem{j}')">
+    <div class="iterframe">Root spelling: <input type="text"  name="verb{i}_bistem{j}_orth" size="30" onchange="fill_pred('verb{i}_bistem{j}', 'v')">
+    Affix spelling: <input type="text"  name="verb{i}_bistem{j}_aff" size="30">
+     Predicate: <input type="text"  name="verb{i}_bistem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="anchor" id="verb{i}_bistem_ANCHOR"></div>
+    <p><input type="button"  value="Add a bipartite Stem" onclick="clone_region('verb{i}_bistem', 'j', false)"><div class="iterator" style="display: none" id="verb{i}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb{i}_require{j}')">
+    <div class="iterframe">Verb {i} requires one of the following position classes:
+    <select name="verb{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('verb{i}_require{j}_others', [].concat(fill_cache('verblrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb{i}_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('verb{i}_require', 'j', false)"><div class="iterator" style="display: none" id="verb{i}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb{i}_forbid{j}')">
+    <div class="iterframe">Verb {i} forbids the following position class:
+    <select name="verb{i}_forbid{j}_others" onfocus="fill('verb{i}_forbid{j}_others', [].concat(fill_cache('verblrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb{i}_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('verb{i}_forbid', 'j', false)"></div>
+    </div>
+
+    <span id="verb1_errors" class="error" style="display: none"></span><a id="verb1button" onclick="toggle_display_lex('verb1','verb1button')">&#9660; verb1</a><div class="iterator" id="verb1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1')">
+    <div class="iterframe">Type name: <input type="text"  name="verb1_name" size="20" onchange="fill_display_name('verb1');"><br /><br />
+    Supertypes:
+    <select name="verb1_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb1_supertypes', [].concat(fill_regex('verb(?!1_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br /><br />
+    <div class="iterator" style="display: none" id="verb1_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="verb1_feat{j}_name" onfocus="fill('verb1_feat{j}_name', [].concat(fill_feature_names('both')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="verb1_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('verb1_feat{j}_value', [].concat(fill_feature_values('verb1_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    Specified on:
+    <select name="verb1_feat{j}_head">
+    <option value="verb">The verb</option>
+    <option value="subj">The subject</option>
+    <option value="obj">The object</option>
+    <option value="higher">Higher-ranked</option>
+    <option value="lower">Lower-ranked</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb1_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('verb1_feat', 'j', false)"><br /><br />Argument structure:
+    <select name="verb1_valence" onfocus="fill('verb1_valence', [].concat(fill_case_patterns(false)));">
+    <option value="nom" selected class="temp">nom</option>
+    <option value=""></option>
+    </select><br />
+    If this verb class includes bipartite stems, select the position class for the affix portion of the stems:
+    <select name="verb1_bipartitepc" onfocus="fill('verb1_bipartitepc', [].concat(fill_cache('verbpcs')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="verb1_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="verb1_stem{j}_orth" size="30" onchange="fill_pred('verb1_stem{j}', 'v')">
+     Predicate: <input type="text"  name="verb1_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="verb1_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="verb1_stem1_orth" value="wína" size="30" onchange="fill_pred('verb1_stem1', 'v')">
+     Predicate: <input type="text"  name="verb1_stem1_pred" value="_wína_v_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="verb1_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a simple Stem" onclick="clone_region('verb1_stem', 'j', false)"><div class="iterator" style="display: none" id="verb1_bistem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_bistem{j}')">
+    <div class="iterframe">Root spelling: <input type="text"  name="verb1_bistem{j}_orth" size="30" onchange="fill_pred('verb1_bistem{j}', 'v')">
+    Affix spelling: <input type="text"  name="verb1_bistem{j}_aff" size="30">
+     Predicate: <input type="text"  name="verb1_bistem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="anchor" id="verb1_bistem_ANCHOR"></div>
+    <p><input type="button"  value="Add a bipartite Stem" onclick="clone_region('verb1_bistem', 'j', false)"><div class="iterator" style="display: none" id="verb1_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_require{j}')">
+    <div class="iterframe">Verb 1 requires one of the following position classes:
+    <select name="verb1_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('verb1_require{j}_others', [].concat(fill_cache('verblrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb1_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('verb1_require', 'j', false)"><div class="iterator" style="display: none" id="verb1_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb1_forbid{j}')">
+    <div class="iterframe">Verb 1 forbids the following position class:
+    <select name="verb1_forbid{j}_others" onfocus="fill('verb1_forbid{j}_others', [].concat(fill_cache('verblrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb1_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('verb1_forbid', 'j', false)"></div>
+    </div>
+    <span id="verb2_errors" class="error" style="display: none"></span><a id="verb2button" onclick="toggle_display_lex('verb2','verb2button')">&#9660; verb2</a><div class="iterator" id="verb2">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2')">
+    <div class="iterframe">Type name: <input type="text"  name="verb2_name" size="20" onchange="fill_display_name('verb2');"><br /><br />
+    Supertypes:
+    <select name="verb2_supertypes" class="multi"  multiple="multiple"  onfocus="fill('verb2_supertypes', [].concat(fill_regex('verb(?!2_)[0-9]+_name')));">
+    <option value=""></option>
+    </select><br /><br />
+    <div class="iterator" style="display: none" id="verb2_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="verb2_feat{j}_name" onfocus="fill('verb2_feat{j}_name', [].concat(fill_feature_names('both')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="verb2_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('verb2_feat{j}_value', [].concat(fill_feature_values('verb2_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    Specified on:
+    <select name="verb2_feat{j}_head">
+    <option value="verb">The verb</option>
+    <option value="subj">The subject</option>
+    <option value="obj">The object</option>
+    <option value="higher">Higher-ranked</option>
+    <option value="lower">Lower-ranked</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb2_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('verb2_feat', 'j', false)"><br /><br />Argument structure:
+    <select name="verb2_valence" onfocus="fill('verb2_valence', [].concat(fill_case_patterns(false)));">
+    <option value="nom-acc,dirinv" selected class="temp">nom-acc,dirinv</option>
+    <option value=""></option>
+    </select><br />
+    If this verb class includes bipartite stems, select the position class for the affix portion of the stems:
+    <select name="verb2_bipartitepc" onfocus="fill('verb2_bipartitepc', [].concat(fill_cache('verbpcs')));">
+    <option value=""></option>
+    </select><br />
+    <div class="iterator" style="display: none" id="verb2_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="verb2_stem{j}_orth" size="30" onchange="fill_pred('verb2_stem{j}', 'v')">
+     Predicate: <input type="text"  name="verb2_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="verb2_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="verb2_stem1_orth" value="q̓ínun" size="30" onchange="fill_pred('verb2_stem1', 'v')">
+     Predicate: <input type="text"  name="verb2_stem1_pred" value="_q̓ínun_v_rel" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="verb2_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a simple Stem" onclick="clone_region('verb2_stem', 'j', false)"><div class="iterator" style="display: none" id="verb2_bistem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_bistem{j}')">
+    <div class="iterframe">Root spelling: <input type="text"  name="verb2_bistem{j}_orth" size="30" onchange="fill_pred('verb2_bistem{j}', 'v')">
+    Affix spelling: <input type="text"  name="verb2_bistem{j}_aff" size="30">
+     Predicate: <input type="text"  name="verb2_bistem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="anchor" id="verb2_bistem_ANCHOR"></div>
+    <p><input type="button"  value="Add a bipartite Stem" onclick="clone_region('verb2_bistem', 'j', false)"><div class="iterator" style="display: none" id="verb2_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_require{j}')">
+    <div class="iterframe">Verb 2 requires one of the following position classes:
+    <select name="verb2_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('verb2_require{j}_others', [].concat(fill_cache('verblrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb2_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('verb2_require', 'j', false)"><div class="iterator" style="display: none" id="verb2_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('verb2_forbid{j}')">
+    <div class="iterframe">Verb 2 forbids the following position class:
+    <select name="verb2_forbid{j}_others" onfocus="fill('verb2_forbid{j}_others', [].concat(fill_cache('verblrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="verb2_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('verb2_forbid', 'j', false)"></div>
+    </div>
+    <div class="anchor" id="verb_ANCHOR"></div>
+    <p><input type="button"  value="Add a Verb Type" onclick="clone_region('verb', 'i', true)"><div class="iterator" style="display: none" id="adj_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj{i}')">
+    <div class="iterframe">Type name: <input type="text"  name="adj{i}_name" size="20" onchange="fill_display_name('adj{i}');"><br /><br />
+    Supertypes:
+    <select name="adj{i}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('adj{i}_supertypes', [].concat(fill_regex('adj(?!{i})[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    <p>This type of adjective is
+    <label><input type="radio"  name="adj{i}_mod" value="attr">attributive </label>
+    <label><input type="radio"  name="adj{i}_mod" value="pred">predicative </label>
+    <label><input type="radio"  name="adj{i}_mod" value="both">both </label>
+    <label><input type="radio"  name="adj{i}_mod" value="none">unspecified</label>
+    </p>
+    <div class="iterator" style="display: none" id="adj{i}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj{i}_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="adj{i}_feat{j}_name" onfocus="fill('adj{i}_feat{j}_name', [].concat(fill_feature_names('both')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="adj{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('adj{i}_feat{j}_value', [].concat(fill_feature_values('adj{i}_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    Specified on:
+    <select name="adj{i}_feat{j}_head" onchange="toggle_element.call(this, 'adj{i}_adj_pc_note', 'on', ['subj', 'mod']); check_radio_button.call(this, 'adj{i}_mod', 'last', ['subj', 'mod']);">
+    <option value="adj">The adjective</option>
+    <option value="subj">The subject</option>
+    <option value="mod">The modified noun</option>
+    <option value="xarg">Both positions</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="adj{i}_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('adj{i}_feat', 'j', false)"><p>This type of adjective behaving
+      attributively modifies items immediately <br>
+    <label><input type="radio"  name="adj{i}_modpos" value="after"> after the adjective <br></label>
+    <label><input type="radio"  name="adj{i}_modpos" value="before"> before the adjective <br></label>
+    <label><input type="radio"  name="adj{i}_modpos" value="either"> either position <br></label>
+    <label><input type="radio"  name="adj{i}_modpos" value="other" disabled="disabled"> some other position: this option is not currently supported</label>
+    </p>
+    <label><input type="checkbox"  name="adj{i}_modunique"> This type of adjective behaving
+      attributively must be the only modifier of its modificand</label>
+    <p>Adjectives of this type behaving predicatively appear as the complement of a copula:<br>
+    <label><input type="radio"  name="adj{i}_predcop" value="obl"> obligatorily<br></label>
+    <label><input type="radio"  name="adj{i}_predcop" value="opt" onclick="toggle_element.call(this, 'adj{i}_opt_note', 'on')"> optionally<br></label>
+    <label><input type="radio"  name="adj{i}_predcop" value="imp"> impossibly<br></label>
+    </p>
+    <div class="iterator" style="display: none" id="adj{i}_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj{i}_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="adj{i}_stem{j}_orth" size="30" onchange="fill_pred('adj{i}_stem{j}', 'a')">
+     Predicate: <input type="text"  name="adj{i}_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="adj{i}_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj{i}_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="adj{i}_stem1_orth" size="30" onchange="fill_pred('adj{i}_stem1', 'a')">
+     Predicate: <input type="text"  name="adj{i}_stem1_pred" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="adj{i}_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('adj{i}_stem', 'j', false)"><div class="iterator" style="display: none" id="adj{i}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj{i}_require{j}')">
+    <div class="iterframe">Adjective {i} requires one of the following position classes:
+    <select name="adj{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('adj{i}_require{j}_others', [].concat(fill_cache('adjlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="adj{i}_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('adj{i}_require', 'j', false)"><div class="iterator" style="display: none" id="adj{i}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adj{i}_forbid{j}')">
+    <div class="iterframe">Adjective {i} forbids the following position class:
+    <select name="adj{i}_forbid{j}_others" onfocus="fill('adj{i}_forbid{j}_others', [].concat(fill_cache('adjlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="adj{i}_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('adj{i}_forbid', 'j', false)"></div>
+    </div>
+
+    <div class="anchor" id="adj_ANCHOR"></div>
+    <p><input type="button"  value="Add an Adjective Type" onclick="clone_region('adj', 'i', true)"><div class="iterator" style="display: none" id="aux_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}')">
+    <div class="iterframe">Type name: <input type="text"  name="aux{i}_name" size="30" onchange="fill_display_name('aux{i}');"><br>
+
+    <label><input type="radio"  name="aux{i}_sem" value="no-pred">No predicate.<br></label>
+    <label><input type="radio"  name="aux{i}_sem" value="add-pred">An independent predicate.</label>
+
+    <div class="iterator" style="display: none" id="aux{i}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="aux{i}_feat{j}_name" onfocus="fill('aux{i}_feat{j}_name', [].concat(fill_feature_names('verb')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="aux{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('aux{i}_feat{j}_value', [].concat(fill_feature_values('aux{i}_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    Specified on:
+    <select name="aux{i}_feat{j}_head">
+    <option value="verb">The auxiliary</option>
+    <option value="subj">The subject</option>
+    <option value="obj">The object</option>
+    <option value="higher">Higher-ranked</option>
+    <option value="lower">Lower-ranked</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="aux{i}_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add an auxiliary feature" onclick="clone_region('aux{i}_feat', 'j', false)">If this auxiliary type takes a VP or V complement, select the subject type:<br>
+    <label><input type="radio"  name="aux{i}_subj" value="np">noun phrase without case restrictions <br></label>
+    <label><input type="radio"  name="aux{i}_subj" value="np-comp-case">noun phrase bearing the case the verbal complement assigns to its subject <br></label>
+    <label><input type="radio"  name="aux{i}_subj" value="np-aux-case">noun phrase, receiving the following case from its auxiliary: </label>
+
+
+    <select name="aux{i}_subj_case" onfocus="fill('aux{i}_subj_case', [].concat(fill_feature_values('case',true)));">
+    <option value=""></option>
+    </select>
+
+    <label><br><input type="radio"  name="aux{i}_subj" value="adp">adpositional phrase<br><br></label>
+
+    <div class="iterator" style="display: none" id="aux{i}_compfeature_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}_compfeature{j}')">
+    <div class="iterframe">Name:
+    <select name="aux{i}_compfeature{j}_name" onfocus="fill('aux{i}_compfeature{j}_name', [].concat(fill_feature_names('verb')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="aux{i}_compfeature{j}_value" class="multi"  multiple="multiple"  onfocus="fill('aux{i}_compfeature{j}_value', [].concat(fill_feature_values('aux{i}_compfeature{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="aux{i}_compfeature1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}_compfeature1')">
+    <div class="iterframe">Name:
+    <select name="aux{i}_compfeature1_name" onfocus="fill('aux{i}_compfeature1_name', [].concat(fill_feature_names('verb')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="aux{i}_compfeature1_value" class="multi"  multiple="multiple"  onfocus="fill('aux{i}_compfeature1_value', [].concat(fill_feature_values('aux{i}_compfeature1_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="aux{i}_compfeature_ANCHOR"></div>
+    <p><input type="button"  value="Add a complement feature" onclick="clone_region('aux{i}_compfeature', 'j', false)"><div class="iterator" style="display: none" id="aux{i}_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="aux{i}_stem{j}_orth" size="30" onchange="aux_fill_pred('aux{i}', 'stem{j}', 'v')">
+    &nbsp;&nbsp;&nbsp;&nbsp;Predicate (if applicable): <input type="text"  name="aux{i}_stem{j}_pred" size="30">
+    </div>
+    </div>
+
+    <div class="iterator" id="aux{i}_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="aux{i}_stem1_orth" size="30" onchange="aux_fill_pred('aux{i}', 'stem1', 'v')">
+    &nbsp;&nbsp;&nbsp;&nbsp;Predicate (if applicable): <input type="text"  name="aux{i}_stem1_pred" size="30">
+    </div>
+    </div>
+    <div class="anchor" id="aux{i}_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('aux{i}_stem', 'j', false)"><div class="iterator" style="display: none" id="aux{i}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}_require{j}')">
+    <div class="iterframe">Aux {i} requires one of the following position classes:
+    <select name="aux{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('aux{i}_require{j}_others', [].concat(fill_cache('verblrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="aux{i}_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('aux{i}_require', 'j', false)"><div class="iterator" style="display: none" id="aux{i}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('aux{i}_forbid{j}')">
+    <div class="iterframe">Aux {i} forbids the following position class:
+    <select name="aux{i}_forbid{j}_others" onfocus="fill('aux{i}_forbid{j}_others', [].concat(fill_cache('verblrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="aux{i}_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('aux{i}_forbid', 'j', false)"></div>
+    </div>
+    </div>
+
+    <div class="anchor" id="aux_ANCHOR"></div>
+    <p><input type="button"  value="Add an Auxiliary Type" onclick="clone_region('aux', 'i', true)"><div class="iterator" style="display: none" id="cop_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop{i}')">
+    <div class="iterframe">Type name: <input type="text"  name="cop{i}_name" size="30" onchange="fill_display_name('cop{i}');"><br>
+    Supertypes:
+    <select name="cop{i}_supertypes" class="multi"  multiple="multiple"  onfocus="fill('cop{i}_supertypes', [].concat(fill_regex('cop(?!{i})[0-9]+_name')));">
+    <option value=""></option>
+    </select><br />
+    Type:
+    <select name="cop{i}_comptype" class="multi"  multiple="multiple"  onfocus="fill('cop{i}_comptype', [].concat(fill_feature_values('cop{i}_feat{j}_name')));">
+    <option value="np" disabled><p style="display:inline; color:#ADADAD"> NPs</p></option>
+    <option value="pp" disabled><p style="display:inline; color:#ADADAD"> PPs</p></option>
+    <option value="ap">APs</option>
+    <option value=""></option>
+    </select>
+    <div class="iterator" style="display: none" id="cop{i}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop{i}_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="cop{i}_feat{j}_name" onfocus="fill('cop{i}_feat{j}_name', [].concat(fill_feature_names('both')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="cop{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('cop{i}_feat{j}_value', [].concat(fill_feature_values('cop{i}_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    Specified on:
+    <select name="cop{i}_feat{j}_head">
+    <option value="cop">The copula</option>
+    <option value="subj">The subject</option>
+    <option value="comp">The complement</option>
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="cop{i}_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a copula feature" onclick="clone_region('cop{i}_feat', 'j', false)"><div class="iterator" style="display: none" id="cop{i}_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop{i}_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="cop{i}_stem{j}_orth" size="30" onchange="aux_fill_pred('cop{i}', 'stem{j}', 'v')">
+    </div>
+    </div>
+
+    <div class="iterator" id="cop{i}_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop{i}_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="cop{i}_stem1_orth" size="30" onchange="aux_fill_pred('cop{i}', 'stem1', 'v')">
+    </div>
+    </div>
+    <div class="anchor" id="cop{i}_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('cop{i}_stem', 'j', false)"><div class="iterator" style="display: none" id="cop{i}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop{i}_require{j}')">
+    <div class="iterframe">Copula {i} requires one of the following position classes:
+    <select name="cop{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('cop{i}_require{j}_others', [].concat(fill_cache('verblrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="cop{i}_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('cop{i}_require', 'j', false)"><div class="iterator" style="display: none" id="cop{i}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('cop{i}_forbid{j}')">
+    <div class="iterframe">Copula {i} forbids the following position class:
+    <select name="cop{i}_forbid{j}_others" onfocus="fill('cop{i}_forbid{j}_others', [].concat(fill_cache('verblrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="cop{i}_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('cop{i}_forbid', 'j', false)"></div>
+    </div>
+
+    <div class="anchor" id="cop_ANCHOR"></div>
+    <p><input type="button"  value="Add a Copula Type" onclick="clone_region('cop', 'i', true)"><div class="iterator" style="display: none" id="det_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det{i}')">
+    <div class="iterframe">Type name: <input type="text"  name="det{i}_name" size="20" onchange="fill_display_name('det{i}');"><br>
+    <div class="iterator" style="display: none" id="det{i}_stem_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det{i}_stem{j}')">
+    <div class="iterframe">Spelling: <input type="text"  name="det{i}_stem{j}_orth" size="30" onchange="fill_pred('det{i}_stem{j}', 'q')">
+     Predicate: <input type="text"  name="det{i}_stem{j}_pred" size="30"><br>
+    </div>
+    </div>
+
+    <div class="iterator" id="det{i}_stem1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det{i}_stem1')">
+    <div class="iterframe">Spelling: <input type="text"  name="det{i}_stem1_orth" size="30" onchange="fill_pred('det{i}_stem1', 'q')">
+     Predicate: <input type="text"  name="det{i}_stem1_pred" size="30"><br>
+    </div>
+    </div>
+    <div class="anchor" id="det{i}_stem_ANCHOR"></div>
+    <p><input type="button"  value="Add a Stem" onclick="clone_region('det{i}_stem', 'j', false)"><div class="iterator" style="display: none" id="det{i}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det{i}_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="det{i}_feat{j}_name" onfocus="fill('det{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="det{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('det{i}_feat{j}_value', [].concat(fill_feature_values('det{i}_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="det{i}_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('det{i}_feat', 'j', false)"><div class="iterator" style="display: none" id="det{i}_require_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det{i}_require{j}')">
+    <div class="iterframe">Determiner {i} requires one of the following position classes:
+    <select name="det{i}_require{j}_others" class="multi"  multiple="multiple"  onfocus="fill('det{i}_require{j}_others', [].concat(fill_cache('detlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="det{i}_require_ANCHOR"></div>
+    <p><input type="button"  value="Add a Require constraint" onclick="clone_region('det{i}_require', 'j', false)"><div class="iterator" style="display: none" id="det{i}_forbid_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('det{i}_forbid{j}')">
+    <div class="iterframe">Determiner {i} requires one of the following position classes:
+    <select name="det{i}_forbid{j}_others" class="multi"  multiple="multiple"  onfocus="fill('det{i}_forbid{j}_others', [].concat(fill_cache('detlrs')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="anchor" id="det{i}_forbid_ANCHOR"></div>
+    <p><input type="button"  value="Add a Forbid constraint" onclick="clone_region('det{i}_forbid', 'j', false)"></div>
+    </div>
+
+    <div class="anchor" id="det_ANCHOR"></div>
+    <p><input type="button"  value="Add a Determiner" onclick="clone_region('det', 'i', true)"><div class="iterator" style="display: none" id="adp_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adp{i}')">
+    <div class="iterframe">Spelling: <input type="text"  name="adp{i}_orth" size="20">
+    <label>, which is <input type="checkbox"  name="adp{i}_opt"> optional</label>
+     and appears
+    <select name="adp{i}_order">
+    <option value="after">After</option>
+    <option value="before">Before</option>
+    <option value=""></option>
+    </select> a noun phrase<br><br>Features:<br>
+    <div class="iterator" style="display: none" id="adp{i}_feat_TEMPLATE">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adp{i}_feat{j}')">
+    <div class="iterframe">Name:
+    <select name="adp{i}_feat{j}_name" onfocus="fill('adp{i}_feat{j}_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="adp{i}_feat{j}_value" class="multi"  multiple="multiple"  onfocus="fill('adp{i}_feat{j}_value', [].concat(fill_feature_values('adp{i}_feat{j}_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+
+    <div class="iterator" id="adp{i}_feat1">
+    <input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element('adp{i}_feat1')">
+    <div class="iterframe">Name:
+    <select name="adp{i}_feat1_name" onfocus="fill('adp{i}_feat1_name', [].concat(fill_feature_names('noun')));">
+    <option value=""></option>
+    </select>
+    Value:
+    <select name="adp{i}_feat1_value" class="multi"  multiple="multiple"  onfocus="fill('adp{i}_feat1_value', [].concat(fill_feature_values('adp{i}_feat1_name')));">
+    <option value=""></option>
+    </select>
+    </div>
+    </div>
+    <div class="anchor" id="adp{i}_feat_ANCHOR"></div>
+    <p><input type="button"  value="Add a Feature" onclick="clone_region('adp{i}_feat', 'j', false)"></div>
+    </div>
+
+    <div class="anchor" id="adp_ANCHOR"></div>
+    <p><input type="button"  value="Add an Adposition" onclick="clone_region('adp', 'i', true)">
+    </form>
+  </div>
+
+  </body>
+
+</html>

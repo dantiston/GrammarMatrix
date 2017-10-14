@@ -63,10 +63,6 @@ def html_input(vr, sort, name, value, checked=False,
   Return an HTML <input> tag with the specified attributes and
     surrounding text
 
-  TJT 2014-05-07 Adding randid to html_input to pass random number
-    matching radio buttons to their labels along
-  TJT 2014-09-05 Getting rid of randid to wrap entire radio option in label
-
   Known types: check, radio, text, textarea, file, button, submit, hidden
   """
 

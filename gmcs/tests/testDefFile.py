@@ -16,7 +16,7 @@ from gmcs.deffile import MatrixDefSyntaxException
 from gmcs.choices import FormInfo
 
 from mock import mock_choices, mock_validation, mock_error
-from test import load_testhtml, load_matrixdef, load_choices, remove_empty_lines, load_file, os_environ, choice_environ
+from test import load_testhtml, load_matrixdef, load_choices, remove_empty_lines, load_file, os_environ, choice_environ, environ_choices
 
 from test import save_both, print_both
 
@@ -597,6 +597,17 @@ class SubPageTests(unittest.TestCase):
       expected2 = load_testhtml("testMultipleSections2")
       self.assertEqual(remove_empty_lines(actual1), remove_empty_lines(expected1))
       self.assertEqual(remove_empty_lines(actual2), remove_empty_lines(expected2))
+
+
+  # Choice tests
+  # TODO: More of these
+  def testUnicodeValues(self):
+    with os_environ(HTTP_COOKIE="session=7777"), environ_choices('test_unicode_values.txt'):
+      definition = load_matrixdef("testMinimalLexiconMorphology")
+      actual = definition.sub_page('lexicon', '7777', mock_validation())
+      expected = load_testhtml("testLexiconUnicode")
+      save_both(actual, expected)
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
 

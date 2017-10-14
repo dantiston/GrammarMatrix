@@ -10,12 +10,16 @@ loading, and generating HTML from files defining pages in the matrixdef specific
 # TJT 10-10-17 Significantly rewritten and refactored, focused on speed, testability,
   standards compliance, and organization
 
-TODO: Think about pickling MatrixDef
 TODO: Modularize matrixdef files
 TODO: Think about either making constants for accessing indices of MatrixDef
       commands or make the commands object oriented (and have accessors)
 
 TODO: PROBLEMS
+    * User defined names with unicode cause unicode issues
+    * Leaving sentential negation page is broken; enhance_choices() missing input
+        * Need to test fix for this
+        * Need to write unit tests for negation choice adding methods
+
     * sentences_page
     * more_sentences_page
     * error_page
@@ -400,6 +404,7 @@ class MatrixDef:
     UI element should be skipped. As such, the boolean return value
     is a little bit backwards. The function returns True if the switch
     is not found, and false if it is found.
+    TODO: This can be simplified
     """
     if not switch:
       return True
@@ -435,7 +440,7 @@ class MatrixDef:
           skip_it[switch] = False
         else:
           for item in results:
-             # Values is almost gauranteed to be small, no need to make it a set
+            # Values is almost gauranteed to be small, no need to make it a set
             if item[1] in values:
               skip_it[switch] = False
               break
@@ -502,6 +507,8 @@ class MatrixDef:
     """
     Create and print the "download your matrix here" page for the
     customized matrix in the directory specified by session_path
+
+    TODO: Unit test this
     """
     print HTTP_header + '\n'
     print HTML_pretitle
@@ -523,9 +530,28 @@ class MatrixDef:
     print HTML_customprebody % (os.path.join(session_path, arch_file))
     print HTML_postbody
 
+    # grammar_dir = grammar_path.replace(session_path, '').lstrip('/')
+    # arch_file = grammar_dir + ('.tar.gz' if arch_type == u'tgz' else '.zip')
+    # cwd = os.getcwd()
+    # os.chdir(session_path)
+    # if arch_type == u'tgz':
+    #   make_tgz(grammar_dir)
+    # else:
+    #   make_zip(grammar_dir)
+    # os.chdir(cwd)
+    #
+    # template = jinja.get_template('sub.html')
+    # return template.render(
+    #     section_name=u"Matrix Customized",
+    #     grammar_link=os.path.join(session_path, arch_file),
+    # )
 
-  # Generate and print sample sentences from the customized grammar
+
   def sentences_page(self, session_path, grammar_dir, session):
+    """
+    Generate and print sample sentences from the customized grammar
+    TODO: Write unit test for this
+    """
     print HTTP_header + '\n'
     print HTML_pretitle
     print '<title>Matrix Sample Sentences</title>'
@@ -1400,7 +1426,8 @@ class MatrixDef:
       if tokenized_lines[i-1][2] == BULLET:
         oc = u"check_radio_button('"+prefix[:-1]+"_inflecting', 'yes'); " + oc
     vn = prefix + vn
-    value = choices.get(vn, '') # If no choice existing, return ''
+    value = choices.get(vn, u'')
+
     result += html.html_input(vr, element.lower(), vn, value,
                 checked=False, before=bf, after=af, size=sz, onchange=oc)
     result += u"\n"
@@ -1510,44 +1537,43 @@ class MatrixDef:
       # TODO: Write unit tests for these
       # TODO: These methods are mutating their input; they should not also return their input
       # if neg-aux=on exists, create side-effect in lexicon.
-      if ('neg-aux' in form_data.keys() \
-         or ('bineg-type' in form_data.keys() and form_data['bineg-type'].value =='infl-head')):
+      if (current_page_choices.get('neg-aux', '') or (current_page_choices.get('bineg-type', '') == 'infl-head')):
         # see if we're already storing an index number
-        if 'neg-aux-index' in other_page_choices.keys():
+        neg_aux_index = other_page_choices.get('neg-aux-index', '')
+        if neg_aux_index:
           # we have an index for a neg-aux, see if it's still around
-          if not other_page_choices['aux%s' % other_page_choices['neg-aux-index']]:
+          if not other_page_choices['aux%s' % neg_aux_index]:
             # it's not so we make a new neg-aux and store the index
             other_page_choices, neg_aux_index = self.create_neg_aux_choices(other_page_choices)
             current_page_choices["neg-aux-index"] = unicode(neg_aux_index) if neg_aux_index > 0 else u'1'
         else: # we don't have any neg aux index stored, so make a new one
-          other_page_choices, neg_aux_index = self.create_neg_aux_choices(other_page_choices, form_data)
+          other_page_choices, neg_aux_index = self.create_neg_aux_choices(other_page_choices, current_page_choices)
           current_page_choices["neg-aux-index"] = unicode(neg_aux_index) if neg_aux_index > 0 else u'1'
 
 
       # create a zero-neg lri in choices
-      if form_data['neg-exp'].value == u'0' and 'vpc-0-neg' in form_data.keys():
-        if form_data['vpc-0-neg'].value != u"":
-          # infl-neg should be on for zero-neg to work
-          current_page_choices['infl-neg'] = u'on'
-          other_page_choices, current_page_choices = self.create_infl_neg_choices(other_page_choices, current_page_choices)
+      if current_page_choices.get('neg-exp', '') == u'0' and current_page_choices.get('vpc-0-neg', ''):
+        # infl-neg should be on for zero-neg to work
+        current_page_choices['infl-neg'] = u'on'
+        other_page_choices, current_page_choices = self.create_infl_neg_choices(other_page_choices, current_page_choices)
 
 
       # add FORM subtype for neg1b-neg2b analysis
       # also add it for infl-head neg analysis
-      keys = form_data.keys()
-      if 'neg1b-neg2b' in keys or \
-        ('neg1-type' in keys and 'neg2-type' in keys and form_data['neg1-type'].value == u'fh' and form_data['neg2-type'].value == u'b') or \
-        ('neg1-type' in keys and 'neg2-type' in keys and form_data['neg2-type'].value == u'fh' and form_data['neg1-type'].value == u'b'):
+      # TODO: Functionalize this
+      neg1_type = current_page_choices.get('neg1-type', '')
+      neg2_type = current_page_choices.get('neg2-type', '')
+      if current_page_choices.get('neg1b-neg2b', '') or \
+         (neg1_type == 'fh' and neg2_type == 'b') or \
+         (neg2_type == 'fh' and neg1_type == 'b'):
         next_n = other_page_choices['nf-subform'].next_iter_num() if 'nf-subform' in other_page_choices else 1
-        found_negform = False
         if next_n > 1:
           nfss = other_page_choices.get('nf-subform')
           for nfs in nfss:
             if nfs['name'] == u'negform':
-              found_negform = True
               break
-        if not found_negform:
-          other_page_choices['nf-subform%d_name' % next_n] = u'negform'
+          else:
+            other_page_choices['nf-subform%d_name' % next_n] = u'negform'
 
 
   def load_choices_from_form(self, form_data):
@@ -1567,6 +1593,7 @@ class MatrixDef:
       else:
         result[k] = form_data[k].value
     return result
+
 
   CHOICES_TO_SAVE = {CHECK, TEXT, TEXT_AREA, RADIO, SELECT, MULTI_SELECT, FILE, HIDDEN}
 
@@ -1734,7 +1761,7 @@ class MatrixDef:
           feat_count += 1
 
 
-  def create_neg_aux_choices(self, choices, form_data):
+  def create_neg_aux_choices(self, other_page_choices, current_page_choices):
     """
     this is a side effect of the existence of neg-aux
     in the form data, it puts some lines pertaining to a neg-aux
@@ -1746,20 +1773,19 @@ class MatrixDef:
     """
 
     # get the next aux number
-    next_n = choices['aux'].next_iter_num() if 'aux' in choices else 1
+    next_n = other_page_choices['aux'].next_iter_num() if 'aux' in other_page_choices else 1
 
     # create a new aux with that number
-    choices['aux%d_name' % next_n] = u'neg'
+    other_page_choices['aux%d_name' % next_n] = u'neg'
 
     # copy that to nli for adding further information
-    nli = choices['aux'].get_last()
-    nli['sem']='add-pred'
+    nli = other_page_choices['aux'].get_last()
+    nli['sem'] = 'add-pred'
     nli['stem1_pred'] = u'neg_rel'
 
-    if 'bineg-type' in form_data.keys() and \
-      form_data['bineg-type'].value =='infl-head':
-      nli['compfeature1_name']='form'
-      nli['compfeature1_value']='negform'
+    if other_page_choices.get('bineg-type', '') == 'infl-head':
+      nli['compfeature1_name'] = 'form'
+      nli['compfeature1_value'] = 'negform'
 
     # if auxiliaries are off, turn them on
     choices['has-aux'] = u'yes'

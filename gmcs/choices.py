@@ -58,7 +58,7 @@ class ChoiceCategory(object):
       for k in keys:
         x = x[k]
     except KeyError:
-      x = default if default is not None else ''
+      x = default if default is not None else u''
     except IndexError:
       x = default if default is not None else ChoiceDict()
     # reset safe_get
@@ -83,7 +83,7 @@ class ChoiceDict(ChoiceCategory, dict):
         retval = retval[remaining]
     except KeyError, e:
       if self.safe_get:
-        retval = ''
+        retval = u''
       else:
         raise e
     return retval
@@ -98,7 +98,7 @@ class ChoiceDict(ChoiceCategory, dict):
     else:
       if cur_key not in self:
         new_key = cur_key if not self.full_key \
-                          else '_'.join([self.full_key, cur_key])
+                          else u'_'.join([self.full_key, cur_key])
         new_list = ChoiceList(full_key=new_key)
         dict.__setitem__(self, cur_key, new_list)
       dict.__getitem__(self, cur_key)[remaining_keys] = value
@@ -122,7 +122,7 @@ class ChoiceDict(ChoiceCategory, dict):
 
 
   def split_value(self, key):
-    return [x for x in self[key].split(', ') if x != '']
+    return [x for x in self[key].split(', ') if x]
 
 
   def walk(self, intermediates=False):
@@ -152,12 +152,12 @@ class ChoiceDict(ChoiceCategory, dict):
     return full_keys
 
 
-  def __str__(self):
-    return '\n'.join(
-      '='.join(['_'.join([self.full_key, key]) if self.full_key else key,
+  def __unicode__(self):
+    return u'\n'.join(
+      u'='.join([u'_'.join([self.full_key, key]) if self.full_key else key,
                 self[key]]) \
        if not isinstance(self[key], ChoiceList) \
-       else str(self[key])
+       else unicode(self[key])
        for key in self)
 
 
@@ -195,7 +195,7 @@ class ChoiceList(ChoiceCategory, list):
     else:
       if self[index] == None:
         list.__setitem__(self, index - 1, ChoiceDict(full_key=self.full_key +\
-                                                     str(index)))
+                                                     unicode(index)))
       list.__getitem__(self, index - 1)[remaining_keys] = value
 
 
@@ -276,8 +276,12 @@ class ChoiceList(ChoiceCategory, list):
     return full_keys
 
 
+  def __unicode__(self):
+    return '\n'.join(unicode(item) for item in self)
+
+
   def __str__(self):
-    return '\n'.join(str(item) for item in self)
+    return unicode(self).encode('utf-8')
 
 
 ######################################################################
@@ -355,28 +359,30 @@ class ChoicesFile:
     if choices_file is not None:
       try:
         f = choices_file
-        # if type(choices_file) is str:
         if isinstance(choices_file, basestring):
-          f = open(choices_file, 'r')
+          f = codecs.open(choices_file, 'r', encoding="utf-8")
         f.seek(0)
         lines = get_valid_lines(f.readlines())
         self.load_choices(lines)
-        # if type(choices_file) is str:
         if isinstance(choices_file, basestring):
           f.close()
       except IOError:
         pass # TODO: we should really be logging these
 
+
+  def __unicode__(self):
+    return unicode(self.choices)
+
+
   def __str__(self):
-    return str(self.choices)
+    return unicode(self.choices).encode("utf-8")
+
 
   def __eq__(self, object):
     if not issubclass(object.__class__, ChoicesFile):
       return False
     else:
       if len(self.full_keys()) != len(object.full_keys()):
-        # print self.full_keys()
-        # print str(len(self.full_keys()))+"/"+str(len(object.full_keys()))
         return False
       else:
         for i in self.full_keys():
@@ -498,9 +504,9 @@ class ChoicesFile:
       i += 1
       c_type = type(c)
       if c_type is ChoiceDict:
-        c.full_key = key + str(i)
+        c.full_key = key + unicode(i)
       elif c_type is ChoiceList:
-        c.full_key = key + str(c)
+        c.full_key = key + unicode(c)
       else:
         continue
       self.__renumber_full_keys(c.full_key)
@@ -521,7 +527,7 @@ class ChoicesFile:
     elif isinstance(c, ChoiceList):
       for d in c:
         idx = split_variable_key(d.full_key)[-1]
-        self.__reset_full_keys(key + str(idx))
+        self.__reset_full_keys(key + unicode(idx))
 
 
   def keys(self):

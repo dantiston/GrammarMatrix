@@ -1,10 +1,16 @@
 #!usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-### $Id: validate.py,v 1.44 2008-09-30 23:50:02 lpoulson Exp $
+"""
+validate.py
+
+Core methods and classes for validating user choices
+"""
 
 ######################################################################
 # imports
+
+from __future__ import unicode_literals
 
 import sys
 import re
@@ -39,6 +45,7 @@ class ValidationResult:
   def has_infos(self):
     return len(self.infos) != 0
 
+
   def err(self, key, message, anchor=None, concat=True):
     """
     Add an error message to key (a choices variable).  If the key
@@ -50,6 +57,7 @@ class ValidationResult:
       self.errors[key].add_message(message)
     else:
       self.errors[key] = ValidationMessage(key+"_error", message, anchor)
+
 
   def warn(self, key, message, anchor=None, concat=True):
     """
@@ -63,6 +71,7 @@ class ValidationResult:
     else:
       self.warnings[key] = ValidationMessage(key+"_warning", message, anchor)
 
+
   def info(self, key, message, anchor=None, concat=True):
     """
     Add an informational message to key (a choices variable).  If the key
@@ -73,6 +82,7 @@ class ValidationResult:
       self.infos[key].add_message(message)
     else:
       self.infos[key] = ValidationMessage(key+"_info", message, anchor)
+
 
 #NTS: we only need to define an anchor for the main page versionsx
 class ValidationMessage:
@@ -255,17 +265,19 @@ def validate_names(ch, vr):
   #   [type name, variable name]
   user_types = []
 
-  for case in ['nom-acc-nom', 'nom-acc-acc',
+  for case in ('nom-acc-nom', 'nom-acc-acc',
                'erg-abs-erg', 'erg-abs-abs',
                'tripartite-s', 'tripartite-a', 'tripartite-o',
                'split-s-a', 'split-s-o',
                'fluid-s-a', 'fluid-s-o',
                'split-n-nom', 'split-n-acc', 'split-n-erg', 'split-n-abs',
                'split-v-nom', 'split-v-acc', 'split-v-erg', 'split-v-abs',
-               'focus-focus', 'focus-a', 'focus-o']:
-    vn = case + '-case-name'
+               'focus-focus', 'focus-a', 'focus-o'):
+    vn = case + u'-case-name'
     if vn in ch:
-      user_types += [[ch[vn], vn]]
+      if isinstance(ch[vn], str):
+        import pdb; pdb.set_trace()
+      user_types += [[unicode(ch[vn]), vn]]
 
   for case in ch.get('case', []):
     user_types += [[case.get('name'), case.full_key + '_name']]
@@ -281,7 +293,7 @@ def validate_names(ch, vr):
     for value in feature.get('value', []):
       user_types += [[value.get('name'), value.full_key + '_name']]
 
-  for tense in ['past', 'present', 'future', 'nonpast', 'nonfuture']:
+  for tense in ('past', 'present', 'future', 'nonpast', 'nonfuture'):
     if tense in ch:
       user_types += [[tense, tense]]
       for st in ch.get(tense + '-subtype', []):
@@ -343,8 +355,7 @@ def validate_names(ch, vr):
 
   # Force all the user_types into lower case (obeying the appropriate
   # Unicode character semantics), because TDL is case-insensitive.
-  user_types = [[unicode(x[0], 'utf-8').lower().encode('utf-8'), x[1]]
-                for x in user_types]
+  user_types = [[unicode(x[0]).lower(), x[1]] for x in user_types]
 
   # Whew!  OK, now we have two sets of type names and a set of
   # patterns:
@@ -443,7 +454,7 @@ your installation root directory as iso.tab to enable iso validation:
     vr.warn('punctuation-chars',
             'Please provide an answer about tokenization and punctuation ' +\
             'characters.')
-  chars = unicode(ch.get('punctuation-chars-list',''), 'utf8')
+  chars = unicode(ch.get('punctuation-chars-list',''))
   if chars:
     if ' ' in chars:
       vr.err('punctuation-chars',
@@ -462,7 +473,7 @@ your installation root directory as iso.tab to enable iso validation:
   char_re = re.compile(r'(' + r'|'.join(non_chars) + r')')
   for (key, val) in ch.walk():
     if key.endswith('orth') and not key.startswith('sentence'):
-      if char_re.search(unicode(val, 'utf8')):
+      if char_re.search(unicode(val)):
         vr.warn(key, 'String contains an unparsable punctuation character.' +\
                    ' Please see the General subpage.')
 
@@ -490,33 +501,30 @@ def validate_person(ch, vr):
                'whether it makes finer distinctions within that category.')
 
 
-######################################################################
-# validate_number(ch, vr)
-#   Validate the user's choices about number
-
 def validate_number(ch, vr):
+  """
+  Validate the user's choices about number
+  """
   for number in ch.get('number'):
     if 'name' not in number:
       vr.err(number.full_key + '_name',
              'You must specify a name for each number you define.')
 
 
-######################################################################
-# validate_gender(ch, vr)
-#   Validate the user's choices about gender
-
 def validate_gender(ch, vr):
+  """
+  Validate the user's choices about gender
+  """
   for gender in ch.get('gender'):
     if 'name' not in gender:
       vr.err(gender.full_key + '_name',
              'You must specify a name for each gender you define.')
 
 
-######################################################################
-# validate_other_features(ch, vr)
-#   Validate the user's choices about other features
-
 def validate_other_features(ch, vr):
+  """
+  Validate the user's choices about other features
+  """
   for feature in ch.get('feature'):
     if 'name' not in feature:
       vr.err(feature.full_key + '_name',
@@ -555,19 +563,19 @@ def validate_other_features(ch, vr):
                'You must specify a supertype for each value you define.')
 
 
-
-######################################################################
-# validate_information_structure_msg(ch, vr, marker, _type, msg)
-#   Leave an error msg for information structural affixes
 def validate_information_structure_msg(ch, vr, marker, _type, msg):
-    for m in ch.get(marker):
-      if m['type'].strip() == _type:
-        vr.err(m.full_key + '_type', msg)
+  """
+  Leave an error msg for information structural affixes
+  """
+  for m in ch.get(marker):
+    if m['type'].strip() == _type:
+      vr.err(m.full_key + '_type', msg)
 
-######################################################################
-# validate_information_structure_affix(ch, marker, values)
-#   Validate the user's choices about information structure for each value
+
 def validate_information_structure_affix(ch, marker, values):
+  """
+  Validate the user's choices about information structure for each value
+  """
   for cat in ['noun-pc', 'verb-pc']:
     for pc in ch.get(cat):
       for lrt in pc.get('lrt', []):
@@ -576,31 +584,32 @@ def validate_information_structure_affix(ch, marker, values):
             return True
   return False
 
-######################################################################
-# validate_information_structure_adp(ch, marker, values)
-#   Validate the user's choices about information structure for each value
+
 def validate_information_structure_adp(ch, marker, values):
+  """
+  Validate the user's choices about information structure for each value
+  """
   for adp in ch.get('adp'):
     for feat in adp.get('feat', []):
       if feat['name'] == 'information-structure meaning' and feat['value'] in values:
         return True
   return False
 
-######################################################################
-# validate_information_structure(ch, vr)
-#   Validate the user's choices about information structure
 
 infostr_values = {
-  'focus-marker' : ['focus', 'semantic-focus', 'contrast-focus', 'focus-or-topic', 'contrast-or-focus', 'non-topic'],
-  'topic-marker' : ['topic', 'aboutness-topic', 'contrast-topic', 'frame-setting-topic', 'focus-or-topic', 'contrast-or-topic', 'non-focus'],
-  'c-focus-marker' : ['contrast', 'contrast-focus', 'contrast-or-focus'],
-  'c-topic-marker' : ['contrast', 'contrast-topic', 'contrast-or-topic']
+  'focus-marker' : ('focus', 'semantic-focus', 'contrast-focus', 'focus-or-topic', 'contrast-or-focus', 'non-topic'),
+  'topic-marker' : ('topic', 'aboutness-topic', 'contrast-topic', 'frame-setting-topic', 'focus-or-topic', 'contrast-or-topic', 'non-focus'),
+  'c-focus-marker' : ('contrast', 'contrast-focus', 'contrast-or-focus'),
+  'c-topic-marker' : ('contrast', 'contrast-topic', 'contrast-or-topic')
   }
 
 def validate_information_structure(ch, vr):
+  """
+  Validate the user's choices about information structure
+  """
 
   infostr_markers = []
-  for marker in infostr_values.keys():
+  for marker in infostr_values:
     for m in ch.get(marker):
       if m['type'].strip() == 'affix' and marker not in infostr_markers:
         infostr_markers.append(marker)
@@ -619,14 +628,11 @@ def validate_information_structure(ch, vr):
     if not validate_information_structure_adp(ch, m, infostr_values[m]):
       validate_information_structure_msg(ch, vr, m, 'adp', 'You must create at least one adposition involving this feature on Lexicon.')
 
-
-
   for marker in infostr_values.keys():
     for m in ch.get(marker):
       if m['type'].strip() in ['affix', 'adp']:
         if m['pos'].strip() != '' or m['cat'].strip() != '' or m['orth'].strip() != '':
           vr.err(m.full_key + '_type', 'You must either check a modifier or delete the choices following a modifier.')
-
 
   if ch.get('word-order') == 'free':
     warning_msg = 'Information structural modules for free word order languages are under development. If positions are multiply checked, your grammar may have some overgeneration.'
@@ -652,20 +658,18 @@ def validate_information_structure(ch, vr):
     vr.err('c-focus', 'Your description is inconsistent. You must either check this or choose a specific position below.')
 
 
-
-######################################################################
-# validate_word_order(ch, vr)
-#   Validate the user's choices about basic word order.
-
-# There should be some value for word order
-# If has-dets is true, there should be some value for noun-det-order
-# If aux-verb is defined, then aux-order needs to be too
-# I'm currently adding AUX as a feature in specialize_word_order()
-# but wonder if instead (in addition?) we should be doing validation
-# so that we don't find ourselves worrying about auxiliaries if we
-# don't have any in the lexicon.
-
 def validate_word_order(ch, vr):
+  """
+  Validate the user's choices about basic word order.
+
+  There should be some value for word order
+  If has-dets is true, there should be some value for noun-det-order
+  If aux-verb is defined, then aux-order needs to be too
+  I'm currently adding AUX as a feature in specialize_word_order()
+  but wonder if instead (in addition?) we should be doing validation
+  so that we don't find ourselves worrying about auxiliaries if we
+  don't have any in the lexicon.
+  """
   # General word order
   if (not ch.get('word-order')):
     vr.err('word-order',
@@ -738,11 +742,13 @@ def validate_word_order(ch, vr):
            'The general word order and aux-comp order ' +
            'are not compatible with vp complements.')
 
-######################################################################
-# validate_coordination(ch, vr)
-#   Validate the user's choices about coordination.
 
 def validate_coordination(ch, vr):
+  """
+  Validate the user's choices about coordination.
+
+  TODO: This should be modularized
+  """
   used_patterns = set() # used later to check which aps were used in a cs
   for cs in ch.get('cs'):
     csnum = str(cs.iter_num())
@@ -820,7 +826,6 @@ def validate_coordination(ch, vr):
              'In general, \'subject/object only\' is used with languages that, for example, use distinguished conjunct for ' \
              'subject and feature resolution for the object. \'All arguments\' should be the default in most other cases.'
       vr.warn(csap.full_key+'_target', mess)
-
 
 
     # setup for tracking whether subjects or objects have been accounted for too often
@@ -981,12 +986,10 @@ def validate_coordination(ch, vr):
       vr.warn(dconj.full_key + "_name", mess)
 
 
-
-######################################################################
-# validate_yesno_questions(ch, vr)
-#   Validate the user's choices about matrix yes/no questions.
-
 def validate_yesno_questions(ch, vr):
+  """
+  Validate the user's choices about matrix yes/no questions.
+  """
   qinvverb = ch.get('q-inv-verb')
   qpartorder = ch.get('q-part-order')
   qpartorth = ch.get('q-part-orth')
@@ -1063,9 +1066,6 @@ def validate_yesno_questions(ch, vr):
    #          'that your language has auxiliaries.'
    #   vr.err('q-infl-type', mess)
 
-# validate_tanda(ch, vr)
-#   Validate the user's choices about tense, aspect (viewpoint and
-#   situation) and form features
 
 def validate_tanda(ch, vr):
   """
@@ -1148,19 +1148,19 @@ def validate_tanda(ch, vr):
              'but you have entered subforms of finite or non-finite.'
       vr.err('noaux-fin-nf', mess)
 
-######################################################################
-# validate_test_sentences(ch, vr)
-#   Validate the user's choices about test sentences.
 
 def validate_test_sentences(ch, vr):
+  """
+  Validate the user's choices about test sentences.
+  """
   pass
 
-######################################################################
-# validate_extra_constraints()
-#   Some extra constraints we want to put on the random grammars
-#   for the regression/other testing
 
 def validate_extra_constraints(ch, vr):
+  """
+  Some extra constraints we want to put on the random grammars
+     for the regression/other testing
+  """
 
   if ch.get('aux-sem') == 'pred':
     mess = 'Only semantically empty auxiliaries in test grammars.'
@@ -1396,8 +1396,10 @@ def validate_hierarchy(ch, vr):
                  "an ancestor of another supertype.")
 
 def validate_arg_opt(ch, vr):
-  """Check to see if the user completed the necessary portions of the arg
-   opt page and see that the OPT feature is used correctly elsewhere"""
+  """
+  Check to see if the user completed the necessary portions of the arg
+  opt page and see that the OPT feature is used correctly elsewhere
+  """
 
   if ch.get('subj-drop') and not ch.get('subj-mark-drop'):
     vr.err('subj-mark-drop',

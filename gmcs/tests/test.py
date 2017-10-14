@@ -85,7 +85,7 @@ class choice_environ(object):
 
     test_choices = load_file(os.path.join(*(path + [test_choices_file])))
     self.choices_file = tempfile.NamedTemporaryFile(mode='w+')
-    self.choices_file.write(test_choices)
+    self.choices_file.write(test_choices.encode("utf-8"))
     self.choices_file.seek(0)
 
 

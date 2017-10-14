@@ -55,7 +55,7 @@ def load_matrixdef(path):
 
 
 ######################################################################
-# beginning of main program
+# Main
 
 # TODO: Make the path to the matrixdef file a parameter?
 matrixdef = load_matrixdef(os.path.join('web', 'matrixdef'))
@@ -110,7 +110,7 @@ if form_data.has_key('choices'):
   if choices:
     data = ''
     if choices.startswith('web/sample-choices/'):
-      with open(choices, 'r') as f:
+      with codecs.open(choices, 'r', encoding='utf-8') as f:
         data = f.read()
     elif choices.startswith('collage/'):
       # Get choices files from CoLLAGE
