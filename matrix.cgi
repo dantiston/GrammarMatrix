@@ -134,7 +134,7 @@ if form_data.has_key('choices'):
     else: # Uploaded choices data
       data = choices
     if data or choices.endswith('/empty'):
-      with open(os.path.join(session_path, 'choices'), 'w') as f:
+      with codecs.open(os.path.join(session_path, 'choices'), 'w', encoding='utf-8') as f:
         f.write(data)
 
 
