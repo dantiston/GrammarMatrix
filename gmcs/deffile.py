@@ -26,6 +26,12 @@ TODO: PROBLEMS
     * choices_error_page
     * customize_error_page
 
+    * Parsing/saving should be able to be sped up quite a bit by
+        1) making the ChoicesDict an OrderedDict
+        2) keep subsection OrderedDicts to allow for faster writing
+        3) during saving, only the current section be need to be saved??
+            3a) maybe check for enhancements on others, save if changed?
+
     * fix adjective lrt checkbox so that it can be shown either by a choice
       on the lexicon page or by clicking a button on the morphology page
 """
@@ -76,6 +82,44 @@ HTTP_header = 'Content-type: text/html;charset=UTF-8'
 HTML_pretitle = '''<!doctype html>
 <html>
 <head><meta charset="utf-8"/>
+'''
+
+HTML_posttitle = '''<script type="text/javascript" src="web/matrix.js">
+</script>
+
+<script type="text/javascript">
+// An array of strings, each of the form 'name:value|friendly value,...'
+var features = [
+%s
+];
+
+var verb_case_patterns = [
+%s
+];
+
+var numbers = [
+%s
+];
+</script>
+
+<link rel="stylesheet" href="web/matrix.css">
+</head>
+'''
+
+HTML_toggle_visible_js = '''<script type="text/javascript">
+<!--
+    function toggle_visible(id) {
+       var e = document.getElementById(id);
+       if(e.style.display == 'block')
+          e.style.display = 'none';
+       else
+          e.style.display = 'block';
+    }
+//-->
+</script>
+'''
+
+HTML_prebody = '''<body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors();scalenav();">
 '''
 
 HTML_customprebody = '''<h3>Customized Matrix</h3>
