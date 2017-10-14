@@ -17,10 +17,7 @@ TODO: Think about either making constants for accessing indices of MatrixDef
       commands or make the commands object oriented (and have accessors)
 
 TODO: PROBLEMS
-    * User defined names with unicode cause unicode issues
-    * Leaving sentential negation page is broken; enhance_choices() missing input
-        * Need to test fix for this
-        * Need to write unit tests for negation choice adding methods
+    * Need to test fix for enhance_choices() re: sentential negation
 
     * sentences_page
     * more_sentences_page
@@ -70,6 +67,74 @@ HTML_preform = u'<form action="matrix.cgi" method="post" enctype="multipart/form
 
 HTML_postform = u'</form>'
 
+
+######################################################################
+# TODO: DELETEME
+
+HTTP_header = 'Content-type: text/html;charset=UTF-8'
+
+HTML_pretitle = '''<!doctype html>
+<html>
+<head><meta charset="utf-8"/>
+'''
+
+HTML_customprebody = '''<h3>Customized Matrix</h3>
+
+<p>A customized copy of the Matrix has been created for you.
+Please download it <a href="%s">here</a>.
+
+<p>This file will be removed from the system in 24 hours.
+
+<h3>Instructions</h3>
+
+<p>To unpack the archive, if your browser hasn't already done it for
+you, first try saving it on your desktop and double-clicking it.  If
+that doesn't work, and you're using Linux or Mac OS X, from a command
+prompt, type <tt>tar xzf matrix.tar.gz</tt> or <tt>unzip matrix.zip</tt>.
+
+<p>Once you've unpacked the archive you should find a directory called
+<tt>matrix</tt>.  Inside the directory are several files.  Here is
+an explanation of some:
+
+<ul>
+<li><tt>matrix.tdl</tt>: Language independent type and constraint
+definitions.  You should not need to modify this file.
+<li><tt>my_language.tdl</tt>: Types and constraints specific to your
+language.  (Actual file name depends on the name of your language.)
+<li><tt>lexicon.tdl</tt>: Lexical entries for your language.
+<li><tt>rules.tdl</tt>: Phrase structure rule instance entries for
+your language.
+<li><tt>irules.tdl</tt>: Spelling-changing lexical rule instance
+entries for your language.
+<li><tt>lrules.tdl</tt>: Non-spelling-changing lexical rule instance
+entries for your language.
+<li><tt>lkb/script</tt>: The script file for loading your grammar into
+the LKB.
+<li><tt>choices</tt>: A record of the information you
+provided in the matrix configuration form.
+</ul>
+
+<p>To run this grammar, start the LKB, and the load it by selected
+"Load > Complete grammar..." from the LKB menu.  You can then parse a
+sentence by selecting "Parse > Parse input..." from the LKB menu.  The
+dialog box that pops up should include the sentences you filled into
+the form.  When a sentence parses successfully, you can try generating
+from the resulting semantic representation by selecting "Generate" or
+"Generate from edge" from the pop-up menu.  For more on using the LKB,
+see the <a href="http://www.delph-in.net/lkb">LKB page</a> and/or
+Copestake 2002 <a
+href="http://cslipublications.stanford.edu/lkb.html"><i>Implementing
+Typed Feature Structure Grammars</i></a>.
+
+<hr>
+<a href="matrix.cgi">Back to form</a><br>
+<a href="http://www.delph-in.net/matrix/">Back to Matrix main page</a><br>
+<a href="http://www.delph-in.net/lkb">To the LKB page</a>
+'''
+
+HTML_postbody = '''</body>
+
+</html>'''
 
 ######################################################################
 # Constants
@@ -499,19 +564,10 @@ class MatrixDef:
     """
     Create and print the "download your matrix here" page for the
     customized matrix in the directory specified by session_path
-
-    TODO: Unit test this
     """
-    print HTTP_header + '\n'
-    print HTML_pretitle
-    print '<title>Matrix Customized</title>'
-    # we don't want the contents of the archive to be something like
-    # sessions/7149/..., so we remove session_path from grammar_path
+
     grammar_dir = grammar_path.replace(session_path, '').lstrip('/')
-    if arch_type == u'tgz':
-      arch_file = grammar_dir + '.tar.gz'
-    else:
-      arch_file = grammar_dir + '.zip'
+    arch_file = grammar_dir + ('.tar.gz' if arch_type == u'tgz' else '.zip')
     cwd = os.getcwd()
     os.chdir(session_path)
     if arch_type == u'tgz':
@@ -519,24 +575,13 @@ class MatrixDef:
     else:
       make_zip(grammar_dir)
     os.chdir(cwd)
-    print HTML_customprebody % (os.path.join(session_path, arch_file))
-    print HTML_postbody
 
-    # grammar_dir = grammar_path.replace(session_path, '').lstrip('/')
-    # arch_file = grammar_dir + ('.tar.gz' if arch_type == u'tgz' else '.zip')
-    # cwd = os.getcwd()
-    # os.chdir(session_path)
-    # if arch_type == u'tgz':
-    #   make_tgz(grammar_dir)
-    # else:
-    #   make_zip(grammar_dir)
-    # os.chdir(cwd)
-    #
-    # template = jinja.get_template('sub.html')
-    # return template.render(
-    #     section_name=u"Matrix Customized",
-    #     grammar_link=os.path.join(session_path, arch_file),
-    # )
+    template = jinja.get_template('customized.html')
+    return template.render(
+        section_name=u"Matrix Customized",
+        grammar_link=os.path.join(session_path, arch_file),
+        cookie=session_path[-4:]
+    )
 
 
   def sentences_page(self, session_path, grammar_dir, session):

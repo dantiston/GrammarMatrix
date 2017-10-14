@@ -3,6 +3,10 @@
 
 ### $Id: utils.py,v 1.8 2008-05-28 21:08:12 sfd Exp $
 
+import os
+import tarfile
+import gzip
+import zipfile
 
 def make_tgz(directory):
   # ERB First get rid of existing file because gzip won't

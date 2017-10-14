@@ -218,7 +218,7 @@ if form_data.has_key('customize'):
     if form_data.has_key('sentences'):
       matrixdef.sentences_page(session_path, grammar_dir, cookie)
     else:
-      matrixdef.custom_page(session_path, grammar_dir, arch_type)
+      print(matrixdef.custom_page(session_path, grammar_dir, arch_type))
 elif form_data.has_key('subpage'):
   if browser_cookie:
     print(matrixdef.sub_page(form_data['subpage'].value, cookie, vr).encode('utf-8'))

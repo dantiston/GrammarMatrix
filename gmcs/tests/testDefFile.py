@@ -12,7 +12,7 @@ import re
 import shutil
 import cPickle as pickle
 
-import StringIO
+import cStringIO as StringIO
 
 from gmcs import html
 from gmcs import deffile
@@ -610,9 +610,7 @@ class SubPageTests(unittest.TestCase):
       definition = load_matrixdef("testMinimalLexiconMorphology")
       actual = definition.sub_page('lexicon', '7777', mock_validation())
       expected = load_testhtml("testLexiconUnicode")
-      save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
-
 
 
 class MainPageTests(unittest.TestCase):
@@ -657,6 +655,34 @@ class MainPageTests(unittest.TestCase):
       os.remove('sessions/7777/choices')
       expected = load_testhtml("testMainPageFullChoices")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+class CustomPageTests(unittest.TestCase):
+
+  def testCustomPage_basic_tgz(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load_matrixdef("testBasic")
+      grammar_path = os.path.join('sessions', '7777', 'test_grammar')
+      if not os.path.exists(grammar_path):
+        os.makedirs(grammar_path)
+      actual = definition.custom_page(os.path.join('sessions', '7777'), grammar_path, 'tgz')
+      expected = load_testhtml('testCustomPageTgz')
+      save_both(actual, expected)
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+      self.assertTrue(os.path.exists(grammar_path + u".tar.gz"))
+
+
+  def testCustomPage_basic_zip(self):
+    with os_environ(HTTP_COOKIE="session=7777"):
+      definition = load_matrixdef("testBasic")
+      grammar_path = os.path.join('sessions', '7777', 'test_grammar')
+      if not os.path.exists(grammar_path):
+        os.makedirs(grammar_path)
+      actual = definition.custom_page(os.path.join('sessions', '7777'), grammar_path, 'zip')
+      expected = load_testhtml('testCustomPageZip')
+      save_both(actual, expected)
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+      self.assertTrue(os.path.exists(grammar_path + u".zip"))
 
 
 class NavigationTests(unittest.TestCase):

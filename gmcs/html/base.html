@@ -27,21 +27,7 @@ Set-cookie: session={{cookie}}
     <title>{{section_name|default("the Matrix")}}</title>
 
     <link rel="stylesheet" href="web/matrix.css">
-
-    <script type="text/javascript" src="web/matrix.js"></script>
-    {% if section_name %}<script type="text/javascript" src="web/draw.js"></script>{% endif %}
-    {% if features or verb_case_patterns or numbers %}
-    <script type="text/javascript">
-      <!--
-      // An array of strings, each of the form "name:value|friendly value,..."
-      var features = [{{features|safe}}];
-
-      var verb_case_patterns = [{{verb_case_patterns|safe}}];
-
-      var numbers = [{{numbers|safe}}];
-      -->
-    </script>
-    {% endif %}
+    {% block js %}{% endblock js %}
     {% block head %}{% endblock head %}
   </head>
 

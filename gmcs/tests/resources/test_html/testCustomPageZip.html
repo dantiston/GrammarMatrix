@@ -1,0 +1,72 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Matrix Customized</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+
+  </head>
+
+  <body onload="animate(); focus_all_fields(); multi_init(); fill_hidden_errors(); scalenav();">
+
+  <h3>Customized Matrix</h3>
+
+  <p>A customized copy of the Matrix has been created for you.
+  Please download it <a href="sessions/7777/test_grammar.zip">here</a>.
+
+  <p>This file will be removed from the system in 24 hours.
+
+  <h3>Instructions</h3>
+
+  <p>To unpack the archive, if your browser hasn't already done it for
+  you, first try saving it on your desktop and double-clicking it.  If
+  that doesn't work, and you're using Linux or Mac OS X, from a command
+  prompt, type <tt>tar xzf matrix.tar.gz</tt> or <tt>unzip matrix.zip</tt>.
+
+  <p>Once you've unpacked the archive you should find a directory called
+  <tt>matrix</tt>.  Inside the directory are several files.  Here is
+  an explanation of some:
+
+  <ul>
+  <li><tt>matrix.tdl</tt>: Language independent type and constraint
+  definitions.  You should not need to modify this file.
+  <li><tt>my_language.tdl</tt>: Types and constraints specific to your
+  language.  (Actual file name depends on the name of your language.)
+  <li><tt>lexicon.tdl</tt>: Lexical entries for your language.
+  <li><tt>rules.tdl</tt>: Phrase structure rule instance entries for
+  your language.
+  <li><tt>irules.tdl</tt>: Spelling-changing lexical rule instance
+  entries for your language.
+  <li><tt>lrules.tdl</tt>: Non-spelling-changing lexical rule instance
+  entries for your language.
+  <li><tt>lkb/script</tt>: The script file for loading your grammar into
+  the LKB.
+  <li><tt>choices</tt>: A record of the information you
+  provided in the matrix configuration form.
+  </ul>
+
+  <p>To run this grammar, start the LKB, and the load it by selected
+  "Load > Complete grammar..." from the LKB menu.  You can then parse a
+  sentence by selecting "Parse > Parse input..." from the LKB menu.  The
+  dialog box that pops up should include the sentences you filled into
+  the form.  When a sentence parses successfully, you can try generating
+  from the resulting semantic representation by selecting "Generate" or
+  "Generate from edge" from the pop-up menu.  For more on using the LKB,
+  see the <a href="http://www.delph-in.net/lkb">LKB page</a> and/or
+  Copestake 2002 <a
+  href="http://cslipublications.stanford.edu/lkb.html"><i>Implementing
+  Typed Feature Structure Grammars</i></a>.
+
+  <hr>
+  <a href="matrix.cgi">Back to form</a><br>
+  <a href="http://www.delph-in.net/matrix/">Back to Matrix main page</a><br>
+  <a href="http://www.delph-in.net/lkb">To the LKB page</a>
+
+  </body>
+
+</html>
