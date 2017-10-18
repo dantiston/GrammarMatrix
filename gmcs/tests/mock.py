@@ -6,6 +6,8 @@ Mock objects for testing
 
 import re
 
+from gmcs.choices import ChoicesFile, ChoiceDict
+
 class mock_validation(object):
 
   def __init__(self, infos={}, warnings={}, errors={}):
@@ -13,14 +15,29 @@ class mock_validation(object):
     self.warnings = warnings
     self.errors = errors
 
+
   def has_errors(self):
     return bool(self.errors)
+
 
   def has_warnings(self):
     return bool(self.warnings)
 
+
   def has_infos(self):
     return bool(self.infos)
+
+
+  def err(self, key, message, anchor=None, concat=True):
+    self.errors[key] = mock_error(message=message)
+
+
+  def warn(self, key, message, anchor=None, concat=True):
+    self.warnings[key] = mock_error(message=message)
+
+
+  def info(self, key, message, anchor=None, concat=True):
+    self.infos[key] = mock_error(message=message)
 
 
 class mock_error(object):
@@ -31,55 +48,8 @@ class mock_error(object):
     self.message = message
 
 
-class mock_choices(dict):
-
-  def __init__(self, choices_dict):
-    self.choices = choices_dict
-    self.update(choices_dict)
-
-
-  def get(self, key, default=None):
-    return self.choices[key] if key in self.choices else default
-
-
-  def get_regex(self, regex):
-    result = []
-    for key, value in self.choices.items():
-      if re.match(regex, key):
-        result.append((key, value))
-    return result
-
-
-  def features(self):
-    """
-    TODO: This
-    """
-    return {}
-
-
-  def patterns(self):
-    """
-    TODO: This
-    """
-    return [['test', 'test', False]]
-
-
-  def numbers(self):
-    """
-    TODO: This
-    """
-    return []
-
-
-# class mock_choice(object):
-#
-#   def __init__(self, key):
-#     self.key = key
-#
-#
-#   def iter_num(self):
-#     if self.key:
-#         result = re.search('[0-9]+$', self.full_key)
-#         if result:
-#             return int(result.group(0))
-#     return None
+def mock_choices(choices=tuple()):
+  result = ChoicesFile()
+  for key, value in choices:
+    result[key] = value
+  return result

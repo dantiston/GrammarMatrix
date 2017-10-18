@@ -131,9 +131,9 @@ def insert_affixes(form_data, affix_strings, number):
     of bistem affixes.
     '''
     for entry in range(1,number):
-        affix_id = form_data['imported-entry'+str(entry)+'_aff'].value
+        affix_id = form_data['imported-entry'+unicode(entry)+'_aff'].value
         if affix_id in affix_strings.keys():
-            form_data['imported-entry'+str(entry)+'_aff'].value = str(affix_strings[affix_id])
+            form_data['imported-entry'+unicode(entry)+'_aff'].value = unicode(affix_strings[affix_id])
 
 
 def import_toolbox_lexicon(choicesfile):

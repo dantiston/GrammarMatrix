@@ -27,8 +27,8 @@ Content-type: text/html;charset=UTF-8
     <title>{% block title %}{{section_name|default("the Matrix")}}{% endblock title %}</title>
 
     <link rel="stylesheet" href="web/matrix.css">
-    {% block js %}{% endblock js %}
-    {% block head %}{% endblock head %}
+      {% block js %}{% endblock js %}
+      {% block head %}{% endblock head %}
   </head>
 
   <body{% if self.onload() %} onload="{% block onload %}{% endblock onload %}"{% endif %}>

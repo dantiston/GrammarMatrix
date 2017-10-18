@@ -9,10 +9,11 @@ from gmcs.choices import ChoicesFile
 from gmcs.validate import validate
 
 
-class TestValidate(unittest.TestCase):
-
-  ## Methods for asserting the presence of errors and warnings when
-  ## a ChoicesFile is put through validation
+class ValidationTestCase(unittest.TestCase):
+  """
+  Methods for asserting the presence of errors and warnings when
+  a ChoicesFile is put through validation
+  """
 
   def assertErrorsOrWarnings(self, c, variables, errors):
     vr = validate(c)
@@ -60,9 +61,15 @@ class TestValidate(unittest.TestCase):
     self.assertNoErrorsOrWarnings(c, errors, True)
 
 
-class TestBasic(TestValidate):
+class TestBasic(ValidationTestCase):
+
 
   def test_names(self):
+    """
+    # NOTE: validate.validate_names() takes ~ .1 seconds to run 20 times,
+            but it is run 460 times here, taking ~2.2 seconds
+    """
+
     # Pairs of [variable prefix, value suffix].  Appending 'name' to the
     # prefix gives the variable name (e.g., 'case1_name').  The suffix
     # tells what the system will append to the end of the *value* of
@@ -93,21 +100,20 @@ class TestBasic(TestValidate):
     #   Latin, accented Latin, accented Latin, Greek, Cyrillic, Armenian
     value = u'aáāαаա'
 
+    c = ChoicesFile()
     for v1 in variables:
       # first try colliding with an existing name (head-comp-phrase)
       if not v1[1]:  # won't collide if there's a suffix
         name = v1[0] + 'name'
-        c = ChoicesFile()
         c[name] = 'head-comp-phrase'
         self.assertError(c, name)
+        del c[name]
 
       # next try colliding pairs of names
       for v2 in (x for x in variables if x[0] != v1[0]):
         if v1[1] == v2[1]: # won't collide with different suffixes
           name1 = v1[0] + 'name'
           name2 = v2[0] + 'name'
-
-          c = ChoicesFile()
 
           # same case
           c[name1] = value
@@ -118,6 +124,8 @@ class TestBasic(TestValidate):
           c[name1] = value.lower()
           c[name2] = value.upper()
           self.assertErrors(c, (name1, name2))
+          del c[name1]
+          del c[name2]
 
 
   def test_general_language_required(self):
@@ -153,7 +161,7 @@ class TestBasic(TestValidate):
       self.assertError(c, 'language')
 
 
-class TestCase(TestValidate):
+class TestCase(ValidationTestCase):
 
 
   def test_case_no_answer(self):
@@ -207,8 +215,7 @@ class TestCase(TestValidate):
     self.assertError(c, 'case1_name')
 
 
-
-class TestDirInv(TestValidate):
+class TestDirInv(ValidationTestCase):
 
   def test_dir_inv(self):
     c = ChoicesFile()
@@ -217,7 +224,7 @@ class TestDirInv(TestValidate):
     self.assertError(c, 'scale-equal')
 
 
-class TestPerson(TestValidate):
+class TestPerson(ValidationTestCase):
 
   def test_person_no_answer(self):
     c = ChoicesFile()
@@ -263,8 +270,7 @@ class TestPerson(TestValidate):
       self.assertError(c, 'first-person')
 
 
-
-class TestSupertypes(TestValidate):
+class TestSupertypes(ValidationTestCase):
 
   def test_number(self):
     c = ChoicesFile()
@@ -282,7 +288,7 @@ class TestSupertypes(TestValidate):
     self.assertError(c, 'gender1_name')
 
 
-class TestFeatures(TestValidate):
+class TestFeatures(ValidationTestCase):
 
 
   def test_other_features_requires_name_type_value(self):
@@ -312,8 +318,7 @@ class TestFeatures(TestValidate):
                           'feature1_value1_supertype1_name'))
 
 
-
-class TestWordOrder(TestValidate):
+class TestWordOrder(ValidationTestCase):
 
   def test_word_order_determiners_no_answer(self):
     c = ChoicesFile()
@@ -405,8 +410,7 @@ class TestWordOrder(TestValidate):
     self.assertError(c, 'aux-comp')
 
 
-
-class TestSententialNegation(TestValidate):
+class TestSententialNegation(ValidationTestCase):
 
   def test_sentential_negation_adverb_requires_other_answers(self):
     c = ChoicesFile()
@@ -428,7 +432,7 @@ class TestSententialNegation(TestValidate):
     self.assertError(c, 'comp-neg-head')
 
 
-class TestCoordination(TestValidate):
+class TestCoordination(ValidationTestCase):
 
   def test_coordination_no_strategy_answers(self):
     c = ChoicesFile()
@@ -457,7 +461,7 @@ class TestCoordination(TestValidate):
       self.assertError(c, 'cs1_mark')
 
 
-class TestYesNoQuestions(TestValidate):
+class TestYesNoQuestions(ValidationTestCase):
 
   def test_yesno_questions_particle_question_required(self):
     c = ChoicesFile()
@@ -486,7 +490,7 @@ class TestYesNoQuestions(TestValidate):
     self.assertError(c, 'q-infl')
 
 
-class TestTenseAspectMood(TestValidate):
+class TestTenseAspectMood(ValidationTestCase):
 
   tenses = ('past', 'present', 'future', 'nonpast', 'nonfuture')
 
@@ -553,7 +557,7 @@ class TestTenseAspectMood(TestValidate):
     self.assertError(c, 'noaux-fin-nf')
 
 
-class TestLexicon(TestValidate):
+class TestLexicon(ValidationTestCase):
 
   def test_lexicon_requires_one_noun_two_verbs(self):
     c = ChoicesFile()
@@ -666,7 +670,7 @@ class TestLexicon(TestValidate):
       self.assertErrors(c, (p + '1_feat1_name', p + '1_feat1_value'))
 
 
-class TestArgumentOptionality(TestValidate):
+class TestArgumentOptionality(ValidationTestCase):
 
   def test_argopt(self):
     c = ChoicesFile()

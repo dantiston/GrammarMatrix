@@ -1,0 +1,178 @@
+Content-type: text/html;charset=UTF-8
+Set-cookie: session=7777
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>the Matrix</title>
+
+    <link rel="stylesheet" href="web/matrix.css">
+    <script type="text/javascript" src="web/matrix.js"></script>
+
+  </head>
+
+  <body onload="animate()">
+  <h1>LinGO Grammar Matrix</h1>
+  <h1 style="display:inline">Matrix customization and download page</h1>
+  <span class="tt">[<a href="http://moin.delph-in.net/MatrixDocTop" target="matrixdoc">help</a>]</span>
+  <h2>Version of Tue Jul 4 20:47:47 UTC 2017</h2>
+
+  <p id="preamble">
+    <p>The <a href="http://www.delph-in.net/matrix">LinGO Grammar
+    Matrix</a> is developed at the University of Washington in the context
+    of the <a href="http://www.delph-in.net/">DELPH-IN Consortium</a>,
+    by <a href="http://faculty.washington.edu/ebender">Emily M. Bender</a>
+    and colleagues.  This material is based up work supported by
+    the National Science Foundation under Grant No. BCS-0644097.
+    Additional support for Grammar Matrix development came from a gift
+    to the Turing Center from the Utilika Foundation.  Any opinions,
+    findings, and conclusions or recommendations expressed in this
+    material are those of the author(s) and do not necessarily
+    reflect the views of the National Science Foundation.
+    The Grammar Matrix customization system is hosted by the University
+    of Washington.</p>
+
+    <p>[<a href="http://www.washington.edu/online/terms">University of
+    Washington Website Terms and Conditions of Use</a>]<br>
+    [<a href="http://www.washington.edu/online/privacy">University of
+    Washington Online Privacy Statement</a>]</p>
+
+    <p>Publications reporting on work based on grammars derived from this
+    system should cite <a href="http://faculty.washington.edu/ebender/papers/gee03.pdf">
+    Bender, Flickinger and Oepen 2002</a>
+    <a href="http://faculty.washington.edu/ebender/bibtex/BenFliOep02.bib.txt">[.bib]</a>
+    and <a href="http://www.springerlink.com/content/767771152h331808/">Bender et al 2010</a>
+    <a href="http://faculty.washington.edu/ebender/bibtex/BenDreFokPouSal10.bib.txt">[.bib]</a>.
+    Further publications from the project are available on the
+    <a href="http://www.delph-in.net/matrix/index.html#pubs">project website</a>.</p>
+
+    <p>Filling out this form will produce a starter grammar for a natural
+    language, consisting of a language-independent core and customized
+    support for the phenomena you describe below.  Note that this grammar
+    fragment will only treat matrix (main) clauses. Be advised that this
+    system is highly experimental.  We are interested in your feedback.
+    If you have questions or comments, please email Emily Bender at:
+    <strong>ebender at u dot washington dot edu</strong>.</p>
+
+    <p>[<a href="http://www.delph-in.net/matrix/">Back to Matrix main page</a>]</p>
+
+    <p>NOTE: Throughout the questionnaire, questions or subpages that lack
+    a required answer or contain an incorrect answer are marked with a red
+    asterisk:
+
+    <span class="error" title="This asterisk is an exception. It has a
+    tooltip even though it does not mark an error.">*</span>.
+
+    Questions or subpages that contain answers that might be problematic,
+    but are not outright incorrect, are marked with a red question mark:
+
+    <span class="error" title="This question mark is similarly
+    exceptional. It has a tooltip even though it does not mark a
+    warning.">?</span>.
+
+    Hovering the mouse cursor over a red asterisk or question mark will
+    show a tooltip describing the error. Clicking on a red asterisk or
+    question mark that is on the main page will link to the error or warning
+    on the appropriate subpage.</p>
+  </p>
+
+  <div class="indented">
+
+    <div class="section"><span id="generalbutton" onclick="toggle_display('general','generalbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=general">General Information</a>
+    <div class="values" id="general" style="display:none;">Language name = mini English<br>ISO code = eng<br>Comments = This is a sample choices file which exercises only a small range of the information provided by the customization system, in order to create a grammar for a very small fragment of English. It describes and SVO language with a small vocabulary drawn from English and subset of the (already simple) English verbal agreement paradigm.  Where it was not possible to leave a section blank, we have said the language does not manifest the phenomenon, even when this is not actually correct for English.<br></div></div>
+    <div class="section"><span id="word-orderbutton" onclick="toggle_display('word-order','word-orderbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=word-order">Word Order</a>
+    <div class="values" id="word-order" style="display:none;">Basic word order = Subject, Verb, Object<br>Has determiners = Yes<br>Order of determiners and nouns = Det-Noun<br>Has auxiliaries = No<br></div></div>
+    <div class="section"><span id="numberbutton" onclick="toggle_display('number','numberbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=number">Number</a>
+    <div class="values" id="number" style="display:none;">number1_name = sg<br>number2_name = pl<br></div></div>
+    <div class="section"><span id="personbutton" onclick="toggle_display('person','personbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=person">Person</a>
+    <div class="values" id="person" style="display:none;">Person = First, second, and third<br>First person = unspecified<br></div></div>
+    <div class="section"><span id="genderbutton" onclick="toggle_display('gender','genderbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=gender">Gender</a>
+    <div class="values" id="gender" style="display:none;">&nbsp;</div></div>
+    <div class="section"><span id="casebutton" onclick="toggle_display('case','casebutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=case">Case</a>
+    <div class="values" id="case" style="display:none;">Core case marking = unspecified<br></div></div>
+    <div class="section"><span id="direct-inversebutton" onclick="toggle_display('direct-inverse','direct-inversebutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=direct-inverse">Direct-inverse</a>
+    <div class="values" id="direct-inverse" style="display:none;">&nbsp;</div></div>
+    <div class="section"><span id="tense-aspect-moodbutton" onclick="toggle_display('tense-aspect-mood','tense-aspect-moodbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=tense-aspect-mood">Tense, Aspect, and Mood</a>
+    <div class="values" id="tense-aspect-mood" style="display:none;">&nbsp;</div></div>
+    <div class="section"><span id="other-featuresbutton" onclick="toggle_display('other-features','other-featuresbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=other-features">Other Features</a>
+    <div class="values" id="other-features" style="display:none;">&nbsp;</div></div>
+    <div class="section"><span id="sentential-negationbutton" onclick="toggle_display('sentential-negation','sentential-negationbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=sentential-negation">Sentential Negation</a>
+    <div class="values" id="sentential-negation" style="display:none;">&nbsp;</div></div>
+    <div class="section"><span id="coordinationbutton" onclick="toggle_display('coordination','coordinationbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=coordination">Coordination</a>
+    <div class="values" id="coordination" style="display:none;">&nbsp;</div></div>
+    <div class="section"><span id="matrix-yes-nobutton" onclick="toggle_display('matrix-yes-no','matrix-yes-nobutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=matrix-yes-no">Matrix Yes/No Questions</a>
+    <div class="values" id="matrix-yes-no" style="display:none;">&nbsp;</div></div>
+    <div class="section"><span id="info-strbutton" onclick="toggle_display('info-str','info-strbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=info-str">Information Structure</a>
+    <div class="values" id="info-str" style="display:none;">&nbsp;</div></div>
+    <div class="section"><span id="arg-optbutton" onclick="toggle_display('arg-opt','arg-optbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=arg-opt">Argument Optionality</a>
+    <div class="values" id="arg-opt" style="display:none;">&nbsp;</div></div>
+    <div class="section"><span id="lexiconbutton" onclick="toggle_display('lexicon','lexiconbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=lexicon">Lexicon</a>
+    <div class="values" id="lexicon" style="display:none;">noun1_name = common<br>noun1_feat1_name = Person<br>noun1_feat1_value = 3rd<br>noun1_det = Obligatorily<br>noun1_stem1_orth = cat<br>noun1_stem1_pred = _cat_n_rel<br>noun1_stem2_orth = dog<br>noun1_stem2_pred = _dog_n_rel<br>noun2_name = 1sg-pronoun<br>noun2_feat1_name = Person<br>noun2_feat1_value = 1st<br>noun2_feat2_name = number<br>noun2_feat2_value = sg<br>noun2_det = Impossibly<br>noun2_stem1_orth = I<br>noun2_stem1_pred = _pronoun_n_rel<br>verb1_name = itr<br>verb1_valence = intrans<br>verb1_stem1_orth = sleep<br>verb1_stem1_pred = _sleep_v_rel<br>verb2_name = tr<br>verb2_valence = trans<br>verb2_stem1_orth = chase<br>verb2_stem1_pred = _chase_v_rel<br>adj1_name = regular<br>adj1_mod = both<br>adj1_modpos = After-modifying<br>adj1_predcop = Obligatorily<br>adj1_stem1_orth = big<br>adj1_stem1_pred = _big_a_rel<br>adj1_stem2_orth = small<br>adj1_stem2_pred = _small_a_rel<br>cop1_name = 3rd-sg<br>cop1_comptype = APs<br>cop1_feat1_name = number<br>cop1_feat1_value = sg<br>cop1_feat1_head = The subject<br>cop1_feat2_name = Person<br>cop1_feat2_value = 3rd<br>cop1_feat2_head = The subject<br>cop1_stem1_orth = is<br>cop2_name = pl<br>cop2_comptype = APs<br>cop2_feat1_name = number<br>cop2_feat1_value = pl<br>cop2_feat1_head = The subject<br>cop2_stem1_orth = are<br>det1_stem1_orth = the<br>det1_stem1_pred = _def_q_rel<br></div></div>
+    <div class="section"><span id="morphologybutton" onclick="toggle_display('morphology','morphologybutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=morphology">Morphology</a>
+    <div class="values" id="morphology" style="display:none;">noun-pc1_name = num<br>noun-pc1_obligatory = on<br>noun-pc1_order = Suffix<br>noun-pc1_inputs = noun1<br>noun-pc1_lrt1_name = singular<br>noun-pc1_lrt1_feat1_name = number<br>noun-pc1_lrt1_feat1_value = sg<br>noun-pc1_lrt1_lri1_inflecting = No<br>noun-pc1_lrt2_name = plural<br>noun-pc1_lrt2_feat1_name = number<br>noun-pc1_lrt2_feat1_value = pl<br>noun-pc1_lrt2_lri1_inflecting = Yes<br>noun-pc1_lrt2_lri1_orth = Ss<br>verb-pc1_name = pernum<br>verb-pc1_obligatory = on<br>verb-pc1_order = Suffix<br>verb-pc1_inputs = Any verb<br>verb-pc1_lrt1_name = 3sg<br>verb-pc1_lrt1_feat1_name = Person<br>verb-pc1_lrt1_feat1_value = 3rd<br>verb-pc1_lrt1_feat1_head = The subject<br>verb-pc1_lrt1_feat2_name = number<br>verb-pc1_lrt1_feat2_value = sg<br>verb-pc1_lrt1_feat2_head = The subject<br>verb-pc1_lrt1_lri1_inflecting = Yes<br>verb-pc1_lrt1_lri1_orth = Ss<br>verb-pc1_lrt2_name = pl<br>verb-pc1_lrt2_feat1_name = number<br>verb-pc1_lrt2_feat1_value = pl<br>verb-pc1_lrt2_feat1_head = The subject<br>verb-pc1_lrt2_lri1_inflecting = No<br>verb-pc1_lrt3_name = non-3rd<br>verb-pc1_lrt3_feat1_name = Person<br>verb-pc1_lrt3_feat1_value = 1st, 2nd<br>verb-pc1_lrt3_feat1_head = The subject<br>verb-pc1_lrt3_lri1_inflecting = No<br></div></div>
+    <div class="section"><span id="toolbox-importbutton" onclick="toggle_display('toolbox-import','toolbox-importbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=toolbox-import">Import Toolbox Lexicon</a>
+    <div class="values" id="toolbox-import" style="display:none;">&nbsp;</div></div>
+    <div class="section"><span id="test-sentencesbutton" onclick="toggle_display('test-sentences','test-sentencesbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=test-sentences">Test Sentences</a>
+    <div class="values" id="test-sentences" style="display:none;">sentence1_orth = the cat chases the dog<br>sentence2_orth = the dogs sleep<br></div></div>
+    <div class="section"><span id="gen-optionsbutton" onclick="toggle_display('gen-options','gen-optionsbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=gen-options">Test by Generation Options</a>
+    <div class="values" id="gen-options" style="display:none;">&nbsp;</div></div>
+    <div class="section"><span id="ToolboxLexiconbutton" onclick="toggle_display('ToolboxLexicon','ToolboxLexiconbutton')">&#9658;</span>
+    <a href="matrix.cgi?subpage=ToolboxLexicon">Toolbox Lexicon</a>
+    <div class="values" id="ToolboxLexicon" style="display:none;">&nbsp;</div></div>
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="choices_form">
+      <p>
+        <input type="hidden"  name="customize" value="customize">
+    <label>Archive type: <input type="radio"  name="delivery" value="tgz" checked="checked"> .tar.gz</label>
+    <label><input type="radio"  name="delivery" value="zip"> .zip</label>
+    <br>
+    <input type="submit"  name="create_grammar_submit" value="Create Grammar">
+    <input type="submit"  name="sentences" value="Test by Generation">
+      </p>
+    </form>
+
+    <hr>
+
+    <p><a href="sessions/7777/choices">View Choices File</a> (right-click to download)</p>
+
+    <form action="matrix.cgi" method="post" enctype="multipart/form-data" name="upload_form">
+      <p><input type="submit"  value="Upload Choices File:"><input type="file"  name="choices"></p>
+    </form>
+
+    <hr>
+
+    <h3>Sample Grammars:</h3>
+    <p>Click a link below to have the questionnaire filled out automatically.</p>
+    <p>
+    <a href="matrix.cgi?choices=web/sample-choices/empty">(empty questionnaire)</a><br />
+    <a href="matrix.cgi?choices=web/sample-choices/minimal">(minimal grammar)</a><br />
+    <a href="matrix.cgi?choices=web/sample-choices/japanese">Japanese</a><br />
+    <a href="matrix.cgi?choices=web/sample-choices/maltese">Maltese</a><br />
+    <a href="matrix.cgi?choices=web/sample-choices/mini-english">mini English</a><br />
+    <a href="matrix.cgi?choices=web/sample-choices/sahaptin">Umatilla Sahaptin</a><br />
+    </p>
+
+  </div>
+  </body>
+
+</html>

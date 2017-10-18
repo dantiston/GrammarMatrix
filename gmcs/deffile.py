@@ -19,6 +19,7 @@ TODO: Think about either making constants for accessing indices of MatrixDef
 TODO: PROBLEMS
     * Need to test fix for enhance_choices() re: sentential negation
     * main_page choices printing not using friendly names
+    * Convert classes to new style classes
 
     * sentences_page
     * more_sentences_page
@@ -689,7 +690,7 @@ class MatrixDef:
   def page_links(self, vr, choices):
     """
     Get the page links for the main page with the specified
-    validation errors and choices
+    validation errors and lines from choices
     """
     # TODO: This is very similar to what happens in navigation()... break it out?
     # pass through the definition file once, augmenting the list of validation
@@ -731,6 +732,23 @@ class MatrixDef:
             vr.warn(cur_sec, "This section contains one or more warnings. \nClicking this warning will link to the warning on the subpage.", anchor+"_warning", False)
             break
 
+    # Parse the choices
+    choices_by_section = defaultdict(list)
+    section = u''
+    for choice in choices:
+      try:
+        choice = choice.strip()
+        if choice:
+          name, value = choice.split('=', 1)
+          if name == u'section':
+            section = value.strip()
+          elif name:
+            choices_by_section[section].append((name, value))
+      except ValueError:
+        choices_by_section[section].append((u'(<i>Bad line in choices file: </i>"<tt>%s</tt>")<br>' % choice[0],))
+
+
+    # Generate the HTML output
     for section_name in self.sections:
       result.append(u'<div class="section"><span id="' + section_name + u'button" ' + \
             u'onclick="toggle_display(\'' + \
@@ -740,28 +758,14 @@ class MatrixDef:
       result.append(u'<a href="matrix.cgi?subpage=%s">%s</a>\n' % (section_name, self.section_names[section_name]))
       result.append(u'<div class="values" id="%s" style="display:none;">' % section_name)
 
-      cur_sec = u''
-      printed_something = False
-      for c in choices:
-        try:
-          c = c.strip()
-          if c:
-            a, v = c.split('=', 1)
-            if a == u'section':
-              cur_sec = v.strip()
-            elif cur_sec == section_name:
-              result.append(self.f(a) + u' = ' + self.f(v) + u'<br>')
-              printed_something = True
-            # TODO: Confirm this
-            # else if printed_something:
-            #   break
-        except ValueError:
-          if cur_sec == section_name:
-            result.append(u'(<i>Bad line in choices file: </i>"<tt>' + \
-                          c + u'</tt>")<br>')
-            printed_something = True
+      for c in choices_by_section[section_name]:
+        if len(c) == 2:
+          name, value = c
+          result.append(u'%s = %s<br>' % (self.f(name), self.f(value)))
+        else:
+          result.append(c[0])
 
-      if not printed_something:
+      if not choices_by_section[section_name]:
         result.append(u'&nbsp;')
       result.append(u'</div></div>\n')
 
@@ -1012,7 +1016,7 @@ class MatrixDef:
       skip_this_check = self.check_choice_switch(switch, choices)
     if not skip_this_check:
       vn = prefix + vn
-      checked = choices.get(vn, '') # If no choice existing, return ''
+      checked = choices.get(vn, '')
       result += html.html_input(vr, 'checkbox', vn, '', checked,
                          bf, af, onclick=js) + '\n'
     return word, word_length, element, i, result
@@ -1095,16 +1099,16 @@ class MatrixDef:
       # greater
       c = 0
       iter_num = 0
-      chlist = [x for x in choices.get(prefix + iter_name) if x]
+      chlist = [x for x in choices.get(prefix + iter_name, []) if x]
       chlist_length = len(chlist)
       while (chlist and c < chlist_length) or c < iter_min:
 
         show_name = u""
         if c < chlist_length:
-          iter_num = str(chlist[c].iter_num())
+          iter_num = unicode(chlist[c].iter_num())
           show_name = chlist[c]["name"]
         else:
-          iter_num = str(int(iter_num) + 1)
+          iter_num = unicode(int(iter_num) + 1)
         new_prefix = prefix + iter_name + iter_num + '_'
         variables[iter_var] = iter_num
 

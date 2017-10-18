@@ -15,6 +15,7 @@ from __future__ import unicode_literals
 import sys
 import re
 import os
+import codecs
 
 from gmcs import tdl
 from gmcs.choices import ChoicesFile
@@ -177,71 +178,78 @@ forbidden_type_patterns = [
   'context[0-9]+-decl-head-opt-subj-phrase'
 ]
 
-def validate_names(ch, vr):
-  # reserved_types contains type names that are not available
-  # for user-defined types
-  reserved_types = {}
+
+matrix_types = set()
+def __get_matrix_types():
+  if len(matrix_types) == 0:
+    try:
+      with codecs.open('matrix-types', 'r', encoding='utf-8') as f:
+        for t in f:
+          matrix_types.add(t.strip())
+    except IOError:
+      pass # TODO: Log this
+  return matrix_types
+
+
+def get_reserved_types(ch):
+  """
+  reserved_types contains system internal type names that are not available
+  for user-defined types
+  """
+  reserved_types = set()
 
   # read matrix types and head types from file
-  try:
-    filename = 'matrix-types'
-    f = open(filename, 'r')
-    for t in f.readlines():
-      type_name = t.strip()
-      reserved_types[type_name] = True
-    f.close()
-  except IOError:
-    pass
+  reserved_types.update(__get_matrix_types())
 
   # add the types from cust_types above to reserved_types
-  for ct in cust_types:
-    reserved_types[ct] = True
+  reserved_types.update(cust_types)
 
   # if called for by current choices, add reserved types for:
   # case, direction, person, number, pernum, gender, tense, aspect,
   # situation, mood, form, and trans/intrans verb types.
   if ch.get('case-marking', None) is not None:
-    reserved_types['case'] = True
+    reserved_types.add('case')
 
-  if ch.get('scale', []):
-    reserved_types['direction'] = True
-    reserved_types['dir'] = True
-    reserved_types['inv'] = True
+  if ch.get('scale', None):
+    reserved_types.add('direction')
+    reserved_types.add('dir')
+    reserved_types.add('inv')
 
   if ch.pernums():
-    reserved_types['pernum'] = True
+    reserved_types.add('pernum')
     persons = [p[0] for p in ch.persons()]
     numbers = [n[0] for n in ch.numbers()]
+    pernums = persons + numbers
     for pernum in ch.pernums():
-      if pernum[0] not in persons + numbers:
-        reserved_types[pernum[0]] = True
+      if pernum[0] not in pernums:
+        reserved_types.add(pernum[0])
   else:
     if ch.persons():
-      reserved_types['person'] = True
+      reserved_types.add('person')
       for person in ch.persons():
-        reserved_types[person[0]] = True
+        reserved_types.add(person[0])
     if ch.numbers():
-      reserved_types['number'] = True
+      reserved_types.add('number')
 
   if 'gender' in ch:
-    reserved_types['gender'] = True
+    reserved_types.add('gender')
 
   if ch.tenses():
-    reserved_types['tense'] = True
+    reserved_types.add('tense')
 
   if ch.aspects():
-    reserved_types['aspect'] = True
+    reserved_types.add('aspect')
 
   if ch.situations():
-    reserved_types['situation'] = True
+    reserved_types.add('situation')
 
   if ch.moods():
-    reserved_types['mood'] = True
+    reserved_types.add('mood')
 
   if ch.forms():
-    reserved_types['form'] = True
-    reserved_types['finite'] = True
-    reserved_types['nonfinite'] = True
+    reserved_types.add('form')
+    reserved_types.add('finite')
+    reserved_types.add('nonfinite')
 
   for pattern in ch.patterns():
     p = pattern[0].split(',')
@@ -251,18 +259,20 @@ def validate_names(ch, vr):
     c = p[0].split('-')
 
     if p[0] == 'intrans':
-      reserved_types[dir_inv + 'intransitive-verb-lex'] = True
+      reserved_types.add(dir_inv + 'intransitive-verb-lex')
     elif p[0] == 'trans':
-      reserved_types[dir_inv + 'transitive-verb-lex'] = True
+      reserved_types.add(dir_inv + 'transitive-verb-lex')
     elif len(c) == 1:
-      reserved_types[dir_inv +
-                     c[0] + '-intransitive-verb-lex'] = True
+      reserved_types.add(dir_inv + c[0] + '-intransitive-verb-lex')
     else:
-      reserved_types[dir_inv +
-                     c[0] + '-' + c[1] + '-transitive-verb-lex'] = True
+      reserved_types.add(dir_inv + c[0] + '-' + c[1] + '-transitive-verb-lex')
+  return reserved_types
 
-  # fill out the user_types list with pairs:
-  #   [type name, variable name]
+
+def get_user_types(ch):
+  """
+  Gather a list of the types a user has specified that may clash
+  """
   user_types = []
 
   for case in ('nom-acc-nom', 'nom-acc-acc',
@@ -275,8 +285,6 @@ def validate_names(ch, vr):
                'focus-focus', 'focus-a', 'focus-o'):
     vn = case + u'-case-name'
     if vn in ch:
-      if isinstance(ch[vn], str):
-        import pdb; pdb.set_trace()
       user_types += [[unicode(ch[vn]), vn]]
 
   for case in ch.get('case', []):
@@ -335,7 +343,7 @@ def validate_names(ch, vr):
     user_types += [[get_name(verb) + '-inv-lex-rule',
                     verb.full_key + '_name']]
 
-  # TJT 2014-08-25: Adding adj + cop; changing to tuple for speed
+  # TJT 2014-08-25: Adding adj + cop
   for pcprefix in ('noun', 'verb', 'det', 'aux', 'adj', 'cop'):
     for pc in ch.get(pcprefix + '-pc', []):
       user_types += [[get_name(pc) + '-lex-rule',
@@ -357,50 +365,58 @@ def validate_names(ch, vr):
   # Unicode character semantics), because TDL is case-insensitive.
   user_types = [[unicode(x[0]).lower(), x[1]] for x in user_types]
 
-  # Whew!  OK, now we have two sets of type names and a set of
-  # patterns:
-  #
-  #   reserved_types: types that users may not use
-  #   user_types: the types the user is trying to use
-  #   forbidden_type_patterns: user types must not match these
-  #
+  return user_types
+
+
+def validate_names(ch, vr):
+  """
+  NOTE: This is taking almost .5 seconds to run 100 times
+  """
+  # reserved_types contains type names that are not available
+  # for user-defined types
+  reserved_types = get_reserved_types(ch)
+
+  # fill out the user_types list with pairs:
+  #   [type name, variable name]
+  user_types = get_user_types(ch)
+
   # Pass through the list of user types, checking each one to see if
   # it's a reserved type or if it matches a forbidden pattern.  Also
   # sort the list by type name, and check to see if we have any
   # duplicates.  Mark all errors on the appropriate variables.
 
-  user_types.sort(lambda x, y: cmp(x[0], y[0]))
+  user_types.sort(lambda x, y: cmp(x[0], y[0])) # NOTE: See collision_error below
 
   last_was_collision = False
-  for i in range(len(user_types)):
+  for i, user_type in enumerate(user_types):
     matrix_error = 'You must choose a different name to avoid ' + \
                    'duplicating the internal Matrix type name "' + \
-                   user_types[i][0] + '".'
+                   user_type[0] + '".'
 
-    if user_types[i][0] in reserved_types:
-      vr.err(user_types[i][1], matrix_error)
+    if user_type[0] in reserved_types:
+      vr.err(user_type[1], matrix_error)
 
     for forb in forbidden_type_patterns:
-      if re.match(forb + '$', user_types[i][0]):
-        vr.err(user_types[i][1], matrix_error)
+      if re.match(forb + '$', user_type[0]):
+        vr.err(user_type[1], matrix_error)
 
     collision_error = \
       'You must choose a different name to avoid duplicating the ' + \
-      'type name "' + user_types[i][0] + '".'
+      'type name "' + user_type[0] + '".'
 
-    if i < len(user_types) - 1 and user_types[i][0] == user_types[i+1][0]:
-      vr.err(user_types[i][1], collision_error)
+    if i < len(user_types) - 1 and user_type[0] == user_types[i+1][0]:
+      vr.err(user_type[1], collision_error)
       last_was_collision = True
     else:
       if last_was_collision:
-        vr.err(user_types[i][1], collision_error)
+        vr.err(user_type[1], collision_error)
       last_was_collision = False
 
-    invalids = [t for t in user_types[i][0] if not tdl.isid(t)]
+    invalids = [c for c in user_type[0] if not tdl.isid(c)]
     if len(invalids) > 0:
-      vr.err(user_types[i][1],
-             '"' + user_types[i][0] + '" contains invalid characters: ' +\
-             ''.join(invalids))
+      vr.err(user_type[1], "%s contains invalid characters: %s" %
+                            (user_type[0], u''.join(invalids)))
+
 
 ######################################################################
 # validate_general(ch, vr)
@@ -817,10 +833,13 @@ def validate_coordination(ch, vr):
       if target == 'all':
         subj = True
         obj = True
+        break
       elif target == 'subj':
         subj = True
+        if obj: break
       elif target == 'obj':
         obj = True
+        if subj: break
     if cs.get('csap') and (subj == False or obj == False):
       mess = 'You have added an agreement pattern but have not accounted for both subjects and objects. ' \
              'In general, \'subject/object only\' is used with languages that, for example, use distinguished conjunct for ' \
@@ -901,6 +920,7 @@ def validate_coordination(ch, vr):
       for f in features:
         if f[0] == feat['name']:
           valid = True
+          break
       if not valid:
         mess = 'You have chosen a feature that does not exist in the grammar.'
         vr.err(feat.full_key + '_name', mess)
@@ -1254,7 +1274,7 @@ def validate_features(ch, vr):
 
   ## LLD 12-29-2015 Check that argument structure choices are currently defined
   for lex in ch.get('verb'):
-    if lex.get('valence', []):
+    if lex.get('valence', None):
       value_list += \
       [[ lex.full_key + '_valence', 'argument structure', lex.get('valence') ]]
 
@@ -1336,16 +1356,16 @@ def validate_hierarchy(ch, vr):
 
   # xsts is a dictionary that contains some item x's supertypes.
   xsts = {}
-  for type in ['number', 'gender']:
-    xsts[type] = [] # 'number' and 'gender' can be supertypes, so they need a dict entry.
-    for x in ch.get(type, []):
+  for sort in ('number', 'gender'):
+    xsts[sort] = [] # 'number' and 'gender' can be supertypes, so they need a dict entry.
+    for x in ch.get(sort, []):
       sts = []
       for st in x.get('supertype',''):
         sts.append(st.get('name'))
 
       xsts[x.get('name')] = sts
 
-    for x in ch.get(type, []):
+    for x in ch.get(sort, []):
       st_anc = [] #used to check for vacuous inheritance
       seen = []
       paths = []
@@ -1443,7 +1463,7 @@ def validate(ch, extra = False):
   """
   vr = ValidationResult()
 
-  validate_names(ch, vr)
+  validate_names(ch, vr) # NOTE: This is taking almost .5 seconds
   validate_general(ch, vr)
   gmcs.linglib.case.validate(ch, vr)
   validate_person(ch, vr)

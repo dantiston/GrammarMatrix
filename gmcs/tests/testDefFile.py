@@ -204,37 +204,47 @@ class DefsToHtmlTests(unittest.TestCase):
       # "Cache nouns noun[0-9]+$ name"
       #tokenized_lines = [['Cache', 'nouns', 'noun[0-9]+$', 'name']]
       tokenized_lines = [(['Cache', 'nouns', 'noun[0-9]+$', 'name'], 4, 'Cache')]
-      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}}), mock_validation(), "", {})
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices((("noun1_name", "test-noun"),)), mock_validation(), "", {})
       expected = '<script type="text/javascript">\n// A cache of choices from other subpages\nvar nouns = [\n\'test-noun:noun1\',\n];\n</script>'
       self.assertEqual(actual, expected)
 
 
-  @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
   def testDefsToHtml_iter(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       tokenized_lines = [(['BeginIter', 'test{i}', '"test-iter"'], 3, 'BeginIter'), (['Text', 'name', 'Test variable: {i}', "", "", "20"], 6, 'Text'), (['EndIter', 'test'], 2, 'EndIter')]
-      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({}), mock_validation(), "", {})
-      expected = ''
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices(), mock_validation(), "", {})
+      expected = u'<div class="iterator" style="display: none" id="test_TEMPLATE">\n<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element(\'test{i}\')">\n<div class="iterframe"><input type="text"  name="test{i}_name" size="20" onchange="fill_display_name(\'test{i}\');">\n</div>\n</div>\n\n<div class="anchor" id="test_ANCHOR"></div>\n<p><input type="button"  value="Add "test-iter"" onclick="clone_region(\'test\', \'i\', false)">'
       self.assertEqual(actual, expected)
 
 
-  @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
   def testDefsToHtml_iter_choices(self):
     with os_environ(HTTP_COOKIE="session=7777"):
-      tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
-      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
-      expected = ''
+      tokenized_lines = [(['BeginIter', 'test{i}', '"test-iter"'], 3, 'BeginIter'), (['Text', 'name', 'Test variable: {i}', "", "", "20"], 6, 'Text'), (['EndIter', 'test'], 2, 'EndIter')]
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices((("noun1_name", "test-noun"), ("test1_name", "test-test"))), mock_validation(), "", {})
+      expected = '''<div class="iterator" style="display: none" id="test_TEMPLATE">
+<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element(\'test{i}\')">
+<div class="iterframe"><input type="text"  name="test{i}_name" size="20" onchange="fill_display_name(\'test{i}\');">
+</div>
+</div>
+
+<div class="iterator" id="test1">
+<input type="button"  class="delbutton" title="Delete" value="X" onclick="remove_element(\'test1\')">
+<div class="iterframe"><input type="text"  name="test1_name" value="test-test" size="20" onchange="fill_display_name(\'test1\');">
+</div>
+</div>
+<div class="anchor" id="test_ANCHOR"></div>
+<p><input type="button"  value="Add "test-iter"" onclick="clone_region(\'test\', \'i\', false)">'''
       self.assertEqual(actual, expected)
 
 
-  @unittest.skip("Need to figure out how choices object is structured and enhance mock_choices object")
+  @unittest.skip("Need to figure out what's going on with this functionality")
   def testDefsToHtml_iter_cookie(self):
     """
-    Test the functionality which checks for css in the cookie
+    Test the functionality which checks for css in the cookie (middle of iter_to_html)
     """
     with os_environ(HTTP_COOKIE="session=7777"):
       tokenized_lines = [['BeginIter', 'test{i}', '"test-iter"'], ['Text', 'name', 'Test variable: {i}', "", "", "20"], ['EndIter', 'test']]
-      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices((("noun1_name","test-noun"), ("test_name", "test-test"))), mock_validation(), "", {})
       expected = ''
       self.assertEqual(actual, expected)
 
@@ -315,7 +325,7 @@ class DefsToHtmlTests(unittest.TestCase):
     with os_environ(HTTP_COOKIE="session=7777"):
       # "Select test-select \"test select\" \"\" \"<br />\""
       tokenized_lines = [(['Select', 'test-select', 'test select', '', '<br />'], 5, 'Select')]
-      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"test-select":"test-noun"}), mock_validation(), "", {})
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices((("test-select", "test-noun"),)), mock_validation(), "", {})
       expected = '\n<select name="test-select">\n<option value="test-noun" selected class="temp">test-noun</option>\n<option value=""></option>\n</select><br />\n'
       self.assertEqual(actual, expected)
 
@@ -325,7 +335,7 @@ class DefsToHtmlTests(unittest.TestCase):
       # "Select test-select \"test select\" \"\" \"<br />\""
       # . test-option "Test Option" "test option"
       tokenized_lines = [(['Select', 'test-select', 'test select', '', '<br />'], 5, 'Select'), (['.', 'test-option', 'Test Option', 'test option'], 4, '.')]
-      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"test-select":"test-noun"}), mock_validation(), "", {})
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices((("test-select", "test-noun"),)), mock_validation(), "", {})
       expected = '\n<select name="test-select">\n<option value="test-option">Test Option</option>\n<option value="test-noun" selected class="temp">test-noun</option>\n<option value=""></option>\n</select><br />\n'
       self.assertEqual(actual, expected)
 
@@ -335,7 +345,7 @@ class DefsToHtmlTests(unittest.TestCase):
       # "Select test-select \"test select\" \"\" \"<br />\""
       # . test-option "Test Option" "test option"
       tokenized_lines = [(['Select', 'test-select', 'test select', '', '<br />'], 5, 'Select'), (['.', 'test-option', 'Test Option', 'test option'], 4, '.')]
-      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"test-select":"test-option"}), mock_validation(), "", {})
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices((("test-select", "test-option"),)), mock_validation(), "", {})
       expected = '\n<select name="test-select">\n<option value="test-option" selected>Test Option</option>\n<option value=""></option>\n</select><br />\n'
       self.assertEqual(actual, expected)
 
@@ -347,7 +357,7 @@ class DefsToHtmlTests(unittest.TestCase):
       #
       # Label "Features:"
       tokenized_lines = [(['Select', 'supertypes', 'Noun type {i}', 'Supertypes: ', '<br />'], 5, 'Select'), (['fillregex', 'p=noun(?!{i}_)[0-9]+_name'], 2, 'fillregex'), (['Label', 'Features:'], 2, 'Label')]
-      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices((("noun1_name", "test-noun"), ("test_name", "test-test"))), mock_validation(), "", {})
       expected = 'Supertypes: \n<select name="supertypes" onfocus="fill(\'supertypes\', [].concat(fill_regex(\'noun(?!{i}_)[0-9]+_name\')));">\n<option value=""></option>\n</select><br />\nFeatures:\n'
       self.assertEqual(actual, expected)
 
@@ -369,7 +379,7 @@ class DefsToHtmlTests(unittest.TestCase):
       #
       # Label "Features:"
       tokenized_lines = [(['MultiSelect', 'supertypes', 'Noun type {i}', 'Supertypes: ', '<br />'], 5, 'MultiSelect'), (['fillregex', 'p=noun(?!{i}_)[0-9]+_name'], 2, 'fillregex'), (['Label', 'Features:'], 2, 'Label')]
-      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({"noun1":{"name":"test-noun"}, "test":{"name":"test-test"}}), mock_validation(), "", {})
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices((("noun1_name", "test-noun"), ("test_name", "test-test"))), mock_validation(), "", {})
       expected = 'Supertypes: \n<select name="supertypes" class="multi"  multiple="multiple"  onfocus="fill(\'supertypes\', [].concat(fill_regex(\'noun(?!{i}_)[0-9]+_name\')));">\n<option value=""></option>\n</select><br />\nFeatures:\n'
       self.assertEqual(actual, expected)
 
@@ -454,7 +464,7 @@ class DefsToHtmlTests(unittest.TestCase):
   def testDefsToHtml_section(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       tokenized_lines = [(['Section', 'Test', 'test section', 'testSection'], 4, 'Section'), (['Label', 'test-label', 'test label'], 3, 'Label')]
-      actual = self._definition.defs_to_html(tokenized_lines, mock_choices({}), mock_validation(), "", {})
+      actual = self._definition.defs_to_html(tokenized_lines, mock_choices(), mock_validation(), "", {})
       expected = "test label\n"
       self.assertEqual(actual, expected)
 
@@ -486,7 +496,7 @@ class SubPageTests(unittest.TestCase):
   def testCache(self):
     with os_environ(HTTP_COOKIE="session=7777"):
       definition = load_matrixdef("testCache")
-      actual = definition.sub_page('test-cache', '7777', mock_validation(), choices=mock_choices({"noun1":{"name":"test-noun"}, "verb1":{"name":"test-verb"}}))
+      actual = definition.sub_page('test-cache', '7777', mock_validation(), choices=mock_choices((("noun1_name", "test-noun"), ("verb1_name", "test-verb"))))
       expected = load_testhtml("testCache")
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
@@ -614,6 +624,10 @@ class SubPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
+  # Validation tests
+  # TODO: More of these
+
+
 class MainPageTests(unittest.TestCase):
   """
   TODO: Need to write tests for displaying choices
@@ -655,6 +669,19 @@ class MainPageTests(unittest.TestCase):
       actual = definition.main_page('7777', mock_validation())
       os.remove('sessions/7777/choices')
       expected = load_testhtml("testMainPageFullChoices")
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  @unittest.skip("Skip this until tests to page_links() are fixed")
+  def testMainPage_full_choices(self):
+    # TODO: This test should be simplified, either by improving the test or improving main_page()
+    with os_environ(HTTP_COOKIE="session=7777"), choice_environ('', 'full_choices.txt') as env:
+      definition = load_matrixdef("testFull")
+      shutil.copyfile(env.choices_file.name, 'sessions/7777/choices')
+      actual = definition.main_page('7777', mock_validation())
+      os.remove('sessions/7777/choices')
+      expected = load_testhtml("testMainPageFull")
+    #   save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -731,7 +758,6 @@ class OtherPageTests(unittest.TestCase):
       exception = sys.exc_info()
     actual = self._definition.choices_error_page("sessions/7777/test_choices", exc=exception)
     expected = load_testhtml("testChoicesErrorPageError")
-    save_both(actual, expected)
     # The specific information about the exception carries too much environment info to be useful
     self.assertFirstNLinesEqual(actual, expected, 50)
 
@@ -875,18 +901,90 @@ class NavigationTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
+class PageLinksTests(unittest.TestCase):
+
+  @classmethod
+  def setUpClass(cls):
+    cls._definition = load_matrixdef("testMinimalLexiconMorphology")
+
+
+  def testPageLinks_basic(self):
+    actual = self._definition.page_links(mock_validation(), mock_choices())
+    expected = """<div class="section"><span id="lexiconbutton" onclick="toggle_display(\'lexicon\',\'lexiconbutton\')">&#9658;</span>
+<a href="matrix.cgi?subpage=lexicon">Lexicon</a>
+<div class="values" id="lexicon" style="display:none;">&nbsp;</div></div>
+<div class="section"><span id="morphologybutton" onclick="toggle_display(\'morphology\',\'morphologybutton\')">&#9658;</span>
+<a href="matrix.cgi?subpage=morphology">Morphology</a>
+<div class="values" id="morphology" style="display:none;">&nbsp;</div></div>"""
+    self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testPageLinks_error(self):
+    actual = self._definition.page_links(mock_validation(errors={"noun1_name": mock_error(name="noun1_name", message="test message")}), mock_choices())
+    expected = """<div class="section"><span id="lexiconbutton" onclick="toggle_display('lexicon','lexiconbutton')">&#9658;</span>
+<a name="" style="text-decoration:none"><span class="error" title="This section contains one or more errors.
+Clicking this error will link to the error on the subpage.">*</span></a><a href="matrix.cgi?subpage=lexicon">Lexicon</a>
+<div class="values" id="lexicon" style="display:none;">&nbsp;</div></div>
+<div class="section"><span id="morphologybutton" onclick="toggle_display('morphology','morphologybutton')">&#9658;</span>
+<a href="matrix.cgi?subpage=morphology">Morphology</a>
+<div class="values" id="morphology" style="display:none;">&nbsp;</div></div>"""
+    save_both(actual, expected)
+    self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testPageLinks_warning(self):
+    actual = self._definition.page_links(mock_validation(warnings={"noun1_name": mock_error(name="noun1_name", message="test message")}), mock_choices())
+    expected = """<div class="section"><span id="lexiconbutton" onclick="toggle_display('lexicon','lexiconbutton')">&#9658;</span>
+<a name="" style="text-decoration:none"><span class="error" title="This section contains one or more warnings.
+Clicking this warning will link to the warning on the subpage.">?</span></a><a href="matrix.cgi?subpage=lexicon">Lexicon</a>
+<div class="values" id="lexicon" style="display:none;">&nbsp;</div></div>
+<div class="section"><span id="morphologybutton" onclick="toggle_display('morphology','morphologybutton')">&#9658;</span>
+<a href="matrix.cgi?subpage=morphology">Morphology</a>
+<div class="values" id="morphology" style="display:none;">&nbsp;</div></div>"""
+    self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testPageLinks_choices(self):
+    # section=lexicon
+    #   noun1_name=common
+    #     noun1_stem1_orth=test
+    #     noun1_stem1_pred=test_n_rel
+    actual = self._definition.page_links(mock_validation(), [u"", u"section=lexicon", u"  noun1_name=common", u"    noun1_stem1_orth=test", u"    noun1_stem1_pred=test_n_rel"])
+    expected = """<div class="section"><span id="lexiconbutton" onclick="toggle_display(\'lexicon\',\'lexiconbutton\')">&#9658;</span>
+<a href="matrix.cgi?subpage=lexicon">Lexicon</a>
+<div class="values" id="lexicon" style="display:none;">noun1_name = common<br>noun1_stem1_orth = test<br>noun1_stem1_pred = test_n_rel<br></div></div>
+<div class="section"><span id="morphologybutton" onclick="toggle_display(\'morphology\',\'morphologybutton\')">&#9658;</span>
+<a href="matrix.cgi?subpage=morphology">Morphology</a>
+<div class="values" id="morphology" style="display:none;">&nbsp;</div></div>"""
+    self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testPageLinks_choices_issue(self):
+    actual = self._definition.page_links(mock_validation(), [u"", u"section=lexicon", u"  noun1_name", u"    noun1_stem1_orth=test", u"    noun1_stem1_pred=test_n_rel"])
+    expected = """<div class="section"><span id="lexiconbutton" onclick="toggle_display(\'lexicon\',\'lexiconbutton\')">&#9658;</span>
+<a href="matrix.cgi?subpage=lexicon">Lexicon</a>
+<div class="values" id="lexicon" style="display:none;">(<i>Bad line in choices file: </i>"<tt>n</tt>")<br>noun1_stem1_orth = test<br>noun1_stem1_pred = test_n_rel<br></div></div>
+<div class="section"><span id="morphologybutton" onclick="toggle_display(\'morphology\',\'morphologybutton\')">&#9658;</span>
+<a href="matrix.cgi?subpage=morphology">Morphology</a>
+<div class="values" id="morphology" style="display:none;">&nbsp;</div></div>"""
+    self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+
 class GetOnLoadTests(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
     cls._definition = deffile.MatrixDef(None)
 
-  def testBasic_Onload(self):
-    actual = self._definition.get_onload([([u'Section', u'test-basic', u'Test Basic', u'TestBasic', u'testBasic', u'unload();'], 6, u'Section')])
-    expected = u'unload();'
+
+  def testOnload_basic(self):
+    actual = self._definition.get_onload([([u'Section', u'test-basic', u'Test Basic', u'TestBasic', u'testBasic', u'onload();'], 6, u'Section')])
+    expected = u'onload();'
     self.assertEqual(actual, expected)
 
-  def testBasic_None(self):
+
+  def testOnload_None(self):
     actual = self._definition.get_onload([([u'Section', u'test-basic', u'Test Basic', u'TestBasic', u'testBasic'], 5, u'Section')])
     expected = u''
     self.assertEqual(actual, expected)
@@ -1102,7 +1200,7 @@ class SaveChoicesSectionTests(unittest.TestCase):
   def testSaveChoicesSection_basic(self):
     io = StringIO.StringIO()
     tokenized_lines = [(['Check', 'test-check', 'test-check', 'check: ', ''], 5, 'Check')]
-    self._definition.save_choices_section(tokenized_lines, io, mock_choices({"test-check":"on"}))
+    self._definition.save_choices_section(tokenized_lines, io, mock_choices((("test-check", "on"),)))
     actual = io.getvalue()
     expected = "test-check=on\n"
     self.assertEqual(actual, expected)
@@ -1111,7 +1209,7 @@ class SaveChoicesSectionTests(unittest.TestCase):
   def testSaveChoicesSection_basic2(self):
     io = StringIO.StringIO()
     tokenized_lines = [(['Check', 'test-check', 'test-check', 'check: ', ''], 5, 'Check')]
-    self._definition.save_choices_section(tokenized_lines, io, mock_choices({"test-check":"off"}))
+    self._definition.save_choices_section(tokenized_lines, io, mock_choices((("test-check", "off"),)))
     actual = io.getvalue()
     expected = "test-check=off\n"
     self.assertEqual(actual, expected)
@@ -1127,7 +1225,7 @@ class SaveChoicesSectionTests(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-  def testSaveChoicesSection_iter(self):
+  def testSaveChoicesSection_check_iter(self):
     io = StringIO.StringIO()
     choices = load_choices("iter_check_choices.txt")
     tokenized_lines = [(['Check', 'test-check', 'test-check', 'check: ', ''], 5, 'Check'), (['BeginIter', 'test{i}', '"test-iter"'], 3, 'BeginIter'), (['Text', 'name', 'Test variable: {i}', "", "", "20"], 6, 'Text'), (['EndIter', 'test'], 2, 'EndIter')]
