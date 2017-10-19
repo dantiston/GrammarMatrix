@@ -12,13 +12,10 @@ loading, and generating HTML from files defining pages in the matrixdef specific
 # TJT 10-10-17 Significantly rewritten and refactored, focused on speed, testability,
   standards compliance, and organization
 
-TODO: Modularize matrixdef files
-TODO: Think about either making constants for accessing indices of MatrixDef
-      commands or make the commands object oriented (and have accessors)
-
 TODO: PROBLEMS
+    * Look at old versions of the matrix (~2010-2012) to see if main_page values or selected values use friendly values
     * Need to test fix for enhance_choices() re: sentential negation
-    * main_page choices printing not using friendly names
+    * main_page choices printing using wrong friendly names
     * Convert classes to new style classes
 
     * sentences_page
@@ -219,6 +216,8 @@ class MatrixDef:
   This class and its methods are used to parse Matrix definition
   formatted files (currently just the file ./matrixdef), and based
   on the contents, to produce HTML pages and save choices files.
+
+  This class is designed to be cached via pickle.
   """
 
   SECTION_VARIABLE_NAME = 1
@@ -761,7 +760,10 @@ class MatrixDef:
       for c in choices_by_section[section_name]:
         if len(c) == 2:
           name, value = c
-          result.append(u'%s = %s<br>' % (self.f(name), self.f(value)))
+          result.append(u'%s = %s<br>' % (self.f(name), value))
+          # NOTE: Values can't undergo friendly name conversion as arbitrary language
+          #       tokens may clash with system internal names (e.g. cat)
+          # result.append(u'%s = %s<br>' % (self.f(name), self.f(value)))
         else:
           result.append(c[0])
 
@@ -994,9 +996,7 @@ class MatrixDef:
     items = choices.get_regex(word[2])
     if word_length > 3:
       items = [(k, v.get(word[3])) for k, v in items]
-    result = HTML_jscache % (cache_name,
-                           '\n'.join(["'%s'," % ':'.join((v, k))
-                                      for k, v in items]))
+    result = HTML_jscache % (cache_name, '\n'.join(["'%s'," % ':'.join((v, k)) for k, v in items]))
     return word, word_length, element, i, result
 
 
@@ -1017,8 +1017,7 @@ class MatrixDef:
     if not skip_this_check:
       vn = prefix + vn
       checked = choices.get(vn, '')
-      result += html.html_input(vr, 'checkbox', vn, '', checked,
-                         bf, af, onclick=js) + '\n'
+      result += html.html_input(vr, 'checkbox', vn, '', checked, bf, af, onclick=js) + '\n'
     return word, word_length, element, i, result
 
 
@@ -1301,6 +1300,8 @@ class MatrixDef:
     # This is necessary because the value is not in the deffile
     if sval and not printed_selected:
       # This needs to be temp=True (the client side code uses this value and then deletes it)
+      # FIXME: sval is sometimes a system internal value, sometimes a user value
+      #        it should not go through self.f if it is a user value
       result += html.html_option(vr, sval, True, self.f(sval), temp=True) + '\n'
 
     # add empty option

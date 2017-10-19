@@ -1314,10 +1314,10 @@ Label "<h3>Contrastive Topic</h3>"
 
 BeginIter c-topic-marker{i} "a Contrastive Topic Marker" 1
 
-Radio type "Contrastive topic {i} marker" "This marker is<br>" ""
-  . affix "Affix" "" "an affix (You should create this affix on Morphology.)<br>"
-  . adp "Adposition" "" "an adposition (You should create this adposition on Lexicon.)<br>"
-  . modifier "Modifier" "" "a modifier"
+  Radio type "Contrastive topic {i} marker" "This marker is<br>" ""
+    . affix "Affix" "" "an affix (You should create this affix on Morphology.)<br>"
+    . adp "Adposition" "" "an adposition (You should create this adposition on Lexicon.)<br>"
+    . modifier "Modifier" "" "a modifier"
 
   MultiSelect pos "Contrastive topic {i} marker pos" "that appears" ""
   fillregex p=(pos_type[0-9]_name) n=1

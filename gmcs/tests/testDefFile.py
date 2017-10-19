@@ -928,7 +928,6 @@ Clicking this error will link to the error on the subpage.">*</span></a><a href=
 <div class="section"><span id="morphologybutton" onclick="toggle_display('morphology','morphologybutton')">&#9658;</span>
 <a href="matrix.cgi?subpage=morphology">Morphology</a>
 <div class="values" id="morphology" style="display:none;">&nbsp;</div></div>"""
-    save_both(actual, expected)
     self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -967,6 +966,19 @@ Clicking this warning will link to the warning on the subpage.">?</span></a><a h
 <div class="section"><span id="morphologybutton" onclick="toggle_display(\'morphology\',\'morphologybutton\')">&#9658;</span>
 <a href="matrix.cgi?subpage=morphology">Morphology</a>
 <div class="values" id="morphology" style="display:none;">&nbsp;</div></div>"""
+    self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testPageLinks_choices_friendly_named_values(self):
+    definition = load_matrixdef("testMultiPage")
+    actual = definition.page_links(mock_validation(), [u"section=info-str", u"section=lexicon", u"  noun1_stem1_orth=cat"])
+    expected = """<div class="section"><span id="info-strbutton" onclick="toggle_display('info-str','info-strbutton')">&#9658;</span>
+<a href="matrix.cgi?subpage=info-str">Information Structure</a>
+<div class="values" id="info-str" style="display:none;">&nbsp;</div></div>
+<div class="section"><span id="lexiconbutton" onclick="toggle_display('lexicon','lexiconbutton')">&#9658;</span>
+<a href="matrix.cgi?subpage=lexicon">Lexicon</a>
+<div class="values" id="lexicon" style="display:none;">noun1_stem1_orth = cat<br></div></div>"""
+    save_both(actual, expected)
     self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
