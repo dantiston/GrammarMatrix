@@ -40,9 +40,9 @@ import os
 import cgitb
 import glob
 import re
-import tarfile
-import gzip
-import zipfile
+# import tarfile
+# import gzip
+# import zipfile
 import codecs
 
 import cStringIO as StringIO
@@ -143,8 +143,8 @@ def merge_quoted_strings(document):
         document[i] += document[i+1] # crash here implies an unbalanced '"'
         del document[i+1]
         doc_length -= 1
-      except IndexError as e:
-        raise ValueError("Unbalanced parentheses in matrix definition file")
+      except IndexError:
+        raise ValueError("Unbalanced parentheses in matrix definition file around line {}".format(i))
     else:
       j = 0
       i += 1
@@ -220,6 +220,7 @@ class MatrixDef:
   This class is designed to be cached via pickle.
   """
 
+  # Section definition indices
   SECTION_VARIABLE_NAME = 1
   SECTION_FRIENDLY_NAME = 2
   SECTION_DOC_LINK = 3
@@ -227,6 +228,7 @@ class MatrixDef:
   SECTION_ONLOAD = 5
   SECTION_SKIP = 6
 
+  # Pickling constants
   TOKENIZED_LINES = "tokenized_lines"
   SECTIONS = "sections"
   SECTION_NAMES = "section_names"
@@ -280,6 +282,9 @@ class MatrixDef:
 
 
   def load_html_generators(self):
+    """
+    Load the keyword -> function pointer map
+    """
     self.html_gens = {
       BEGIN_ITER: self.iter_to_html,
       CACHE: self.cache_to_html,
@@ -383,7 +388,7 @@ class MatrixDef:
     """
     return the variable for a friendly name, or the friendly name if none is defined
     """
-    return self.f2v[v] if v in self.f2v else v
+    return self.f2v[f] if f in self.f2v else f
 
 
   ######################################################################
@@ -927,10 +932,6 @@ class MatrixDef:
     This method calls out to the various *_to_html methods via
     the function pointer dictionary at self.html_gens, popualted
     in self.__init__()
-
-    TODO: Store this in a variable
-    TODO: Pickle this? This would require a compile step + a choice loading step
-    TODO: Write a syntax checker... maybe make this a syntax checker?
     """
 
     cookie = self.get_cookie()
@@ -956,6 +957,7 @@ class MatrixDef:
   def check_syntax(self, tokenized_lines):
     """
     Simple tool to load in tokenized lines and see if they are valid or not
+    # TODO: This needs to be tested, fixed
     """
     try:
       self.defs_to_html(tokenized_lines, choices, vr, prefix, variables)
@@ -998,7 +1000,6 @@ class MatrixDef:
     if word_length >= 7:
       # matrixdef contains name of choice to switch on
       switch = word[6]
-      #skip_this_check = self.check_choice_switch(switch, choices)
       skip_this_check = self.skip_this(switch, choices)
     if not skip_this_check:
       vn = prefix + vn
