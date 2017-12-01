@@ -9,13 +9,11 @@ import unittest
 
 import os
 import sys
-import re
 import shutil
 import cPickle as pickle
 
 import cStringIO as StringIO
 
-from gmcs import html
 from gmcs import deffile
 from gmcs.deffile import MatrixDefSyntaxException
 from gmcs.choices import FormInfo, ChoicesFileParseError
@@ -28,7 +26,6 @@ from test import save_both, print_both
 """
 TODO:
     test MatrixDef.get_iter_lines()
-    test deffile.tokenize_def_line
 """
 
 # For seeing actual output
@@ -672,7 +669,6 @@ class MainPageTests(unittest.TestCase):
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
-  @unittest.skip("Skip this until tests to page_links() are fixed")
   def testMainPage_full_choices(self):
     # TODO: This test should be simplified, either by improving the test or improving main_page()
     with os_environ(HTTP_COOKIE="session=7777"), choice_environ('', 'full_choices.txt') as env:
@@ -681,7 +677,6 @@ class MainPageTests(unittest.TestCase):
       actual = definition.main_page('7777', mock_validation())
       os.remove('sessions/7777/choices')
       expected = load_testhtml("testMainPageFull")
-    #   save_both(actual, expected)
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -944,10 +939,6 @@ Clicking this warning will link to the warning on the subpage.">?</span></a><a h
 
 
   def testPageLinks_choices(self):
-    # section=lexicon
-    #   noun1_name=common
-    #     noun1_stem1_orth=test
-    #     noun1_stem1_pred=test_n_rel
     actual = self._definition.page_links(mock_validation(), [u"", u"section=lexicon", u"  noun1_name=common", u"    noun1_stem1_orth=test", u"    noun1_stem1_pred=test_n_rel"])
     expected = """<div class="section"><span id="lexiconbutton" onclick="toggle_display(\'lexicon\',\'lexiconbutton\')">&#9658;</span>
 <a href="matrix.cgi?subpage=lexicon">Lexicon</a>
@@ -978,7 +969,6 @@ Clicking this warning will link to the warning on the subpage.">?</span></a><a h
 <div class="section"><span id="lexiconbutton" onclick="toggle_display('lexicon','lexiconbutton')">&#9658;</span>
 <a href="matrix.cgi?subpage=lexicon">Lexicon</a>
 <div class="values" id="lexicon" style="display:none;">noun1_stem1_orth = cat<br></div></div>"""
-    save_both(actual, expected)
     self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
 
 
@@ -1000,6 +990,7 @@ class GetOnLoadTests(unittest.TestCase):
     actual = self._definition.get_onload([([u'Section', u'test-basic', u'Test Basic', u'TestBasic', u'testBasic'], 5, u'Section')])
     expected = u''
     self.assertEqual(actual, expected)
+
 
 
 class ReplaceVarsTests(unittest.TestCase):
@@ -1056,7 +1047,8 @@ class SaveChoicesTests(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls._definition = deffile.MatrixDef(os.path.join("gmcs", "tests", "resources", "test_defs", "testMinimalLexiconMorphology"))
+    cls._definition = load_matrixdef("testMinimalLexiconMorphology")
+    cls._negation_definition = load_matrixdef("testSententialNegation")
 
 
   # Generic tests
@@ -1197,6 +1189,112 @@ class SaveChoicesTests(unittest.TestCase):
       actual = unicode(env.choices_file.read(), 'utf-8')
       expected = load_file(os.path.join(*(env.path + ['adj_arg_agreement_morph_after.txt'])))
       self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testSaveChoicesSection_sentential_neg_neg_aux(self):
+    with choice_environ('sentential-negation', 'sentential_negation.txt') as env:
+      env.form_data['neg-aux'] = FormInfo('neg-aux', "true")
+      self._negation_definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = unicode(env.choices_file.read(), 'utf-8')
+      expected = load_file(os.path.join(*(env.path + ['sentential_negation_neg_aux_after.txt'])))
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  def testSaveChoicesSection_sentential_neg_infl_neg(self):
+    with choice_environ('sentential-negation', 'sentential_negation.txt') as env:
+      env.form_data['neg-exp'] = FormInfo('neg-exp', "0")
+      env.form_data['vpc-0-neg'] = FormInfo('vpc-0-neg', "create")
+      self._negation_definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = unicode(env.choices_file.read(), 'utf-8')
+      expected = load_file(os.path.join(*(env.path + ['sentential_negation_infl_neg_after.txt'])))
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  @unittest.skip("Write this test")
+  def testSaveChoicesSection_sentential_neg_infl_neg_existing_pc(self):
+    # TODO: This test
+    pass
+
+
+  def testSaveChoicesSection_sentential_neg_neg_form_neg1_neg2(self):
+    with choice_environ('sentential-negation', 'sentential_negation.txt') as env:
+      env.form_data['neg-exp'] = FormInfo('neg-exp', "1")
+      env.form_data['neg1b-neg2b'] = FormInfo('neg1b-neg2b', "true")
+      self._negation_definition.save_choices(env.form_data, env.choices_file.name)
+      env.choices_file.seek(0)
+      actual = unicode(env.choices_file.read(), 'utf-8')
+      expected = load_file(os.path.join(*(env.path + ['sentential_negation_neg_form_after.txt'])))
+      save_both(actual, expected)
+      self.assertEqual(remove_empty_lines(actual), remove_empty_lines(expected))
+
+
+  @unittest.skip("Write this test")
+  def testSaveChoicesSection_sentential_neg_neg_form_neg1(self):
+    # TODO: This test
+    pass
+
+
+  @unittest.skip("Write this test")
+  def testSaveChoicesSection_sentential_neg_neg_form_neg2(self):
+    # TODO: This test
+    pass
+
+
+
+class CheckChoiceSwitchTests(unittest.TestCase):
+
+  @classmethod
+  def setUpClass(cls):
+    cls._definition = load_matrixdef("testMinimalLexiconMorphology")
+
+
+  def test_basic_negative_none(self):
+    actual = self._definition.skip_this("", mock_choices())
+    self.assertTrue(actual)
+
+
+  def test_basic_negative_miss(self):
+    choices = mock_choices(((u"test1_name", u"abc"),))
+    actual = self._definition.skip_this("", choices)
+    self.assertTrue(actual)
+
+
+  def test_basic_negative_multiple(self):
+    choices = mock_choices(((u"test1_name|test1_check", u"abc"),))
+    actual = self._definition.skip_this("test1_name", choices)
+    self.assertFalse(actual)
+
+
+  def test_basic_positive(self):
+    choices = mock_choices(((u"test1_name", u"abc"),))
+    actual = self._definition.skip_this("test1_name", choices)
+    self.assertFalse(actual)
+
+
+  def test_basic_positive_multiple_one(self):
+    choices = mock_choices(((u"test1_name", u"abc"),))
+    actual1 = self._definition.skip_this("test1_name", choices)
+    actual2 = self._definition.skip_this("test1_check", choices)
+    self.assertFalse(actual1)
+    self.assertTrue(actual2)
+
+
+  def test_basic_positive_multiple_both(self):
+    choices = mock_choices(((u"test1_name", u"abc"), (u"test1_check", u"abc")))
+    actual1 = self._definition.skip_this("test1_name", choices)
+    actual2 = self._definition.skip_this("test1_check", choices)
+    self.assertFalse(actual1)
+    self.assertFalse(actual2)
+
+
+  def test_basic_positive_multiple_choices(self):
+    choices = mock_choices(((u"test1_name", u"abc"),))
+    self.assertFalse(self._definition.skip_this("test1_name", choices))
+    self.assertFalse(self._definition.skip_this("test1_name|other", choices))
+    self.assertTrue(self._definition.skip_this("test1_check", choices))
+    self.assertTrue(self._definition.skip_this("first|second", choices))
 
 
 class SaveChoicesSectionTests(unittest.TestCase):

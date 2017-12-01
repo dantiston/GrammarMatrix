@@ -14,8 +14,8 @@ loading, and generating HTML from files defining pages in the matrixdef specific
 
 TODO: PROBLEMS
     * Look at old versions of the matrix (~2010-2012) to see if main_page values or selected values use friendly values
+        * main_page choices printing using wrong friendly names
     * Need to test fix for enhance_choices() re: sentential negation
-    * main_page choices printing using wrong friendly names
     * Convert classes to new style classes
 
     * sentences_page
@@ -24,7 +24,7 @@ TODO: PROBLEMS
     * Parsing/saving should be able to be sped up quite a bit by
         1) making the ChoicesDict an OrderedDict
         2) keep subsection OrderedDicts to allow for faster writing
-        3) during saving, only the current section be need to be saved??
+        3) during saving, only the current section needs to be saved??
             3a) maybe check for enhancements on others, save if changed?
 
     * fix adjective lrt checkbox so that it can be shown either by a choice
@@ -391,7 +391,7 @@ class MatrixDef:
 
   # TJT 2014-08-28: Adding method to find if some choice exists
   # in order to enable skipping UI elements based on this choice
-  def check_choice_switch(self, switch, choices):
+  def skip_this(self, switch_spec, choices):
     """
     This method checks to see if a given string or regex (the switch)
     is in a given choices file. This method is used to see if a given
@@ -400,10 +400,10 @@ class MatrixDef:
     is not found, and false if it is found.
     TODO: This can be simplified
     """
-    if not switch:
+    if not switch_spec:
       return True
     # Switch can have multiple variable names
-    switches = switch.strip('"').split('|')
+    switches = switch_spec.strip('"').split('|')
     # Switch contains choice name and value
     # split on the rightmost "=" just in case...
     # TODO: This can be simplified
@@ -424,7 +424,6 @@ class MatrixDef:
       else:
         switch = instance
         values = False # set default
-
       results = choices.get_regex(switch)
       if results:
         # Found a match
@@ -432,15 +431,18 @@ class MatrixDef:
           # If no value, then switching on a key,
           # which was found, so don't skip it!
           skip_it[switch] = False
+        #   return False
         else:
           for item in results:
             # Values is almost gauranteed to be small, no need to make it a set
             if item[1] in values:
               skip_it[switch] = False
+            #   return False
               break
     # if all false, don't skip it
     # else, skip it
-    return any(skip_it.values())
+    return all(skip_it.values())
+    # return True
 
 
   #############################################################################
@@ -1013,7 +1015,8 @@ class MatrixDef:
     if word_length >= 7:
       # matrixdef contains name of choice to switch on
       switch = word[6]
-      skip_this_check = self.check_choice_switch(switch, choices)
+      #skip_this_check = self.check_choice_switch(switch, choices)
+      skip_this_check = self.skip_this(switch, choices)
     if not skip_this_check:
       vn = prefix + vn
       checked = choices.get(vn, '')
@@ -1070,7 +1073,8 @@ class MatrixDef:
     if word_length > 5:
       # matrixdef contains name of choice to switch on
       switch = word[5]
-      skip_this_iter = self.check_choice_switch(switch, choices)
+      # skip_this_iter = self.check_choice_switch(switch, choices)
+      skip_this_iter = self.skip_this(switch, choices)
 
     # collect the lines that are between BeginIter and EndIter
     i, section_lines = self.get_iter_lines(iter_name, i, tokenized_lines, iter_orig)
@@ -1190,7 +1194,8 @@ class MatrixDef:
     if word_length >= 6:
       # matrixdef contains name of choice to switch on
       switch = word[5]
-      skip_this_radio = self.check_choice_switch(switch, choices)
+      # skip_this_radio = self.check_choice_switch(switch, choices)
+      skip_this_radio = self.skip_this(switch, choices)
     # it's nicer to put vrs for radio buttons on the entire
     # collection of inputs, rather than one for each button
     if not skip_this_radio:
@@ -1443,46 +1448,21 @@ class MatrixDef:
 
 
     if section == u'sentential-negation':
-      # TODO: Write unit tests for these
-      # TODO: These methods are mutating their input; they should not also return their input
       # if neg-aux=on exists, create side-effect in lexicon.
       if (current_page_choices.get('neg-aux', '') or (current_page_choices.get('bineg-type', '') == 'infl-head')):
-        # see if we're already storing an index number
         neg_aux_index = other_page_choices.get('neg-aux-index', '')
         if neg_aux_index:
-          # we have an index for a neg-aux, see if it's still around
           if not other_page_choices['aux%s' % neg_aux_index]:
-            # it's not so we make a new neg-aux and store the index
-            other_page_choices, neg_aux_index = self.create_neg_aux_choices(other_page_choices)
-            current_page_choices["neg-aux-index"] = unicode(neg_aux_index) if neg_aux_index > 0 else u'1'
-        else: # we don't have any neg aux index stored, so make a new one
-          other_page_choices, neg_aux_index = self.create_neg_aux_choices(other_page_choices, current_page_choices)
-          current_page_choices["neg-aux-index"] = unicode(neg_aux_index) if neg_aux_index > 0 else u'1'
+            self.create_neg_aux_choices(other_page_choices, current_page_choices)
+        else:
+          self.create_neg_aux_choices(other_page_choices, current_page_choices)
 
-
+      # TODO: Write unit tests for these
       # create a zero-neg lri in choices
       if current_page_choices.get('neg-exp', '') == u'0' and current_page_choices.get('vpc-0-neg', ''):
-        # infl-neg should be on for zero-neg to work
-        current_page_choices['infl-neg'] = u'on'
-        other_page_choices, current_page_choices = self.create_infl_neg_choices(other_page_choices, current_page_choices)
+        self.create_infl_neg_choices(other_page_choices, current_page_choices)
 
-
-      # add FORM subtype for neg1b-neg2b analysis
-      # also add it for infl-head neg analysis
-      # TODO: Functionalize this
-      neg1_type = current_page_choices.get('neg1-type', '')
-      neg2_type = current_page_choices.get('neg2-type', '')
-      if current_page_choices.get('neg1b-neg2b', '') or \
-         (neg1_type == 'fh' and neg2_type == 'b') or \
-         (neg2_type == 'fh' and neg1_type == 'b'):
-        next_n = other_page_choices['nf-subform'].next_iter_num() if 'nf-subform' in other_page_choices else 1
-        if next_n > 1:
-          nfss = other_page_choices.get('nf-subform')
-          for nfs in nfss:
-            if nfs['name'] == u'negform':
-              break
-          else:
-            other_page_choices['nf-subform%d_name' % next_n] = u'negform'
+      self.create_neg_form_choice(other_page_choices, current_page_choices)
 
 
   def load_choices_from_form(self, form_data):
@@ -1704,14 +1684,17 @@ class MatrixDef:
       nli['compfeature1_value'] = 'negform'
 
     # if auxiliaries are off, turn them on
-    choices['has-aux'] = u'yes'
-    return choices, next_n
+    other_page_choices['has-aux'] = u'yes'
+
+    # Save the neg-aux-index
+    current_page_choices["neg-aux-index"] = unicode(next_n) if next_n > 0 else u'1'
 
 
   def create_infl_neg_choices(self, old_choices, new_choices):
     """
     TODO: Move this to choices.py
     """
+    new_choices['infl-neg'] = u'on'
     vpc = new_choices['vpc-0-neg']
     lrt = u''
     if vpc == u'create':
@@ -1720,7 +1703,7 @@ class MatrixDef:
       vpc = old_choices['verb-pc'].get_last()
       vpc['lrt1_name'] = u'neg'
       lrt = old_choices['verb-pc'].get_last()['lrt'].get_last()
-      new_choices['vpc-0-neg'] = u'verb-pc'+str(next_n)
+      new_choices['vpc-0-neg'] = u'verb-pc%d' % next_n
 
     else:
       next_n = old_choices[vpc]['lrt'].next_iter_num() if old_choices[vpc]['lrt'] else 1
@@ -1733,7 +1716,24 @@ class MatrixDef:
     lrt['feat1_value'] = u'plus'
     lrt['feat1_head'] = u'verb'
     lrt['lri1_inflecting'] = u'no'
-    return old_choices, new_choices
+
+
+  def create_neg_form_choice(self, other_page_choices, current_page_choices):
+    """
+    add FORM subtype for neg1b-neg2b analysis or infl-head neg analysis
+    """
+    neg1_type = current_page_choices.get('neg1-type', '')
+    neg2_type = current_page_choices.get('neg2-type', '')
+    if 'neg1b-neg2b' in current_page_choices or \
+       (neg1_type == 'fh' and neg2_type == 'b') or \
+       (neg2_type == 'fh' and neg1_type == 'b'):
+      nfss = other_page_choices.get('nf-subform', [])
+      next_n = nfss.next_iter_num() if nfss else 1
+      for nfs in nfss:
+        if nfs['name'] == u'negform':
+          break
+      else:
+        other_page_choices['nf-subform%d_name' % next_n] = u'negform'
 
 
 class MatrixDefSyntaxException(Exception):
