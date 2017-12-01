@@ -398,7 +398,6 @@ class MatrixDef:
     UI element should be skipped. As such, the boolean return value
     is a little bit backwards. The function returns True if the switch
     is not found, and false if it is found.
-    TODO: This can be simplified
     """
     if not switch_spec:
       return True
@@ -406,23 +405,13 @@ class MatrixDef:
     switches = switch_spec.strip('"').split('|')
     # Switch contains choice name and value
     # split on the rightmost "=" just in case...
-    # TODO: This can be simplified
-    switches = [switch.rsplit('=', 1) if "=" in switch else switch
-                for switch in switches]
-    # Default to true
-    # TODO: This dict can be removed, just return false when setting values to false
-    skip_it = {}
-    for switch in switches:
-      if isinstance(switch, list):
-        skip_it[switch[0]] = True
-      else:
-        skip_it[switch] = True
+    switches = [switch.rsplit('=', 1) if "=" in switch else (switch,) for switch in switches]
     for instance in switches:
-      if isinstance(instance, list):
-        switch = instance[0].strip()
-        values = instance[1].strip().strip("()").split(',') # Get multiple values
+      switch = instance[0].strip()
+      if len(instance) > 1:
+        # Get multiple values
+        values = instance[1].strip().strip("()").split(',')
       else:
-        switch = instance
         values = False # set default
       results = choices.get_regex(switch)
       if results:
@@ -430,19 +419,13 @@ class MatrixDef:
         if not values:
           # If no value, then switching on a key,
           # which was found, so don't skip it!
-          skip_it[switch] = False
-        #   return False
+          return False
         else:
           for item in results:
             # Values is almost gauranteed to be small, no need to make it a set
             if item[1] in values:
-              skip_it[switch] = False
-            #   return False
-              break
-    # if all false, don't skip it
-    # else, skip it
-    return all(skip_it.values())
-    # return True
+              return False
+    return True
 
 
   #############################################################################
